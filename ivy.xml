@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ivy-module version="2.3">
+	<info organisation="net.shrimpworks" module="${ant.project.name}"/>
+
+	<configurations>
+		<conf name="default"/>
+		<conf name="test" extends="default"/>
+		<conf name="checkstyle" extends="default"/>
+	</configurations>
+
+	<dependencies>
+		<!-- project dependencies -->
+
+		<!-- test dependencies -->
+		<dependency org="junit" name="junit" rev="4.12" conf="test->default"/>
+
+		<!-- checkstyle dependencies -->
+		<dependency org="com.puppycrawl.tools" name="checkstyle" rev="8.2" conf="checkstyle->default"/>
+	</dependencies>
+</ivy-module>

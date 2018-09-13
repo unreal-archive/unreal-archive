@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="unreal-archive" default="dist" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
+
+	<property name="module.version" value="1.0"/>
+
+	<!-- JDK source and target versions -->
+	<property name="src.version" value="1.8"/>
+	<property name="target.version" value="1.8"/>
+
+	<!-- basic paths -->
+	<property name="src.dir" location="src"/>
+	<property name="test.dir" location="test"/>
+	<property name="lib.dir" location="lib"/>
+	<property name="dist.dir" location="dist"/>
+	<property name="build.dir" location="build"/>
+
+	<!-- properties for build output, nothing should need to change beyond this point -->
+	<property name="build.src.dir" location="${build.dir}/src"/>
+	<property name="build.test.dir" location="${build.dir}/test"/>
+	<property name="build.javadoc.dir" location="${build.dir}/docs"/>
+	<property name="build.reports.dir" location="${build.dir}/reports"/>
+
+	<!-- checkstyle configuration -->
+	<property name="checkstyle.config" location="etc/checkstyle.xml"/>
+	<property name="checkstyle.report" location="${build.reports.dir}/checkstyle.xml"/>
+	<property name="checkstyle.report.style" location="etc/checkstyle-noframes.xsl"/>
+	<property name="checkstyle.report.html" location="${build.reports.dir}/checkstyle.html"/>
+
+	<path id="default.classpath">
+		<fileset dir="${lib.dir}" includes="default/*.jar"/>
+		<pathelement path="${build.src.dir}"/>
+	</path>
+
+	<path id="test.classpath">
+		<fileset dir="${lib.dir}" includes="test/*.jar"/>
+		<pathelement path="${build.test.dir}"/>
+	</path>
+
+	<path id="dist.classpath">
+		<fileset dir="${dist.dir}" includes="lib/*.jar"/>
+	</path>
+
+	<target name="init">
+		<mkdir dir="${build.src.dir}"/>
+		<mkdir dir="${build.test.dir}"/>
+	</target>
+
+	<!-- Ivy configuration -->
+	<property name="ivy.install.version" value="2.4.0"/>
+	<condition property="ivy.home" value="${env.IVY_HOME}">
+		<isset property="env.IVY_HOME"/>
+	</condition>
+	<property name="ivy.home" value="${user.home}/.ant"/>
+	<property name="ivy.jar.dir" value="${ivy.home}/lib"/>
+	<property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar"/>
+	<property name="ivy.lib.dir" value="${lib.dir}"/>
+
+	<!-- Ivy download -->
+	<target name="download-ivy" unless="offline">
+		<mkdir dir="${ivy.jar.dir}"/>
+		<get src="http://repo2.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar"
+			 dest="${ivy.jar.file}" skipexisting="true"/>
+	</target>
+
+	<!-- Ivy initialisation -->
+	<target name="init-ivy" depends="download-ivy">
+		<path id="ivy.lib.path">
+			<fileset dir="${ivy.jar.dir}" includes="*.jar"/>
+		</path>
+		<taskdef resource="org/apache/ivy/ant/antlib.xml"
+				 uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
+	</target>
+
+	<!-- Ivy dependency resolution -->
+	<target name="ivy-resolve" depends="init-ivy" description="retrieve dependencies with ivy">
+		<ivy:retrieve pattern="${lib.dir}/[conf]/[artifact]-[revision].[ext]"/>
+	</target>
+
+	<target name="publish-local" depends="dist" description="publish in the local ivy repository">
+		<ivy:publish artifactspattern="${dist.dir}/[artifact].[ext]"
+					 resolver="local"
+					 pubrevision="${module.version}"
+					 forcedeliver="true"
+					 overwrite="true"
+		/>
+		<echo message="project ${ant.project.name} published locally with version ${module.version}"/>
+	</target>
+
+	<!-- Simple source build -->
+	<target name="build" depends="init,ivy-resolve" description="compile source">
+		<javac srcdir="${src.dir}" destdir="${build.src.dir}" includeantruntime="false"
+			   target="${target.version}" source="${src.version}">
+			<classpath refid="default.classpath"/>
+		</javac>
+		<copy todir="${build.src.dir}">
+			<fileset dir="resources/src"/>
+		</copy>
+	</target>
+
+	<!-- Generate Javadocs -->
+	<target name="docs" depends="build">
+		<javadoc packagenames="src" sourcepath="${src.dir}" destdir="${build.javadoc.dir}">
+			<classpath refid="default.classpath"/>
+			<fileset dir="${src.dir}" includes="**/*.java"/>
+		</javadoc>
+
+		<mkdir dir="${dist.dir}"/>
+		<jar jarfile="${dist.dir}/${ant.project.name}-javadoc.jar" basedir="${build.javadoc.dir}"/>
+	</target>
+
+	<!-- Build distribution -->
+	<target name="dist" depends="build,docs" description="generate distribution">
+		<mkdir dir="${dist.dir}/lib"/>
+
+		<copy todir="${dist.dir}/lib">
+			<fileset dir="${lib.dir}/default" includes="*.jar" erroronmissingdir="false">
+				<exclude name="**/*-javadoc.jar"/>
+				<exclude name="**/*-sources.jar"/>
+			</fileset>
+		</copy>
+
+		<manifestclasspath property="dist.manifest.classpath" jarfile="${dist.dir}/${ant.project.name}.jar">
+			<classpath refid="dist.classpath"/>
+		</manifestclasspath>
+
+		<jar jarfile="${dist.dir}/${ant.project.name}.jar">
+			<manifest>
+				<attribute name="Main-Class" value="${main.class}"/>
+				<attribute name="Class-Path" value="${dist.manifest.classpath}"/>
+			</manifest>
+			<fileset dir="${build.src.dir}"/>
+			<zipfileset dir="${src.dir}" excludes="**/*.java"/>
+		</jar>
+
+		<zip destfile="${dist.dir}/${ant.project.name}-dist.zip">
+			<zipfileset dir="${dist.dir}/lib" prefix="lib"/>
+			<fileset dir="${dist.dir}" includes="${ant.project.name}.jar"/>
+		</zip>
+	</target>
+
+	<!-- Build test classes -->
+	<target name="build-tests" depends="build" description="compile test source files">
+		<javac srcdir="${test.dir}" destdir="${build.test.dir}" includeantruntime="false" debug="on"
+			   target="${target.version}" source="${src.version}">
+			<classpath refid="default.classpath"/>
+			<classpath refid="test.classpath"/>
+		</javac>
+		<copy todir="${build.test.dir}">
+			<fileset dir="resources/test"/>
+		</copy>
+
+	</target>
+
+	<!-- Run tests -->
+	<target name="run-tests" depends="build-tests" description="run junit tests">
+		<junit printsummary="yes" fork="yes" haltonfailure="no"
+			   errorproperty="tests.errors" failureproperty="tests.failures">
+			<classpath refid="default.classpath"/>
+			<classpath refid="test.classpath"/>
+
+			<formatter type="plain" usefile="false"/>
+			<batchtest>
+				<fileset dir="${test.dir}">
+					<include name="**/*Test.java"/>
+				</fileset>
+			</batchtest>
+		</junit>
+	</target>
+
+	<!-- Run tests, exiting with status code 1 on error, or 2 on test failure -->
+	<target name="test" depends="run-tests" description="run junit tests, and fail the build on error or failure">
+		<fail if="tests.errors" message="Error encountered while executing tests" status="1"/>
+		<fail if="tests.failures" message="Tests failed" status="2"/>
+	</target>
+
+	<!-- Clean compiled files -->
+	<target name="clean" description="clean up">
+		<delete dir="${build.dir}"/>
+		<delete dir="${lib.dir}"/>
+		<delete dir="${dist.dir}"/>
+	</target>
+
+	<target name="checkstyle" depends="ivy-resolve" description="Run checkstyle code analysis">
+		<mkdir dir="${build.reports.dir}"/>
+
+		<ivy:cachepath pathid="checkstyle.classpath.refid" conf="checkstyle"/>
+		<taskdef classpathref="checkstyle.classpath.refid" resource="com/puppycrawl/tools/checkstyle/ant/checkstyle-ant-task.properties"/>
+
+		<checkstyle config="${checkstyle.config}" failOnViolation="false">
+			<fileset dir="${src.dir}" includes="**/*.java"/>
+			<formatter type="plain"/>
+			<formatter type="xml" tofile="${checkstyle.report}"/>
+		</checkstyle>
+
+		<xslt in="${checkstyle.report}" out="${checkstyle.report.html}"
+			  style="${checkstyle.report.style}"/>
+	</target>
+
+	<target name="findbugs" depends="dist">
+		<mkdir dir="${build.reports.dir}"/>
+
+		<!-- findbugs configuration -->
+		<property name="findbugs.version" value="3.0.1"/>
+		<property name="findbugs.home" location="${ivy.home}/findbugs"/>
+
+		<!-- create findbugs home -->
+		<mkdir dir="${findbugs.home}"/>
+
+		<!-- download and unzip findbugs to findbugs home dir -->
+		<get src="http://tenet.dl.sourceforge.net/project/findbugs/findbugs/${findbugs.version}/findbugs-${findbugs.version}.zip"
+			 dest="${findbugs.home}/findbugs-${findbugs.version}.zip" usetimestamp="true" verbose="true"/>
+		<unzip src="${findbugs.home}/findbugs-${findbugs.version}.zip" dest="${findbugs.home}/lib">
+			<patternset>
+				<include name="**/lib/*"/>
+			</patternset>
+			<mapper type="flatten"/>
+		</unzip>
+
+		<!-- define classpath and taskdef -->
+		<path id="findbugs.classpath">
+			<fileset dir="${findbugs.home}/lib/" includes="*.jar"/>
+		</path>
+		<taskdef name="findbugs" classpathref="findbugs.classpath" classname="edu.umd.cs.findbugs.anttask.FindBugsTask"/>
+
+		<!-- execute findbugs -->
+		<findbugs home="${findbugs.home}" output="xml:withMessages" outputFile="${build.reports.dir}/findbugs.xml" nested="false">
+			<auxClasspath path="${lib.dir}/default"/>
+			<sourcePath path="${src.dir}"/>
+			<class location="${dist.dir}/${ant.project.name}.jar"/>
+		</findbugs>
+
+	</target>
+
+
+</project>
