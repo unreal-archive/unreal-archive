@@ -2,6 +2,7 @@ package net.shrimpworks.unreal.archive;
 
 import java.beans.ConstructorProperties;
 import java.nio.file.Path;
+import java.util.Arrays;
 
 /**
  * Entry-point for new content.
@@ -21,5 +22,10 @@ public class ContentSubmission {
 	public ContentSubmission(Path filePath, String... sourceUrls) {
 		this.filePath = filePath;
 		this.sourceUrls = sourceUrls;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("ContentSubmission [filePath=%s, sourceUrls=%s]", filePath, Arrays.toString(sourceUrls));
 	}
 }

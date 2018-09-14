@@ -36,4 +36,14 @@ public class ContentClassifier {
 			return false;
 		}
 	}
+
+	public static ContentType classify(ContentSubmission submission) {
+		for (ContentType type : ContentType.values()) {
+			if (type.classifier.classify(submission)) {
+				return type;
+			}
+		}
+
+		throw new IllegalArgumentException("Unable to classify content " + submission);
+	}
 }
