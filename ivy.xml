@@ -9,6 +9,9 @@
 	</configurations>
 
 	<dependencies>
+		<!-- internal dependencies -->
+		<dependency org="net.shrimpworks" name="unreal-package-lib" rev="1.+" conf="default"/>
+
 		<!-- project dependencies -->
 		<dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.9.6" conf="default"/>
 		<dependency org="com.fasterxml.jackson.dataformat" name="jackson-dataformat-yaml" rev="2.9.6" conf="default"/>
