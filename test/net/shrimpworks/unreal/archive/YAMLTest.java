@@ -24,6 +24,7 @@ public class YAMLTest {
 		m.firstIndex = LocalDateTime.now().minus(1, ChronoUnit.DAYS);
 		m.lastIndex = LocalDateTime.now();
 
+		m.gametype = "Unreal Tournament";
 		m.name = "DM-MyMap";
 		m.gametype = "Deathmatch";
 		m.title = "My Map";

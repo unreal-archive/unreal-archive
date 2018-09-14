@@ -28,6 +28,21 @@ content.
   files)
 
 
+## Content Submission and Indexing Pipeline
+
+- content arrives as a `ContentSubmimssion`
+  - contains path to a prepared/downloaded local file
+  - contains url(s) to source files if available
+- `ContentClassifier`s are queried if they want the content of the file being
+  processed, and return true if they want it, of false, and the next classifier
+  will be queried, until one returns true
+- the classification process also provides an associated `ContentIndexer` 
+  factory which is used to get a new indexer instance for processing the 
+  incoming content.
+- the indexer is also provided with a `Consumer<Content>` which will be called
+  with the final content definition
+
+
 ## Maps
 
 ### Content Identification

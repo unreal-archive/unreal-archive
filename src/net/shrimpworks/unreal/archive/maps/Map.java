@@ -1,12 +1,8 @@
 package net.shrimpworks.unreal.archive.maps;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import net.shrimpworks.unreal.archive.Content;
 
-import net.shrimpworks.unreal.archive.Download;
-import net.shrimpworks.unreal.archive.ContentFile;
-
-public class Map {
+public class Map extends Content {
 
 	/*
 		- Index date
@@ -30,21 +26,8 @@ public class Map {
 		  record of it so we don't re-index it, etc.
 	 */
 
-	public LocalDateTime firstIndex;
-	public LocalDateTime lastIndex;
-
-	public String name;                 // DM-MyMap
 	public String gametype;             // Deathmatch
 	public String title;                // My Map
-	public String author;               // Joe Soap
 	public String playerCount;          // 2 - 4 Players
-	public String releaseDate;          // 2001-05
-	public List<String> screenshots;    // [Screenshot.png, Screenshot2.jpg]
-	public String packageSHA1;
-	public int fileSize;
-	public List<ContentFile> files;     // [DM-MyMap.unr, MyTex.utx]
-	public List<Download> downloads;
-
-	public boolean deleted;
 
 }
