@@ -1,5 +1,6 @@
 package net.shrimpworks.unreal.archive;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -13,21 +14,23 @@ import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import net.shrimpworks.unreal.packages.Umod;
 
-public class Incoming {
+public class Incoming implements Closeable {
 
 	public final ContentSubmission submission;
 	public final Path contentRoot;
 	public final Path repack;
 	public final String originalSha1;
 
-	public final List<String> files;
+	public final Map<String, Object> files;
+
+	private final Set<Umod> umods;
 
 	public Incoming(ContentSubmission submission) throws IOException, UnsupportedOperationException {
 		this.submission = submission;
@@ -36,6 +39,25 @@ public class Incoming {
 		this.originalSha1 = sha1(submission.filePath);
 
 		this.files = listFiles(submission.filePath, contentRoot);
+		this.umods = new HashSet<>();
+	}
+
+	@Override
+	public void close() throws IOException {
+		for (Umod v : umods) {
+			try {
+				v.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		umods.clear();
+		files.clear();
+
+		if (repack != null) Files.deleteIfExists(repack);
+
+		// TODO clean up contentRoot
 	}
 
 	private Path getRoot(Path incoming) throws IOException, UnsupportedOperationException {
@@ -97,16 +119,16 @@ public class Incoming {
 		}
 	}
 
-	private List<String> listFiles(Path filePath, Path contentRoot) throws IOException {
-		List<String> files = new ArrayList<>();
+	private Map<String, Object> listFiles(Path filePath, Path contentRoot) throws IOException {
+		Map<String, Object> files = new HashMap<>();
 		if (contentRoot != null && Files.exists(contentRoot)) {
 			Files.walkFileTree(contentRoot, new SimpleFileVisitor<Path>() {
 				@Override
 				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 					if (file.toString().toLowerCase().endsWith(".umod")) {
-						files.addAll(umodFiles(file));
+						files.putAll(umodFiles(file));
 					} else {
-						files.add(file.toString());
+						files.put(file.toString(), file);
 					}
 					return FileVisitResult.CONTINUE;
 				}
@@ -115,13 +137,14 @@ public class Incoming {
 		return files;
 	}
 
-	private Set<String> umodFiles(Path path) throws IOException {
-		final Set<String> fileList = new HashSet<>();
+	private Map<String, Umod.UmodFile> umodFiles(Path path) throws IOException {
+		final Map<String, Umod.UmodFile> fileList = new HashMap<>();
 
-		try (Umod umod = new Umod(path)) {
-			for (Umod.UmodFile file : umod.files) {
-				fileList.add(file.name);
-			}
+		Umod umod = new Umod(path);
+		umods.add(umod);
+
+		for (Umod.UmodFile file : umod.files) {
+			fileList.put(file.name, file);
 		}
 
 		return fileList;

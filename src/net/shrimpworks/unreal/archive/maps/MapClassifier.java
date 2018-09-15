@@ -17,8 +17,10 @@ public class MapClassifier implements ContentClassifier.Classifier {
 		boolean isMap = stream(MAP_EXTENSIONS).anyMatch(e -> fileName.toLowerCase().endsWith(e));
 		if (isMap) return true;
 
-		// find all map files in the archive
-		long count = incoming.files.stream().filter(f -> stream(MAP_EXTENSIONS).anyMatch(e -> f.toLowerCase().endsWith(e))).count();
+		// count all map files in the archive
+		long count = incoming.files.keySet().stream()
+								   .filter(f -> stream(MAP_EXTENSIONS).anyMatch(e -> f.toLowerCase().endsWith(e)))
+								   .count();
 
 		// a bit naive, if there's a one-map mod, it would be caught here
 		return count == 1;

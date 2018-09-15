@@ -9,6 +9,8 @@ public class Main {
 	public static void main(String[] args) throws IOException {
 		Files.list(Paths.get("/home/shrimp/tmp/maps/")).forEach(f -> {
 
+			if (f.toString().endsWith("tmp")) return;
+
 			try {
 				System.out.println("Inspect " + f);
 

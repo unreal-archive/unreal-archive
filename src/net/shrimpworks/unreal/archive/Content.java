@@ -11,6 +11,7 @@ public class Content {
 	public String game;                 // Unreal Tournament
 	public String name;                 // DM-MyMap
 	public String author;               // Joe Soap
+	public String description;          // My cool map is cool and stuff
 
 	public String releaseDate;          // 2001-05
 	public List<String> screenshots;    // [Screenshot.png, Screenshot2.jpg]
