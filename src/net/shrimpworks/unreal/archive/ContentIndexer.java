@@ -1,6 +1,5 @@
 package net.shrimpworks.unreal.archive;
 
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -9,7 +8,7 @@ import java.util.function.Consumer;
 public interface ContentIndexer<T extends Content> {
 
 	static Set<String> KNOWN_FILES = new HashSet<>(Arrays.asList(
-			"uxx", "unr", "umx", "usa", "uax", "u", "utx", "ut2", "ukx", "usx", "upx"
+			"uxx", "unr", "umx", "usa", "uax", "u", "utx", "ut2", "ukx", "usx", "upx", "ogg"
 	));
 
 	public interface IndexerFactory<T extends Content> {
