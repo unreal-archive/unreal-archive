@@ -1,9 +1,13 @@
 package net.shrimpworks.unreal.archive;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class Content {
+
+	public static final DateTimeFormatter RELEASE_DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM").withZone(ZoneId.systemDefault());
 
 	public LocalDateTime firstIndex;
 	public LocalDateTime lastIndex;
@@ -18,6 +22,7 @@ public class Content {
 	public String packageSHA1;
 	public int fileSize;
 	public List<ContentFile> files;     // [DM-MyMap.unr, MyTex.utx]
+	public int otherFiles;				// count of non-content files (readme, html, etc)
 	public List<Download> downloads;
 
 	public boolean deleted;

@@ -21,9 +21,10 @@ public class ClassifierTest {
 			Files.write(tmp, "hello".getBytes(StandardCharsets.UTF_8));
 
 			ContentSubmission sub = new ContentSubmission(tmp);
+			IndexLog log = new IndexLog(sub);
 
 			// will fail to process text file as a valid content file
-			new Incoming(sub);
+			new Incoming(sub, log);
 		} finally {
 			Files.deleteIfExists(tmp);
 		}
@@ -38,9 +39,10 @@ public class ClassifierTest {
 			Files.copy(is, tmpMap, StandardCopyOption.REPLACE_EXISTING);
 
 			ContentSubmission sub = new ContentSubmission(tmpMap);
-			Incoming incoming = new Incoming(sub);
+			IndexLog log = new IndexLog(sub);
+			Incoming incoming = new Incoming(sub, log);
 
-			assertEquals(ContentClassifier.ContentType.MAP, ContentClassifier.classify(incoming));
+			assertEquals(ContentClassifier.ContentType.MAP, ContentClassifier.classify(incoming, log));
 		} finally {
 			Files.deleteIfExists(tmpMap);
 		}

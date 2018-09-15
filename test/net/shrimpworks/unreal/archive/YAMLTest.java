@@ -63,21 +63,14 @@ public class YAMLTest {
 	}
 
 	private ContentFile file(String name) {
-		ContentFile f = new ContentFile();
-		f.name = name;
-		f.fileSize = (int)(Math.random() * 10240);
-		f.sha1 = "abc" + (Math.random() * 20480);
-		return f;
+		return new ContentFile(name, (int)(Math.random() * 10240), "abc" + (Math.random() * 20480));
 	}
 
 	private Download download(String url) {
-		Download dl = new Download();
-		dl.url = url;
-		dl.lastChecked = LocalDate.now().minus((long)(Math.random() * 500), ChronoUnit.DAYS);
-		dl.ok = true;
-		dl.added = dl.lastChecked.minus((long)(Math.random() * 1000), ChronoUnit.DAYS);
-		dl.repack = false;
-		dl.deleted = false;
-		return dl;
+		return new Download(url,
+							LocalDate.now().minus((long)(Math.random() * 500), ChronoUnit.DAYS),
+							LocalDate.now().minus((long)(Math.random() * 100), ChronoUnit.DAYS),
+							true, false, false
+		);
 	}
 }

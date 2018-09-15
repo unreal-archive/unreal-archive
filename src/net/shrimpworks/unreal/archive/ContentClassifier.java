@@ -37,7 +37,7 @@ public class ContentClassifier {
 		}
 	}
 
-	public static ContentType classify(Incoming incoming) {
+	public static ContentType classify(Incoming incoming, IndexLog log) {
 		for (ContentType type : ContentType.values()) {
 			if (type.classifier.classify(incoming)) {
 				return type;

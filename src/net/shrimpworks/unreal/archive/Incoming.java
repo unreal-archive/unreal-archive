@@ -32,11 +32,11 @@ public class Incoming implements Closeable {
 
 	private final Set<Umod> umods;
 
-	public Incoming(ContentSubmission submission) throws IOException, UnsupportedOperationException {
+	public Incoming(ContentSubmission submission, IndexLog log) throws IOException, UnsupportedOperationException {
 		this.submission = submission;
 		this.contentRoot = getRoot(submission.filePath);
 		this.repack = getRepack(submission.filePath, contentRoot);
-		this.originalSha1 = sha1(submission.filePath);
+		this.originalSha1 = Util.sha1(submission.filePath);
 
 		this.files = listFiles(submission.filePath, contentRoot);
 		this.umods = new HashSet<>();
@@ -93,30 +93,6 @@ public class Incoming implements Closeable {
 		}
 
 		return null;
-	}
-
-	private String sha1(Path original) throws IOException {
-		try (FileChannel channel = FileChannel.open(original, StandardOpenOption.READ)) {
-			MessageDigest md = MessageDigest.getInstance("SHA-1");
-
-			ByteBuffer buffer = ByteBuffer.allocate(4096);
-
-			while (channel.read(buffer) > 0) {
-				buffer.flip();
-				md.update(buffer);
-				buffer.clear();
-			}
-
-			byte[] digest = md.digest();
-			StringBuilder sb = new StringBuilder();
-			for (byte b : digest) {
-				sb.append(Integer.toHexString((0xFF & b)));
-			}
-
-			return sb.toString();
-		} catch (NoSuchAlgorithmException e) {
-			throw new RuntimeException(e);
-		}
 	}
 
 	private Map<String, Object> listFiles(Path filePath, Path contentRoot) throws IOException {
