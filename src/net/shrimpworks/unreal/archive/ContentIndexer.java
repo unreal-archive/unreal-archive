@@ -9,13 +9,13 @@ public interface ContentIndexer<T extends Content> {
 		public ContentIndexer<T> get();
 	}
 
-	public void index(ContentSubmission submission, Consumer<T> completed);
+	public void index(Incoming incoming, Consumer<T> completed);
 
 	public static class NoOpIndexerFactory implements IndexerFactory<Content> {
 
 		@Override
 		public ContentIndexer<Content> get() {
-			return (submission, completed) -> completed.accept(null);
+			return (incoming, completed) -> completed.accept(null);
 		}
 	}
 }

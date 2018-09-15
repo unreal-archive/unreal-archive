@@ -26,24 +26,24 @@ public class ContentClassifier {
 
 	public interface Classifier {
 
-		public boolean classify(ContentSubmission submission);
+		public boolean classify(Incoming incoming);
 	}
 
 	private static class NoOpClassifier implements Classifier {
 
 		@Override
-		public boolean classify(ContentSubmission submission) {
+		public boolean classify(Incoming incoming) {
 			return false;
 		}
 	}
 
-	public static ContentType classify(ContentSubmission submission) {
+	public static ContentType classify(Incoming incoming) {
 		for (ContentType type : ContentType.values()) {
-			if (type.classifier.classify(submission)) {
+			if (type.classifier.classify(incoming)) {
 				return type;
 			}
 		}
 
-		throw new IllegalArgumentException("Unable to classify content " + submission);
+		throw new IllegalArgumentException("Unable to classify content " + incoming);
 	}
 }

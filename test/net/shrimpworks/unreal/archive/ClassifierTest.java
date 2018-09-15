@@ -14,15 +14,16 @@ import static org.junit.Assert.fail;
 
 public class ClassifierTest {
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test(expected = UnsupportedOperationException.class)
 	public void invalid() throws IOException {
-		Path tmp = Files.createTempFile("classify-invalid", "txt");
+		Path tmp = Files.createTempFile("classify-invalid", ".txt");
 		try {
 			Files.write(tmp, "hello".getBytes(StandardCharsets.UTF_8));
 
 			ContentSubmission sub = new ContentSubmission(tmp);
 
-			ContentClassifier.classify(sub);
+			// will fail to process text file as a valid content file
+			new Incoming(sub);
 		} finally {
 			Files.deleteIfExists(tmp);
 		}
@@ -37,8 +38,9 @@ public class ClassifierTest {
 			Files.copy(is, tmpMap, StandardCopyOption.REPLACE_EXISTING);
 
 			ContentSubmission sub = new ContentSubmission(tmpMap);
+			Incoming incoming = new Incoming(sub);
 
-			assertEquals(ContentClassifier.ContentType.MAP, ContentClassifier.classify(sub));
+			assertEquals(ContentClassifier.ContentType.MAP, ContentClassifier.classify(incoming));
 		} finally {
 			Files.deleteIfExists(tmpMap);
 		}
