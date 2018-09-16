@@ -12,8 +12,7 @@ public class Main {
 
 		final List<IndexLog> indexLogs = new ArrayList<>();
 
-		Files.list(Paths.get("/home/shrimp/tmp/maps/")).sorted().forEach(f -> {
-
+		Files.list(Paths.get("/home/shrimp/tmp/maps2/")).sorted().forEach(f -> {
 			if (f.toString().endsWith("tmp")) return;
 
 			ContentSubmission sub = new ContentSubmission(f);
@@ -21,12 +20,13 @@ public class Main {
 			indexLogs.add(log);
 
 			try (Incoming incoming = new Incoming(sub, log)) {
-
 				ContentClassifier.ContentType type = ContentClassifier.classify(incoming, log);
 
 				if (type != ContentClassifier.ContentType.UNKNOWN) { // TODO later support a generic dumping ground for unknown content
 					type.indexer.get().index(incoming, log, c -> {
 						try {
+//							Path repack = incoming.getRepack(c.name);
+
 							YAML.toString(c);
 						} catch (IOException e) {
 							System.out.println("Failed to output " + f.toString());
@@ -45,10 +45,10 @@ public class Main {
 
 		int err = 0;
 
-		for (IndexLog log : indexLogs) {
-			if (!log.ok()) {
+		for (IndexLog l : indexLogs) {
+			if (!l.ok()) {
 				err++;
-				System.out.println(log);
+				System.out.println(l);
 			}
 		}
 

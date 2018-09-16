@@ -20,17 +20,16 @@ public class Incoming implements Closeable {
 
 	public final ContentSubmission submission;
 	public final Path contentRoot;
-	public final Path repack;
 	public final String originalSha1;
 
 	public final Map<String, Object> files;
 
 	private final Set<Umod> umods;
+	private Path repackPath;
 
 	public Incoming(ContentSubmission submission, IndexLog log) throws IOException, UnsupportedOperationException {
 		this.submission = submission;
 		this.contentRoot = getRoot(submission.filePath);
-		this.repack = getRepack(submission.filePath, contentRoot);
 		this.originalSha1 = Util.sha1(submission.filePath);
 
 		this.umods = new HashSet<>();
@@ -50,11 +49,13 @@ public class Incoming implements Closeable {
 		umods.clear();
 		files.clear();
 
-		if (repack != null) Files.deleteIfExists(repack);
-
 		// clean up contentRoot
 		if (contentRoot != null) {
 			ArchiveUtil.cleanPath(contentRoot);
+		}
+
+		if (repackPath != null) {
+			ArchiveUtil.cleanPath(repackPath);
 		}
 	}
 
@@ -76,14 +77,15 @@ public class Incoming implements Closeable {
 		throw new UnsupportedOperationException("Can't unpack file " + incoming);
 	}
 
-	private Path getRepack(Path incoming, Path contentRoot) {
-		String fName = incoming.getFileName().toString().toLowerCase();
+	public Path getRepack(String repackName) throws IOException, InterruptedException {
+		if (Util.extension(submission.filePath).equalsIgnoreCase("zip")) return null;
 
-		// leave zip files alone
-		if (fName.endsWith(".zip")) return null;
+		repackPath = Files.createTempDirectory("archive-repack-");
+
+		Path dest = repackPath.resolve(repackName + ".zip");
 
 		if (contentRoot != null) {
-			// TODO add contentRoot to a zip file and return it
+			return ArchiveUtil.createZip(contentRoot, dest, Duration.ofSeconds(60));
 		}
 
 		return null;
@@ -122,7 +124,7 @@ public class Incoming implements Closeable {
 
 	@Override
 	public String toString() {
-		return String.format("Incoming [submission=%s, contentRoot=%s, repack=%s, originalSha1=%s]",
-							 submission, contentRoot, repack, originalSha1);
+		return String.format("Incoming [submission=%s, contentRoot=%s, originalSha1=%s]",
+							 submission, contentRoot, originalSha1);
 	}
 }

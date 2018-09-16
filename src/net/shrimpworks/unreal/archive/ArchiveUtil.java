@@ -22,6 +22,7 @@ public class ArchiveUtil {
 
 	private static final String SEVENZIP_BIN = "/usr/bin/7z";
 	private static final String UNRAR_BIN = "/usr/bin/unrar";
+	private static final String ZIP_BIN = "/usr/bin/zip";
 
 	public static boolean isArchive(Path path) {
 		if (!Files.isRegularFile(path)) return false;
@@ -127,6 +128,33 @@ public class ArchiveUtil {
 		Process process = new ProcessBuilder()
 				.command(cmd)
 				.directory(destination.toFile())
+				.start();
+		boolean b = process.waitFor(timeout.toMillis(), TimeUnit.MILLISECONDS);
+		if (!b) {
+			process.destroyForcibly().waitFor(KILL_WAIT.toMillis(), TimeUnit.MILLISECONDS);
+		}
+
+		if (process.exitValue() != 0) {
+			throw new IllegalStateException(String.format("File %s was not unpacked successfully", source));
+		}
+
+		return destination;
+	}
+
+	public static Path createZip(Path source, Path destination, Duration timeout)
+			throws IOException, InterruptedException, IllegalStateException {
+
+		if (!Files.isDirectory(source)) throw new IllegalArgumentException("Source is expected to be a directory");
+
+		Process process = new ProcessBuilder()
+				.command(
+						ZIP_BIN,
+						"-9",                   // compress more
+						"-r",                   // recursive
+						destination.toString(), // destination zip file
+						source.toString()       // source directory
+				)
+				.directory(source.toFile())
 				.start();
 		boolean b = process.waitFor(timeout.toMillis(), TimeUnit.MILLISECONDS);
 		if (!b) {

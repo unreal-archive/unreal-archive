@@ -152,7 +152,7 @@ public class MapIndexer implements ContentIndexer<Map> {
 			// use this opportunity to resolve some version overlap between game versions
 			if (screenshot != null && map.version < 117) m.game = "Unreal Tournament";
 
-			List<BufferedImage> screenshots = screenshots(incoming, map, screenshot);
+			List<BufferedImage> screenshots = screenshots(incoming, log, map, screenshot);
 			for (int i = 0; i < screenshots.size(); i++) {
 				Path out = Paths.get(String.format("/tmp/%s_shot_%d.png", m.name.replaceAll(" ", "_"), i + 1));
 				ImageIO.write(screenshots.get(i), "png", out.toFile());
@@ -210,7 +210,7 @@ public class MapIndexer implements ContentIndexer<Map> {
 		return "Unknown";
 	}
 
-	private List<BufferedImage> screenshots(Incoming incoming, Package map, Property screenshot) {
+	private List<BufferedImage> screenshots(Incoming incoming, IndexLog log, Package map, Property screenshot) {
 		List<BufferedImage> images = new ArrayList<>();
 		if (screenshot != null) {
 			ObjectReference shotRef = ((ObjectProperty)screenshot).value;
@@ -226,7 +226,8 @@ public class MapIndexer implements ContentIndexer<Map> {
 					// sigh... its stored in another package
 					Named pkg = ((Import)shotResolved).packageName.get();
 					try {
-						shotPackage = findPackage(incoming, pkg.name().name);
+						String parentPkg = pkg instanceof Import ? ((Import)pkg).packageName.get().name().name : "None";
+						shotPackage = findPackage(incoming, parentPkg.equals("None") ? pkg.name().name : parentPkg);
 						ExportedObject exp = shotPackage.objectByName(((Import)shotResolved).name);
 						object = exp.object();
 					} catch (IOException e) {
@@ -251,38 +252,72 @@ public class MapIndexer implements ContentIndexer<Map> {
 							// just find some textures that look like screenshots
 							Collection<ExportedObject> textures = shotPackage.objectsByClassName("Texture");
 							for (ExportedObject texture : textures) {
-								// FIXME could be smarter, perhaps look for 512x256
 								if (texture.name.name.toLowerCase().contains("shot")
-									|| texture.name.name.toLowerCase().contains("screen")) {
+									|| texture.name.name.toLowerCase().contains("screen")
+									|| texture.name.name.toLowerCase().contains("preview")) {
 									object = texture.object();
 									break;
+								}
+							}
+
+							// still not found anything... look for a texture with typical preview dimensions (512x256)
+							if (!(object instanceof Texture)) {
+								for (ExportedObject texture : textures) {
+									Texture tex = (Texture)texture.object();
+									Texture.MipMap mip = tex.mipMaps()[0];
+									if (mip.width == 512 && mip.height == 256) {
+										object = texture.object();
+										break;
+									}
 								}
 							}
 						}
 					}
 
-					Texture.MipMap[] mipMaps = ((Texture)object).mipMaps();
-					BufferedImage bufferedImage = mipMaps[0].get();
-					images.add(bufferedImage);
+					if (object instanceof Texture) {
+						Texture.MipMap[] mipMaps = ((Texture)object).mipMaps();
+						BufferedImage bufferedImage = mipMaps[0].get();
+						images.add(bufferedImage);
+					}
 				}
+			} catch (Exception e) {
+				log.log(IndexLog.EntryType.CONTINUE, "Failed to read screenshot from packages", e);
+				System.out.println(incoming.submission.filePath);
+				e.printStackTrace();
 			} finally {
 				// cleanup if we spun up an external package for screenshots
 				if (shotPackage != map) {
 					try {
 						shotPackage.close();
 					} catch (IOException e) {
-						e.printStackTrace();
+						log.log(IndexLog.EntryType.INFO, "Screenshot cleanup failed", e);
 					}
 				}
 			}
 		}
+
+		if (images.isEmpty()) {
+			// hmm, no screenshots were found... lets also look in the archive if there's a jpg or something
+			try {
+				for (java.util.Map.Entry<String, java.lang.Object> entry : incoming.files.entrySet()) {
+					// only do this for paths, skip umod contents for now
+					if (entry.getValue() instanceof Path && Util.extension(entry.getKey()).toLowerCase().startsWith("jp")) {
+						BufferedImage image = ImageIO.read(((Path)entry.getValue()).toFile());
+						if (image != null) images.add(image);
+					}
+				}
+			} catch (Exception e) {
+				log.log(IndexLog.EntryType.CONTINUE, "Failed to load screenshot from archive", e);
+			}
+		}
+
 		return images;
 	}
 
 	private Package findPackage(Incoming incoming, String pkg) throws IOException {
 		for (java.util.Map.Entry<String, java.lang.Object> kv : incoming.files.entrySet()) {
 			String name = kv.getKey().substring(Math.max(0, kv.getKey().lastIndexOf("/") + 1));
-			name = name.substring(0, name.lastIndexOf(".") - 1);
+			name = name.substring(0, name.lastIndexOf("."));
 			if (name.equalsIgnoreCase(pkg)) {
 				if (kv.getValue() instanceof Path) {
 					return new Package((Path)kv.getValue());
@@ -291,6 +326,6 @@ public class MapIndexer implements ContentIndexer<Map> {
 				}
 			}
 		}
-		throw new IllegalStateException("Failed to find package");
+		throw new IllegalStateException("Failed to find package " + pkg);
 	}
 }
