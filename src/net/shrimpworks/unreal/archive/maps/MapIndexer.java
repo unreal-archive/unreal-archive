@@ -195,10 +195,18 @@ public class MapIndexer implements ContentIndexer<Map> {
 
 	private String gameType(Incoming incoming, String name) {
 		if (name.toLowerCase().startsWith("dm")) return "Deathmatch";
+		if (name.toLowerCase().startsWith("ctf4")) return "Multi-team Capture The Flag";
+		if (name.toLowerCase().startsWith("ctfm")) return "Multi-team Capture The Flag";
 		if (name.toLowerCase().startsWith("ctf")) return "Capture The Flag";
 		if (name.toLowerCase().startsWith("dom")) return "Domination";
 		if (name.toLowerCase().startsWith("as")) return "Assault";
+		if (name.toLowerCase().startsWith("br")) return "Bombing Run";
+		if (name.toLowerCase().startsWith("ons")) return "Onslaught";
 		if (name.toLowerCase().startsWith("vctf")) return "Vehicle Capture The Flag";
+		if (name.toLowerCase().startsWith("mh")) return "Monster Hunt";
+		if (name.toLowerCase().startsWith("ma")) return "Monster Arena";
+		if (name.toLowerCase().startsWith("ra")) return "Rocket Arena";
+		if (name.toLowerCase().startsWith("jb")) return "Jailbreak";
 		return "Unknown";
 	}
 
