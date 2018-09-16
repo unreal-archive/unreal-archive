@@ -12,7 +12,7 @@ public class Main {
 
 		final List<IndexLog> indexLogs = new ArrayList<>();
 
-		Files.list(Paths.get("/home/shrimp/tmp/maps/")).forEach(f -> {
+		Files.list(Paths.get("/home/shrimp/tmp/maps/")).sorted().forEach(f -> {
 
 			if (f.toString().endsWith("tmp")) return;
 
@@ -25,7 +25,7 @@ public class Main {
 
 				ContentClassifier.ContentType type = ContentClassifier.classify(incoming, log);
 
-				if (type != null) {
+				if (type != ContentClassifier.ContentType.UNKNOWN) { // TODO later support a generic dumping ground for unknown content
 					type.indexer.get().index(incoming, log, c -> {
 						try {
 							System.out.println(YAML.toString(c));
@@ -36,8 +36,9 @@ public class Main {
 				} else {
 					log.log(IndexLog.EntryType.FATAL, "File " + f + " cannot be classified.");
 				}
-			} catch (IOException e) {
+			} catch (Exception e) {
 				log.log(IndexLog.EntryType.FATAL, e.getMessage(), e);
+				e.printStackTrace();
 			}
 		});
 

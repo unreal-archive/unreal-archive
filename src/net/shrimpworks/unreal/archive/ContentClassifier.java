@@ -7,6 +7,7 @@ public class ContentClassifier {
 
 	public enum ContentType {
 		MAP(new MapClassifier(), new MapIndexer.MapIndexerFactory()),
+		MAP_PACK(new NoOpClassifier(), new ContentIndexer.NoOpIndexerFactory()),
 		SKIN(new NoOpClassifier(), new ContentIndexer.NoOpIndexerFactory()),
 		MODEL(new NoOpClassifier(), new ContentIndexer.NoOpIndexerFactory()),
 		VOICE(new NoOpClassifier(), new ContentIndexer.NoOpIndexerFactory()),
@@ -44,6 +45,8 @@ public class ContentClassifier {
 			}
 		}
 
-		throw new IllegalArgumentException("Unable to classify content " + incoming);
+		log.log(IndexLog.EntryType.FATAL, "Unable to classify content " + incoming);
+
+		return ContentType.UNKNOWN;
 	}
 }
