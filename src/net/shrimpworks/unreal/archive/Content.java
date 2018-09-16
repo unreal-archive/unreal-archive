@@ -19,7 +19,7 @@ public class Content {
 
 	public String releaseDate;          // 2001-05
 	public List<String> screenshots;    // [Screenshot.png, Screenshot2.jpg]
-	public String packageSHA1;
+	public String sha1;
 	public int fileSize;
 	public List<ContentFile> files;     // [DM-MyMap.unr, MyTex.utx]
 	public int otherFiles;				// count of non-content files (readme, html, etc)

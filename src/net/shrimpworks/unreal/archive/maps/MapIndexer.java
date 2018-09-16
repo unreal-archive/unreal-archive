@@ -48,7 +48,7 @@ public class MapIndexer implements ContentIndexer<Map> {
 		// FIXME pass in existing
 		Map m = new Map();
 
-		m.packageSHA1 = incoming.originalSha1;
+		m.sha1 = incoming.originalSha1;
 		m.releaseDate = "Unknown";
 
 		try {
