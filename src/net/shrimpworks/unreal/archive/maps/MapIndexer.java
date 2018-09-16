@@ -51,6 +51,8 @@ public class MapIndexer implements ContentIndexer<Map> {
 		m.sha1 = incoming.originalSha1;
 		m.releaseDate = "Unknown";
 
+		// TODO find .txt file in content root and scan for dates, authors, etc
+
 		try {
 			m.fileSize = (int)Files.size(incoming.submission.filePath);
 		} catch (IOException e) {

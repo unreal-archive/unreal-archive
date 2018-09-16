@@ -2,18 +2,13 @@ package net.shrimpworks.unreal.archive;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -57,29 +52,28 @@ public class Incoming implements Closeable {
 
 		if (repack != null) Files.deleteIfExists(repack);
 
-		// TODO clean up contentRoot
+		// clean up contentRoot
+		if (contentRoot != null) {
+			ArchiveUtil.cleanPath(contentRoot);
+		}
 	}
 
 	private Path getRoot(Path incoming) throws IOException, UnsupportedOperationException {
-		String fName = incoming.toString().toLowerCase();
+		Path tempDir = Files.createTempDirectory("archive-incoming-");
 
-		if (fName.endsWith(".zip")) {
-			// zip files are fine, we can read them without extracting
-			FileSystem fs = FileSystems.newFileSystem(incoming, null);
-			return fs.getPath("/");
-		} else if (fName.endsWith(".rar") || fName.endsWith(".7z")) {
-			// TODO extract with 7z?
-			throw new UnsupportedOperationException("RAR and 7z not yet supported");
-		} else if (fName.endsWith(".exe")) {
-			// TODO exec `file fName`
-			// note, installshield can be read by 7z
-			// note, plain win32 executables may be converted to zips via `zip -J fName -out fName.zip`
-			throw new UnsupportedOperationException("Executable packages not yet supported");
+		if (ArchiveUtil.isArchive(incoming)) {
+			try {
+				return ArchiveUtil.extract(incoming, tempDir, Duration.ofSeconds(30), true);
+			} catch (InterruptedException e) {
+				throw new IOException("Extract took too long", e);
+			}
 		} else {
-			System.out.println(fName);
-			throw new UnsupportedOperationException("Unknown file format: " + fName.substring(fName.lastIndexOf(".")));
+			if (ContentIndexer.KNOWN_FILES.contains(Util.extension(incoming))) {
+				return Files.copy(incoming, tempDir, StandardCopyOption.REPLACE_EXISTING);
+			}
 		}
 
+		throw new UnsupportedOperationException("Can't unpack file " + incoming);
 	}
 
 	private Path getRepack(Path incoming, Path contentRoot) {
@@ -120,7 +114,7 @@ public class Incoming implements Closeable {
 		umods.add(umod);
 
 		for (Umod.UmodFile file : umod.files) {
-			fileList.put(file.name, file);
+			fileList.put(file.name.replaceAll("\\\\", "/"), file);
 		}
 
 		return fileList;

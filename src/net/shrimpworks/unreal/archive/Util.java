@@ -42,7 +42,7 @@ public final class Util {
 				buffer.clear();
 			}
 
-			return bytesToHex(md.digest());
+			return bytesToHex(md.digest()).toLowerCase();
 		} catch (NoSuchAlgorithmException e) {
 			throw new IllegalArgumentException(e);
 		}

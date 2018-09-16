@@ -20,8 +20,7 @@ public class Main {
 			IndexLog log = new IndexLog(sub);
 			indexLogs.add(log);
 
-			try {
-				Incoming incoming = new Incoming(sub, log);
+			try (Incoming incoming = new Incoming(sub, log)) {
 
 				ContentClassifier.ContentType type = ContentClassifier.classify(incoming, log);
 
@@ -44,8 +43,15 @@ public class Main {
 			}
 		});
 
+		int err = 0;
+
 		for (IndexLog log : indexLogs) {
-			if (!log.ok()) System.out.println(log);
+			if (!log.ok()) {
+				err++;
+				System.out.println(log);
+			}
 		}
+
+		System.out.printf("%nCompleted indexing %d files, with %d errors%n", indexLogs.size(), err);
 	}
 }
