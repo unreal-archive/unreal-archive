@@ -10,6 +10,8 @@ import java.security.NoSuchAlgorithmException;
 
 public final class Util {
 
+	private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
+
 	private Util() { }
 
 	public static String extension(Path path) {
@@ -28,8 +30,8 @@ public final class Util {
 		return path.substring(Math.max(0, path.lastIndexOf("/") + 1));
 	}
 
-	public static String sha1(Path original) throws IOException {
-		try (FileChannel channel = FileChannel.open(original, StandardOpenOption.READ)) {
+	public static String sha1(Path path) throws IOException {
+		try (FileChannel channel = FileChannel.open(path, StandardOpenOption.READ)) {
 			MessageDigest md = MessageDigest.getInstance("SHA-1");
 
 			ByteBuffer buffer = ByteBuffer.allocate(4096);
@@ -40,15 +42,19 @@ public final class Util {
 				buffer.clear();
 			}
 
-			byte[] digest = md.digest();
-			StringBuilder sb = new StringBuilder();
-			for (byte b : digest) {
-				sb.append(Integer.toHexString((0xFF & b)));
-			}
-
-			return sb.toString();
+			return bytesToHex(md.digest());
 		} catch (NoSuchAlgorithmException e) {
-			throw new RuntimeException(e);
+			throw new IllegalArgumentException(e);
 		}
+	}
+
+	private static String bytesToHex(byte[] bytes) {
+		char[] hexChars = new char[bytes.length * 2];
+		for (int i = 0; i < bytes.length; i++) {
+			int v = bytes[i] & 0xFF;
+			hexChars[i * 2] = HEX_ARRAY[v >>> 4];
+			hexChars[i * 2 + 1] = HEX_ARRAY[v & 0x0F];
+		}
+		return new String(hexChars);
 	}
 }

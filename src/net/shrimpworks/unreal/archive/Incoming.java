@@ -38,8 +38,8 @@ public class Incoming implements Closeable {
 		this.repack = getRepack(submission.filePath, contentRoot);
 		this.originalSha1 = Util.sha1(submission.filePath);
 
-		this.files = listFiles(submission.filePath, contentRoot);
 		this.umods = new HashSet<>();
+		this.files = listFiles(submission.filePath, contentRoot);
 	}
 
 	@Override

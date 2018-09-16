@@ -279,9 +279,8 @@ public class MapIndexer implements ContentIndexer<Map> {
 
 	private Package findPackage(Incoming incoming, String pkg) throws IOException {
 		for (java.util.Map.Entry<String, java.lang.Object> kv : incoming.files.entrySet()) {
-			String name = kv.getKey()
-							.substring(Math.max(0, kv.getKey().lastIndexOf("/") + 1))
-							.substring(0, kv.getKey().lastIndexOf(".") - 1);
+			String name = kv.getKey().substring(Math.max(0, kv.getKey().lastIndexOf("/") + 1));
+			name = name.substring(0, name.lastIndexOf(".") - 1);
 			if (name.equalsIgnoreCase(pkg)) {
 				if (kv.getValue() instanceof Path) {
 					return new Package((Path)kv.getValue());

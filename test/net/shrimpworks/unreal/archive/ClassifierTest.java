@@ -9,8 +9,7 @@ import java.nio.file.StandardCopyOption;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class ClassifierTest {
 
@@ -43,6 +42,30 @@ public class ClassifierTest {
 			Incoming incoming = new Incoming(sub, log);
 
 			assertEquals(ContentClassifier.ContentType.MAP, ContentClassifier.classify(incoming, log));
+		} finally {
+			Files.deleteIfExists(tmpMap);
+		}
+	}
+
+	@Test
+	public void logTest() throws IOException {
+		Path tmpMap = Files.createTempFile("test-dm-longestyard", ".zip");
+		try (InputStream is = getClass().getResourceAsStream("dm-longestyard.zip")) {
+			Files.copy(is, tmpMap, StandardCopyOption.REPLACE_EXISTING);
+
+			ContentSubmission sub = new ContentSubmission(tmpMap);
+			IndexLog log = new IndexLog(sub);
+
+			assertTrue(log.ok());
+
+			log.log(IndexLog.EntryType.INFO, "Some information");
+
+			assertTrue(log.ok());
+
+			log.log(IndexLog.EntryType.FATAL, "Stuff broke");
+
+			assertFalse(log.ok());
+
 		} finally {
 			Files.deleteIfExists(tmpMap);
 		}

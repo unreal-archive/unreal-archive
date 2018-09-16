@@ -28,22 +28,24 @@ public class Main {
 				if (type != ContentClassifier.ContentType.UNKNOWN) { // TODO later support a generic dumping ground for unknown content
 					type.indexer.get().index(incoming, log, c -> {
 						try {
-							System.out.println(YAML.toString(c));
+							YAML.toString(c);
 						} catch (IOException e) {
+							System.out.println("Failed to output " + f.toString());
 							e.printStackTrace();
 						}
 					});
 				} else {
 					log.log(IndexLog.EntryType.FATAL, "File " + f + " cannot be classified.");
 				}
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				log.log(IndexLog.EntryType.FATAL, e.getMessage(), e);
+				System.out.println("Failed processing " + f.toString());
 				e.printStackTrace();
 			}
 		});
 
 		for (IndexLog log : indexLogs) {
-			System.out.println(log);
+			if (!log.ok()) System.out.println(log);
 		}
 	}
 }
