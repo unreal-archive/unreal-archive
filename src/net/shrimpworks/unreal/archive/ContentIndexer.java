@@ -16,13 +16,13 @@ public interface ContentIndexer<T extends Content> {
 		public ContentIndexer<T> get();
 	}
 
-	public void index(Incoming incoming, IndexLog log, Consumer<T> completed);
+	public void index(Incoming incoming, T current, IndexLog log, Consumer<T> completed);
 
 	public static class NoOpIndexerFactory implements IndexerFactory<Content> {
 
 		@Override
 		public ContentIndexer<Content> get() {
-			return (incoming, log, completed) -> completed.accept(null);
+			return (incoming, current, log, completed) -> completed.accept(current);
 		}
 	}
 }

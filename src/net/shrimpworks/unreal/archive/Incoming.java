@@ -21,6 +21,7 @@ public class Incoming implements Closeable {
 	public final ContentSubmission submission;
 	public final Path contentRoot;
 	public final String originalSha1;
+	public final int fileSize;
 
 	public final Map<String, Object> files;
 
@@ -31,6 +32,7 @@ public class Incoming implements Closeable {
 		this.submission = submission;
 		this.contentRoot = getRoot(submission.filePath);
 		this.originalSha1 = Util.sha1(submission.filePath);
+		this.fileSize = (int)Files.size(submission.filePath);
 
 		this.umods = new HashSet<>();
 		this.files = listFiles(submission.filePath, contentRoot);

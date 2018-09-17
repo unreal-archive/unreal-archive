@@ -44,58 +44,40 @@ public class MapIndexer implements ContentIndexer<Map> {
 	}
 
 	@Override
-	public void index(Incoming incoming, IndexLog log, Consumer<Map> completed) {
-		// FIXME pass in existing
-		Map m = new Map();
-
-		m.sha1 = incoming.originalSha1;
-		m.releaseDate = "Unknown";
+	public void index(Incoming incoming, Map m, IndexLog log, Consumer<Map> completed) {
 
 		// TODO find .txt file in content root and scan for dates, authors, etc
 
-		try {
-			m.fileSize = (int)Files.size(incoming.submission.filePath);
-		} catch (IOException e) {
-			log.log(IndexLog.EntryType.CONTINUE, "Failed to read file size of package " + incoming.submission.filePath);
-		}
-
-		m.files = new ArrayList<>();
-		m.otherFiles = 0;
-		for (java.util.Map.Entry<String, java.lang.Object> e : incoming.files.entrySet()) {
-			if (!KNOWN_FILES.contains(Util.extension(e.getKey()))) {
-				m.otherFiles++;
-				continue;
-			}
-
-			try {
-				if (e.getValue() instanceof Path) {
-					m.files.add(new ContentFile(
-							Util.fileName(e.getKey()),
-							(int)Files.size((Path)e.getValue()),
-							Util.sha1((Path)e.getValue())
-					));
-
-					// take a guess at release date based on file modification time
-					if (m.releaseDate.equals("Unknown")) {
-						m.releaseDate = Content.RELEASE_DATE_FMT.format(Files.getLastModifiedTime((Path)e.getValue()).toInstant());
-					}
-
-				} else if (e.getValue() instanceof Umod.UmodFile) {
-					m.files.add(new ContentFile(
-							Util.fileName(((Umod.UmodFile)e.getValue()).name),
-							((Umod.UmodFile)e.getValue()).size,
-							((Umod.UmodFile)e.getValue()).sha1()
-					));
+		if (m.files.isEmpty()) {
+			for (java.util.Map.Entry<String, java.lang.Object> e : incoming.files.entrySet()) {
+				if (!KNOWN_FILES.contains(Util.extension(e.getKey()))) {
+					m.otherFiles++;
+					continue;
 				}
-			} catch (Exception ex) {
-				log.log(IndexLog.EntryType.CONTINUE, "Failed getting data for " + e.getKey(), ex);
-			}
-		}
 
-		m.downloads = new ArrayList<>();
-		if (incoming.submission.sourceUrls != null) {
-			for (String sourceUrl : incoming.submission.sourceUrls) {
-				m.downloads.add(new Download(sourceUrl, LocalDate.now(), false));
+				try {
+					if (e.getValue() instanceof Path) {
+						m.files.add(new ContentFile(
+								Util.fileName(e.getKey()),
+								(int)Files.size((Path)e.getValue()),
+								Util.sha1((Path)e.getValue())
+						));
+
+						// take a guess at release date based on file modification time
+						if (m.releaseDate.equals("Unknown")) {
+							m.releaseDate = Content.RELEASE_DATE_FMT.format(Files.getLastModifiedTime((Path)e.getValue()).toInstant());
+						}
+
+					} else if (e.getValue() instanceof Umod.UmodFile) {
+						m.files.add(new ContentFile(
+								Util.fileName(((Umod.UmodFile)e.getValue()).name),
+								((Umod.UmodFile)e.getValue()).size,
+								((Umod.UmodFile)e.getValue()).sha1()
+						));
+					}
+				} catch (Exception ex) {
+					log.log(IndexLog.EntryType.CONTINUE, "Failed getting data for " + e.getKey(), ex);
+				}
 			}
 		}
 
@@ -104,9 +86,6 @@ public class MapIndexer implements ContentIndexer<Map> {
 		m.game = game(incoming);
 		m.gametype = gameType(incoming, m.name);
 		m.title = m.name;
-		m.author = "Unknown";
-		m.description = "None";
-		m.playerCount = "Unknown";
 
 		try (Package map = map(incoming)) {
 			if (map.version <= 68) m.game = "Unreal";
