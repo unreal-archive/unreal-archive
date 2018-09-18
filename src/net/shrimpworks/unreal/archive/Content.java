@@ -5,6 +5,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -37,4 +38,33 @@ public class Content {
 	public List<Download> downloads = new ArrayList<>();
 
 	public boolean deleted = false;
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Content content = (Content)o;
+		return fileSize == content.fileSize
+			   && otherFiles == content.otherFiles
+			   && deleted == content.deleted
+			   && Objects.equals(contentType, content.contentType)
+			   && Objects.equals(firstIndex, content.firstIndex)
+			   && Objects.equals(lastIndex, content.lastIndex)
+			   && Objects.equals(game, content.game)
+			   && Objects.equals(name, content.name)
+			   && Objects.equals(author, content.author)
+			   && Objects.equals(description, content.description)
+			   && Objects.equals(releaseDate, content.releaseDate)
+			   && Objects.equals(screenshots, content.screenshots)
+			   && Objects.equals(originalFilename, content.originalFilename)
+			   && Objects.equals(sha1, content.sha1)
+			   && Objects.equals(files, content.files)
+			   && Objects.equals(downloads, content.downloads);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(contentType, firstIndex, lastIndex, game, name, author, description, releaseDate, screenshots, originalFilename,
+							sha1, fileSize, files, otherFiles, downloads, deleted);
+	}
 }
