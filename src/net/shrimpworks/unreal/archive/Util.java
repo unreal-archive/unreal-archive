@@ -30,7 +30,7 @@ public final class Util {
 		return path.substring(Math.max(0, path.lastIndexOf("/") + 1));
 	}
 
-	public static String sha1(Path path) throws IOException {
+	public static String hash(Path path) throws IOException {
 		try (FileChannel channel = FileChannel.open(path, StandardOpenOption.READ)) {
 			MessageDigest md = MessageDigest.getInstance("SHA-1");
 

@@ -39,7 +39,7 @@ public class ContentClassifier {
 				newInstance.contentType = this.name();
 
 				if (incoming != null) {
-					newInstance.sha1 = incoming.originalSha1;
+					newInstance.hash = incoming.hash;
 					newInstance.originalFilename = incoming.submission.filePath.toString();
 					newInstance.fileSize = incoming.fileSize;
 				}

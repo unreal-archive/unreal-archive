@@ -6,12 +6,12 @@ public class ContentFile {
 
 	public String name;
 	public int fileSize;
-	public String sha1;
+	public String hash;
 
-	@ConstructorProperties({"name", "fileSize", "sha1"})
-	public ContentFile(String name, int fileSize, String sha1) {
+	@ConstructorProperties({"name", "fileSize", "hash"})
+	public ContentFile(String name, int fileSize, String hash) {
 		this.name = name;
 		this.fileSize = fileSize;
-		this.sha1 = sha1;
+		this.hash = hash;
 	}
 }

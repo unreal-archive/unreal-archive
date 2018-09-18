@@ -60,7 +60,7 @@ public class YAMLTest {
 		m.playerCount = "2 - 4 Players";
 		m.releaseDate = "2001-05";
 		m.screenshots = Arrays.asList("Screenshot1.png", "shot2.jpg");
-		m.sha1 = "123456789";
+		m.hash = "123456789";
 		m.fileSize = 564231;
 		m.files = Arrays.asList(file("DM-MyMap.unr"), file("MyTex.utx"));
 		m.downloads = Arrays.asList(download("mysite.com/map.zip"), download("http://maps.com/map.rar"));

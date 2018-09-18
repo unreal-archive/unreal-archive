@@ -20,7 +20,7 @@ public class Incoming implements Closeable {
 
 	public final ContentSubmission submission;
 	public final Path contentRoot;
-	public final String originalSha1;
+	public final String hash;
 	public final int fileSize;
 
 	public final Map<String, Object> files;
@@ -31,7 +31,7 @@ public class Incoming implements Closeable {
 	public Incoming(ContentSubmission submission, IndexLog log) throws IOException, UnsupportedOperationException {
 		this.submission = submission;
 		this.contentRoot = getRoot(submission.filePath);
-		this.originalSha1 = Util.sha1(submission.filePath);
+		this.hash = Util.hash(submission.filePath);
 		this.fileSize = (int)Files.size(submission.filePath);
 
 		this.umods = new HashSet<>();
@@ -126,7 +126,7 @@ public class Incoming implements Closeable {
 
 	@Override
 	public String toString() {
-		return String.format("Incoming [submission=%s, contentRoot=%s, originalSha1=%s]",
-							 submission, contentRoot, originalSha1);
+		return String.format("Incoming [submission=%s, contentRoot=%s, hash=%s]",
+							 submission, contentRoot, hash);
 	}
 }

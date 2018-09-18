@@ -42,7 +42,7 @@ public class ContentManager {
 	}
 
 	public boolean checkin(Content content) {
-
+		this.content.get(content.hash);
 		return false;
 	}
 }

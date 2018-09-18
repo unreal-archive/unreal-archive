@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 // there appears to be weird mapping issues when using @JsonTypeInfo with YAML
@@ -30,7 +29,7 @@ public abstract class Content {
 	public List<String> screenshots = new ArrayList<>();    // [Screenshot.png, Screenshot2.jpg]
 
 	public String originalFilename;                         // dm-mymap.zip
-	public String sha1;
+	public String hash;
 	public int fileSize;
 	public List<ContentFile> files = new ArrayList<>();     // [DM-MyMap.unr, MyTex.utx]
 	public int otherFiles = 0;                              // count of non-content files (readme, html, etc)
@@ -56,7 +55,7 @@ public abstract class Content {
 			   && Objects.equals(releaseDate, content.releaseDate)
 			   && Objects.equals(screenshots, content.screenshots)
 			   && Objects.equals(originalFilename, content.originalFilename)
-			   && Objects.equals(sha1, content.sha1)
+			   && Objects.equals(hash, content.hash)
 			   && Objects.equals(files, content.files)
 			   && Objects.equals(downloads, content.downloads);
 	}
@@ -64,6 +63,6 @@ public abstract class Content {
 	@Override
 	public int hashCode() {
 		return Objects.hash(contentType, firstIndex, lastIndex, game, name, author, description, releaseDate, screenshots, originalFilename,
-							sha1, fileSize, files, otherFiles, downloads, deleted);
+							hash, fileSize, files, otherFiles, downloads, deleted);
 	}
 }

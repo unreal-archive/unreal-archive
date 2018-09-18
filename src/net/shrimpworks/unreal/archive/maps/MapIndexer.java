@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -15,7 +14,6 @@ import javax.imageio.ImageIO;
 import net.shrimpworks.unreal.archive.Content;
 import net.shrimpworks.unreal.archive.ContentFile;
 import net.shrimpworks.unreal.archive.ContentIndexer;
-import net.shrimpworks.unreal.archive.Download;
 import net.shrimpworks.unreal.archive.Incoming;
 import net.shrimpworks.unreal.archive.IndexLog;
 import net.shrimpworks.unreal.archive.Util;
@@ -60,7 +58,7 @@ public class MapIndexer implements ContentIndexer<Map> {
 						m.files.add(new ContentFile(
 								Util.fileName(e.getKey()),
 								(int)Files.size((Path)e.getValue()),
-								Util.sha1((Path)e.getValue())
+								Util.hash((Path)e.getValue())
 						));
 
 						// take a guess at release date based on file modification time
