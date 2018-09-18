@@ -19,22 +19,25 @@ import net.shrimpworks.unreal.packages.Umod;
 public class Incoming implements Closeable {
 
 	public final ContentSubmission submission;
-	public final Path contentRoot;
 	public final String hash;
 	public final int fileSize;
 
-	public final Map<String, Object> files;
-
 	private final Set<Umod> umods;
+
+	public Path contentRoot;
+	public Map<String, Object> files;
+
 	private Path repackPath;
 
 	public Incoming(ContentSubmission submission, IndexLog log) throws IOException, UnsupportedOperationException {
 		this.submission = submission;
-		this.contentRoot = getRoot(submission.filePath);
 		this.hash = Util.hash(submission.filePath);
 		this.fileSize = (int)Files.size(submission.filePath);
-
 		this.umods = new HashSet<>();
+	}
+
+	public void prepare() throws IOException {
+		this.contentRoot = getRoot(submission.filePath);
 		this.files = listFiles(submission.filePath, contentRoot);
 	}
 

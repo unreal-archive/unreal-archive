@@ -1,17 +1,32 @@
 package net.shrimpworks.unreal.archive.maps;
 
+import java.nio.file.Path;
 import java.util.Objects;
-
-import com.fasterxml.jackson.annotation.JsonSubTypes;
 
 import net.shrimpworks.unreal.archive.Content;
 
-@JsonSubTypes({ @JsonSubTypes.Type(value = Map.class, name = "MAP") })
 public class Map extends Content {
+
+	// Game/Type/Gametype/NAME5/Name-[hash8]
+	private static final String PATH_STRING = "%s/%s/%s/%s/%s-[%s]";
 
 	public String gametype = "Unknown";             // Deathmatch
 	public String title = "Unknown";                // My Map
 	public String playerCount = "Unknown";          // 2 - 4 Players
+
+	@Override
+	public Path contentPath(Path root) {
+		String basicName = name.toUpperCase().replaceAll("[^A-Z0-9]", "");
+		basicName = basicName.substring(0, Math.min(4, basicName.length() - 1));
+		return root.resolve(String.format(PATH_STRING,
+										  game,
+										  "Maps",
+										  gametype,
+										  basicName,
+										  name,
+										  hash.substring(0, 8)
+		));
+	}
 
 	@Override
 	public boolean equals(Object o) {

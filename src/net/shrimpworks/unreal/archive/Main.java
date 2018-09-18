@@ -47,6 +47,18 @@ public class Main {
 
 		final ContentManager contentManager = new ContentManager(contentPath);
 
+		Map<Class<? extends Content>, Long> byType = contentManager.countByType();
+		if (byType.size() > 0) {
+			System.out.println("Current content by Type:");
+			byType.forEach((type, count) -> System.out.printf(" > %s: %d%n", type.getSimpleName(), count));
+
+			System.out.println("Current content by Game:");
+			contentManager.countByGame().forEach((game, count) -> System.out.printf(" > %s: %d%n", game, count));
+		} else {
+			System.out.println("No content stored yet");
+		}
+
+		// go through all the files in the input path and index them if new
 		Files.list(inputPath).sorted().forEach(f -> {
 
 			ContentSubmission sub = new ContentSubmission(f);
@@ -54,16 +66,27 @@ public class Main {
 			indexLogs.add(log);
 
 			try (Incoming incoming = new Incoming(sub, log)) {
+				Content content = contentManager.checkout(incoming.hash);
+
+				if (content != null) {
+					// lets not support re-index yet
+					return;
+				}
+
+				incoming.prepare();
+
 				ContentClassifier.ContentType type = ContentClassifier.classify(incoming, log);
+
+				content = type.newContent(incoming);
 
 				if (type != ContentClassifier.ContentType.UNKNOWN) { // TODO later support a generic dumping ground for unknown content
 
-					type.indexer.get().index(incoming, type.newContent(incoming), log, c -> {
+					type.indexer.get().index(incoming, content, log, c -> {
 						try {
-							c.lastIndex = LocalDateTime.now();
+							c.content.lastIndex = LocalDateTime.now();
 							if (sub.sourceUrls != null && sub.sourceUrls.length > 0) {
 								for (String url : sub.sourceUrls) {
-									c.downloads.add(new Download(url, LocalDate.now(), false));
+									c.content.downloads.add(new Download(url, LocalDate.now(), false));
 								}
 							}
 
@@ -71,7 +94,7 @@ public class Main {
 
 //							Path repack = incoming.getRepack(c.name);
 
-							YAML.toString(c);
+							contentManager.checkin(c);
 						} catch (IOException e) {
 							System.out.println("Failed to output " + f.toString());
 							e.printStackTrace();

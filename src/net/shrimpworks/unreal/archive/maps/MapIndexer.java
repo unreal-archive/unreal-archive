@@ -7,7 +7,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 import javax.imageio.ImageIO;
 
@@ -16,6 +18,7 @@ import net.shrimpworks.unreal.archive.ContentFile;
 import net.shrimpworks.unreal.archive.ContentIndexer;
 import net.shrimpworks.unreal.archive.Incoming;
 import net.shrimpworks.unreal.archive.IndexLog;
+import net.shrimpworks.unreal.archive.IndexResult;
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.packages.Package;
 import net.shrimpworks.unreal.packages.PackageReader;
@@ -33,6 +36,8 @@ import net.shrimpworks.unreal.packages.entities.properties.StringProperty;
 
 public class MapIndexer implements ContentIndexer<Map> {
 
+	private static final String SHOT_NAME = "%s_shot_%d.png";
+
 	public static class MapIndexerFactory implements IndexerFactory<Map> {
 
 		@Override
@@ -42,7 +47,8 @@ public class MapIndexer implements ContentIndexer<Map> {
 	}
 
 	@Override
-	public void index(Incoming incoming, Map m, IndexLog log, Consumer<Map> completed) {
+	public void index(Incoming incoming, Content content, IndexLog log, Consumer<IndexResult<Map>> completed) {
+		Map m = (Map)content;
 
 		// TODO find .txt file in content root and scan for dates, authors, etc
 
@@ -84,6 +90,8 @@ public class MapIndexer implements ContentIndexer<Map> {
 		m.game = game(incoming);
 		m.gametype = gameType(incoming, m.name);
 		m.title = m.name;
+
+		Set<IndexResult.CreatedFile> files = new HashSet<>();
 
 		try (Package map = map(incoming)) {
 			if (map.version <= 68) m.game = "Unreal";
@@ -131,9 +139,11 @@ public class MapIndexer implements ContentIndexer<Map> {
 
 			List<BufferedImage> screenshots = screenshots(incoming, log, map, screenshot);
 			for (int i = 0; i < screenshots.size(); i++) {
-				Path out = Paths.get(String.format("/tmp/%s_shot_%d.png", m.name.replaceAll(" ", "_"), i + 1));
+				String shotName = String.format(SHOT_NAME, m.name.replaceAll(" ", "_"), i + 1);
+				Path out = Paths.get(shotName);
 				ImageIO.write(screenshots.get(i), "png", out.toFile());
 				m.screenshots.add(out.getFileName().toString());
+				files.add(new IndexResult.CreatedFile(shotName, out));
 			}
 
 		} catch (IllegalStateException | IllegalArgumentException | UnsupportedOperationException e) {
@@ -142,7 +152,7 @@ public class MapIndexer implements ContentIndexer<Map> {
 			log.log(IndexLog.EntryType.CONTINUE, "Failed to read map package", e);
 		}
 
-		completed.accept(m);
+		completed.accept(new IndexResult<>(m, files));
 	}
 
 	private Package map(Incoming incoming) throws IOException {

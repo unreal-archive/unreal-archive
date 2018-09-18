@@ -39,6 +39,8 @@ public class ContentClassifier {
 				newInstance.contentType = this.name();
 
 				if (incoming != null) {
+					newInstance.name = incoming.submission.filePath.getFileName().toString();
+					newInstance.name = newInstance.name.substring(0, newInstance.name.lastIndexOf(".")).replaceAll("/", "");
 					newInstance.hash = incoming.hash;
 					newInstance.originalFilename = incoming.submission.filePath.toString();
 					newInstance.fileSize = incoming.fileSize;

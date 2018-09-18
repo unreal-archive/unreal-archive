@@ -3,6 +3,8 @@
 
 	<property name="module.version" value="1.0"/>
 
+	<property name="main.class" value="net.shrimpworks.unreal.archive.Main"/>
+
 	<!-- JDK source and target versions -->
 	<property name="src.version" value="1.8"/>
 	<property name="target.version" value="1.8"/>

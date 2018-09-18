@@ -1,5 +1,6 @@
 package net.shrimpworks.unreal.archive;
 
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -7,10 +8,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+import net.shrimpworks.unreal.archive.maps.Map;
 
 // there appears to be weird mapping issues when using @JsonTypeInfo with YAML
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, visible = true, property = "contentType")
+@JsonSubTypes({
+		@JsonSubTypes.Type(value = Map.class, name = "MAP"),
+		@JsonSubTypes.Type(value = UnknownContent.class, name = "UNKNOWN")
+})
 public abstract class Content {
 
 	public static final DateTimeFormatter RELEASE_DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM").withZone(ZoneId.systemDefault());
@@ -36,6 +44,8 @@ public abstract class Content {
 	public List<Download> downloads = new ArrayList<>();
 
 	public boolean deleted = false;
+
+	public abstract Path contentPath(Path root);
 
 	@Override
 	public boolean equals(Object o) {
