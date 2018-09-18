@@ -36,7 +36,7 @@ import net.shrimpworks.unreal.packages.entities.properties.StringProperty;
 
 public class MapIndexer implements ContentIndexer<Map> {
 
-	private static final String SHOT_NAME = "%s_shot_%d.png";
+	private static final String SHOT_NAME = System.getProperty("java.io.tmpdir", "/tmp") + "/%s_shot_%d.png";
 
 	public static class MapIndexerFactory implements IndexerFactory<Map> {
 
@@ -277,8 +277,6 @@ public class MapIndexer implements ContentIndexer<Map> {
 				}
 			} catch (Exception e) {
 				log.log(IndexLog.EntryType.CONTINUE, "Failed to read screenshot from packages", e);
-				System.out.println(incoming.submission.filePath);
-				e.printStackTrace();
 			} finally {
 				// cleanup if we spun up an external package for screenshots
 				if (shotPackage != map) {
