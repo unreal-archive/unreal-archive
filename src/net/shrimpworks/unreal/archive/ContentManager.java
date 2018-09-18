@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class ContentManager {
 
 	private final Path path;
-	private final Map<String, Content> content;
+	private final Map<String, ContentHolder> content;
 
 	private final Set<String> changes;
 
@@ -34,7 +34,7 @@ public class ContentManager {
 			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 				if (Util.extension(file).equalsIgnoreCase("yml")) {
 					Content c = YAML.fromFile(file, Content.class);
-					content.put(c.hash, c);
+					content.put(c.hash, new ContentHolder(file, c));
 				}
 				return FileVisitResult.CONTINUE;
 			}
@@ -43,12 +43,12 @@ public class ContentManager {
 
 	public Map<Class<? extends Content>, Long> countByType() {
 		return content.values().stream()
-					  .collect(Collectors.groupingBy(Content::getClass, Collectors.counting()));
+					  .collect(Collectors.groupingBy(v -> v.content.getClass(), Collectors.counting()));
 	}
 
 	public Map<String, Long> countByGame() {
 		return content.values().stream()
-					  .collect(Collectors.groupingBy(v -> v.game, Collectors.counting()));
+					  .collect(Collectors.groupingBy(v -> v.content.game, Collectors.counting()));
 	}
 
 	// intent: when some content is going to be worked on, a clone is checked out.
@@ -60,23 +60,24 @@ public class ContentManager {
 
 	@SuppressWarnings("unchecked")
 	public Content checkout(String hash) {
-		Content out = this.content.get(hash);
+		ContentHolder out = this.content.get(hash);
 		if (out != null) {
 			try {
-				return YAML.fromString(YAML.toString(out), Content.class);
+				return YAML.fromString(YAML.toString(out.content), Content.class);
 			} catch (IOException e) {
-				throw new IllegalStateException("Cannot clone content " + out);
+				throw new IllegalStateException("Cannot clone content " + out.content);
 			}
 		}
 		return null;
 	}
 
 	public boolean checkin(IndexResult<? extends Content> indexed) throws IOException {
-		Content current = this.content.get(indexed.content.hash);
-		if (!indexed.content.equals(current)) {
+		ContentHolder current = this.content.get(indexed.content.hash);
+
+		if (current == null || !indexed.content.equals(current.content)) {
 			Path prior = null;
 			if (current != null) {
-				prior = indexed.content.contentPath(path);
+				prior = current.path.getParent();
 			}
 
 			// lets store the content \o/
@@ -84,10 +85,15 @@ public class ContentManager {
 			Files.createDirectories(next);
 
 			if (prior != null) {
-				// TODO copy old content to new directory
+				// copy old content to new directory
+				Set<Path> oldFiles = Files.list(prior).collect(Collectors.toSet());
+				for (Path oldFile : oldFiles) {
+					if (Files.isRegularFile(oldFile)) Files.move(oldFile, next.resolve(oldFile.getFileName()));
+				}
 			}
 
-			Files.write(next.resolve(indexed.content.name + ".yml"), YAML.toString(indexed.content).getBytes(StandardCharsets.UTF_8),
+			Path newYml = next.resolve(indexed.content.name + ".yml");
+			Files.write(newYml, YAML.toString(indexed.content).getBytes(StandardCharsets.UTF_8),
 						StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 
 			for (IndexResult.CreatedFile file : indexed.files) {
@@ -95,14 +101,26 @@ public class ContentManager {
 			}
 
 			if (prior != null) {
-				// TODO recursively clean out the old directory and remove it
+				// clean out the old directory and remove it
+				ArchiveUtil.cleanPath(prior);
 			}
 
-			this.content.put(indexed.content.hash, indexed.content);
+			this.content.put(indexed.content.hash, new ContentHolder(newYml, indexed.content));
 			this.changes.add(indexed.content.hash);
 
 			return true;
 		}
 		return false;
+	}
+
+	private static class ContentHolder {
+
+		private final Path path;
+		private final Content content;
+
+		public ContentHolder(Path path, Content content) {
+			this.path = path;
+			this.content = content;
+		}
 	}
 }

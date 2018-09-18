@@ -52,7 +52,8 @@ public class Incoming implements Closeable {
 		}
 
 		umods.clear();
-		files.clear();
+
+		if (files != null) files.clear();
 
 		// clean up contentRoot
 		if (contentRoot != null) {
