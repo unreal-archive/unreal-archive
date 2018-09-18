@@ -10,13 +10,13 @@ public class ContentClassifier {
 
 	public enum ContentType {
 		MAP(new MapClassifier(), new MapIndexer.MapIndexerFactory(), Map.class),
-		MAP_PACK(new NoOpClassifier(), new ContentIndexer.NoOpIndexerFactory(), Content.class),
-		SKIN(new NoOpClassifier(), new ContentIndexer.NoOpIndexerFactory(), Content.class),
-		MODEL(new NoOpClassifier(), new ContentIndexer.NoOpIndexerFactory(), Content.class),
-		VOICE(new NoOpClassifier(), new ContentIndexer.NoOpIndexerFactory(), Content.class),
-		MUTATOR(new NoOpClassifier(), new ContentIndexer.NoOpIndexerFactory(), Content.class),
-		MOD(new NoOpClassifier(), new ContentIndexer.NoOpIndexerFactory(), Content.class),
-		UNKNOWN(new NoOpClassifier(), new ContentIndexer.NoOpIndexerFactory(), Content.class),
+		MAP_PACK(new NoOpClassifier(), new ContentIndexer.NoOpIndexerFactory(), UnknownContent.class),
+		SKIN(new NoOpClassifier(), new ContentIndexer.NoOpIndexerFactory(), UnknownContent.class),
+		MODEL(new NoOpClassifier(), new ContentIndexer.NoOpIndexerFactory(), UnknownContent.class),
+		VOICE(new NoOpClassifier(), new ContentIndexer.NoOpIndexerFactory(), UnknownContent.class),
+		MUTATOR(new NoOpClassifier(), new ContentIndexer.NoOpIndexerFactory(), UnknownContent.class),
+		MOD(new NoOpClassifier(), new ContentIndexer.NoOpIndexerFactory(), UnknownContent.class),
+		UNKNOWN(new NoOpClassifier(), new ContentIndexer.NoOpIndexerFactory(), UnknownContent.class),
 		;
 
 		public final Classifier classifier;

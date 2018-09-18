@@ -2,21 +2,52 @@ package net.shrimpworks.unreal.archive;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Main {
 
+	private static final String OPTION_PATTERN = "--([a-zA-Z0-9-_]+)=(.+)?";
+
 	public static void main(String[] args) throws IOException {
+		Map<String, String> options = parseCLI(Collections.emptyMap(), args);
+
+		if (options.get("content-path") == null) {
+			System.err.println("content-path must be specified!");
+			System.exit(1);
+		}
+
+		if (options.get("input-path") == null) {
+			System.err.println("input-path must be specified!");
+			System.exit(1);
+		}
+
+		Path contentPath = Paths.get(options.get("content-path"));
+		if (!Files.isDirectory(contentPath)) {
+			System.err.println("content-path must be a directory!");
+			System.exit(2);
+		}
+
+		Path inputPath = Paths.get(options.get("input-path"));
+		if (!Files.isDirectory(inputPath)) {
+			System.err.println("input-path must be a directory!");
+			System.exit(3);
+		}
 
 		final List<IndexLog> indexLogs = new ArrayList<>();
 
-		Files.list(Paths.get("/home/shrimp/tmp/maps2/")).sorted().forEach(f -> {
+		final ContentManager contentManager = new ContentManager(contentPath);
 
-			if (f.toString().endsWith("tmp")) return;
+		Files.list(inputPath).sorted().forEach(f -> {
 
 			ContentSubmission sub = new ContentSubmission(f);
 			IndexLog log = new IndexLog(sub);
@@ -67,4 +98,25 @@ public class Main {
 
 		System.out.printf("%nCompleted indexing %d files, with %d errors%n", indexLogs.size(), err);
 	}
+
+	private static Map<String, String> parseCLI(Map<String, String> defOptions, String... args) {
+		final Map<String, String> props = new HashMap<>();
+
+		// populate default options
+		props.putAll(defOptions);
+
+		Pattern optPattern = Pattern.compile(OPTION_PATTERN);
+
+		final StringBuilder commandBuilder = new StringBuilder();
+
+		for (String arg : args) {
+			Matcher optMatcher = optPattern.matcher(arg);
+
+			if (optMatcher.matches()) {
+				props.put(optMatcher.group(1), optMatcher.group(2) == null ? "" : optMatcher.group(2));
+			}
+		}
+		return props;
+	}
+
 }

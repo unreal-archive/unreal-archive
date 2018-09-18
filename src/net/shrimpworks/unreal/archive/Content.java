@@ -12,8 +12,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 // there appears to be weird mapping issues when using @JsonTypeInfo with YAML
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, visible = true, property = "contentType")
-@JsonSubTypes({ @JsonSubTypes.Type(value = Content.class, name = "UNKNOWN") })
-public class Content {
+public abstract class Content {
 
 	public static final DateTimeFormatter RELEASE_DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM").withZone(ZoneId.systemDefault());
 
