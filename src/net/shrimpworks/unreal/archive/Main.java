@@ -38,8 +38,8 @@ public class Main {
 		}
 
 		Path inputPath = Paths.get(options.get("input-path"));
-		if (!Files.isDirectory(inputPath)) {
-			System.err.println("input-path must be a directory!");
+		if (!Files.exists(inputPath)) {
+			System.err.println("input-path does not exist!");
 			System.exit(3);
 		}
 
@@ -59,56 +59,21 @@ public class Main {
 		}
 
 		// go through all the files in the input path and index them if new
-		Files.list(inputPath).sorted().forEach(f -> {
+		if (Files.isDirectory(inputPath)) {
+			Files.list(inputPath).sorted().forEach(f -> {
+				ContentSubmission sub = new ContentSubmission(f);
+				IndexLog log = new IndexLog(sub);
+				indexLogs.add(log);
 
-			ContentSubmission sub = new ContentSubmission(f);
+				indexFile(sub, contentManager, log);
+			});
+		} else {
+			ContentSubmission sub = new ContentSubmission(inputPath);
 			IndexLog log = new IndexLog(sub);
 			indexLogs.add(log);
 
-			try (Incoming incoming = new Incoming(sub, log)) {
-				Content content = contentManager.checkout(incoming.hash);
-
-				if (content != null) {
-					// lets not support re-index yet
-					return;
-				}
-
-				incoming.prepare();
-
-				ContentClassifier.ContentType type = ContentClassifier.classify(incoming, log);
-
-				content = type.newContent(incoming);
-
-				if (type != ContentClassifier.ContentType.UNKNOWN) { // TODO later support a generic dumping ground for unknown content
-
-					type.indexer.get().index(incoming, content, log, c -> {
-						try {
-							c.content.lastIndex = LocalDateTime.now();
-							if (sub.sourceUrls != null && sub.sourceUrls.length > 0) {
-								for (String url : sub.sourceUrls) {
-									c.content.downloads.add(new Download(url, LocalDate.now(), false));
-								}
-							}
-
-							// TODO upload file to our storage, and add to downloads url set
-
-//							Path repack = incoming.getRepack(c.name);
-
-							contentManager.checkin(c);
-						} catch (IOException e) {
-							System.out.println("Failed to output " + f.toString());
-							e.printStackTrace();
-						}
-					});
-				} else {
-					log.log(IndexLog.EntryType.FATAL, "File " + f + " cannot be classified.");
-				}
-			} catch (Throwable e) {
-				log.log(IndexLog.EntryType.FATAL, e.getMessage(), e);
-				System.out.println("Failed processing " + f.toString());
-				e.printStackTrace();
-			}
-		});
+			indexFile(sub, contentManager, log);
+		}
 
 		int err = 0;
 
@@ -120,6 +85,51 @@ public class Main {
 		}
 
 		System.out.printf("%nCompleted indexing %d files, with %d errors%n", indexLogs.size(), err);
+	}
+
+	private static void indexFile(ContentSubmission sub, ContentManager contentManager, IndexLog log) {
+		try (Incoming incoming = new Incoming(sub, log)) {
+			Content content = contentManager.checkout(incoming.hash);
+
+			if (content != null) {
+				// lets not support re-index yet
+				return;
+			}
+
+			incoming.prepare();
+
+			ContentClassifier.ContentType type = ContentClassifier.classify(incoming, log);
+
+			content = type.newContent(incoming);
+
+			if (type != ContentClassifier.ContentType.UNKNOWN) { // TODO later support a generic dumping ground for unknown content
+
+				type.indexer.get().index(incoming, content, log, c -> {
+					try {
+						c.content.lastIndex = LocalDateTime.now();
+						if (sub.sourceUrls != null && sub.sourceUrls.length > 0) {
+							for (String url : sub.sourceUrls) {
+								c.content.downloads.add(new Download(url, LocalDate.now(), false));
+							}
+						}
+
+						// TODO upload file to our storage, and add to downloads url set
+
+//							Path repack = incoming.getRepack(c.name);
+
+						contentManager.checkin(c);
+					} catch (IOException e) {
+						log.log(IndexLog.EntryType.FATAL, "Failed to store content file data for " + sub.filePath.toString());
+					}
+				});
+			} else {
+				log.log(IndexLog.EntryType.FATAL, "File " + sub.filePath + " cannot be classified.");
+			}
+		} catch (Throwable e) {
+			log.log(IndexLog.EntryType.FATAL, e.getMessage(), e);
+//			System.out.println("Failed processing " + f.toString());
+//			e.printStackTrace();
+		}
 	}
 
 	private static Map<String, String> parseCLI(Map<String, String> defOptions, String... args) {
