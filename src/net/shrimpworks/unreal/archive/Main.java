@@ -10,9 +10,12 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
@@ -48,6 +51,9 @@ public class Main {
 				break;
 			case "summary":
 				summary(contentManager);
+				break;
+			case "show":
+				show(contentManager, cli);
 				break;
 			default:
 				System.out.printf("Command \"%s\" has not been implemented!", cli.commands()[0]);
@@ -177,6 +183,33 @@ public class Main {
 		}
 	}
 
+	private static void show(ContentManager contentManager, CLI cli) throws IOException {
+		if (cli.commands().length < 2) {
+			System.err.println("List of content hashes or names expected");
+			System.exit(255);
+		}
+
+		Set<Content> results = new HashSet<>();
+
+		String[] terms = Arrays.copyOfRange(cli.commands(), 1, cli.commands().length);
+		for (String term : terms) {
+			if (term.matches("[a-f0-9]{40}")) {
+				Content found = contentManager.get(term);
+				if (found != null) results.add(found);
+			} else {
+				results.addAll(contentManager.find(term));
+			}
+		}
+
+		if (results.isEmpty()) {
+			System.out.printf("No results for terms %s found", Arrays.toString(terms));
+		} else {
+			for (Content result : results) {
+				System.out.println(YAML.toString(result));
+			}
+		}
+	}
+
 	private static void usage() {
 		System.out.println("Unreal Archive");
 		System.out.println("Usage: unreal-archive.jar <command> [options]");
@@ -190,8 +223,8 @@ public class Main {
 		System.out.println("    Download all content in the index to <output-path>");
 		System.out.println("  summary --content-path=<path>");
 		System.out.println("    Show stats and counters for the content index in <content-path>");
-		System.out.println("  ls [game] [type] --content-path=<path>");
-		System.out.println("    List indexed content in <content-path>, filtered by game or type");
+		System.out.println("  ls [--game=<game>] [--type=<type>] [--author=<author>] --content-path=<path>");
+		System.out.println("    List indexed content in <content-path>, filtered by game, type or author");
 		System.out.println("  show [name ...] [hash ...] --content-path=<path>");
 		System.out.println("    Show data for the content items specified");
 	}

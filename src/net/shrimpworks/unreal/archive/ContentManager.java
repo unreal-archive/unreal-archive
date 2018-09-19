@@ -9,6 +9,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -53,6 +54,20 @@ public class ContentManager {
 	public Map<String, Long> countByGame() {
 		return content.values().stream()
 					  .collect(Collectors.groupingBy(v -> v.content.game, Collectors.counting()));
+	}
+
+	public Collection<Content> find(String name) {
+		return content.values().parallelStream()
+					  .filter(c -> c.content.name.equalsIgnoreCase(name))
+					  .map(c -> c.content)
+					  .collect(Collectors.toSet());
+	}
+
+	public Content get(String hash) {
+		ContentHolder contentHolder = content.get(hash);
+		if (contentHolder != null) return contentHolder.content;
+
+		return null;
 	}
 
 	// intent: when some content is going to be worked on, a clone is checked out.
