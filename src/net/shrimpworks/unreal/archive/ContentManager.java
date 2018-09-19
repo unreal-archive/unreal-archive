@@ -41,6 +41,10 @@ public class ContentManager {
 		});
 	}
 
+	public int size() {
+		return content.size();
+	}
+
 	public Map<Class<? extends Content>, Long> countByType() {
 		return content.values().stream()
 					  .collect(Collectors.groupingBy(v -> v.content.getClass(), Collectors.counting()));

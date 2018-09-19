@@ -8,55 +8,62 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Main {
 
-	private static final String OPTION_PATTERN = "--([a-zA-Z0-9-_]+)=(.+)?";
-
 	public static void main(String[] args) throws IOException {
-		Map<String, String> options = parseCLI(Collections.emptyMap(), args);
+		final CLI cli = CLI.parse(Collections.emptyMap(), args);
 
-		if (options.get("content-path") == null) {
+		if (cli.commands().length == 0) {
+			usage();
+			System.exit(1);
+		}
+
+		if (cli.option("content-path", null) == null) {
 			System.err.println("content-path must be specified!");
-			System.exit(1);
-		}
-
-		if (options.get("input-path") == null) {
-			System.err.println("input-path must be specified!");
-			System.exit(1);
-		}
-
-		Path contentPath = Paths.get(options.get("content-path"));
-		if (!Files.isDirectory(contentPath)) {
-			System.err.println("content-path must be a directory!");
 			System.exit(2);
 		}
 
-		Path inputPath = Paths.get(options.get("input-path"));
-		if (!Files.exists(inputPath)) {
-			System.err.println("input-path does not exist!");
+		Path contentPath = Paths.get(cli.option("content-path", null));
+		if (!Files.isDirectory(contentPath)) {
+			System.err.println("content-path must be a directory!");
 			System.exit(3);
 		}
 
-		final List<IndexLog> indexLogs = new ArrayList<>();
-
+		final long start = System.currentTimeMillis();
 		final ContentManager contentManager = new ContentManager(contentPath);
+		System.out.printf("Loaded content index with %d items in %.2fs%n",
+						  contentManager.size(), (System.currentTimeMillis() - start) / 1000f);
 
-		Map<Class<? extends Content>, Long> byType = contentManager.countByType();
-		if (byType.size() > 0) {
-			System.out.println("Current content by Type:");
-			byType.forEach((type, count) -> System.out.printf(" > %s: %d%n", type.getSimpleName(), count));
-
-			System.out.println("Current content by Game:");
-			contentManager.countByGame().forEach((game, count) -> System.out.printf(" > %s: %d%n", game, count));
-		} else {
-			System.out.println("No content stored yet");
+		switch (cli.commands()[0].toLowerCase()) {
+			case "index":
+				index(contentManager, cli);
+				break;
+			case "summary":
+				summary(contentManager);
+				break;
+			default:
+				System.out.printf("Command \"%s\" has not been implemented!", cli.commands()[0]);
 		}
+
+	}
+
+	private static void index(ContentManager contentManager, CLI cli) throws IOException {
+
+		if (cli.option("input-path", null) == null) {
+			System.err.println("input-path must be specified!");
+			System.exit(2);
+		}
+
+		Path inputPath = Paths.get(cli.option("input-path", null));
+		if (!Files.exists(inputPath)) {
+			System.err.println("input-path does not exist!");
+			System.exit(4);
+		}
+
+		final List<IndexLog> indexLogs = new ArrayList<>();
 
 		// go through all the files in the input path and index them if new
 		if (Files.isDirectory(inputPath)) {
@@ -127,29 +134,38 @@ public class Main {
 			}
 		} catch (Throwable e) {
 			log.log(IndexLog.EntryType.FATAL, e.getMessage(), e);
-//			System.out.println("Failed processing " + f.toString());
-//			e.printStackTrace();
 		}
 	}
 
-	private static Map<String, String> parseCLI(Map<String, String> defOptions, String... args) {
-		final Map<String, String> props = new HashMap<>();
+	private static void summary(ContentManager contentManager) {
+		Map<Class<? extends Content>, Long> byType = contentManager.countByType();
+		if (byType.size() > 0) {
+			System.out.println("Current content by Type:");
+			byType.forEach((type, count) -> System.out.printf(" > %s: %d%n", type.getSimpleName(), count));
 
-		// populate default options
-		props.putAll(defOptions);
-
-		Pattern optPattern = Pattern.compile(OPTION_PATTERN);
-
-		final StringBuilder commandBuilder = new StringBuilder();
-
-		for (String arg : args) {
-			Matcher optMatcher = optPattern.matcher(arg);
-
-			if (optMatcher.matches()) {
-				props.put(optMatcher.group(1), optMatcher.group(2) == null ? "" : optMatcher.group(2));
-			}
+			System.out.println("Current content by Game:");
+			contentManager.countByGame().forEach((game, count) -> System.out.printf(" > %s: %d%n", game, count));
+		} else {
+			System.out.println("No content stored yet");
 		}
-		return props;
 	}
 
+	private static void usage() {
+		System.out.println("Unreal Archive");
+		System.out.println("Usage: unreal-archive.jar <command> [options]");
+		System.out.println();
+		System.out.println("Commands:");
+		System.out.println("  index --content-path=<path> --input-path=<path>");
+		System.out.println("    Index the contents of <input-path>, writing the results to <content-path>");
+		System.out.println("  refresh --content-path=<path>");
+		System.out.println("    Perform a liveliness check of all download URLs");
+		System.out.println("  mirror --content-path=<path> --output-path=<path>");
+		System.out.println("    Download all content in the index to <output-path>");
+		System.out.println("  summary --content-path=<path>");
+		System.out.println("    Show stats and counters for the content index in <content-path>");
+		System.out.println("  ls [game] [type] --content-path=<path>");
+		System.out.println("    List indexed content in <content-path>, filtered by game or type");
+		System.out.println("  show [name ...] [hash ...] --content-path=<path>");
+		System.out.println("    Show data for the content items specified");
+	}
 }
