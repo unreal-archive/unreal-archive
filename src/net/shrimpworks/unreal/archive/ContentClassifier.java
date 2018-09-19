@@ -75,7 +75,7 @@ public class ContentClassifier {
 			}
 		}
 
-		log.log(IndexLog.EntryType.FATAL, "Unable to classify content " + incoming);
+		log.log(IndexLog.EntryType.FATAL, "Unable to classify content in " + incoming.submission.filePath);
 
 		return ContentType.UNKNOWN;
 	}

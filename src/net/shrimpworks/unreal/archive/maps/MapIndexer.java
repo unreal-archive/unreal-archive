@@ -99,7 +99,11 @@ public class MapIndexer implements ContentIndexer<Map> {
 			else m.game = "Unreal Tournament 2004";
 
 			// read level info (also in LevelSummary, but missing Screenshot)
-			ExportedObject levelInfo = map.objectsByClassName("LevelInfo").iterator().next();
+			Collection<ExportedObject> maybeLevelInfo = map.objectsByClassName("LevelInfo");
+			if (maybeLevelInfo == null || maybeLevelInfo.isEmpty()) {
+				throw new IllegalArgumentException("Could not find LevelInfo in map");
+			}
+			ExportedObject levelInfo = maybeLevelInfo.iterator().next();
 
 			if (levelInfo == null) throw new IllegalStateException("No LevelInfo in the map?!");
 
@@ -146,10 +150,10 @@ public class MapIndexer implements ContentIndexer<Map> {
 				files.add(new IndexResult.CreatedFile(shotName, out));
 			}
 
-		} catch (IllegalStateException | IllegalArgumentException | UnsupportedOperationException e) {
-			log.log(IndexLog.EntryType.CONTINUE, e.getMessage(), e);
 		} catch (IOException e) {
 			log.log(IndexLog.EntryType.CONTINUE, "Failed to read map package", e);
+		} catch (Exception e) {
+			log.log(IndexLog.EntryType.CONTINUE, "Caught while parsing map: " + e.getMessage(), e);
 		}
 
 		completed.accept(new IndexResult<>(m, files));

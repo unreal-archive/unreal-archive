@@ -1,15 +1,20 @@
 package net.shrimpworks.unreal.archive;
 
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 public class Main {
 
@@ -67,34 +72,55 @@ public class Main {
 
 		// go through all the files in the input path and index them if new
 		if (Files.isDirectory(inputPath)) {
-			Files.list(inputPath).sorted().forEach(f -> {
+
+			List<Path> all = new ArrayList<>();
+			Files.walkFileTree(inputPath, new SimpleFileVisitor<Path>() {
+				@Override
+				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+					if (!Util.extension(file).equalsIgnoreCase("yml")) all.add(file);
+					return FileVisitResult.CONTINUE;
+				}
+			});
+
+			System.out.printf("Found %d maps to index in %s%n", all.size(), inputPath);
+
+			AtomicInteger done = new AtomicInteger();
+
+			all.stream().sorted().forEach(f -> {
 				ContentSubmission sub = new ContentSubmission(f);
 				IndexLog log = new IndexLog(sub);
 				indexLogs.add(log);
 
-				indexFile(sub, contentManager, log);
+				indexFile(sub, contentManager, log, c -> {
+					for (IndexLog.LogEntry l : log.log) {
+						System.out.printf("[%s] %s: %s%n", l.type, Util.fileName(c.filePath.getFileName()), l.message);
+						if (l.exception != null
+							&& (cli.option("verbose", "").equalsIgnoreCase("true") || cli.option("verbose", "").equalsIgnoreCase("1"))) {
+							l.exception.printStackTrace(System.out);
+						}
+					}
+					System.out.printf("Completed %d of %d\r", done.incrementAndGet(), all.size());
+				});
 			});
 		} else {
 			ContentSubmission sub = new ContentSubmission(inputPath);
 			IndexLog log = new IndexLog(sub);
 			indexLogs.add(log);
 
-			indexFile(sub, contentManager, log);
+			indexFile(sub, contentManager, log, c -> {
+			});
 		}
 
 		int err = 0;
 
 		for (IndexLog l : indexLogs) {
-			if (!l.ok()) {
-				err++;
-				System.out.println(l);
-			}
+			if (!l.ok()) err++;
 		}
 
 		System.out.printf("%nCompleted indexing %d files, with %d errors%n", indexLogs.size(), err);
 	}
 
-	private static void indexFile(ContentSubmission sub, ContentManager contentManager, IndexLog log) {
+	private static void indexFile(ContentSubmission sub, ContentManager contentManager, IndexLog log, Consumer<ContentSubmission> done) {
 		try (Incoming incoming = new Incoming(sub, log)) {
 			Content content = contentManager.checkout(incoming.hash);
 
@@ -129,11 +155,12 @@ public class Main {
 						log.log(IndexLog.EntryType.FATAL, "Failed to store content file data for " + sub.filePath.toString());
 					}
 				});
-			} else {
-				log.log(IndexLog.EntryType.FATAL, "File " + sub.filePath + " cannot be classified.");
+
 			}
 		} catch (Throwable e) {
 			log.log(IndexLog.EntryType.FATAL, e.getMessage(), e);
+		} finally {
+			done.accept(sub);
 		}
 	}
 

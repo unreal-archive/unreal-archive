@@ -2,6 +2,7 @@ package net.shrimpworks.unreal.archive;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -37,6 +38,8 @@ public class YAML {
 		MAPPER.registerModule(module.addSerializer(LocalDateTime.class, new DateTimeSerializer()));
 		MAPPER.registerModule(module.addDeserializer(LocalDate.class, new DateDeserializer()));
 		MAPPER.registerModule(module.addSerializer(LocalDate.class, new DateSerializer()));
+		MAPPER.registerModule(module.addDeserializer(Path.class, new PathDeserializer()));
+		MAPPER.registerModule(module.addSerializer(Path.class, new PathSerializer()));
 	}
 
 	public static String toString(Object object) throws IOException {
@@ -84,6 +87,24 @@ public class YAML {
 			jsonParser.setCodec(MAPPER);
 			JsonNode node = jsonParser.readValueAsTree();
 			return LocalDate.parse(node.asText(), DATE_FORMAT);
+		}
+	}
+
+	private static class PathSerializer extends JsonSerializer<Path> {
+
+		@Override
+		public void serialize(Path value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+			jgen.writeString(value.toAbsolutePath().toString());
+		}
+	}
+
+	private static class PathDeserializer extends JsonDeserializer<Path> {
+
+		@Override
+		public Path deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+			jsonParser.setCodec(MAPPER);
+			JsonNode node = jsonParser.readValueAsTree();
+			return Paths.get(node.asText());
 		}
 	}
 
