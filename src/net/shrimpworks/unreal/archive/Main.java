@@ -52,6 +52,9 @@ public class Main {
 			case "summary":
 				summary(contentManager);
 				break;
+			case "ls":
+				list(contentManager, cli);
+				break;
 			case "show":
 				show(contentManager, cli);
 				break;
@@ -183,6 +186,33 @@ public class Main {
 		}
 	}
 
+	private static void list(ContentManager contentManager, CLI cli) throws IOException {
+		String game = cli.option("game", null);
+		String type = cli.option("type", null);
+		String author = cli.option("author", null);
+		String name = cli.option("name", null);
+
+		if (null == game && type == null && author == null && name == null) {
+			System.err.println("Options to search by game, type, author or name are expected");
+			System.exit(255);
+		}
+
+		Set<Content> results = new HashSet<>(contentManager.search(game, type, name, author));
+
+		if (results.isEmpty()) {
+			System.out.println("No results found");
+		} else {
+			System.out.printf("%-22s | %-10s | %-30s | %-20s | %s%n", "Game", "Type", "Name", "Author", "Hash");
+			for (Content result : results) {
+				System.out.printf("%-22s | %-10s | %-30s | %-20s | %s%n",
+								  result.game, result.contentType,
+								  result.name.substring(0, Math.min(20, result.name.length())),
+								  result.author.substring(0, Math.min(20, result.author.length())),
+								  result.hash);
+			}
+		}
+	}
+
 	private static void show(ContentManager contentManager, CLI cli) throws IOException {
 		if (cli.commands().length < 2) {
 			System.err.println("List of content hashes or names expected");
@@ -194,15 +224,15 @@ public class Main {
 		String[] terms = Arrays.copyOfRange(cli.commands(), 1, cli.commands().length);
 		for (String term : terms) {
 			if (term.matches("[a-f0-9]{40}")) {
-				Content found = contentManager.get(term);
+				Content found = contentManager.forHash(term);
 				if (found != null) results.add(found);
 			} else {
-				results.addAll(contentManager.find(term));
+				results.addAll(contentManager.forName(term));
 			}
 		}
 
 		if (results.isEmpty()) {
-			System.out.printf("No results for terms %s found", Arrays.toString(terms));
+			System.out.printf("No results for terms %s found%n", Arrays.toString(terms));
 		} else {
 			for (Content result : results) {
 				System.out.println(YAML.toString(result));

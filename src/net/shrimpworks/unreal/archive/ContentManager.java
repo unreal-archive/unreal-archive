@@ -56,14 +56,27 @@ public class ContentManager {
 					  .collect(Collectors.groupingBy(v -> v.content.game, Collectors.counting()));
 	}
 
-	public Collection<Content> find(String name) {
+	public Collection<Content> search(String game, String type, String name, String author) {
+		return content.values().parallelStream()
+					  .map(c -> c.content)
+					  .filter(c -> {
+						  boolean match = (game == null || c.game.equalsIgnoreCase(game));
+						  match = match && (type == null || c.contentType.equalsIgnoreCase(type));
+						  match = match && (author == null || c.author.toLowerCase().contains(author.toLowerCase()));
+						  match = match && (name == null || c.name.toLowerCase().contains(name.toLowerCase()));
+						  return match;
+					  })
+					  .collect(Collectors.toSet());
+	}
+
+	public Collection<Content> forName(String name) {
 		return content.values().parallelStream()
 					  .filter(c -> c.content.name.equalsIgnoreCase(name))
 					  .map(c -> c.content)
 					  .collect(Collectors.toSet());
 	}
 
-	public Content get(String hash) {
+	public Content forHash(String hash) {
 		ContentHolder contentHolder = content.get(hash);
 		if (contentHolder != null) return contentHolder.content;
 
