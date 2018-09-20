@@ -197,12 +197,17 @@ public class MapIndexer implements ContentIndexer<Map> {
 		if (name.toLowerCase().startsWith("vctf")) return "Vehicle Capture The Flag";
 		if (name.toLowerCase().startsWith("mh")) return "Monster Hunt";
 		if (name.toLowerCase().startsWith("ma")) return "Monster Arena";
+		if (name.toLowerCase().startsWith("tmh")) return "Team Monster Arena";
 		if (name.toLowerCase().startsWith("ra")) return "Rocket Arena";
 		if (name.toLowerCase().startsWith("jb")) return "Jailbreak";
 		if (name.toLowerCase().startsWith("to")) return "Tactical Ops";
 		if (name.toLowerCase().startsWith("inf")) return "Infiltration";
 		if (name.toLowerCase().startsWith("bt")) return "BunnyTrack";
 		if (name.toLowerCase().startsWith("uw")) return "UnWheel";
+		if (name.toLowerCase().startsWith("scr")) return "Soccer";
+		if (name.toLowerCase().startsWith("th")) return "Thievery";
+		if (name.toLowerCase().startsWith("u4e")) return "Unreal4Ever";
+		if (name.toLowerCase().startsWith("unf")) return "Unreal Fortress";
 		return "Unknown";
 	}
 
