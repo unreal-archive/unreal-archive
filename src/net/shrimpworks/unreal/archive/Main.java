@@ -19,6 +19,8 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
+import net.shrimpworks.unreal.archive.scraper.AutoIndexPHPScraper;
+
 public class Main {
 
 	public static void main(String[] args) throws IOException {
@@ -42,7 +44,7 @@ public class Main {
 
 		final long start = System.currentTimeMillis();
 		final ContentManager contentManager = new ContentManager(contentPath);
-		System.out.printf("Loaded content index with %d items in %.2fs%n",
+		System.err.printf("Loaded content index with %d items in %.2fs%n",
 						  contentManager.size(), (System.currentTimeMillis() - start) / 1000f);
 
 		switch (cli.commands()[0].toLowerCase()) {
@@ -57,6 +59,9 @@ public class Main {
 				break;
 			case "show":
 				show(contentManager, cli);
+				break;
+			case "scrape":
+				scrape(cli);
 				break;
 			default:
 				System.out.printf("Command \"%s\" has not been implemented!", cli.commands()[0]);
@@ -240,6 +245,22 @@ public class Main {
 		}
 	}
 
+	private static void scrape(CLI cli) throws IOException {
+		if (cli.commands().length < 3) {
+			System.err.println("A scraper type and base URL are required");
+			System.exit(255);
+		}
+
+		switch (cli.commands()[1]) {
+			case "autoindexphp":
+				AutoIndexPHPScraper.index(cli);
+				break;
+			default:
+				throw new UnsupportedOperationException("Scraper not supported: " + cli.commands()[1]);
+		}
+
+	}
+
 	private static void usage() {
 		System.out.println("Unreal Archive");
 		System.out.println("Usage: unreal-archive.jar <command> [options]");
@@ -257,5 +278,9 @@ public class Main {
 		System.out.println("    List indexed content in <content-path>, filtered by game, type or author");
 		System.out.println("  show [name ...] [hash ...] --content-path=<path>");
 		System.out.println("    Show data for the content items specified");
+		System.out.println("  scrape <type> <start-url> --style-prefix=<prefix> --content-path=<path>");
+		System.out.println("    Scrape file listings from the provided URL, <type> is the type of scraper ");
+		System.out.println("    to use ('autoindexphp' supported), and <style-prefix> is the prefix used in ");
+		System.out.println("    styles on Autoindex PHP links.");
 	}
 }
