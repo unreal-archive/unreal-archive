@@ -202,6 +202,7 @@ public class MapIndexer implements ContentIndexer<Map> {
 		if (name.toLowerCase().startsWith("to")) return "Tactical Ops";
 		if (name.toLowerCase().startsWith("inf")) return "Infiltration";
 		if (name.toLowerCase().startsWith("bt")) return "BunnyTrack";
+		if (name.toLowerCase().startsWith("uw")) return "UnWheel";
 		return "Unknown";
 	}
 
