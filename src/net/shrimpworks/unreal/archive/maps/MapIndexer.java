@@ -186,6 +186,7 @@ public class MapIndexer implements ContentIndexer<Map> {
 
 	private String gameType(Incoming incoming, String name) {
 		if (name.toLowerCase().startsWith("dm")) return "Deathmatch";
+		if (name.toLowerCase().startsWith("ctf-bt")) return "BunnyTrack";
 		if (name.toLowerCase().startsWith("ctf4")) return "Multi-team Capture The Flag";
 		if (name.toLowerCase().startsWith("ctfm")) return "Multi-team Capture The Flag";
 		if (name.toLowerCase().startsWith("ctf")) return "Capture The Flag";
@@ -198,6 +199,9 @@ public class MapIndexer implements ContentIndexer<Map> {
 		if (name.toLowerCase().startsWith("ma")) return "Monster Arena";
 		if (name.toLowerCase().startsWith("ra")) return "Rocket Arena";
 		if (name.toLowerCase().startsWith("jb")) return "Jailbreak";
+		if (name.toLowerCase().startsWith("to")) return "Tactical Ops";
+		if (name.toLowerCase().startsWith("inf")) return "Infiltration";
+		if (name.toLowerCase().startsWith("bt")) return "BunnyTrack";
 		return "Unknown";
 	}
 
