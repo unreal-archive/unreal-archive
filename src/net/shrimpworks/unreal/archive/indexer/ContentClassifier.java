@@ -5,13 +5,16 @@ import java.time.LocalDateTime;
 import net.shrimpworks.unreal.archive.indexer.maps.Map;
 import net.shrimpworks.unreal.archive.indexer.maps.MapClassifier;
 import net.shrimpworks.unreal.archive.indexer.maps.MapIndexer;
+import net.shrimpworks.unreal.archive.indexer.skins.Skin;
+import net.shrimpworks.unreal.archive.indexer.skins.SkinClassifier;
+import net.shrimpworks.unreal.archive.indexer.skins.SkinIndexer;
 
 public class ContentClassifier {
 
 	public enum ContentType {
 		MAP(new MapClassifier(), new MapIndexer.MapIndexerFactory(), Map.class),
 		MAP_PACK(new NoOpClassifier(), new ContentIndexer.NoOpIndexerFactory(), UnknownContent.class),
-		SKIN(new NoOpClassifier(), new ContentIndexer.NoOpIndexerFactory(), UnknownContent.class),
+		SKIN(new SkinClassifier(), new SkinIndexer.SkinIndexerFactory(), Skin.class),
 		MODEL(new NoOpClassifier(), new ContentIndexer.NoOpIndexerFactory(), UnknownContent.class),
 		VOICE(new NoOpClassifier(), new ContentIndexer.NoOpIndexerFactory(), UnknownContent.class),
 		MUTATOR(new NoOpClassifier(), new ContentIndexer.NoOpIndexerFactory(), UnknownContent.class),

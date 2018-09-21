@@ -12,11 +12,13 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import net.shrimpworks.unreal.archive.indexer.maps.Map;
+import net.shrimpworks.unreal.archive.indexer.skins.Skin;
 
 // there appears to be weird mapping issues when using @JsonTypeInfo with YAML
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, visible = true, property = "contentType")
 @JsonSubTypes({
 		@JsonSubTypes.Type(value = Map.class, name = "MAP"),
+		@JsonSubTypes.Type(value = Skin.class, name = "SKIN"),
 		@JsonSubTypes.Type(value = UnknownContent.class, name = "UNKNOWN")
 })
 public abstract class Content {
