@@ -1,7 +1,7 @@
-package net.shrimpworks.unreal.archive.maps;
+package net.shrimpworks.unreal.archive.indexer.maps;
 
-import net.shrimpworks.unreal.archive.ContentClassifier;
-import net.shrimpworks.unreal.archive.Incoming;
+import net.shrimpworks.unreal.archive.indexer.ContentClassifier;
+import net.shrimpworks.unreal.archive.indexer.Incoming;
 
 import static java.util.Arrays.stream;
 

@@ -1,4 +1,4 @@
-package net.shrimpworks.unreal.archive;
+package net.shrimpworks.unreal.archive.indexer;
 
 import java.nio.file.Path;
 import java.time.LocalDateTime;
@@ -11,7 +11,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import net.shrimpworks.unreal.archive.maps.Map;
+import net.shrimpworks.unreal.archive.indexer.maps.Map;
 
 // there appears to be weird mapping issues when using @JsonTypeInfo with YAML
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, visible = true, property = "contentType")

@@ -1,4 +1,4 @@
-package net.shrimpworks.unreal.archive.maps;
+package net.shrimpworks.unreal.archive.indexer.maps;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -13,12 +13,12 @@ import java.util.Set;
 import java.util.function.Consumer;
 import javax.imageio.ImageIO;
 
-import net.shrimpworks.unreal.archive.Content;
-import net.shrimpworks.unreal.archive.ContentFile;
-import net.shrimpworks.unreal.archive.ContentIndexer;
-import net.shrimpworks.unreal.archive.Incoming;
-import net.shrimpworks.unreal.archive.IndexLog;
-import net.shrimpworks.unreal.archive.IndexResult;
+import net.shrimpworks.unreal.archive.indexer.Content;
+import net.shrimpworks.unreal.archive.indexer.ContentFile;
+import net.shrimpworks.unreal.archive.indexer.ContentIndexer;
+import net.shrimpworks.unreal.archive.indexer.Incoming;
+import net.shrimpworks.unreal.archive.indexer.IndexLog;
+import net.shrimpworks.unreal.archive.indexer.IndexResult;
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.packages.Package;
 import net.shrimpworks.unreal.packages.PackageReader;

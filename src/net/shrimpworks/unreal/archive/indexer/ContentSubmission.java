@@ -1,4 +1,4 @@
-package net.shrimpworks.unreal.archive;
+package net.shrimpworks.unreal.archive.indexer;
 
 import java.beans.ConstructorProperties;
 import java.nio.file.Path;

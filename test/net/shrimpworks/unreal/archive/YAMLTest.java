@@ -10,7 +10,10 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 
-import net.shrimpworks.unreal.archive.maps.Map;
+import net.shrimpworks.unreal.archive.indexer.ContentClassifier;
+import net.shrimpworks.unreal.archive.indexer.ContentFile;
+import net.shrimpworks.unreal.archive.indexer.Download;
+import net.shrimpworks.unreal.archive.indexer.maps.Map;
 
 import org.junit.Test;
 

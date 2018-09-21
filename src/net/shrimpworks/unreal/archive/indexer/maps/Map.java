@@ -1,9 +1,9 @@
-package net.shrimpworks.unreal.archive.maps;
+package net.shrimpworks.unreal.archive.indexer.maps;
 
 import java.nio.file.Path;
 import java.util.Objects;
 
-import net.shrimpworks.unreal.archive.Content;
+import net.shrimpworks.unreal.archive.indexer.Content;
 
 public class Map extends Content {
 

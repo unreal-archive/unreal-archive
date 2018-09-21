@@ -21,7 +21,7 @@ public class CLI {
 	}
 
 	public static CLI parse(Map<String, String> defOptions, String... args) {
-		final List<String> commands = new ArrayList();
+		final List<String> commands = new ArrayList<>();
 		final Map<String, String> props = new HashMap<>();
 
 		// populate default options

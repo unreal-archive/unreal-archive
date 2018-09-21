@@ -1,11 +1,15 @@
 package net.shrimpworks.unreal.archive;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.SeekableByteChannel;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -19,7 +23,15 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
+import net.shrimpworks.unreal.archive.indexer.Content;
+import net.shrimpworks.unreal.archive.indexer.ContentClassifier;
+import net.shrimpworks.unreal.archive.indexer.ContentManager;
+import net.shrimpworks.unreal.archive.indexer.ContentSubmission;
+import net.shrimpworks.unreal.archive.indexer.Download;
+import net.shrimpworks.unreal.archive.indexer.Incoming;
+import net.shrimpworks.unreal.archive.indexer.IndexLog;
 import net.shrimpworks.unreal.archive.scraper.AutoIndexPHPScraper;
+import net.shrimpworks.unreal.packages.Umod;
 
 public class Main {
 
@@ -62,6 +74,9 @@ public class Main {
 				break;
 			case "scrape":
 				scrape(cli);
+				break;
+			case "unpack":
+				unpack(cli);
 				break;
 			default:
 				System.out.printf("Command \"%s\" has not been implemented!", cli.commands()[0]);
@@ -261,6 +276,52 @@ public class Main {
 
 	}
 
+	private static void unpack(CLI cli) throws IOException {
+		if (cli.commands().length < 3) {
+			System.err.println("A Umod file and destination directory are required!");
+			System.exit(2);
+		}
+
+		Path umodFile = Paths.get(cli.commands()[1]);
+		if (!Files.exists(umodFile)) {
+			System.err.println("Umod file does not exist!");
+			System.exit(4);
+		}
+
+		Path dest = Paths.get(cli.commands()[2]);
+		if (!Files.isDirectory(dest)) {
+			System.err.println("Destination directory does not exist!");
+			System.exit(4);
+		}
+
+		Umod umod = new Umod(umodFile);
+		ByteBuffer buffer = ByteBuffer.allocate(1024 * 8);
+		for (Umod.UmodFile f : umod.files) {
+			if (f.name.startsWith("System\\Manifest")) continue;
+
+			System.out.printf("Unpacking %s ", f.name);
+			Path out = dest.resolve(Util.filePath(f.name));
+
+			if (!Files.exists(out)) Files.createDirectories(out);
+
+			out = out.resolve(Util.fileName(f.name));
+
+			System.out.printf("to %s%n", out);
+
+			try (FileChannel fileChannel = FileChannel.open(out, StandardOpenOption.WRITE, StandardOpenOption.CREATE,
+															StandardOpenOption.TRUNCATE_EXISTING);
+				 SeekableByteChannel fileData = f.read()) {
+
+				while (fileData.read(buffer) > 0) {
+					fileData.read(buffer);
+					buffer.flip();
+					fileChannel.write(buffer);
+					buffer.clear();
+				}
+			}
+		}
+	}
+
 	private static void usage() {
 		System.out.println("Unreal Archive");
 		System.out.println("Usage: unreal-archive.jar <command> [options]");
@@ -278,6 +339,8 @@ public class Main {
 		System.out.println("    List indexed content in <content-path>, filtered by game, type or author");
 		System.out.println("  show [name ...] [hash ...] --content-path=<path>");
 		System.out.println("    Show data for the content items specified");
+		System.out.println("  unpack <umod-file> <destination> --content-path=<path>");
+		System.out.println("    Unpack the contents of <umod-file> to directory <destination>");
 		System.out.println("  scrape <type> <start-url> --style-prefix=<prefix> --content-path=<path>");
 		System.out.println("    Scrape file listings from the provided URL, <type> is the type of scraper ");
 		System.out.println("    to use ('autoindexphp' supported), and <style-prefix> is the prefix used in ");

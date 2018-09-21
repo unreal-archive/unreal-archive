@@ -1,4 +1,4 @@
-package net.shrimpworks.unreal.archive;
+package net.shrimpworks.unreal.archive.indexer;
 
 import java.util.ArrayList;
 import java.util.List;

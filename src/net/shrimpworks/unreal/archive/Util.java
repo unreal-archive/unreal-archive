@@ -27,7 +27,13 @@ public final class Util {
 	}
 
 	public static String fileName(String path) {
-		return path.replaceAll("\\\\", "/").substring(Math.max(0, path.lastIndexOf("/") + 1));
+		String tmp = path.replaceAll("\\\\", "/");
+		return tmp.substring(Math.max(0, tmp.lastIndexOf("/") + 1));
+	}
+
+	public static String filePath(String path) {
+		String tmp = path.replaceAll("\\\\", "/");
+		return tmp.substring(0, Math.max(0, tmp.lastIndexOf("/")));
 	}
 
 	public static String hash(Path path) throws IOException {

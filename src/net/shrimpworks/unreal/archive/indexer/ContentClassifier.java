@@ -1,10 +1,10 @@
-package net.shrimpworks.unreal.archive;
+package net.shrimpworks.unreal.archive.indexer;
 
 import java.time.LocalDateTime;
 
-import net.shrimpworks.unreal.archive.maps.Map;
-import net.shrimpworks.unreal.archive.maps.MapClassifier;
-import net.shrimpworks.unreal.archive.maps.MapIndexer;
+import net.shrimpworks.unreal.archive.indexer.maps.Map;
+import net.shrimpworks.unreal.archive.indexer.maps.MapClassifier;
+import net.shrimpworks.unreal.archive.indexer.maps.MapIndexer;
 
 public class ContentClassifier {
 

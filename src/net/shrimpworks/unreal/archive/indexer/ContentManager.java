@@ -1,4 +1,4 @@
-package net.shrimpworks.unreal.archive;
+package net.shrimpworks.unreal.archive.indexer;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -15,6 +15,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import net.shrimpworks.unreal.archive.ArchiveUtil;
+import net.shrimpworks.unreal.archive.Util;
+import net.shrimpworks.unreal.archive.YAML;
 
 public class ContentManager {
 

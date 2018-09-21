@@ -1,4 +1,4 @@
-package net.shrimpworks.unreal.archive;
+package net.shrimpworks.unreal.archive.indexer;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -14,6 +14,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import net.shrimpworks.unreal.archive.ArchiveUtil;
+import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.packages.Umod;
 
 public class Incoming implements Closeable {
