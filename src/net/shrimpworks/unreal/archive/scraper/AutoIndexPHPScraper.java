@@ -1,5 +1,6 @@
 package net.shrimpworks.unreal.archive.scraper;
 
+import java.beans.ConstructorProperties;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -29,7 +30,7 @@ public class AutoIndexPHPScraper {
 
 		final List<FoundUrl> foundList = new ArrayList<>();
 
-		final long slowdown = Long.valueOf(cli.option("slowdown", "2000"));
+		final long slowdown = Long.valueOf(cli.option("slowdown", "2500"));
 
 		index(connection, cli.commands()[2], cli.option("style-prefix", "default"), new Consumer<Found>() {
 			@Override
@@ -64,7 +65,7 @@ public class AutoIndexPHPScraper {
 		List<FoundUrl> collected = links.stream()
 										.filter(e -> !e.text().equalsIgnoreCase("parent directory"))
 										.filter(e -> !e.attr("href").contains("md5"))
-										.map(e -> new FoundUrl(e.text(), e.absUrl("href")))
+										.map(e -> new FoundUrl(e.text(), e.absUrl("href"), url))
 										.sorted(Comparator.comparing(o -> o.name))
 										.collect(Collectors.toList());
 
@@ -95,14 +96,17 @@ public class AutoIndexPHPScraper {
 		}
 	}
 
-	private static class FoundUrl {
+	static class FoundUrl {
 
 		public final String name;
 		public final String url;
+		public final String pageUrl;
 
-		public FoundUrl(String name, String url) {
+		@ConstructorProperties({ "name", "url", "pageUrl" })
+		public FoundUrl(String name, String url, String pageUrl) {
 			this.name = name;
 			this.url = url;
+			this.pageUrl = pageUrl;
 		}
 
 		public boolean dir() {

@@ -31,6 +31,7 @@ import net.shrimpworks.unreal.archive.indexer.Download;
 import net.shrimpworks.unreal.archive.indexer.Incoming;
 import net.shrimpworks.unreal.archive.indexer.IndexLog;
 import net.shrimpworks.unreal.archive.scraper.AutoIndexPHPScraper;
+import net.shrimpworks.unreal.archive.scraper.Downloader;
 import net.shrimpworks.unreal.packages.Umod;
 
 public class Main {
@@ -42,6 +43,8 @@ public class Main {
 			usage();
 			System.exit(1);
 		}
+
+		// TODO probably only load the content for specific commands
 
 		if (cli.option("content-path", null) == null) {
 			System.err.println("content-path must be specified!");
@@ -74,6 +77,9 @@ public class Main {
 				break;
 			case "scrape":
 				scrape(cli);
+				break;
+			case "download":
+				download(cli);
 				break;
 			case "unpack":
 				unpack(cli);
@@ -276,6 +282,15 @@ public class Main {
 
 	}
 
+	private static void download(CLI cli) throws IOException {
+		if (cli.commands().length < 3) {
+			System.err.println("An input file and output directory are required");
+			System.exit(255);
+		}
+
+		Downloader.download(cli);
+	}
+
 	private static void unpack(CLI cli) throws IOException {
 		if (cli.commands().length < 3) {
 			System.err.println("A Umod file and destination directory are required!");
@@ -341,9 +356,14 @@ public class Main {
 		System.out.println("    Show data for the content items specified");
 		System.out.println("  unpack <umod-file> <destination> --content-path=<path>");
 		System.out.println("    Unpack the contents of <umod-file> to directory <destination>");
-		System.out.println("  scrape <type> <start-url> --style-prefix=<prefix> --content-path=<path>");
+		System.out.println("  scrape <type> <start-url> --style-prefix=<prefix> [--slowdown=<millis>] --content-path=<path>");
 		System.out.println("    Scrape file listings from the provided URL, <type> is the type of scraper ");
 		System.out.println("    to use ('autoindexphp' supported), and <style-prefix> is the prefix used in ");
-		System.out.println("    styles on Autoindex PHP links.");
+		System.out.println("    styles on Autoindex PHP links. [slowdown] will cause the scraper to pause");
+		System.out.println("    between page loads, defaults to 2000ms.");
+		System.out.println("  download <file-list> <output-path> [--slowdown=<millis>] --content-path=<path>");
+		System.out.println("    Download previously-scraped files defined in the file <file-list>, and write");
+		System.out.println("    them out to <output-path>, along with a YML file containing the original URL.");
+		System.out.println("    [slowdown] will cause the downloader to pause between downloads, defaults to 2000ms.");
 	}
 }

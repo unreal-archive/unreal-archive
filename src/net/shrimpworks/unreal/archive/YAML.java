@@ -9,6 +9,7 @@ import java.time.format.DateTimeFormatter;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -47,6 +48,10 @@ public class YAML {
 	}
 
 	public static <T> T fromFile(Path path, Class<T> type) throws IOException {
+		return MAPPER.readValue(MAPPER.readTree(path.toFile()).traverse(), type);
+	}
+
+	public static <T> T fromFile(Path path, TypeReference<T> type) throws IOException {
 		return MAPPER.readValue(MAPPER.readTree(path.toFile()).traverse(), type);
 	}
 
