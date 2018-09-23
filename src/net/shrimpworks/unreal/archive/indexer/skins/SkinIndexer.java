@@ -49,7 +49,7 @@ public class SkinIndexer implements ContentIndexer<Skin> {
 
 			if (d.value.containsKey("Description") && Skin.NAME_MATCH.matcher(d.value.get("Name")).matches()) {
 				if (s.name == null || s.name.equals(origName)) s.name = d.value.get("Description");
-				s.skins.add(d.value.get("Description"));
+				s.skins.add(d.value.get("Description").trim());
 			} else if (Skin.TEAM_MATCH.matcher(d.value.get("Name")).matches()) {
 				s.teamSkins = true;
 			} else if (d.value.containsKey("Description") && Skin.FACE_MATCH.matcher(d.value.get("Name")).matches()) {

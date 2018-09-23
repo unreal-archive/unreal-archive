@@ -79,13 +79,13 @@ public class MapIndexer implements ContentIndexer<Map> {
 			Property title = level.property("Title");
 			Property description = level.property("Description");
 
-			if (author != null) m.author = ((StringProperty)author).value;
-			if (title != null) m.title = ((StringProperty)title).value;
-			if (description != null) m.description = ((StringProperty)description).value;
+			if (author != null) m.author = ((StringProperty)author).value.trim();
+			if (title != null) m.title = ((StringProperty)title).value.trim();
+			if (description != null) m.description = ((StringProperty)description).value.trim();
 
 			if (map.version < 117) {
 				Property idealPlayerCount = level.property("IdealPlayerCount");
-				if (idealPlayerCount != null) m.playerCount = ((StringProperty)idealPlayerCount).value;
+				if (idealPlayerCount != null) m.playerCount = ((StringProperty)idealPlayerCount).value.trim();
 			} else {
 				Property idealPlayerCountMin = level.property("IdealPlayerCountMin");
 				Property idealPlayerCountMax = level.property("IdealPlayerCountMax");
@@ -146,7 +146,7 @@ public class MapIndexer implements ContentIndexer<Map> {
 			}
 		}
 
-		return name.substring(0, name.lastIndexOf(".")).replaceAll("/", "");
+		return name.substring(0, name.lastIndexOf(".")).replaceAll("/", "").trim();
 	}
 
 	private String gameType(Incoming incoming, String name) {
