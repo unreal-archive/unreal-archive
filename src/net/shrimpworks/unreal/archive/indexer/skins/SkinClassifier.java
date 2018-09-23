@@ -33,7 +33,6 @@ public class SkinClassifier implements ContentClassifier.Classifier {
 
 		// count all map files in the archive
 		long ints = incoming.files.keySet().stream()
-								  .peek(System.out::println)
 								  .filter(f -> Util.extension(f).equalsIgnoreCase(Skin.INT))
 								  .count();
 

@@ -2,6 +2,9 @@ package net.shrimpworks.unreal.archive.indexer.skins;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.nio.charset.MalformedInputException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -10,6 +13,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.imageio.ImageIO;
@@ -46,7 +50,6 @@ public class SkinIndexer implements ContentIndexer<Skin> {
 		String origName = s.name;
 
 		skinDescriptors(incoming).forEach(d -> {
-
 			if (d.value.containsKey("Description") && Skin.NAME_MATCH.matcher(d.value.get("Name")).matches()) {
 				if (s.name == null || s.name.equals(origName)) s.name = d.value.get("Description");
 				s.skins.add(d.value.get("Description").trim());
@@ -62,6 +65,8 @@ public class SkinIndexer implements ContentIndexer<Skin> {
 		} catch (Exception e) {
 			log.log(IndexLog.EntryType.CONTINUE, "Could not determine game for skin", e);
 		}
+
+		s.author = author(incoming, log);
 
 		List<BufferedImage> images = images(incoming, log);
 		for (int i = 0; i < images.size(); i++) {
@@ -154,8 +159,44 @@ public class SkinIndexer implements ContentIndexer<Skin> {
 				}
 			}
 		} catch (Exception e) {
-			log.log(IndexLog.EntryType.CONTINUE, "Failed to load image from archive", e);
+			log.log(IndexLog.EntryType.CONTINUE, "Failed to load image", e);
 		}
 		return images;
+	}
+
+	private String author(Incoming incoming, IndexLog log) {
+		for (java.util.Map.Entry<String, java.lang.Object> entry : incoming.files.entrySet()) {
+			// only do this for paths, skip umod contents for now
+			if (entry.getValue() instanceof Path
+				&& (Util.extension(entry.getKey()).toLowerCase().startsWith("txt")
+					|| (Util.extension(entry.getKey()).toLowerCase().startsWith("htm")))) {
+
+				List<String> lines;
+				try {
+					lines = Files.readAllLines((Path)entry.getValue(), StandardCharsets.UTF_8);
+				} catch (MalformedInputException e) {
+					log.log(IndexLog.EntryType.CONTINUE, "Could not read file as UTF-8, trying ISO-8859-1", e);
+					try {
+						lines = Files.readAllLines((Path)entry.getValue(), StandardCharsets.ISO_8859_1);
+					} catch (IOException ex) {
+						log.log(IndexLog.EntryType.CONTINUE, "Failed to search for author", e);
+						continue;
+					}
+				} catch (IOException e) {
+					log.log(IndexLog.EntryType.CONTINUE, "Failed to search for author", e);
+					continue;
+				}
+
+				for (String s : lines) {
+					Matcher m = Skin.AUTHOR_MATCH.matcher(s);
+					if (m.matches()) {
+						System.out.println(m.group(0));
+						return m.group(1);
+					}
+				}
+			}
+		}
+
+		return "Unknown";
 	}
 }

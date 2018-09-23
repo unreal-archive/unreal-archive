@@ -192,6 +192,10 @@ public class Main {
 
 //							Path repack = incoming.getRepack(c.name);
 
+						if (c.content.name.isEmpty()) {
+							throw new IllegalStateException("Name cannot be blank for " + incoming.submission.filePath);
+						}
+
 						contentManager.checkin(c);
 					} catch (IOException e) {
 						log.log(IndexLog.EntryType.FATAL, "Failed to store content file data for " + sub.filePath.toString());
