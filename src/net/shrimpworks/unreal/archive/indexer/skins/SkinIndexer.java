@@ -189,8 +189,8 @@ public class SkinIndexer implements ContentIndexer<Skin> {
 
 				for (String s : lines) {
 					Matcher m = Skin.AUTHOR_MATCH.matcher(s);
-					if (m.matches()) {
-						return m.group(4);
+					if (m.matches() && !m.group(4).trim().isEmpty()) {
+						return m.group(4).trim();
 					}
 				}
 			}
