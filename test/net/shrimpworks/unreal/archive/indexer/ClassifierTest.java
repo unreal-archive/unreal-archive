@@ -1,4 +1,4 @@
-package net.shrimpworks.unreal.archive;
+package net.shrimpworks.unreal.archive.indexer;
 
 import java.io.IOException;
 import java.io.InputStream;

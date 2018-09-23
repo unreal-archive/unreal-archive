@@ -190,8 +190,7 @@ public class SkinIndexer implements ContentIndexer<Skin> {
 				for (String s : lines) {
 					Matcher m = Skin.AUTHOR_MATCH.matcher(s);
 					if (m.matches()) {
-						System.out.println(m.group(0));
-						return m.group(1);
+						return m.group(4);
 					}
 				}
 			}
