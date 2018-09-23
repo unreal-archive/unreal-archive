@@ -124,6 +124,7 @@ public class Incoming implements Closeable {
 		umods.add(umod);
 
 		for (Umod.UmodFile file : umod.files) {
+			if (file.name.equalsIgnoreCase("System\\Manifest.int") || file.name.equalsIgnoreCase("System\\Manifest.ini")) continue;
 			fileList.put(file.name.replaceAll("\\\\", "/"), file);
 		}
 

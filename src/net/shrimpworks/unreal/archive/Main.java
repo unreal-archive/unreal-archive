@@ -143,6 +143,13 @@ public class Main {
 			indexLogs.add(log);
 
 			indexFile(sub, contentManager, log, c -> {
+				for (IndexLog.LogEntry l : log.log) {
+					System.out.printf("[%s] %s: %s%n", l.type, Util.fileName(c.filePath.getFileName()), l.message);
+					if (l.exception != null
+						&& (cli.option("verbose", "").equalsIgnoreCase("true") || cli.option("verbose", "").equalsIgnoreCase("1"))) {
+						l.exception.printStackTrace(System.out);
+					}
+				}
 			});
 		}
 

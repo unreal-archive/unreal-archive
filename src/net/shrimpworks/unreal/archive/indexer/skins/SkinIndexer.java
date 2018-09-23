@@ -83,27 +83,34 @@ public class SkinIndexer implements ContentIndexer<Skin> {
 
 		return incoming.files.keySet().stream()
 							 .filter(f -> Util.extension(f).equalsIgnoreCase(Skin.INT))
-							 .map(f -> (Path)incoming.files.get(f))
-							 .flatMap(intPath -> {
-								 List<IntFile.MapValue> vals = new ArrayList<>();
+							 .map(f -> {
 								 try {
-									 IntFile intFile = new IntFile(intPath);
-									 IntFile.Section section = intFile.section("public");
-									 if (section == null) return Stream.empty();
-
-									 IntFile.ListValue objects = section.asList("Object");
-									 for (IntFile.Value value : objects.values) {
-										 if (value instanceof IntFile.MapValue
-											 && ((IntFile.MapValue)value).value.containsKey("Name")
-											 && ((IntFile.MapValue)value).value.containsKey("Class")
-											 && ((IntFile.MapValue)value).value.get("Class").equalsIgnoreCase("Texture")) {
-
-											 vals.add((IntFile.MapValue)value);
-										 }
+									 if (incoming.files.get(f) instanceof Path) {
+										 return new IntFile((Path)incoming.files.get(f));
+									 } else if (incoming.files.get(f) instanceof Umod.UmodFile) {
+										 return new IntFile(((Umod.UmodFile)incoming.files.get(f)).read());
 									 }
-
 								 } catch (IOException e) {
 									 // TODO add log to this step
+								 }
+								 return null;
+							 })
+							 .filter(Objects::nonNull)
+							 .flatMap(intFile -> {
+								 List<IntFile.MapValue> vals = new ArrayList<>();
+
+								 IntFile.Section section = intFile.section("public");
+								 if (section == null) return Stream.empty();
+
+								 IntFile.ListValue objects = section.asList("Object");
+								 for (IntFile.Value value : objects.values) {
+									 if (value instanceof IntFile.MapValue
+										 && ((IntFile.MapValue)value).value.containsKey("Name")
+										 && ((IntFile.MapValue)value).value.containsKey("Class")
+										 && ((IntFile.MapValue)value).value.get("Class").equalsIgnoreCase("Texture")) {
+
+										 vals.add((IntFile.MapValue)value);
+									 }
 								 }
 
 								 return vals.stream();
@@ -125,7 +132,7 @@ public class SkinIndexer implements ContentIndexer<Skin> {
 		}
 
 		if (pkg != null) {
-			if (pkg.version <= 68) return "Unreal";
+			if (pkg.version < 68) return "Unreal";
 			else if (pkg.version < 117) return "Unreal Tournament";
 			else return "Unreal Tournament 2004";
 		}

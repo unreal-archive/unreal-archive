@@ -2,12 +2,14 @@ package net.shrimpworks.unreal.archive.indexer.skins;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.regex.Matcher;
 
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.indexer.ContentClassifier;
 import net.shrimpworks.unreal.archive.indexer.Incoming;
 import net.shrimpworks.unreal.packages.IntFile;
+import net.shrimpworks.unreal.packages.Umod;
 
 /**
  * A skin should contain:
@@ -31,6 +33,7 @@ public class SkinClassifier implements ContentClassifier.Classifier {
 
 		// count all map files in the archive
 		long ints = incoming.files.keySet().stream()
+								  .peek(System.out::println)
 								  .filter(f -> Util.extension(f).equalsIgnoreCase(Skin.INT))
 								  .count();
 
@@ -44,36 +47,39 @@ public class SkinClassifier implements ContentClassifier.Classifier {
 
 		boolean[] seemsToBeASkin = new boolean[] { false };
 
-		// TODO support looking inside umods
-
 		incoming.files.keySet().stream()
 					  .filter(f -> Util.extension(f).equalsIgnoreCase(Skin.INT))
-					  .map(f -> (Path)incoming.files.get(f))
-					  .forEach(intPath -> {
-
+					  .map(f -> {
 						  try {
-							  IntFile intFile = new IntFile(intPath);
-							  IntFile.Section section = intFile.section("public");
-							  if (section == null) return;
-
-							  IntFile.ListValue objects = section.asList("Object");
-							  for (IntFile.Value value : objects.values) {
-								  if (value instanceof IntFile.MapValue
-									  && ((IntFile.MapValue)value).value.containsKey("Name")
-									  && ((IntFile.MapValue)value).value.containsKey("Class")
-									  && ((IntFile.MapValue)value).value.containsKey("Description")
-									  && ((IntFile.MapValue)value).value.get("Class").equalsIgnoreCase("Texture")) {
-
-									  Matcher m = Skin.NAME_MATCH.matcher(((IntFile.MapValue)value).value.get("Name"));
-									  if (m.matches()) {
-										  seemsToBeASkin[0] = true;
-										  return;
-									  }
-								  }
+							  if (incoming.files.get(f) instanceof Path) {
+								  return new IntFile((Path)incoming.files.get(f));
+							  } else if (incoming.files.get(f) instanceof Umod.UmodFile) {
+								  return new IntFile(((Umod.UmodFile)incoming.files.get(f)).read());
 							  }
-
 						  } catch (IOException e) {
 							  // TODO add log to this step
+						  }
+						  return null;
+					  })
+					  .filter(Objects::nonNull)
+					  .forEach(intFile -> {
+						  IntFile.Section section = intFile.section("public");
+						  if (section == null) return;
+
+						  IntFile.ListValue objects = section.asList("Object");
+						  for (IntFile.Value value : objects.values) {
+							  if (value instanceof IntFile.MapValue
+								  && ((IntFile.MapValue)value).value.containsKey("Name")
+								  && ((IntFile.MapValue)value).value.containsKey("Class")
+								  && ((IntFile.MapValue)value).value.containsKey("Description")
+								  && ((IntFile.MapValue)value).value.get("Class").equalsIgnoreCase("Texture")) {
+
+								  Matcher m = Skin.NAME_MATCH.matcher(((IntFile.MapValue)value).value.get("Name"));
+								  if (m.matches()) {
+									  seemsToBeASkin[0] = true;
+									  return;
+								  }
+							  }
 						  }
 
 					  });
