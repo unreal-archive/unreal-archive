@@ -2,7 +2,6 @@ package net.shrimpworks.unreal.archive.indexer.maps;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -13,13 +12,12 @@ import java.util.Set;
 import java.util.function.Consumer;
 import javax.imageio.ImageIO;
 
+import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.indexer.Content;
-import net.shrimpworks.unreal.archive.indexer.ContentFile;
 import net.shrimpworks.unreal.archive.indexer.ContentIndexer;
 import net.shrimpworks.unreal.archive.indexer.Incoming;
 import net.shrimpworks.unreal.archive.indexer.IndexLog;
 import net.shrimpworks.unreal.archive.indexer.IndexResult;
-import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.packages.Package;
 import net.shrimpworks.unreal.packages.PackageReader;
 import net.shrimpworks.unreal.packages.Umod;
@@ -51,39 +49,6 @@ public class MapIndexer implements ContentIndexer<Map> {
 		Map m = (Map)content;
 
 		// TODO find .txt file in content root and scan for dates, authors, etc
-
-		if (m.files.isEmpty()) {
-			for (java.util.Map.Entry<String, java.lang.Object> e : incoming.files.entrySet()) {
-				if (!KNOWN_FILES.contains(Util.extension(e.getKey()))) {
-					m.otherFiles++;
-					continue;
-				}
-
-				try {
-					if (e.getValue() instanceof Path) {
-						m.files.add(new ContentFile(
-								Util.fileName(e.getKey()),
-								(int)Files.size((Path)e.getValue()),
-								Util.hash((Path)e.getValue())
-						));
-
-						// take a guess at release date based on file modification time
-						if (m.releaseDate.equals("Unknown")) {
-							m.releaseDate = Content.RELEASE_DATE_FMT.format(Files.getLastModifiedTime((Path)e.getValue()).toInstant());
-						}
-
-					} else if (e.getValue() instanceof Umod.UmodFile) {
-						m.files.add(new ContentFile(
-								Util.fileName(((Umod.UmodFile)e.getValue()).name),
-								((Umod.UmodFile)e.getValue()).size,
-								((Umod.UmodFile)e.getValue()).sha1()
-						));
-					}
-				} catch (Exception ex) {
-					log.log(IndexLog.EntryType.CONTINUE, "Failed getting data for " + e.getKey(), ex);
-				}
-			}
-		}
 
 		// populate basic information; the rest of this will be filled in later if possible
 		m.name = mapName(incoming);

@@ -77,7 +77,7 @@ public class Incoming implements Closeable {
 				throw new IOException("Extract took too long", e);
 			}
 		} else {
-			if (ContentIndexer.KNOWN_FILES.contains(Util.extension(incoming))) {
+			if (ContentClassifier.KNOWN_FILES.contains(Util.extension(incoming))) {
 				return Files.copy(incoming, tempDir, StandardCopyOption.REPLACE_EXISTING);
 			}
 		}

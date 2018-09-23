@@ -8,7 +8,7 @@ import net.shrimpworks.unreal.archive.indexer.Content;
 public class Map extends Content {
 
 	// Game/Type/Gametype/NAME5/Name-[hash8]
-	private static final String PATH_STRING = "%s/%s/%s/%s/%s-[%s]";
+	private static final String PATH_STRING = "%s/%s/%s/%s/%s_[%s]";
 
 	public String gametype = "Unknown";             // Deathmatch
 	public String title = "Unknown";                // My Map
