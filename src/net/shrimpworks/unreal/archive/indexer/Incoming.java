@@ -20,7 +20,7 @@ import net.shrimpworks.unreal.packages.Umod;
 
 public class Incoming implements Closeable {
 
-	public final ContentSubmission submission;
+	public final Submission submission;
 	public final String hash;
 	public final int fileSize;
 
@@ -31,16 +31,17 @@ public class Incoming implements Closeable {
 
 	private Path repackPath;
 
-	public Incoming(ContentSubmission submission, IndexLog log) throws IOException, UnsupportedOperationException {
+	public Incoming(Submission submission, IndexLog log) throws IOException, UnsupportedOperationException {
 		this.submission = submission;
 		this.hash = Util.hash(submission.filePath);
 		this.fileSize = (int)Files.size(submission.filePath);
 		this.umods = new HashSet<>();
 	}
 
-	public void prepare() throws IOException {
+	public Incoming prepare() throws IOException {
 		this.contentRoot = getRoot(submission.filePath);
 		this.files = listFiles(submission.filePath, contentRoot);
+		return this;
 	}
 
 	@Override
@@ -77,7 +78,7 @@ public class Incoming implements Closeable {
 				throw new IOException("Extract took too long", e);
 			}
 		} else {
-			if (ContentClassifier.KNOWN_FILES.contains(Util.extension(incoming))) {
+			if (Classifier.KNOWN_FILES.contains(Util.extension(incoming))) {
 				return Files.copy(incoming, tempDir, StandardCopyOption.REPLACE_EXISTING);
 			}
 		}
@@ -135,5 +136,9 @@ public class Incoming implements Closeable {
 	public String toString() {
 		return String.format("Incoming [submission=%s, contentRoot=%s, hash=%s]",
 							 submission, contentRoot, hash);
+	}
+
+	public static class IncomingFile {
+
 	}
 }

@@ -24,10 +24,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 import net.shrimpworks.unreal.archive.indexer.Content;
-import net.shrimpworks.unreal.archive.indexer.ContentClassifier;
+import net.shrimpworks.unreal.archive.indexer.Classifier;
 import net.shrimpworks.unreal.archive.indexer.ContentManager;
-import net.shrimpworks.unreal.archive.indexer.ContentSubmission;
-import net.shrimpworks.unreal.archive.indexer.Download;
+import net.shrimpworks.unreal.archive.indexer.Submission;
+import net.shrimpworks.unreal.archive.indexer.ContentType;
 import net.shrimpworks.unreal.archive.indexer.Incoming;
 import net.shrimpworks.unreal.archive.indexer.IndexLog;
 import net.shrimpworks.unreal.archive.scraper.AutoIndexPHPScraper;
@@ -122,7 +122,7 @@ public class Main {
 			AtomicInteger done = new AtomicInteger();
 
 			all.stream().sorted().forEach(f -> {
-				ContentSubmission sub = new ContentSubmission(f);
+				Submission sub = new Submission(f);
 				IndexLog log = new IndexLog(sub);
 				indexLogs.add(log);
 
@@ -138,7 +138,7 @@ public class Main {
 				});
 			});
 		} else {
-			ContentSubmission sub = new ContentSubmission(inputPath);
+			Submission sub = new Submission(inputPath);
 			IndexLog log = new IndexLog(sub);
 			indexLogs.add(log);
 
@@ -162,7 +162,7 @@ public class Main {
 		System.out.printf("%nCompleted indexing %d files, with %d errors%n", indexLogs.size(), err);
 	}
 
-	private static void indexFile(ContentSubmission sub, ContentManager contentManager, IndexLog log, Consumer<ContentSubmission> done) {
+	private static void indexFile(Submission sub, ContentManager contentManager, IndexLog log, Consumer<Submission> done) {
 		try (Incoming incoming = new Incoming(sub, log)) {
 			Content content = contentManager.checkout(incoming.hash);
 
@@ -173,18 +173,18 @@ public class Main {
 
 			incoming.prepare();
 
-			ContentClassifier.ContentType type = ContentClassifier.classify(incoming, log);
+			ContentType type = Classifier.classify(incoming, log);
 
 			content = type.newContent(incoming);
 
-			if (type != ContentClassifier.ContentType.UNKNOWN) { // TODO later support a generic dumping ground for unknown content
+			if (type != ContentType.UNKNOWN) { // TODO later support a generic dumping ground for unknown content
 
 				type.indexer.get().index(incoming, content, log, c -> {
 					try {
 						c.content.lastIndex = LocalDateTime.now();
 						if (sub.sourceUrls != null && sub.sourceUrls.length > 0) {
 							for (String url : sub.sourceUrls) {
-								c.content.downloads.add(new Download(url, LocalDate.now(), false));
+								c.content.downloads.add(new Content.Download(url, LocalDate.now(), false));
 							}
 						}
 

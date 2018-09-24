@@ -1,6 +1,8 @@
 package net.shrimpworks.unreal.archive.indexer;
 
+import java.beans.ConstructorProperties;
 import java.nio.file.Path;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -76,5 +78,46 @@ public abstract class Content {
 	public int hashCode() {
 		return Objects.hash(contentType, firstIndex, lastIndex, game, name, author, description, releaseDate, screenshots, originalFilename,
 							hash, fileSize, files, otherFiles, downloads, deleted);
+	}
+
+	public static class ContentFile {
+
+		public String name;
+		public int fileSize;
+		public String hash;
+
+		@ConstructorProperties({ "name", "fileSize", "hash" })
+		public ContentFile(String name, int fileSize, String hash) {
+			this.name = name;
+			this.fileSize = fileSize;
+			this.hash = hash;
+		}
+	}
+
+	public static class Download {
+
+		public final String url;
+		public final LocalDate added;
+		public LocalDate lastChecked;
+		public boolean ok;                // health at last check date
+		public final boolean repack;
+
+		public boolean deleted;
+
+		@ConstructorProperties({ "url", "added", "lastChecked", "ok", "repack", "deleted" })
+		public Download(String url, LocalDate added, LocalDate lastChecked, boolean ok, boolean repack, boolean deleted) {
+			this.url = url;
+			this.added = added;
+			this.lastChecked = lastChecked;
+			this.ok = ok;
+			this.repack = repack;
+			this.deleted = deleted;
+		}
+
+		public Download(String url, LocalDate added, boolean repack) {
+			this.url = url;
+			this.added = added;
+			this.repack = repack;
+		}
 	}
 }

@@ -16,7 +16,7 @@ import org.apache.hc.client5.http.fluent.Response;
 
 import net.shrimpworks.unreal.archive.CLI;
 import net.shrimpworks.unreal.archive.YAML;
-import net.shrimpworks.unreal.archive.indexer.ContentSubmission;
+import net.shrimpworks.unreal.archive.indexer.Submission;
 
 public class Downloader {
 
@@ -71,7 +71,7 @@ public class Downloader {
 
 				response.saveContent(outFile.toFile());
 
-				ContentSubmission sub = new ContentSubmission(outFile, url.url);
+				Submission sub = new Submission(outFile, url.url);
 				Files.write(ymlFile, YAML.toString(sub).getBytes(StandardCharsets.UTF_8),
 							StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 

@@ -11,11 +11,11 @@ public class IndexLog {
 		FATAL
 	}
 
-	public final ContentSubmission submission;
+	public final Submission submission;
 
 	public final List<LogEntry> log;
 
-	public IndexLog(ContentSubmission submission) {
+	public IndexLog(Submission submission) {
 		this.submission = submission;
 		this.log = new ArrayList<>();
 	}

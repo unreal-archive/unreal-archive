@@ -10,9 +10,8 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 
-import net.shrimpworks.unreal.archive.indexer.ContentClassifier;
-import net.shrimpworks.unreal.archive.indexer.ContentFile;
-import net.shrimpworks.unreal.archive.indexer.Download;
+import net.shrimpworks.unreal.archive.indexer.Content;
+import net.shrimpworks.unreal.archive.indexer.ContentType;
 import net.shrimpworks.unreal.archive.indexer.maps.Map;
 
 import org.junit.Test;
@@ -50,7 +49,7 @@ public class YAMLTest {
 	}
 
 	private Map makeMap() {
-		Map m = ContentClassifier.ContentType.MAP.newContent(null);
+		Map m = ContentType.MAP.newContent(null);
 
 		m.firstIndex = LocalDateTime.now().minus(1, ChronoUnit.DAYS);
 		m.lastIndex = LocalDateTime.now();
@@ -73,15 +72,15 @@ public class YAMLTest {
 		return m;
 	}
 
-	private ContentFile file(String name) {
-		return new ContentFile(name, (int)(Math.random() * 10240), "abc" + (Math.random() * 20480));
+	private Content.ContentFile file(String name) {
+		return new Content.ContentFile(name, (int)(Math.random() * 10240), "abc" + (Math.random() * 20480));
 	}
 
-	private Download download(String url) {
-		return new Download(url,
-							LocalDate.now().minus((long)(Math.random() * 500), ChronoUnit.DAYS),
-							LocalDate.now().minus((long)(Math.random() * 100), ChronoUnit.DAYS),
-							true, false, false
+	private Content.Download download(String url) {
+		return new Content.Download(url,
+									LocalDate.now().minus((long)(Math.random() * 500), ChronoUnit.DAYS),
+									LocalDate.now().minus((long)(Math.random() * 100), ChronoUnit.DAYS),
+									true, false, false
 		);
 	}
 }

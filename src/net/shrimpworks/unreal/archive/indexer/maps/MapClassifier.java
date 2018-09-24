@@ -1,11 +1,11 @@
 package net.shrimpworks.unreal.archive.indexer.maps;
 
-import net.shrimpworks.unreal.archive.indexer.ContentClassifier;
+import net.shrimpworks.unreal.archive.indexer.Classifier;
 import net.shrimpworks.unreal.archive.indexer.Incoming;
 
 import static java.util.Arrays.stream;
 
-public class MapClassifier implements ContentClassifier.Classifier {
+public class MapClassifier implements Classifier {
 
 	private static final String[] MAP_EXTENSIONS = new String[] { ".unr", ".ut2" };
 

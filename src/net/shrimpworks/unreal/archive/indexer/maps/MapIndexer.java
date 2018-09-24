@@ -14,7 +14,7 @@ import javax.imageio.ImageIO;
 
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.indexer.Content;
-import net.shrimpworks.unreal.archive.indexer.ContentIndexer;
+import net.shrimpworks.unreal.archive.indexer.Indexer;
 import net.shrimpworks.unreal.archive.indexer.Incoming;
 import net.shrimpworks.unreal.archive.indexer.IndexLog;
 import net.shrimpworks.unreal.archive.indexer.IndexResult;
@@ -32,14 +32,14 @@ import net.shrimpworks.unreal.packages.entities.properties.ObjectProperty;
 import net.shrimpworks.unreal.packages.entities.properties.Property;
 import net.shrimpworks.unreal.packages.entities.properties.StringProperty;
 
-public class MapIndexer implements ContentIndexer<Map> {
+public class MapIndexer implements Indexer<Map> {
 
 	private static final String SHOT_NAME = "%s_shot_%d.png";
 
 	public static class MapIndexerFactory implements IndexerFactory<Map> {
 
 		@Override
-		public ContentIndexer<Map> get() {
+		public Indexer<Map> get() {
 			return new MapIndexer();
 		}
 	}

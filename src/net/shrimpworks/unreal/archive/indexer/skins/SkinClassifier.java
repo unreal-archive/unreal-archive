@@ -6,7 +6,7 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 
 import net.shrimpworks.unreal.archive.Util;
-import net.shrimpworks.unreal.archive.indexer.ContentClassifier;
+import net.shrimpworks.unreal.archive.indexer.Classifier;
 import net.shrimpworks.unreal.archive.indexer.Incoming;
 import net.shrimpworks.unreal.packages.IntFile;
 import net.shrimpworks.unreal.packages.Umod;
@@ -25,7 +25,7 @@ import net.shrimpworks.unreal.packages.Umod;
  * <p>
  * If there's a .u file, or more .int files (with other contents), it's probably a model.
  */
-public class SkinClassifier implements ContentClassifier.Classifier {
+public class SkinClassifier implements Classifier {
 
 	@Override
 	public boolean classify(Incoming incoming) {

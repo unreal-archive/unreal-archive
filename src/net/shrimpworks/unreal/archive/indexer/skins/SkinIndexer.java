@@ -20,7 +20,7 @@ import javax.imageio.ImageIO;
 
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.indexer.Content;
-import net.shrimpworks.unreal.archive.indexer.ContentIndexer;
+import net.shrimpworks.unreal.archive.indexer.Indexer;
 import net.shrimpworks.unreal.archive.indexer.Incoming;
 import net.shrimpworks.unreal.archive.indexer.IndexLog;
 import net.shrimpworks.unreal.archive.indexer.IndexResult;
@@ -29,14 +29,14 @@ import net.shrimpworks.unreal.packages.Package;
 import net.shrimpworks.unreal.packages.PackageReader;
 import net.shrimpworks.unreal.packages.Umod;
 
-public class SkinIndexer implements ContentIndexer<Skin> {
+public class SkinIndexer implements Indexer<Skin> {
 
 	private static final String SHOT_NAME = "%s_shot_%d.png";
 
 	public static class SkinIndexerFactory implements IndexerFactory<Skin> {
 
 		@Override
-		public ContentIndexer<Skin> get() {
+		public Indexer<Skin> get() {
 			return new SkinIndexer();
 		}
 	}
