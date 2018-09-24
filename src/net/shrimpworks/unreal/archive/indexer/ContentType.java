@@ -1,17 +1,13 @@
 package net.shrimpworks.unreal.archive.indexer;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.LocalDateTime;
 
-import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.indexer.maps.Map;
 import net.shrimpworks.unreal.archive.indexer.maps.MapClassifier;
 import net.shrimpworks.unreal.archive.indexer.maps.MapIndexer;
 import net.shrimpworks.unreal.archive.indexer.skins.Skin;
 import net.shrimpworks.unreal.archive.indexer.skins.SkinClassifier;
 import net.shrimpworks.unreal.archive.indexer.skins.SkinIndexer;
-import net.shrimpworks.unreal.packages.Umod;
 
 public enum ContentType {
 	MAP(new MapClassifier(), new MapIndexer.MapIndexerFactory(), Map.class),
@@ -51,32 +47,16 @@ public enum ContentType {
 				newInstance.fileSize = incoming.fileSize;
 
 				// populate list of interesting files
-				for (java.util.Map.Entry<String, Object> e : incoming.files.entrySet()) {
-					if (!Classifier.KNOWN_FILES.contains(Util.extension(e.getKey()))) {
+				for (Incoming.IncomingFile f : incoming.files(Incoming.FileType.ALL)) {
+					if (!Incoming.FileType.important(f.file)) {
 						newInstance.otherFiles++;
 						continue;
 					}
 
 					try {
-						if (e.getValue() instanceof Path) {
-							newInstance.files.add(new Content.ContentFile(
-									Util.fileName(e.getKey()),
-									(int)Files.size((Path)e.getValue()),
-									Util.hash((Path)e.getValue())
-							));
-
-							// take a guess at release date based on file modification time
-							if (newInstance.releaseDate.equals("Unknown")) {
-								newInstance.releaseDate = Content.RELEASE_DATE_FMT.format(
-										Files.getLastModifiedTime((Path)e.getValue()).toInstant());
-							}
-
-						} else if (e.getValue() instanceof Umod.UmodFile) {
-							newInstance.files.add(new Content.ContentFile(
-									Util.fileName(((Umod.UmodFile)e.getValue()).name),
-									((Umod.UmodFile)e.getValue()).size,
-									((Umod.UmodFile)e.getValue()).sha1()
-							));
+						newInstance.files.add(new Content.ContentFile(f.fileName(), f.fileSize(), f.hash()));
+						if (newInstance.releaseDate.equals("Unknown")) {
+							newInstance.releaseDate = Content.RELEASE_DATE_FMT.format(f.fileDate());
 						}
 					} catch (Exception ex) {
 //							log.log(IndexLog.EntryType.CONTINUE, "Failed getting data for " + e.getKey(), ex);

@@ -2,22 +2,23 @@ package net.shrimpworks.unreal.archive.indexer.maps;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.nio.channels.Channels;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import javax.imageio.ImageIO;
 
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.indexer.Content;
-import net.shrimpworks.unreal.archive.indexer.Indexer;
 import net.shrimpworks.unreal.archive.indexer.Incoming;
 import net.shrimpworks.unreal.archive.indexer.IndexLog;
 import net.shrimpworks.unreal.archive.indexer.IndexResult;
+import net.shrimpworks.unreal.archive.indexer.Indexer;
 import net.shrimpworks.unreal.packages.Package;
 import net.shrimpworks.unreal.packages.PackageReader;
 import net.shrimpworks.unreal.packages.Umod;
@@ -107,13 +108,7 @@ public class MapIndexer implements Indexer<Map> {
 			if (screenshot != null && map.version < 117) m.game = "Unreal Tournament";
 
 			List<BufferedImage> screenshots = screenshots(incoming, log, map, screenshot);
-			for (int i = 0; i < screenshots.size(); i++) {
-				String shotName = String.format(SHOT_NAME, m.name.replaceAll(" ", "_"), i + 1);
-				Path out = Paths.get(shotName);
-				ImageIO.write(screenshots.get(i), "png", out.toFile());
-				m.screenshots.add(out.getFileName().toString());
-				files.add(new IndexResult.CreatedFile(shotName, out));
-			}
+			saveImages(SHOT_NAME, m, screenshots, files);
 
 		} catch (IOException e) {
 			log.log(IndexLog.EntryType.CONTINUE, "Failed to read map package", e);
@@ -124,26 +119,19 @@ public class MapIndexer implements Indexer<Map> {
 		completed.accept(new IndexResult<>(m, files));
 	}
 
-	private Package map(Incoming incoming) throws IOException {
-		for (java.util.Map.Entry<String, java.lang.Object> kv : incoming.files.entrySet()) {
-			if (kv.getKey().toLowerCase().endsWith(".unr") || kv.getKey().toLowerCase().endsWith(".ut2")) {
-				if (kv.getValue() instanceof Path) {
-					return new Package((Path)kv.getValue());
-				} else if (kv.getValue() instanceof Umod.UmodFile) {
-					return new Package(new PackageReader(((Umod.UmodFile)kv.getValue()).read()));
-				}
-			}
-		}
-		throw new IllegalStateException("Failed to find a map file...");
+	private Package map(Incoming incoming) {
+		Set<Incoming.IncomingFile> maps = incoming.files(Incoming.FileType.MAP);
+		if (maps.isEmpty()) throw new IllegalStateException("Failed to find a map file...");
+
+		return new Package(new PackageReader(maps.iterator().next().asChannel()));
 	}
 
 	private String mapName(Incoming incoming) {
 		String name = incoming.submission.filePath.getFileName().toString();
-		for (String k : incoming.files.keySet()) {
-			if (k.toLowerCase().endsWith(".unr") || k.toLowerCase().endsWith(".ut2")) {
-				name = k.substring(Math.max(0, k.lastIndexOf("/") + 1));
-				break;
-			}
+
+		Set<Incoming.IncomingFile> maps = incoming.files(Incoming.FileType.MAP);
+		if (!maps.isEmpty()) {
+			name = Util.fileName(maps.iterator().next().file);
 		}
 
 		return name.substring(0, name.lastIndexOf(".")).replaceAll("/", "").trim();
@@ -173,15 +161,17 @@ public class MapIndexer implements Indexer<Map> {
 		if (name.toLowerCase().startsWith("th")) return "Thievery";
 		if (name.toLowerCase().startsWith("u4e")) return "Unreal4Ever";
 		if (name.toLowerCase().startsWith("unf")) return "Unreal Fortress";
-		return "Unknown";
+
+		return UNKNOWN;
 	}
 
 	private String game(Incoming incoming) {
 		for (String k : incoming.files.keySet()) {
 			if (k.toLowerCase().endsWith(".unr")) return "Unreal Tournament";
 			if (k.toLowerCase().endsWith(".ut2")) return "Unreal Tournament 2004";
+			if (k.toLowerCase().endsWith(".ut3")) return "Unreal Tournament 3";
 		}
-		return "Unknown";
+		return UNKNOWN;
 	}
 
 	private List<BufferedImage> screenshots(Incoming incoming, IndexLog log, Package map, Property screenshot) {
@@ -271,12 +261,10 @@ public class MapIndexer implements Indexer<Map> {
 		if (images.isEmpty()) {
 			// hmm, no screenshots were found... lets also look in the archive if there's a jpg or something
 			try {
-				for (java.util.Map.Entry<String, java.lang.Object> entry : incoming.files.entrySet()) {
-					// only do this for paths, skip umod contents for now
-					if (entry.getValue() instanceof Path && Util.extension(entry.getKey()).toLowerCase().startsWith("jp")) {
-						BufferedImage image = ImageIO.read(((Path)entry.getValue()).toFile());
+				Set<Incoming.IncomingFile> files = incoming.files(Incoming.FileType.IMAGE);
+				for (Incoming.IncomingFile img : files) {
+						BufferedImage image = ImageIO.read(Channels.newInputStream(Objects.requireNonNull(img.asChannel())));
 						if (image != null) images.add(image);
-					}
 				}
 			} catch (Exception e) {
 				log.log(IndexLog.EntryType.CONTINUE, "Failed to load screenshot from archive", e);

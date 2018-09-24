@@ -2,11 +2,11 @@ package net.shrimpworks.unreal.archive.indexer.skins;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.nio.channels.Channels;
 import java.nio.charset.MalformedInputException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -20,10 +20,10 @@ import javax.imageio.ImageIO;
 
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.indexer.Content;
-import net.shrimpworks.unreal.archive.indexer.Indexer;
 import net.shrimpworks.unreal.archive.indexer.Incoming;
 import net.shrimpworks.unreal.archive.indexer.IndexLog;
 import net.shrimpworks.unreal.archive.indexer.IndexResult;
+import net.shrimpworks.unreal.archive.indexer.Indexer;
 import net.shrimpworks.unreal.packages.IntFile;
 import net.shrimpworks.unreal.packages.Package;
 import net.shrimpworks.unreal.packages.PackageReader;
@@ -69,16 +69,10 @@ public class SkinIndexer implements Indexer<Skin> {
 		s.author = author(incoming, log);
 
 		List<BufferedImage> images = images(incoming, log);
-		for (int i = 0; i < images.size(); i++) {
-			try {
-				String shotName = String.format(SHOT_NAME, s.name.replaceAll(" ", "_"), i + 1);
-				Path out = Paths.get(shotName);
-				ImageIO.write(images.get(i), "png", out.toFile());
-				s.screenshots.add(out.getFileName().toString());
-				files.add(new IndexResult.CreatedFile(shotName, out));
-			} catch (Exception e) {
-				log.log(IndexLog.EntryType.CONTINUE, "Error while processing an image", e);
-			}
+		try {
+			saveImages(SHOT_NAME, s, images, files);
+		} catch (IOException e) {
+			log.log(IndexLog.EntryType.CONTINUE, "Failed to save images", e);
 		}
 
 		completed.accept(new IndexResult<>(s, files));
@@ -142,21 +136,16 @@ public class SkinIndexer implements Indexer<Skin> {
 			else return "Unreal Tournament 2004";
 		}
 
-		return "Unknown";
+		return UNKNOWN;
 	}
 
 	private List<BufferedImage> images(Incoming incoming, IndexLog log) {
 		List<BufferedImage> images = new ArrayList<>();
 		try {
-			for (java.util.Map.Entry<String, java.lang.Object> entry : incoming.files.entrySet()) {
-				// only do this for paths, skip umod contents for now
-				if (entry.getValue() instanceof Path
-					&& (Util.extension(entry.getKey()).toLowerCase().startsWith("jp")
-						|| (Util.extension(entry.getKey()).toLowerCase().startsWith("bmp"))
-						|| (Util.extension(entry.getKey()).toLowerCase().startsWith("png")))) {
-					BufferedImage image = ImageIO.read(((Path)entry.getValue()).toFile());
-					if (image != null) images.add(image);
-				}
+			Set<Incoming.IncomingFile> files = incoming.files(Incoming.FileType.IMAGE);
+			for (Incoming.IncomingFile img : files) {
+				BufferedImage image = ImageIO.read(Channels.newInputStream(Objects.requireNonNull(img.asChannel())));
+				if (image != null) images.add(image);
 			}
 		} catch (Exception e) {
 			log.log(IndexLog.EntryType.CONTINUE, "Failed to load image", e);
@@ -165,6 +154,8 @@ public class SkinIndexer implements Indexer<Skin> {
 	}
 
 	private String author(Incoming incoming, IndexLog log) {
+
+
 		for (java.util.Map.Entry<String, java.lang.Object> entry : incoming.files.entrySet()) {
 			// only do this for paths, skip umod contents for now
 			if (entry.getValue() instanceof Path
@@ -196,6 +187,6 @@ public class SkinIndexer implements Indexer<Skin> {
 			}
 		}
 
-		return "Unknown";
+		return UNKNOWN;
 	}
 }

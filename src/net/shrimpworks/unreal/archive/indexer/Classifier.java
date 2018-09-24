@@ -1,14 +1,6 @@
 package net.shrimpworks.unreal.archive.indexer;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
 public interface Classifier {
-
-	static final Set<String> KNOWN_FILES = new HashSet<>(Arrays.asList(
-			"uxx", "unr", "umx", "usa", "uax", "u", "utx", "ut2", "ukx", "usx", "upx", "ogg", "umod"
-	));
 
 	public boolean classify(Incoming incoming);
 
