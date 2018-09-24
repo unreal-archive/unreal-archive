@@ -3,7 +3,6 @@ package net.shrimpworks.unreal.archive.indexer.maps;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.channels.Channels;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -21,7 +20,6 @@ import net.shrimpworks.unreal.archive.indexer.IndexResult;
 import net.shrimpworks.unreal.archive.indexer.Indexer;
 import net.shrimpworks.unreal.packages.Package;
 import net.shrimpworks.unreal.packages.PackageReader;
-import net.shrimpworks.unreal.packages.Umod;
 import net.shrimpworks.unreal.packages.entities.ExportedObject;
 import net.shrimpworks.unreal.packages.entities.Import;
 import net.shrimpworks.unreal.packages.entities.Named;
@@ -263,8 +261,8 @@ public class MapIndexer implements Indexer<Map> {
 			try {
 				Set<Incoming.IncomingFile> files = incoming.files(Incoming.FileType.IMAGE);
 				for (Incoming.IncomingFile img : files) {
-						BufferedImage image = ImageIO.read(Channels.newInputStream(Objects.requireNonNull(img.asChannel())));
-						if (image != null) images.add(image);
+					BufferedImage image = ImageIO.read(Channels.newInputStream(Objects.requireNonNull(img.asChannel())));
+					if (image != null) images.add(image);
 				}
 			} catch (Exception e) {
 				log.log(IndexLog.EntryType.CONTINUE, "Failed to load screenshot from archive", e);
@@ -275,17 +273,26 @@ public class MapIndexer implements Indexer<Map> {
 	}
 
 	private Package findPackage(Incoming incoming, String pkg) throws IOException {
-		for (java.util.Map.Entry<String, java.lang.Object> kv : incoming.files.entrySet()) {
-			String name = kv.getKey().substring(Math.max(0, kv.getKey().lastIndexOf("/") + 1));
+		Set<Incoming.IncomingFile> files = incoming.files(Incoming.FileType.IMPORTANT);
+		for (Incoming.IncomingFile f : files) {
+			String name = f.fileName();
 			name = name.substring(0, name.lastIndexOf("."));
 			if (name.equalsIgnoreCase(pkg)) {
-				if (kv.getValue() instanceof Path) {
-					return new Package((Path)kv.getValue());
-				} else if (kv.getValue() instanceof Umod.UmodFile) {
-					return new Package(new PackageReader(((Umod.UmodFile)kv.getValue()).read()));
-				}
+				return new Package(new PackageReader(f.asChannel()));
 			}
 		}
+//
+//		for (java.util.Map.Entry<String, java.lang.Object> kv : incoming.files.entrySet()) {
+//			String name = kv.getKey().substring(Math.max(0, kv.getKey().lastIndexOf("/") + 1));
+//			name = name.substring(0, name.lastIndexOf("."));
+//			if (name.equalsIgnoreCase(pkg)) {
+//				if (kv.getValue() instanceof Path) {
+//					return new Package((Path)kv.getValue());
+//				} else if (kv.getValue() instanceof Umod.UmodFile) {
+//					return new Package(new PackageReader(((Umod.UmodFile)kv.getValue()).read()));
+//				}
+//			}
+//		}
 		throw new IllegalStateException("Failed to find package " + pkg);
 	}
 }

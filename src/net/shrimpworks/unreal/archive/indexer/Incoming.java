@@ -72,8 +72,8 @@ public class Incoming implements Closeable {
 		}
 
 		public static boolean important(String path) {
-			for (FileType value : values()) {
-				if (value.ext.contains(Util.extension(path).toLowerCase())) return true;
+			for (FileType type : values()) {
+				if (type.important && type.ext.contains(Util.extension(path).toLowerCase())) return true;
 			}
 			return false;
 		}

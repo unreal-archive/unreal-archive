@@ -26,11 +26,12 @@ public class SkinClassifier implements Classifier {
 
 	@Override
 	public boolean classify(Incoming incoming) {
-		// TODO verify content as per description above
+		// TODO support UT2004 via .upl files
 
-		// count all map files in the archive
+		// count all int files in the archive
 		long ints = incoming.files(Incoming.FileType.INT).size();
 
+		// more often than not multiple ints probably indicates a model
 		if (ints != 1) return false;
 
 		long texes = incoming.files(Incoming.FileType.TEXTURE).size();
@@ -39,6 +40,7 @@ public class SkinClassifier implements Classifier {
 
 		boolean[] seemsToBeASkin = new boolean[] { false };
 
+		// search int files for objects describing a skin
 		incoming.files(Incoming.FileType.INT).stream()
 				.map(f -> {
 					try {

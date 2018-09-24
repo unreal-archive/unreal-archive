@@ -1,12 +1,11 @@
 package net.shrimpworks.unreal.archive.indexer.skins;
 
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.channels.Channels;
-import java.nio.charset.MalformedInputException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -18,7 +17,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.imageio.ImageIO;
 
-import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.indexer.Content;
 import net.shrimpworks.unreal.archive.indexer.Incoming;
 import net.shrimpworks.unreal.archive.indexer.IndexLog;
@@ -27,7 +25,6 @@ import net.shrimpworks.unreal.archive.indexer.Indexer;
 import net.shrimpworks.unreal.packages.IntFile;
 import net.shrimpworks.unreal.packages.Package;
 import net.shrimpworks.unreal.packages.PackageReader;
-import net.shrimpworks.unreal.packages.Umod;
 
 public class SkinIndexer implements Indexer<Skin> {
 
@@ -44,6 +41,8 @@ public class SkinIndexer implements Indexer<Skin> {
 	@Override
 	public void index(Incoming incoming, Content current, IndexLog log, Consumer<IndexResult<Skin>> completed) {
 		Skin s = (Skin)current;
+
+		// TODO support UT2004 via .upl files
 
 		Set<IndexResult.CreatedFile> files = new HashSet<>();
 
@@ -66,7 +65,11 @@ public class SkinIndexer implements Indexer<Skin> {
 			log.log(IndexLog.EntryType.CONTINUE, "Could not determine game for skin", e);
 		}
 
-		s.author = author(incoming, log);
+		try {
+			s.author = author(incoming, log);
+		} catch (IOException e) {
+			log.log(IndexLog.EntryType.CONTINUE, "Failed attempt to read author", e);
+		}
 
 		List<BufferedImage> images = images(incoming, log);
 		try {
@@ -80,63 +83,49 @@ public class SkinIndexer implements Indexer<Skin> {
 
 	private List<IntFile.MapValue> skinDescriptors(Incoming incoming) {
 
-		return incoming.files.keySet().stream()
-							 .filter(f -> Util.extension(f).equalsIgnoreCase(Skin.INT))
-							 .map(f -> {
-								 try {
-									 if (incoming.files.get(f) instanceof Path) {
-										 return new IntFile((Path)incoming.files.get(f));
-									 } else if (incoming.files.get(f) instanceof Umod.UmodFile) {
-										 return new IntFile(((Umod.UmodFile)incoming.files.get(f)).read());
-									 }
-								 } catch (IOException e) {
-									 // TODO add log to this step
-								 }
-								 return null;
-							 })
-							 .filter(Objects::nonNull)
-							 .flatMap(intFile -> {
-								 List<IntFile.MapValue> vals = new ArrayList<>();
+		return incoming.files(Incoming.FileType.INT).stream()
+					   .map(f -> {
+						   try {
+							   return new IntFile(f.asChannel());
+						   } catch (IOException e) {
+							   // TODO add log to this step
+							   return null;
+						   }
+					   })
+					   .filter(Objects::nonNull)
+					   .flatMap(intFile -> {
+						   List<IntFile.MapValue> vals = new ArrayList<>();
 
-								 IntFile.Section section = intFile.section("public");
-								 if (section == null) return Stream.empty();
+						   IntFile.Section section = intFile.section("public");
+						   if (section == null) return Stream.empty();
 
-								 IntFile.ListValue objects = section.asList("Object");
-								 for (IntFile.Value value : objects.values) {
-									 if (value instanceof IntFile.MapValue
-										 && ((IntFile.MapValue)value).value.containsKey("Name")
-										 && ((IntFile.MapValue)value).value.containsKey("Class")
-										 && ((IntFile.MapValue)value).value.get("Class").equalsIgnoreCase("Texture")) {
+						   IntFile.ListValue objects = section.asList("Object");
+						   for (IntFile.Value value : objects.values) {
+							   if (value instanceof IntFile.MapValue
+								   && ((IntFile.MapValue)value).value.containsKey("Name")
+								   && ((IntFile.MapValue)value).value.containsKey("Class")
+								   && ((IntFile.MapValue)value).value.get("Class").equalsIgnoreCase("Texture")) {
 
-										 vals.add((IntFile.MapValue)value);
-									 }
-								 }
+								   vals.add((IntFile.MapValue)value);
+							   }
+						   }
 
-								 return vals.stream();
-							 })
-							 .filter(Objects::nonNull)
-							 .collect(Collectors.toList());
+						   return vals.stream();
+					   })
+					   .filter(Objects::nonNull)
+					   .collect(Collectors.toList());
 	}
 
 	private String game(Incoming incoming) throws IOException {
-		Package pkg = null;
-		for (java.util.Map.Entry<String, java.lang.Object> kv : incoming.files.entrySet()) {
-			if (Util.extension(kv.getKey()).equalsIgnoreCase(Skin.TEXTURE)) {
-				if (kv.getValue() instanceof Path) {
-					pkg = new Package((Path)kv.getValue());
-				} else if (kv.getValue() instanceof Umod.UmodFile) {
-					pkg = new Package(new PackageReader(((Umod.UmodFile)kv.getValue()).read()));
-				}
-			}
-		}
 
-		if (pkg != null) {
+		Set<Incoming.IncomingFile> files = incoming.files(Incoming.FileType.TEXTURE);
+		if (files.isEmpty()) return UNKNOWN;
+
+		try (Package pkg = new Package(new PackageReader(files.iterator().next().asChannel()))) {
 			if (pkg.version < 68) return "Unreal";
 			else if (pkg.version < 117) return "Unreal Tournament";
 			else return "Unreal Tournament 2004";
 		}
-
-		return UNKNOWN;
 	}
 
 	private List<BufferedImage> images(Incoming incoming, IndexLog log) {
@@ -153,36 +142,25 @@ public class SkinIndexer implements Indexer<Skin> {
 		return images;
 	}
 
-	private String author(Incoming incoming, IndexLog log) {
-
-
-		for (java.util.Map.Entry<String, java.lang.Object> entry : incoming.files.entrySet()) {
-			// only do this for paths, skip umod contents for now
-			if (entry.getValue() instanceof Path
-				&& (Util.extension(entry.getKey()).toLowerCase().startsWith("txt")
-					|| (Util.extension(entry.getKey()).toLowerCase().startsWith("htm")))) {
-
-				List<String> lines;
-				try {
-					lines = Files.readAllLines((Path)entry.getValue(), StandardCharsets.UTF_8);
-				} catch (MalformedInputException e) {
-					log.log(IndexLog.EntryType.CONTINUE, "Could not read file as UTF-8, trying ISO-8859-1", e);
-					try {
-						lines = Files.readAllLines((Path)entry.getValue(), StandardCharsets.ISO_8859_1);
-					} catch (IOException ex) {
-						log.log(IndexLog.EntryType.CONTINUE, "Failed to search for author", e);
-						continue;
-					}
-				} catch (IOException e) {
+	private String author(Incoming incoming, IndexLog log) throws IOException {
+		for (Incoming.IncomingFile f : incoming.files(Incoming.FileType.TEXT, Incoming.FileType.HTML)) {
+			List<String> lines;
+			try (BufferedReader br = new BufferedReader(Channels.newReader(f.asChannel(), StandardCharsets.UTF_8.name()))) {
+				lines = br.lines().collect(Collectors.toList());
+			} catch (UncheckedIOException e) {
+				log.log(IndexLog.EntryType.INFO, "Could not read file as UTF-8, trying ISO-8859-1", e);
+				try (BufferedReader br = new BufferedReader(Channels.newReader(f.asChannel(), StandardCharsets.ISO_8859_1.name()))) {
+					lines = br.lines().collect(Collectors.toList());
+				} catch (UncheckedIOException ex) {
 					log.log(IndexLog.EntryType.CONTINUE, "Failed to search for author", e);
 					continue;
 				}
+			}
 
-				for (String s : lines) {
-					Matcher m = Skin.AUTHOR_MATCH.matcher(s);
-					if (m.matches() && !m.group(4).trim().isEmpty()) {
-						return m.group(4).trim();
-					}
+			for (String s : lines) {
+				Matcher m = Skin.AUTHOR_MATCH.matcher(s);
+				if (m.matches() && !m.group(4).trim().isEmpty()) {
+					return m.group(4).trim();
 				}
 			}
 		}
