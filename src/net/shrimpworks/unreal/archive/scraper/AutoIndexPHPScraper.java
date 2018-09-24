@@ -8,6 +8,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.jsoup.Connection;
@@ -19,6 +21,8 @@ import net.shrimpworks.unreal.archive.CLI;
 import net.shrimpworks.unreal.archive.YAML;
 
 public class AutoIndexPHPScraper {
+
+	private static final Pattern DIR_MATCH = Pattern.compile(".+?dir=([^&]+).+?");
 
 	public static void index(CLI cli) throws IOException {
 		if (cli.commands().length < 3) throw new IllegalArgumentException("A root URL is required!");
@@ -65,7 +69,15 @@ public class AutoIndexPHPScraper {
 		List<FoundUrl> collected = links.stream()
 										.filter(e -> !e.text().equalsIgnoreCase("parent directory"))
 										.filter(e -> !e.attr("href").contains("md5"))
-										.map(e -> new FoundUrl(e.text(), e.absUrl("href"), url))
+										.map(e -> {
+											Matcher m = DIR_MATCH.matcher(e.absUrl("href"));
+											String dir = "";
+											if (m.matches()) {
+												dir = m.group(1);
+											}
+
+											return new FoundUrl(e.text(), dir, e.absUrl("href"), url);
+										})
 										.sorted(Comparator.comparing(o -> o.name))
 										.collect(Collectors.toList());
 
@@ -99,12 +111,14 @@ public class AutoIndexPHPScraper {
 	static class FoundUrl {
 
 		public final String name;
+		public String path;
 		public final String url;
 		public final String pageUrl;
 
-		@ConstructorProperties({ "name", "url", "pageUrl" })
-		public FoundUrl(String name, String url, String pageUrl) {
+		@ConstructorProperties({ "name", "path", "url", "pageUrl" })
+		public FoundUrl(String name, String path, String url, String pageUrl) {
 			this.name = name;
+			this.path = path;
 			this.url = url;
 			this.pageUrl = pageUrl;
 		}

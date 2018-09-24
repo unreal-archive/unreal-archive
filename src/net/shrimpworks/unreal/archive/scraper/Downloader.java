@@ -43,8 +43,11 @@ public class Downloader {
 		for (int i = 0; i < urls.size(); i++) {
 			AutoIndexPHPScraper.FoundUrl url = urls.get(i);
 
-			Path ymlFile = output.resolve(url.name + ".yml");
-			Path outFile = output.resolve(url.name);
+			Path dir = output.resolve(url.path);
+			if (!Files.isDirectory(dir)) Files.createDirectories(dir);
+
+			Path ymlFile = dir.resolve(url.name + ".yml");
+			Path outFile = dir.resolve(url.name);
 
 			if (!Files.exists(ymlFile)) {
 
@@ -79,7 +82,8 @@ public class Downloader {
 						long deadline = System.currentTimeMillis() + slowdown;
 						while (System.currentTimeMillis() < deadline) {
 							Thread.sleep(250);
-							System.out.printf("Completed %d of %d; Waiting %dms\r", i + 1, urls.size(), deadline - System.currentTimeMillis());
+							System.out.printf("Completed %d of %d; Waiting %dms\r", i + 1, urls.size(),
+											  deadline - System.currentTimeMillis());
 						}
 					}
 				} catch (InterruptedException e) {
