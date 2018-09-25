@@ -3,6 +3,7 @@ package net.shrimpworks.unreal.archive.indexer;
 import java.beans.ConstructorProperties;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.HashMap;
 
 /**
  * Entry-point for new content.
@@ -15,13 +16,16 @@ import java.util.Arrays;
  */
 public class Submission {
 
-	public final Path filePath;
-	public final String[] sourceUrls;
+	public Path filePath;
+	public String[] sourceUrls;
+
+	public SubmissionOverride override;
 
 	@ConstructorProperties({ "filePath", "sourceUrls" })
 	public Submission(Path filePath, String... sourceUrls) {
 		this.filePath = filePath;
 		this.sourceUrls = sourceUrls;
+		this.override = new SubmissionOverride(new HashMap<>());
 	}
 
 	@Override

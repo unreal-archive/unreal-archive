@@ -23,13 +23,14 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
-import net.shrimpworks.unreal.archive.indexer.Content;
 import net.shrimpworks.unreal.archive.indexer.Classifier;
+import net.shrimpworks.unreal.archive.indexer.Content;
 import net.shrimpworks.unreal.archive.indexer.ContentManager;
-import net.shrimpworks.unreal.archive.indexer.Submission;
 import net.shrimpworks.unreal.archive.indexer.ContentType;
 import net.shrimpworks.unreal.archive.indexer.Incoming;
 import net.shrimpworks.unreal.archive.indexer.IndexLog;
+import net.shrimpworks.unreal.archive.indexer.Submission;
+import net.shrimpworks.unreal.archive.indexer.SubmissionOverride;
 import net.shrimpworks.unreal.archive.scraper.AutoIndexPHPScraper;
 import net.shrimpworks.unreal.archive.scraper.Downloader;
 import net.shrimpworks.unreal.packages.Umod;
@@ -91,7 +92,6 @@ public class Main {
 	}
 
 	private static void index(ContentManager contentManager, CLI cli) throws IOException {
-
 		if (cli.option("input-path", null) == null) {
 			System.err.println("input-path must be specified!");
 			System.exit(2);
@@ -108,12 +108,40 @@ public class Main {
 		// go through all the files in the input path and index them if new
 		if (Files.isDirectory(inputPath)) {
 
-			List<Path> all = new ArrayList<>();
+			List<Submission> all = new ArrayList<>();
 			Files.walkFileTree(inputPath, new SimpleFileVisitor<Path>() {
+
+				SubmissionOverride override = null;
+
 				@Override
-				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-					if (!Util.extension(file).equalsIgnoreCase("yml")) all.add(file);
+				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+					if (!Util.extension(file).equalsIgnoreCase("yml")) {
+						Submission sub;
+						if (Files.exists(Paths.get(file.toString() + ".yml"))) {
+							sub = YAML.fromFile(Paths.get(file.toString() + ".yml"), Submission.class);
+							sub.filePath = file;
+						} else {
+							sub = new Submission(file);
+						}
+
+						if (override != null) sub.override = override;
+						all.add(sub);
+					}
 					return FileVisitResult.CONTINUE;
+				}
+
+				@Override
+				public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+					if (Files.exists(dir.resolve("_override.yml"))) {
+						override = YAML.fromFile(dir.resolve("_override.yml"), SubmissionOverride.class);
+					}
+					return super.preVisitDirectory(dir, attrs);
+				}
+
+				@Override
+				public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+					override = null;
+					return super.postVisitDirectory(dir, exc);
 				}
 			});
 
@@ -121,8 +149,7 @@ public class Main {
 
 			AtomicInteger done = new AtomicInteger();
 
-			all.stream().sorted().forEach(f -> {
-				Submission sub = new Submission(f);
+			all.stream().sorted().forEach(sub -> {
 				IndexLog log = new IndexLog(sub);
 				indexLogs.add(log);
 
@@ -167,7 +194,12 @@ public class Main {
 			Content content = contentManager.checkout(incoming.hash);
 
 			if (content != null) {
-				// lets not support re-index yet
+				// lets not support re-index yet, but we can update with urls if there are any
+//				if (sub.sourceUrls != null && sub.sourceUrls.length > 0) {
+//					for (String url : sub.sourceUrls) {
+//						content.downloads.add(new Content.Download(url, LocalDate.now(), false));
+//					}
+//				}
 				return;
 			}
 

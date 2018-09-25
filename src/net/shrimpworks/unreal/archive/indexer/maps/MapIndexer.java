@@ -58,10 +58,6 @@ public class MapIndexer implements Indexer<Map> {
 		Set<IndexResult.CreatedFile> files = new HashSet<>();
 
 		try (Package map = map(incoming)) {
-			if (map.version <= 68) m.game = "Unreal";
-			else if (map.version < 117) m.game = "Unreal Tournament";
-			else m.game = "Unreal Tournament 2004";
-
 			// read level info (also in LevelSummary, but missing Screenshot)
 			Collection<ExportedObject> maybeLevelInfo = map.objectsByClassName("LevelInfo");
 			if (maybeLevelInfo == null || maybeLevelInfo.isEmpty()) {
@@ -136,7 +132,9 @@ public class MapIndexer implements Indexer<Map> {
 	}
 
 	private String gameType(Incoming incoming, String name) {
-		if (name.toLowerCase().startsWith("dm")) return "Deathmatch";
+		if (incoming.submission.override.get("gameType", null) != null) return incoming.submission.override.get("gameType", "DeathMatch");
+
+		if (name.toLowerCase().startsWith("dm")) return "DeathMatch";
 		if (name.toLowerCase().startsWith("ctf-bt")) return "BunnyTrack";
 		if (name.toLowerCase().startsWith("ctf4")) return "Multi-team Capture The Flag";
 		if (name.toLowerCase().startsWith("ctfm")) return "Multi-team Capture The Flag";
@@ -164,11 +162,14 @@ public class MapIndexer implements Indexer<Map> {
 	}
 
 	private String game(Incoming incoming) {
+		if (incoming.submission.override.get("game", null) != null) return incoming.submission.override.get("game", "Unreal Tournament");
+
 		for (String k : incoming.files.keySet()) {
 			if (k.toLowerCase().endsWith(".unr")) return "Unreal Tournament";
 			if (k.toLowerCase().endsWith(".ut2")) return "Unreal Tournament 2004";
 			if (k.toLowerCase().endsWith(".ut3")) return "Unreal Tournament 3";
 		}
+
 		return UNKNOWN;
 	}
 

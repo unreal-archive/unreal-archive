@@ -46,6 +46,10 @@ public enum ContentType {
 				newInstance.originalFilename = incoming.submission.filePath.toString();
 				newInstance.fileSize = incoming.fileSize;
 
+				// populate a couple of basic overrides
+				newInstance.game = incoming.submission.override.get("game", "Unknown");
+				newInstance.author = incoming.submission.override.get("author", "Unknown");
+
 				// populate list of interesting files
 				for (Incoming.IncomingFile f : incoming.files(Incoming.FileType.ALL)) {
 					if (!Incoming.FileType.important(f.file)) {

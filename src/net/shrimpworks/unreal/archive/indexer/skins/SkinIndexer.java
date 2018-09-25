@@ -117,6 +117,7 @@ public class SkinIndexer implements Indexer<Skin> {
 	}
 
 	private String game(Incoming incoming) throws IOException {
+		if (incoming.submission.override.get("game", null) != null) return incoming.submission.override.get("game", "Unreal Tournament");
 
 		Set<Incoming.IncomingFile> files = incoming.files(Incoming.FileType.TEXTURE);
 		if (files.isEmpty()) return UNKNOWN;
