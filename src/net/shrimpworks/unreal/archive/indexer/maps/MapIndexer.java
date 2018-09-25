@@ -128,7 +128,7 @@ public class MapIndexer implements Indexer<Map> {
 			name = Util.fileName(maps.iterator().next().file);
 		}
 
-		return name.substring(0, name.lastIndexOf(".")).replaceAll("/", "").trim();
+		return name.substring(0, name.lastIndexOf(".")).replaceAll("/", "").trim().replaceAll("[^\\x20-\\x7E]", "");
 	}
 
 	private String gameType(Incoming incoming, String name) {

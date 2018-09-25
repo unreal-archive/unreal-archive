@@ -1,9 +1,7 @@
 package net.shrimpworks.unreal.archive.indexer;
 
-import java.awt.image.BufferedImage;
 import java.beans.ConstructorProperties;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -11,9 +9,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
-
-import javax.imageio.ImageIO;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -56,6 +51,17 @@ public abstract class Content {
 
 	public abstract Path contentPath(Path root);
 
+	public boolean hasDownload(String url) {
+		for (Download download : downloads) {
+			if (download.url.equals(url)) return true;
+		}
+		return false;
+	}
+
+	public boolean containsFile(String hash) {
+		return files.stream().anyMatch(f -> f.hash.equals(hash));
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -65,8 +71,6 @@ public abstract class Content {
 			   && otherFiles == content.otherFiles
 			   && deleted == content.deleted
 			   && Objects.equals(contentType, content.contentType)
-			   && Objects.equals(firstIndex, content.firstIndex)
-			   && Objects.equals(lastIndex, content.lastIndex)
 			   && Objects.equals(game, content.game)
 			   && Objects.equals(name, content.name)
 			   && Objects.equals(author, content.author)

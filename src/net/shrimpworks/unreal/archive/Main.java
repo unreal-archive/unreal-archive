@@ -103,6 +103,8 @@ public class Main {
 			System.exit(4);
 		}
 
+		boolean force = Boolean.valueOf(cli.option("force", "false"));
+
 		final List<IndexLog> indexLogs = new ArrayList<>();
 
 		// go through all the files in the input path and index them if new
@@ -118,6 +120,7 @@ public class Main {
 					if (!Util.extension(file).equalsIgnoreCase("yml")) {
 						Submission sub;
 						if (Files.exists(Paths.get(file.toString() + ".yml"))) {
+							System.out.println("Submission exists, using it");
 							sub = YAML.fromFile(Paths.get(file.toString() + ".yml"), Submission.class);
 							sub.filePath = file;
 						} else {
@@ -153,7 +156,7 @@ public class Main {
 				IndexLog log = new IndexLog(sub);
 				indexLogs.add(log);
 
-				indexFile(sub, contentManager, log, c -> {
+				indexFile(contentManager, sub, log, force, c -> {
 					for (IndexLog.LogEntry l : log.log) {
 						System.out.printf("[%s] %s: %s%n", l.type, Util.fileName(c.filePath.getFileName()), l.message);
 						if (l.exception != null
@@ -169,7 +172,7 @@ public class Main {
 			IndexLog log = new IndexLog(sub);
 			indexLogs.add(log);
 
-			indexFile(sub, contentManager, log, c -> {
+			indexFile(contentManager, sub, log, force, c -> {
 				for (IndexLog.LogEntry l : log.log) {
 					System.out.printf("[%s] %s: %s%n", l.type, Util.fileName(c.filePath.getFileName()), l.message);
 					if (l.exception != null
@@ -189,16 +192,19 @@ public class Main {
 		System.out.printf("%nCompleted indexing %d files, with %d errors%n", indexLogs.size(), err);
 	}
 
-	private static void indexFile(Submission sub, ContentManager contentManager, IndexLog log, Consumer<Submission> done) {
+	private static void indexFile(ContentManager contentManager, Submission sub, IndexLog log, boolean force, Consumer<Submission> done) {
 		try (Incoming incoming = new Incoming(sub, log)) {
 			Content content = contentManager.checkout(incoming.hash);
 
-			if (content != null) {
+			if ((content != null && !force)) {
 				// lets not support re-index yet, but we can update with urls if there are any
-//				if (sub.sourceUrls != null && sub.sourceUrls.length > 0) {
+//				if (!content.deleted && sub.sourceUrls != null && sub.sourceUrls.length > 0) {
 //					for (String url : sub.sourceUrls) {
-//						content.downloads.add(new Content.Download(url, LocalDate.now(), false));
+//						if (!content.hasDownload(url)) {
+//							content.downloads.add(new Content.Download(url, LocalDate.now(), false));
+//						}
 //					}
+////					contentManager.checkin(content);
 //				}
 				return;
 			}
@@ -216,7 +222,9 @@ public class Main {
 						c.content.lastIndex = LocalDateTime.now();
 						if (sub.sourceUrls != null && sub.sourceUrls.length > 0) {
 							for (String url : sub.sourceUrls) {
-								c.content.downloads.add(new Content.Download(url, LocalDate.now(), false));
+								if (!c.content.hasDownload(url)) {
+									c.content.downloads.add(new Content.Download(url, LocalDate.now(), false));
+								}
 							}
 						}
 

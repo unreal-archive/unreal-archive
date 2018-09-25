@@ -87,6 +87,19 @@ public class ContentManager {
 		return null;
 	}
 
+	/**
+	 * Return all content which contains the provided file hash.
+	 *
+	 * @param hash file hash
+	 * @return content containing the hash
+	 */
+	public Collection<Content> containing(String hash) {
+		return content.values().parallelStream()
+					  .filter(c -> c.content.containsFile(hash))
+					  .map(c -> c.content)
+					  .collect(Collectors.toSet());
+	}
+
 	// intent: when some content is going to be worked on, a clone is checked out.
 	// when its checked out, its hash (immutable) is stored in the out collection.
 	// after its been modified or left alone, the clone is checked in.
@@ -136,7 +149,7 @@ public class ContentManager {
 				Files.move(file.path, next.resolve(file.name), StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
 			}
 
-			if (prior != null) {
+			if (prior != null && !prior.equals(next)) {
 				// clean out the old directory and remove it
 				ArchiveUtil.cleanPath(prior);
 			}
