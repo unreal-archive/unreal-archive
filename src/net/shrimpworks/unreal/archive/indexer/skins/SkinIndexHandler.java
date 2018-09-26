@@ -21,20 +21,20 @@ import net.shrimpworks.unreal.archive.indexer.Content;
 import net.shrimpworks.unreal.archive.indexer.Incoming;
 import net.shrimpworks.unreal.archive.indexer.IndexLog;
 import net.shrimpworks.unreal.archive.indexer.IndexResult;
-import net.shrimpworks.unreal.archive.indexer.Indexer;
+import net.shrimpworks.unreal.archive.indexer.IndexHandler;
 import net.shrimpworks.unreal.packages.IntFile;
 import net.shrimpworks.unreal.packages.Package;
 import net.shrimpworks.unreal.packages.PackageReader;
 
-public class SkinIndexer implements Indexer<Skin> {
+public class SkinIndexHandler implements IndexHandler<Skin> {
 
 	private static final String SHOT_NAME = "%s_shot_%d.png";
 
-	public static class SkinIndexerFactory implements IndexerFactory<Skin> {
+	public static class SkinIndexHandlerFactory implements IndexHandlerFactory<Skin> {
 
 		@Override
-		public Indexer<Skin> get() {
-			return new SkinIndexer();
+		public IndexHandler<Skin> get() {
+			return new SkinIndexHandler();
 		}
 	}
 

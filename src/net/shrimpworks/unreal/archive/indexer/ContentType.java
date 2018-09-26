@@ -4,28 +4,28 @@ import java.time.LocalDateTime;
 
 import net.shrimpworks.unreal.archive.indexer.maps.Map;
 import net.shrimpworks.unreal.archive.indexer.maps.MapClassifier;
-import net.shrimpworks.unreal.archive.indexer.maps.MapIndexer;
+import net.shrimpworks.unreal.archive.indexer.maps.MapIndexHandler;
 import net.shrimpworks.unreal.archive.indexer.skins.Skin;
 import net.shrimpworks.unreal.archive.indexer.skins.SkinClassifier;
-import net.shrimpworks.unreal.archive.indexer.skins.SkinIndexer;
+import net.shrimpworks.unreal.archive.indexer.skins.SkinIndexHandler;
 
 public enum ContentType {
-	MAP(new MapClassifier(), new MapIndexer.MapIndexerFactory(), Map.class),
-	MAP_PACK(new Classifier.NoOpClassifier(), new Indexer.NoOpIndexerFactory(), UnknownContent.class),
-	SKIN(new SkinClassifier(), new SkinIndexer.SkinIndexerFactory(), Skin.class),
-	MODEL(new Classifier.NoOpClassifier(), new Indexer.NoOpIndexerFactory(), UnknownContent.class),
-	VOICE(new Classifier.NoOpClassifier(), new Indexer.NoOpIndexerFactory(), UnknownContent.class),
-	MUTATOR(new Classifier.NoOpClassifier(), new Indexer.NoOpIndexerFactory(), UnknownContent.class),
-	MOD(new Classifier.NoOpClassifier(), new Indexer.NoOpIndexerFactory(), UnknownContent.class),
-	UNKNOWN(new Classifier.NoOpClassifier(), new Indexer.NoOpIndexerFactory(), UnknownContent.class),
+	MAP(new MapClassifier(), new MapIndexHandler.MapIndexHandlerFactory(), Map.class),
+	MAP_PACK(new Classifier.NoOpClassifier(), new IndexHandler.NoOpIndexHandlerFactory(), UnknownContent.class),
+	SKIN(new SkinClassifier(), new SkinIndexHandler.SkinIndexHandlerFactory(), Skin.class),
+	MODEL(new Classifier.NoOpClassifier(), new IndexHandler.NoOpIndexHandlerFactory(), UnknownContent.class),
+	VOICE(new Classifier.NoOpClassifier(), new IndexHandler.NoOpIndexHandlerFactory(), UnknownContent.class),
+	MUTATOR(new Classifier.NoOpClassifier(), new IndexHandler.NoOpIndexHandlerFactory(), UnknownContent.class),
+	MOD(new Classifier.NoOpClassifier(), new IndexHandler.NoOpIndexHandlerFactory(), UnknownContent.class),
+	UNKNOWN(new Classifier.NoOpClassifier(), new IndexHandler.NoOpIndexHandlerFactory(), UnknownContent.class),
 	;
 
 	public final Classifier classifier;
-	public final Indexer.IndexerFactory<? extends Content> indexer;
+	public final IndexHandler.IndexHandlerFactory<? extends Content> indexer;
 	public final Class<? extends Content> contentClass;
 
 	ContentType(
-			Classifier classifier, Indexer.IndexerFactory<? extends Content> indexer,
+			Classifier classifier, IndexHandler.IndexHandlerFactory<? extends Content> indexer,
 			Class<? extends Content> contentClass) {
 		this.classifier = classifier;
 		this.indexer = indexer;

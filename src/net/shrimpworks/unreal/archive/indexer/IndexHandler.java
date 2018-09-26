@@ -10,13 +10,13 @@ import java.util.Set;
 import java.util.function.Consumer;
 import javax.imageio.ImageIO;
 
-public interface Indexer<T extends Content> {
+public interface IndexHandler<T extends Content> {
 
 	public static final String UNKNOWN = "Unknown";
 
-	public interface IndexerFactory<T extends Content> {
+	public interface IndexHandlerFactory<T extends Content> {
 
-		public Indexer<T> get();
+		public IndexHandler<T> get();
 	}
 
 	public void index(Incoming incoming, Content current, IndexLog log, Consumer<IndexResult<T>> completed);
@@ -32,10 +32,10 @@ public interface Indexer<T extends Content> {
 		}
 	}
 
-	public static class NoOpIndexerFactory implements IndexerFactory<Content> {
+	public static class NoOpIndexHandlerFactory implements IndexHandlerFactory<Content> {
 
 		@Override
-		public Indexer<Content> get() {
+		public IndexHandler<Content> get() {
 			return (incoming, current, log, completed) -> completed.accept(new IndexResult<>(current, Collections.emptySet()));
 		}
 	}

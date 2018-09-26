@@ -17,7 +17,7 @@ import net.shrimpworks.unreal.archive.indexer.Content;
 import net.shrimpworks.unreal.archive.indexer.Incoming;
 import net.shrimpworks.unreal.archive.indexer.IndexLog;
 import net.shrimpworks.unreal.archive.indexer.IndexResult;
-import net.shrimpworks.unreal.archive.indexer.Indexer;
+import net.shrimpworks.unreal.archive.indexer.IndexHandler;
 import net.shrimpworks.unreal.packages.Package;
 import net.shrimpworks.unreal.packages.PackageReader;
 import net.shrimpworks.unreal.packages.entities.ExportedObject;
@@ -31,15 +31,15 @@ import net.shrimpworks.unreal.packages.entities.properties.ObjectProperty;
 import net.shrimpworks.unreal.packages.entities.properties.Property;
 import net.shrimpworks.unreal.packages.entities.properties.StringProperty;
 
-public class MapIndexer implements Indexer<Map> {
+public class MapIndexHandler implements IndexHandler<Map> {
 
 	private static final String SHOT_NAME = "%s_shot_%d.png";
 
-	public static class MapIndexerFactory implements IndexerFactory<Map> {
+	public static class MapIndexHandlerFactory implements IndexHandlerFactory<Map> {
 
 		@Override
-		public Indexer<Map> get() {
-			return new MapIndexer();
+		public IndexHandler<Map> get() {
+			return new MapIndexHandler();
 		}
 	}
 
