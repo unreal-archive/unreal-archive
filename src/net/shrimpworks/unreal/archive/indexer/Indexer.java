@@ -30,13 +30,64 @@ public class Indexer {
 		this.cli = cli;
 	}
 
+	/**
+	 * Indexes a path or individual file.
+	 * <p>
+	 * Indexing process (indexing a path):
+	 * <p>
+	 * Each directory is checked for file <code>_override.yml</code>, which contains a
+	 * collection of free-form key-value overrides which individual content indexing
+	 * handlers may choose to reference to allow overriding specific pieces of data.
+	 * This file's structure is defined as per {@link SubmissionOverride}.
+	 * <p>
+	 * Then, each file found within a directory is added to a collection to be
+	 * classified and then indexed. Additionally, if a file with the same name of the
+	 * file to be indexed with a <code>.yml</code> extension is found, this file is
+	 * also loaded, and may contain additional file-specific information.
+	 * This file's structure is defined as per {@link Submission}.
+	 *
+	 * @param inputPath directory or path to index
+	 * @param force     if content has already been indexed, index it again
+	 * @throws IOException file access failure
+	 */
 	public void index(Path inputPath, boolean force) throws IOException {
 		final List<IndexLog> indexLogs = new ArrayList<>();
 
 		// go through all the files in the input path and index them if new
-		if (Files.isDirectory(inputPath)) {
+		List<Submission> all = findFiles(inputPath);
 
-			List<Submission> all = new ArrayList<>();
+		System.out.printf("Found %d files to index in %s%n", all.size(), inputPath);
+
+		AtomicInteger done = new AtomicInteger();
+
+		all.stream().sorted().forEach(sub -> {
+			IndexLog log = new IndexLog(sub);
+			indexLogs.add(log);
+
+			indexFile(sub, log, force, c -> {
+				for (IndexLog.LogEntry l : log.log) {
+					System.out.printf("[%s] %s: %s%n", l.type, Util.fileName(c.filePath.getFileName()), l.message);
+					if (l.exception != null
+						&& (cli.option("verbose", "").equalsIgnoreCase("true") || cli.option("verbose", "").equalsIgnoreCase("1"))) {
+						l.exception.printStackTrace(System.out);
+					}
+				}
+				System.out.printf("Completed %d of %d\r", done.incrementAndGet(), all.size());
+			});
+		});
+
+		int err = 0;
+
+		for (IndexLog l : indexLogs) {
+			if (!l.ok()) err++;
+		}
+
+		System.out.printf("%nCompleted indexing %d files, with %d errors%n", indexLogs.size(), err);
+	}
+
+	private List<Submission> findFiles(Path inputPath) throws IOException {
+		List<Submission> all = new ArrayList<>();
+		if (Files.isDirectory(inputPath)) {
 			Files.walkFileTree(inputPath, new SimpleFileVisitor<Path>() {
 
 				final Map<Path, SubmissionOverride> override = new HashMap<>();
@@ -45,7 +96,7 @@ public class Indexer {
 				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 					if (!Util.extension(file).equalsIgnoreCase("yml")) {
 						Submission sub;
-						// if there's asubmission file
+						// if there's a submission file
 						if (Files.exists(Paths.get(file.toString() + ".yml"))) {
 							System.out.println("Submission exists, using it");
 							sub = YAML.fromFile(Paths.get(file.toString() + ".yml"), Submission.class);
@@ -54,7 +105,6 @@ public class Indexer {
 							sub = new Submission(file);
 						}
 
-						//if (override != null) sub.override = override;
 						sub.override = override.get(file.getParent());
 						all.add(sub);
 					}
@@ -71,49 +121,26 @@ public class Indexer {
 				}
 
 			});
-
-			System.out.printf("Found %d maps to index in %s%n", all.size(), inputPath);
-
-			AtomicInteger done = new AtomicInteger();
-
-			all.stream().sorted().forEach(sub -> {
-				IndexLog log = new IndexLog(sub);
-				indexLogs.add(log);
-
-				indexFile(sub, log, force, c -> {
-					for (IndexLog.LogEntry l : log.log) {
-						System.out.printf("[%s] %s: %s%n", l.type, Util.fileName(c.filePath.getFileName()), l.message);
-						if (l.exception != null
-							&& (cli.option("verbose", "").equalsIgnoreCase("true") || cli.option("verbose", "").equalsIgnoreCase("1"))) {
-							l.exception.printStackTrace(System.out);
-						}
-					}
-					System.out.printf("Completed %d of %d\r", done.incrementAndGet(), all.size());
-				});
-			});
 		} else {
-			Submission sub = new Submission(inputPath);
-			IndexLog log = new IndexLog(sub);
-			indexLogs.add(log);
+			Submission sub;
+			// if there's a submission file
+			if (Files.exists(Paths.get(inputPath.toString() + ".yml"))) {
+				System.out.println("Submission exists, using it");
+				sub = YAML.fromFile(Paths.get(inputPath.toString() + ".yml"), Submission.class);
+				sub.filePath = inputPath;
+			} else {
+				sub = new Submission(inputPath);
+			}
 
-			indexFile(sub, log, force, c -> {
-				for (IndexLog.LogEntry l : log.log) {
-					System.out.printf("[%s] %s: %s%n", l.type, Util.fileName(c.filePath.getFileName()), l.message);
-					if (l.exception != null
-						&& (cli.option("verbose", "").equalsIgnoreCase("true") || cli.option("verbose", "").equalsIgnoreCase("1"))) {
-						l.exception.printStackTrace(System.out);
-					}
-				}
-			});
+			// even a single file should respect directory overrides
+			if (Files.exists(inputPath.getParent().resolve("_override.yml"))) {
+				sub.override = YAML.fromFile(inputPath.getParent().resolve("_override.yml"), SubmissionOverride.class);
+			}
+
+			all.add(sub);
 		}
 
-		int err = 0;
-
-		for (IndexLog l : indexLogs) {
-			if (!l.ok()) err++;
-		}
-
-		System.out.printf("%nCompleted indexing %d files, with %d errors%n", indexLogs.size(), err);
+		return all;
 	}
 
 	private void indexFile(Submission sub, IndexLog log, boolean force, Consumer<Submission> done) {
