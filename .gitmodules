@@ -1,0 +1,3 @@
+[submodule "unreal-archive-data"]
+	path = unreal-archive-data
+	url = ssh://git@code.shrimpworks.za.net:20222/shrimp/unreal-archive-data.git
