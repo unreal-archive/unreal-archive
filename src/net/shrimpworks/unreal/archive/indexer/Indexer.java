@@ -45,6 +45,16 @@ public class Indexer {
 	 * file to be indexed with a <code>.yml</code> extension is found, this file is
 	 * also loaded, and may contain additional file-specific information.
 	 * This file's structure is defined as per {@link Submission}.
+	 * <p>
+	 * Once a file is found, an {@link Incoming} instance for it will be created, and
+	 * it will be classified using a {@link Classifier}, to determine its
+	 * {@link ContentType}.
+	 * <p>
+	 * When the Content Type is found, a new type-specific {@link Content} instance will
+	 * be created with as many generic properties filled as possible. The incomplete
+	 * content will be handed to and processed via the associated {@link IndexHandler}
+	 * implementation, which further enriches it, and finally returns it via a
+	 * {@link Consumer}.
 	 *
 	 * @param inputPath directory or path to index
 	 * @param force     if content has already been indexed, index it again
@@ -164,7 +174,10 @@ public class Indexer {
 
 			ContentType type = Classifier.classify(incoming, log);
 
-			content = type.newContent(incoming);
+			// TODO better way to handle re-indexing - we already have content, but if type changes we can't re-use it
+			if (content == null || type.toString().equalsIgnoreCase(content.contentType)) {
+				content = type.newContent(incoming);
+			}
 
 			if (type != ContentType.UNKNOWN) { // TODO later support a generic dumping ground for unknown content
 
