@@ -17,7 +17,7 @@ public class ArchiveUtil {
 	private static final Duration KILL_WAIT = Duration.ofSeconds(1);
 
 	private static final Set<String> ARCHIVES = new HashSet<>(Arrays.asList(
-			"zip", "z", "gz", "7z", "rar", "exe"
+			"zip", "z", "gz", "7z", "rar", "lzh", "exe"
 	));
 
 	private static final String SEVENZIP_BIN = "/usr/bin/7z";
@@ -50,6 +50,8 @@ public class ArchiveUtil {
 		switch (ext) {
 			case "zip":
 			case "7z":
+			case "lzh":
+			case "lza":
 			case "exe":
 				result = exec(sevenZipCmd(source, destination), source, destination, timeout);
 				break;
