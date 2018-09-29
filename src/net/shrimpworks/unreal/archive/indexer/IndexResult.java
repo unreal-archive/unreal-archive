@@ -6,19 +6,21 @@ import java.util.Set;
 public class IndexResult<T extends Content> {
 
 	public final T content;
-	public final Set<CreatedFile> files;
+	public final Set<NewAttachment> files;
 
-	public IndexResult(T content, Set<CreatedFile> files) {
+	public IndexResult(T content, Set<NewAttachment> attachments) {
 		this.content = content;
-		this.files = files;
+		this.files = attachments;
 	}
 
-	public static class CreatedFile {
+	public static class NewAttachment {
 
+		public final Content.AttachmentType type;
 		public final String name;
 		public final Path path;
 
-		public CreatedFile(String name, Path path) {
+		public NewAttachment(Content.AttachmentType type, String name, Path path) {
+			this.type = type;
 			this.name = name;
 			this.path = path;
 		}

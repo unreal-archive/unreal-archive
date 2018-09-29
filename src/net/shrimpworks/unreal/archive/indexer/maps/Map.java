@@ -7,8 +7,8 @@ import net.shrimpworks.unreal.archive.indexer.Content;
 
 public class Map extends Content {
 
-	// Game/Type/Gametype/NAME5/Name-[hash8]
-	private static final String PATH_STRING = "%s/%s/%s/%s/%s_[%s]";
+	// Type/Game/Gametype/NAME5
+	private static final String PATH_STRING = "%s/%s/%s/%s/";
 
 	public String gametype = "Unknown";             // Deathmatch
 	public String title = "Unknown";                // My Map
@@ -16,15 +16,13 @@ public class Map extends Content {
 
 	@Override
 	public Path contentPath(Path root) {
-		String basicName = name.toUpperCase().replaceAll("[^A-Z0-9]", "");
-		basicName = basicName.substring(0, Math.min(4, basicName.length() - 1));
+		String namePrefix = name.toUpperCase().replaceAll("[^A-Z0-9]", "");
+		namePrefix = namePrefix.substring(0, Math.min(4, namePrefix.length() - 1));
 		return root.resolve(String.format(PATH_STRING,
-										  game,
 										  "Maps",
+										  game,
 										  gametype,
-										  basicName,
-										  name,
-										  hash.substring(0, 8)
+										  namePrefix
 		));
 	}
 

@@ -21,14 +21,13 @@ public interface IndexHandler<T extends Content> {
 
 	public void index(Incoming incoming, Content current, IndexLog log, Consumer<IndexResult<T>> completed);
 
-	default void saveImages(String shotTemplate, Content content, List<BufferedImage> screenshots, Set<IndexResult.CreatedFile> files)
+	default void saveImages(String shotTemplate, Content content, List<BufferedImage> screenshots, Set<IndexResult.NewAttachment> attachments)
 			throws IOException {
 		for (int i = 0; i < screenshots.size(); i++) {
 			String shotName = String.format(shotTemplate, content.name.replaceAll(" ", "_"), i + 1);
 			Path out = Paths.get(shotName);
 			ImageIO.write(screenshots.get(i), "png", out.toFile());
-			content.screenshots.add(out.getFileName().toString());
-			files.add(new IndexResult.CreatedFile(shotName, out));
+			attachments.add(new IndexResult.NewAttachment(Content.AttachmentType.IMAGE, shotName, out));
 		}
 	}
 

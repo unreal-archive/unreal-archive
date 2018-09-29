@@ -38,7 +38,8 @@ public abstract class Content {
 	public String description = "None";                     // My cool map is cool and stuff
 
 	public String releaseDate = "Unknown";                  // 2001-05
-	public List<String> screenshots = new ArrayList<>();    // [Screenshot.png, Screenshot2.jpg]
+
+	public List<Attachment> attachments = new ArrayList<>();// screenshots, videos, documents, etc
 
 	public String originalFilename;                         // dm-mymap.zip
 	public String hash;
@@ -76,7 +77,7 @@ public abstract class Content {
 			   && Objects.equals(author, content.author)
 			   && Objects.equals(description, content.description)
 			   && Objects.equals(releaseDate, content.releaseDate)
-			   && Objects.equals(screenshots, content.screenshots)
+			   && Objects.equals(attachments, content.attachments)
 			   && Objects.equals(originalFilename, content.originalFilename)
 			   && Objects.equals(hash, content.hash)
 			   && Objects.equals(files, content.files)
@@ -85,7 +86,7 @@ public abstract class Content {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(contentType, firstIndex, lastIndex, game, name, author, description, releaseDate, screenshots, originalFilename,
+		return Objects.hash(contentType, firstIndex, lastIndex, game, name, author, description, releaseDate, attachments, originalFilename,
 							hash, fileSize, files, otherFiles, downloads, deleted);
 	}
 
@@ -100,6 +101,55 @@ public abstract class Content {
 			this.name = name;
 			this.fileSize = fileSize;
 			this.hash = hash;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) return true;
+			if (o == null || getClass() != o.getClass()) return false;
+			ContentFile that = (ContentFile)o;
+			return Objects.equals(hash, that.hash);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(hash);
+		}
+	}
+
+	public static enum AttachmentType {
+		IMAGE,
+		VIDEO,
+		MARKDOWN,
+		OTHER
+	}
+
+	public static class Attachment {
+
+		public final AttachmentType type;
+		public final String name;
+		public final String url;
+
+		@ConstructorProperties({ "type", "name", "url" })
+		public Attachment(AttachmentType type, String name, String url) {
+			this.type = type;
+			this.name = name;
+			this.url = url;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) return true;
+			if (o == null || getClass() != o.getClass()) return false;
+			Attachment that = (Attachment)o;
+			return type == that.type
+				   && Objects.equals(name, that.name)
+				   && Objects.equals(url, that.url);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(type, name, url);
 		}
 	}
 
@@ -127,6 +177,22 @@ public abstract class Content {
 			this.url = url;
 			this.added = added;
 			this.repack = repack;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) return true;
+			if (o == null || getClass() != o.getClass()) return false;
+			Download download = (Download)o;
+			return ok == download.ok
+				   && repack == download.repack
+				   && deleted == download.deleted
+				   && Objects.equals(url, download.url);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(url, ok, repack, deleted);
 		}
 	}
 }

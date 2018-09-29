@@ -34,7 +34,7 @@ public class YAMLTest {
 		assertNotNull(copy);
 
 		assertEquals(m.title, copy.title);
-		assertEquals(m.screenshots.get(1), copy.screenshots.get(1));
+		assertEquals(m.attachments.get(1), copy.attachments.get(1));
 
 		Path wrote = Files.write(Files.createTempFile("test-map", ".yaml"),
 								 YAML.toString(copy).getBytes(StandardCharsets.UTF_8),
@@ -43,7 +43,7 @@ public class YAMLTest {
 		Map another = YAML.fromFile(wrote, Map.class);
 		assertNotNull(another);
 		assertEquals(m.title, another.title);
-		assertEquals(m.screenshots.get(1), another.screenshots.get(1));
+		assertEquals(m.attachments.get(1), another.attachments.get(1));
 
 		System.out.println(YAML.toString(another));
 	}
@@ -61,7 +61,7 @@ public class YAMLTest {
 		m.author = "Joe Soap";
 		m.playerCount = "2 - 4 Players";
 		m.releaseDate = "2001-05";
-		m.screenshots = Arrays.asList("Screenshot1.png", "shot2.jpg");
+		m.attachments = Arrays.asList(attachment("localhost/Screenshot1.png"), attachment("lolhosting.com/path/shot2.jpg"));
 		m.hash = "123456789";
 		m.fileSize = 564231;
 		m.files = Arrays.asList(file("DM-MyMap.unr"), file("MyTex.utx"));
@@ -82,5 +82,9 @@ public class YAMLTest {
 									LocalDate.now().minus((long)(Math.random() * 100), ChronoUnit.DAYS),
 									true, false, false
 		);
+	}
+
+	private Content.Attachment attachment(String url) {
+		return new Content.Attachment(Content.AttachmentType.IMAGE, url.substring(url.lastIndexOf("/")), url);
 	}
 }

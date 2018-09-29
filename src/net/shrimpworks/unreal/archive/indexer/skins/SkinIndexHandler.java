@@ -44,7 +44,7 @@ public class SkinIndexHandler implements IndexHandler<Skin> {
 
 		// TODO support UT2004 via .upl files
 
-		Set<IndexResult.CreatedFile> files = new HashSet<>();
+		Set<IndexResult.NewAttachment> attachments = new HashSet<>();
 
 		String origName = s.name;
 
@@ -73,12 +73,12 @@ public class SkinIndexHandler implements IndexHandler<Skin> {
 
 		List<BufferedImage> images = images(incoming, log);
 		try {
-			saveImages(SHOT_NAME, s, images, files);
+			saveImages(SHOT_NAME, s, images, attachments);
 		} catch (IOException e) {
 			log.log(IndexLog.EntryType.CONTINUE, "Failed to save images", e);
 		}
 
-		completed.accept(new IndexResult<>(s, files));
+		completed.accept(new IndexResult<>(s, attachments));
 	}
 
 	private List<IntFile.MapValue> skinDescriptors(Incoming incoming) {

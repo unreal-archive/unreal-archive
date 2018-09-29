@@ -14,7 +14,7 @@ import java.util.HashMap;
  * Source URLs are optional, if content has been sourced from disk only, or a
  * non-public source (someone's FTP server, HTTP upload, etc).
  */
-public class Submission {
+public class Submission implements Comparable<Submission> {
 
 	public Path filePath;
 	public String[] sourceUrls;
@@ -31,5 +31,10 @@ public class Submission {
 	@Override
 	public String toString() {
 		return String.format("ContentSubmission [filePath=%s, sourceUrls=%s]", filePath, Arrays.toString(sourceUrls));
+	}
+
+	@Override
+	public int compareTo(Submission o) {
+		return filePath.compareTo(o.filePath);
 	}
 }

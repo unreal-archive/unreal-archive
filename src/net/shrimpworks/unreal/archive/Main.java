@@ -44,8 +44,10 @@ public class Main {
 			System.exit(3);
 		}
 
+		final DataStore imageStore = new SimpleHttpStore("http://localhost/~shrimp/archive/");
+
 		final long start = System.currentTimeMillis();
-		final ContentManager contentManager = new ContentManager(contentPath);
+		final ContentManager contentManager = new ContentManager(contentPath, imageStore, imageStore, imageStore);
 		System.err.printf("Loaded content index with %d items in %.2fs%n",
 						  contentManager.size(), (System.currentTimeMillis() - start) / 1000f);
 

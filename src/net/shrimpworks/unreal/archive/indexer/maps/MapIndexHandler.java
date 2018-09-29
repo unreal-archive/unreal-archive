@@ -15,9 +15,9 @@ import javax.imageio.ImageIO;
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.indexer.Content;
 import net.shrimpworks.unreal.archive.indexer.Incoming;
+import net.shrimpworks.unreal.archive.indexer.IndexHandler;
 import net.shrimpworks.unreal.archive.indexer.IndexLog;
 import net.shrimpworks.unreal.archive.indexer.IndexResult;
-import net.shrimpworks.unreal.archive.indexer.IndexHandler;
 import net.shrimpworks.unreal.packages.Package;
 import net.shrimpworks.unreal.packages.PackageReader;
 import net.shrimpworks.unreal.packages.entities.ExportedObject;
@@ -55,9 +55,11 @@ public class MapIndexHandler implements IndexHandler<Map> {
 		m.gametype = gameType(incoming, m.name);
 		m.title = m.name;
 
-		Set<IndexResult.CreatedFile> files = new HashSet<>();
+		Set<IndexResult.NewAttachment> attachments = new HashSet<>();
 
 		try (Package map = map(incoming)) {
+			if (map.version < 68) m.game = "Unreal";
+
 			// read level info (also in LevelSummary, but missing Screenshot)
 			Collection<ExportedObject> maybeLevelInfo = map.objectsByClassName("LevelInfo");
 			if (maybeLevelInfo == null || maybeLevelInfo.isEmpty()) {
@@ -94,15 +96,13 @@ public class MapIndexHandler implements IndexHandler<Map> {
 				else if (min > 0 || max > 0) m.playerCount = Integer.toString(Math.max(min, max));
 			}
 
-			m.screenshots = new ArrayList<>();
-
 			Property screenshot = level.property("Screenshot");
 
 			// use this opportunity to resolve some version overlap between game versions
 			if (screenshot != null && map.version < 117) m.game = "Unreal Tournament";
 
 			List<BufferedImage> screenshots = screenshots(incoming, log, map, screenshot);
-			saveImages(SHOT_NAME, m, screenshots, files);
+			saveImages(SHOT_NAME, m, screenshots, attachments);
 
 		} catch (IOException e) {
 			log.log(IndexLog.EntryType.CONTINUE, "Failed to read map package", e);
@@ -110,7 +110,7 @@ public class MapIndexHandler implements IndexHandler<Map> {
 			log.log(IndexLog.EntryType.CONTINUE, "Caught while parsing map: " + e.getMessage(), e);
 		}
 
-		completed.accept(new IndexResult<>(m, files));
+		completed.accept(new IndexResult<>(m, attachments));
 	}
 
 	private Package map(Incoming incoming) {
@@ -182,7 +182,6 @@ public class MapIndexHandler implements IndexHandler<Map> {
 			Package shotPackage = map;
 
 			try {
-
 				Object object = null;
 
 				if (shotResolved instanceof Import) {
@@ -193,7 +192,7 @@ public class MapIndexHandler implements IndexHandler<Map> {
 						shotPackage = findPackage(incoming, parentPkg.equals("None") ? pkg.name().name : parentPkg);
 						ExportedObject exp = shotPackage.objectByName(((Import)shotResolved).name);
 						object = exp.object();
-					} catch (IOException e) {
+					} catch (Exception e) {
 						// oh well, no screenshots
 					}
 				} else {
@@ -273,7 +272,7 @@ public class MapIndexHandler implements IndexHandler<Map> {
 		return images;
 	}
 
-	private Package findPackage(Incoming incoming, String pkg) throws IOException {
+	private Package findPackage(Incoming incoming, String pkg) {
 		Set<Incoming.IncomingFile> files = incoming.files(Incoming.FileType.IMPORTANT);
 		for (Incoming.IncomingFile f : files) {
 			String name = f.fileName();

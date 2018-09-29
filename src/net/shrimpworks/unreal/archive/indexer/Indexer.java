@@ -202,7 +202,7 @@ public class Indexer {
 
 						contentManager.checkin(c);
 					} catch (IOException e) {
-						log.log(IndexLog.EntryType.FATAL, "Failed to store content file data for " + sub.filePath.toString());
+						log.log(IndexLog.EntryType.FATAL, "Failed to store content file data for " + sub.filePath.toString(), e);
 					}
 				});
 
