@@ -108,14 +108,14 @@ public class Indexer {
 						Submission sub;
 						// if there's a submission file
 						if (Files.exists(Paths.get(file.toString() + ".yml"))) {
-							System.out.println("Submission exists, using it");
 							sub = YAML.fromFile(Paths.get(file.toString() + ".yml"), Submission.class);
 							sub.filePath = file;
 						} else {
 							sub = new Submission(file);
 						}
 
-						sub.override = override.get(file.getParent());
+						SubmissionOverride override = this.override.get(file.getParent());
+						if (override != null) sub.override = override;
 						all.add(sub);
 					}
 					return FileVisitResult.CONTINUE;
@@ -135,7 +135,6 @@ public class Indexer {
 			Submission sub;
 			// if there's a submission file
 			if (Files.exists(Paths.get(inputPath.toString() + ".yml"))) {
-				System.out.println("Submission exists, using it");
 				sub = YAML.fromFile(Paths.get(inputPath.toString() + ".yml"), Submission.class);
 				sub.filePath = inputPath;
 			} else {

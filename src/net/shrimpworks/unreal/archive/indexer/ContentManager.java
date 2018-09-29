@@ -130,44 +130,53 @@ public class ContentManager {
 		ContentHolder current = this.content.get(indexed.content.hash);
 
 		if (current == null || !indexed.content.equals(current.content)) {
-			Path prior = null;
-			if (current != null) {
-				prior = current.path;
-			}
-
 			// lets store the content \o/
 			Path next = indexed.content.contentPath(path);
 			Files.createDirectories(next);
 
-//			if (prior != null) {
-//				// copy old content to new directory
-//				Set<Path> oldFiles = Files.list(prior).collect(Collectors.toSet());
-//				for (Path oldFile : oldFiles) {
-//					if (Files.isRegularFile(oldFile)) Files.move(oldFile, next.resolve(oldFile.getFileName()));
-//				}
-//			}
-
 			for (IndexResult.NewAttachment file : indexed.files) {
-				// FIXME use same path structure as per contentPath
-				switch (file.type) {
-					case IMAGE:
-						imageStore.store(file.path, file.name,
-										 s -> indexed.content.attachments.add(new Content.Attachment(file.type, file.name, s)));
-						break;
-					default:
+				// use same path structure as per contentPath
+				try {
+					String uploadPath = path.relativize(next.resolve(file.name)).toString();
+					switch (file.type) {
+						case IMAGE:
+							imageStore.store(file.path, uploadPath,
+											 s -> indexed.content.attachments.add(new Content.Attachment(file.type, file.name, s)));
+							break;
+						default:
+							attachmentStore.store(file.path, uploadPath,
+												  s -> indexed.content.attachments.add(new Content.Attachment(file.type, file.name, s)));
+					}
+				} finally {
+					// cleanup file once uploaded
+					Files.deleteIfExists(file.path);
 				}
 			}
 
-			// FIXME support deletion of removed attachments from remote
+			// delete removed attachments from remote
+			if (current != null) {
+				for (Content.Attachment had : current.content.attachments) {
+					if (!indexed.content.attachments.contains(had)) {
+						switch (had.type) {
+							case IMAGE:
+								imageStore.delete(had.url, d -> {
+								});
+								break;
+							default:
+								attachmentStore.delete(had.url, d -> {
+								});
+						}
+					}
+				}
+			}
 
 			Path newYml = next.resolve(String.format("%s_[%s].yml", indexed.content.name, indexed.content.hash.substring(0, 8)));
 			Files.write(newYml, YAML.toString(indexed.content).getBytes(StandardCharsets.UTF_8),
 						StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 
-			if (prior != null && !prior.equals(next)) {
-				// clean out the old directory and remove it
-//				ArchiveUtil.cleanPath(prior);
-				Files.deleteIfExists(prior);
+			if (current != null && !current.path.equals(newYml)) {
+				// remove old yml file if new file changed
+				Files.deleteIfExists(current.path);
 			}
 
 			this.content.put(indexed.content.hash, new ContentHolder(newYml, indexed.content));
