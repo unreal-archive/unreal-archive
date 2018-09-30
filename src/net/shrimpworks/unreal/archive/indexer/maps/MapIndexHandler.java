@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.imageio.ImageIO;
 
 import net.shrimpworks.unreal.archive.Util;
@@ -35,6 +37,8 @@ public class MapIndexHandler implements IndexHandler<Map> {
 
 	private static final String SHOT_NAME = "%s_shot_%d.png";
 
+	private static final Pattern SP_MATCH = Pattern.compile("(.+)?(single ?player|cooperative)([\\s:]+)?yes(\\s+)?", Pattern.CASE_INSENSITIVE);
+
 	public static class MapIndexHandlerFactory implements IndexHandlerFactory<Map> {
 
 		@Override
@@ -44,7 +48,8 @@ public class MapIndexHandler implements IndexHandler<Map> {
 	}
 
 	@Override
-	public void index(Incoming incoming, Content content, IndexLog log, Consumer<IndexResult<Map>> completed) {
+	public void index(Incoming incoming, Content content, Consumer<IndexResult<Map>> completed) {
+		IndexLog log = incoming.log;
 		Map m = (Map)content;
 
 		// TODO find .txt file in content root and scan for dates, authors, etc
@@ -58,7 +63,7 @@ public class MapIndexHandler implements IndexHandler<Map> {
 		Set<IndexResult.NewAttachment> attachments = new HashSet<>();
 
 		try (Package map = map(incoming)) {
-			if (map.version < 68) m.game = "Unreal";
+			if (map.version < 68 || (m.releaseDate != null && m.releaseDate.compareTo(RELEASE_UT99) < 0)) m.game = "Unreal";
 
 			// read level info (also in LevelSummary, but missing Screenshot)
 			Collection<ExportedObject> maybeLevelInfo = map.objectsByClassName("LevelInfo");
@@ -101,7 +106,7 @@ public class MapIndexHandler implements IndexHandler<Map> {
 			// use this opportunity to resolve some version overlap between game versions
 			if (screenshot != null && map.version < 117) m.game = "Unreal Tournament";
 
-			List<BufferedImage> screenshots = screenshots(incoming, log, map, screenshot);
+			List<BufferedImage> screenshots = screenshots(incoming, map, screenshot);
 			saveImages(SHOT_NAME, m, screenshots, attachments);
 
 		} catch (IOException e) {
@@ -134,6 +139,7 @@ public class MapIndexHandler implements IndexHandler<Map> {
 	private String gameType(Incoming incoming, String name) {
 		if (incoming.submission.override.get("gameType", null) != null) return incoming.submission.override.get("gameType", "DeathMatch");
 
+		if (name.toLowerCase().startsWith("sp")) return "Single Player";
 		if (name.toLowerCase().startsWith("dm")) return "DeathMatch";
 		if (name.toLowerCase().startsWith("ctf-bt")) return "BunnyTrack";
 		if (name.toLowerCase().startsWith("ctf4")) return "Multi-team Capture The Flag";
@@ -158,7 +164,30 @@ public class MapIndexHandler implements IndexHandler<Map> {
 		if (name.toLowerCase().startsWith("u4e")) return "Unreal4Ever";
 		if (name.toLowerCase().startsWith("unf")) return "Unreal Fortress";
 
+		if (maybeSingleplayer(incoming)) return "Single Player";
+
 		return UNKNOWN;
+	}
+
+	private boolean maybeSingleplayer(Incoming incoming) {
+
+		if (incoming.submission.filePath.toString().toLowerCase().contains("SinglePlayer")
+			|| incoming.submission.filePath.toString().toLowerCase().contains("COOP")) {
+			return true;
+		}
+
+		try {
+			List<String> lines = textContent(incoming);
+
+			for (String s : lines) {
+				Matcher m = SP_MATCH.matcher(s);
+				if (m.matches()) return true;
+			}
+		} catch (Exception e) {
+			incoming.log.log(IndexLog.EntryType.CONTINUE, "Couldn't figure out if singleplayer by reading text files", e);
+		}
+
+		return false;
 	}
 
 	private String game(Incoming incoming) {
@@ -173,7 +202,7 @@ public class MapIndexHandler implements IndexHandler<Map> {
 		return UNKNOWN;
 	}
 
-	private List<BufferedImage> screenshots(Incoming incoming, IndexLog log, Package map, Property screenshot) {
+	private List<BufferedImage> screenshots(Incoming incoming, Package map, Property screenshot) {
 		List<BufferedImage> images = new ArrayList<>();
 		if (screenshot != null) {
 			ObjectReference shotRef = ((ObjectProperty)screenshot).value;
@@ -243,14 +272,14 @@ public class MapIndexHandler implements IndexHandler<Map> {
 					}
 				}
 			} catch (Exception e) {
-				log.log(IndexLog.EntryType.CONTINUE, "Failed to read screenshot from packages", e);
+				incoming.log.log(IndexLog.EntryType.CONTINUE, "Failed to read screenshot from packages", e);
 			} finally {
 				// cleanup if we spun up an external package for screenshots
 				if (shotPackage != map) {
 					try {
 						shotPackage.close();
 					} catch (IOException e) {
-						log.log(IndexLog.EntryType.INFO, "Screenshot cleanup failed", e);
+						incoming.log.log(IndexLog.EntryType.INFO, "Screenshot cleanup failed", e);
 					}
 				}
 			}
@@ -265,7 +294,7 @@ public class MapIndexHandler implements IndexHandler<Map> {
 					if (image != null) images.add(image);
 				}
 			} catch (Exception e) {
-				log.log(IndexLog.EntryType.CONTINUE, "Failed to load screenshot from archive", e);
+				incoming.log.log(IndexLog.EntryType.CONTINUE, "Failed to load screenshot from archive", e);
 			}
 		}
 
@@ -281,18 +310,6 @@ public class MapIndexHandler implements IndexHandler<Map> {
 				return new Package(new PackageReader(f.asChannel()));
 			}
 		}
-//
-//		for (java.util.Map.Entry<String, java.lang.Object> kv : incoming.files.entrySet()) {
-//			String name = kv.getKey().substring(Math.max(0, kv.getKey().lastIndexOf("/") + 1));
-//			name = name.substring(0, name.lastIndexOf("."));
-//			if (name.equalsIgnoreCase(pkg)) {
-//				if (kv.getValue() instanceof Path) {
-//					return new Package((Path)kv.getValue());
-//				} else if (kv.getValue() instanceof Umod.UmodFile) {
-//					return new Package(new PackageReader(((Umod.UmodFile)kv.getValue()).read()));
-//				}
-//			}
-//		}
 		throw new IllegalStateException("Failed to find package " + pkg);
 	}
 }

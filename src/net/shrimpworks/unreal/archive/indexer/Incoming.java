@@ -83,6 +83,7 @@ public class Incoming implements Closeable {
 	public final Submission submission;
 	public final String hash;
 	public final int fileSize;
+	public final IndexLog log;
 
 	private final Set<Umod> umods;
 
@@ -96,6 +97,7 @@ public class Incoming implements Closeable {
 		this.hash = Util.hash(submission.filePath);
 		this.fileSize = (int)Files.size(submission.filePath);
 		this.umods = new HashSet<>();
+		this.log = log;
 	}
 
 	public Incoming prepare() throws IOException {
@@ -110,7 +112,7 @@ public class Incoming implements Closeable {
 			try {
 				v.close();
 			} catch (IOException e) {
-				e.printStackTrace();
+				log.log(IndexLog.EntryType.INFO, "Failed cleaning up Umod file " + v, e);
 			}
 		}
 

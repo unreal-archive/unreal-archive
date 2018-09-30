@@ -1,11 +1,8 @@
 package net.shrimpworks.unreal.archive.indexer.skins;
 
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.channels.Channels;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -19,9 +16,9 @@ import javax.imageio.ImageIO;
 
 import net.shrimpworks.unreal.archive.indexer.Content;
 import net.shrimpworks.unreal.archive.indexer.Incoming;
+import net.shrimpworks.unreal.archive.indexer.IndexHandler;
 import net.shrimpworks.unreal.archive.indexer.IndexLog;
 import net.shrimpworks.unreal.archive.indexer.IndexResult;
-import net.shrimpworks.unreal.archive.indexer.IndexHandler;
 import net.shrimpworks.unreal.packages.IntFile;
 import net.shrimpworks.unreal.packages.Package;
 import net.shrimpworks.unreal.packages.PackageReader;
@@ -39,8 +36,9 @@ public class SkinIndexHandler implements IndexHandler<Skin> {
 	}
 
 	@Override
-	public void index(Incoming incoming, Content current, IndexLog log, Consumer<IndexResult<Skin>> completed) {
+	public void index(Incoming incoming, Content current, Consumer<IndexResult<Skin>> completed) {
 		Skin s = (Skin)current;
+		IndexLog log = incoming.log;
 
 		// TODO support UT2004 via .upl files
 
@@ -60,18 +58,19 @@ public class SkinIndexHandler implements IndexHandler<Skin> {
 		});
 
 		try {
+			if (s.releaseDate != null && s.releaseDate.compareTo(RELEASE_UT99) < 0) s.game = "Unreal";
 			s.game = game(incoming);
 		} catch (Exception e) {
 			log.log(IndexLog.EntryType.CONTINUE, "Could not determine game for skin", e);
 		}
 
 		try {
-			s.author = author(incoming, log);
+			s.author = author(incoming);
 		} catch (IOException e) {
 			log.log(IndexLog.EntryType.CONTINUE, "Failed attempt to read author", e);
 		}
 
-		List<BufferedImage> images = images(incoming, log);
+		List<BufferedImage> images = images(incoming);
 		try {
 			saveImages(SHOT_NAME, s, images, attachments);
 		} catch (IOException e) {
@@ -129,7 +128,7 @@ public class SkinIndexHandler implements IndexHandler<Skin> {
 		}
 	}
 
-	private List<BufferedImage> images(Incoming incoming, IndexLog log) {
+	private List<BufferedImage> images(Incoming incoming) {
 		List<BufferedImage> images = new ArrayList<>();
 		try {
 			Set<Incoming.IncomingFile> files = incoming.files(Incoming.FileType.IMAGE);
@@ -138,34 +137,22 @@ public class SkinIndexHandler implements IndexHandler<Skin> {
 				if (image != null) images.add(image);
 			}
 		} catch (Exception e) {
-			log.log(IndexLog.EntryType.CONTINUE, "Failed to load image", e);
+			incoming.log.log(IndexLog.EntryType.CONTINUE, "Failed to load image", e);
 		}
 		return images;
 	}
 
-	private String author(Incoming incoming, IndexLog log) throws IOException {
-		for (Incoming.IncomingFile f : incoming.files(Incoming.FileType.TEXT, Incoming.FileType.HTML)) {
-			List<String> lines;
-			try (BufferedReader br = new BufferedReader(Channels.newReader(f.asChannel(), StandardCharsets.UTF_8.name()))) {
-				lines = br.lines().collect(Collectors.toList());
-			} catch (UncheckedIOException e) {
-				log.log(IndexLog.EntryType.INFO, "Could not read file as UTF-8, trying ISO-8859-1", e);
-				try (BufferedReader br = new BufferedReader(Channels.newReader(f.asChannel(), StandardCharsets.ISO_8859_1.name()))) {
-					lines = br.lines().collect(Collectors.toList());
-				} catch (UncheckedIOException ex) {
-					log.log(IndexLog.EntryType.CONTINUE, "Failed to search for author", e);
-					continue;
-				}
-			}
+	private String author(Incoming incoming) throws IOException {
+		List<String> lines = textContent(incoming);
 
-			for (String s : lines) {
-				Matcher m = Skin.AUTHOR_MATCH.matcher(s);
-				if (m.matches() && !m.group(4).trim().isEmpty()) {
-					return m.group(4).trim();
-				}
+		for (String s : lines) {
+			Matcher m = Skin.AUTHOR_MATCH.matcher(s);
+			if (m.matches() && !m.group(4).trim().isEmpty()) {
+				return m.group(4).trim();
 			}
 		}
 
 		return UNKNOWN;
 	}
+
 }

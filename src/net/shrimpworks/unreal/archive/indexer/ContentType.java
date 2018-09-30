@@ -32,6 +32,22 @@ public enum ContentType {
 		this.contentClass = contentClass;
 	}
 
+	public static ContentType classify(Incoming incoming) {
+		String overrideType = incoming.submission.override.get("contentType", null);
+
+		if (overrideType != null) return ContentType.valueOf(overrideType.toUpperCase());
+
+		for (ContentType type : ContentType.values()) {
+			if (type.classifier.classify(incoming)) {
+				return type;
+			}
+		}
+
+		incoming.log.log(IndexLog.EntryType.FATAL, "Unable to classify content in " + incoming.submission.filePath);
+
+		return ContentType.UNKNOWN;
+	}
+
 	@SuppressWarnings("unchecked")
 	public <T extends Content> T newContent(Incoming incoming) {
 		try {

@@ -171,7 +171,7 @@ public class Indexer {
 
 			incoming.prepare();
 
-			ContentType type = Classifier.classify(incoming, log);
+			ContentType type = ContentType.classify(incoming);
 
 			// TODO better way to handle re-indexing - we already have content, but if type changes we can't re-use it
 			if (content == null || type.toString().equalsIgnoreCase(content.contentType)) {
@@ -180,7 +180,7 @@ public class Indexer {
 
 			if (type != ContentType.UNKNOWN) { // TODO later support a generic dumping ground for unknown content
 
-				type.indexer.get().index(incoming, content, log, c -> {
+				type.indexer.get().index(incoming, content, c -> {
 					try {
 						c.content.lastIndex = LocalDateTime.now();
 						if (sub.sourceUrls != null && sub.sourceUrls.length > 0) {

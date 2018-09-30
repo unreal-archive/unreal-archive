@@ -6,6 +6,7 @@ import java.util.regex.Matcher;
 
 import net.shrimpworks.unreal.archive.indexer.Classifier;
 import net.shrimpworks.unreal.archive.indexer.Incoming;
+import net.shrimpworks.unreal.archive.indexer.IndexLog;
 import net.shrimpworks.unreal.packages.IntFile;
 
 /**
@@ -46,7 +47,7 @@ public class SkinClassifier implements Classifier {
 					try {
 						return new IntFile(f.asChannel());
 					} catch (IOException e) {
-						// TODO add log to this step
+						incoming.log.log(IndexLog.EntryType.CONTINUE, "Couldn't load INT file " + f.fileName(), e);
 						return null;
 					}
 				})

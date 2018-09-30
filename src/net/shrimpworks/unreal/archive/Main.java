@@ -131,7 +131,7 @@ public class Main {
 		}
 	}
 
-	private static void list(ContentManager contentManager, CLI cli) throws IOException {
+	private static void list(ContentManager contentManager, CLI cli) {
 		String game = cli.option("game", null);
 		String type = cli.option("type", null);
 		String author = cli.option("author", null);

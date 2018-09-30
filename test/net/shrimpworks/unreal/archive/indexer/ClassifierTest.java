@@ -41,7 +41,7 @@ public class ClassifierTest {
 			IndexLog log = new IndexLog(sub);
 			Incoming incoming = new Incoming(sub, log).prepare();
 
-			assertEquals(ContentType.MAP, Classifier.classify(incoming, log));
+			assertEquals(ContentType.MAP, ContentType.classify(incoming));
 		} finally {
 			Files.deleteIfExists(tmpMap);
 		}

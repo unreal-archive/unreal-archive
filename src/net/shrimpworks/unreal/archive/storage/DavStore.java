@@ -29,6 +29,9 @@ public class DavStore implements DataStore {
 		public DataStore newStore(StoreContent type, CLI cli) {
 			String url = cli.option("dav-" + type.name().toLowerCase(), System.getenv("DAV_" + type.name()));
 			if (url == null || url.isEmpty()) url = cli.option("dav-url", System.getenv("DAV_URL"));
+
+			if (url == null || url.isEmpty()) throw new IllegalArgumentException("Missing base URL for DAV store; --dav-url or DAV_URL");
+
 			return new DavStore(url);
 		}
 	}
