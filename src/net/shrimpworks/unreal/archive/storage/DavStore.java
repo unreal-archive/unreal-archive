@@ -1,4 +1,4 @@
-package net.shrimpworks.unreal.archive;
+package net.shrimpworks.unreal.archive.storage;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -13,17 +13,29 @@ import org.apache.hc.client5.http.fluent.Request;
 import org.apache.hc.client5.http.fluent.Response;
 import org.apache.hc.core5.http.ContentType;
 
+import net.shrimpworks.unreal.archive.CLI;
+
 /**
  * A simple HTTP storage solution, useful for testing and validation.
  * <p>
  * Possibly useful as an actual storage option with appropriate
  * configuration.
  */
-public class SimpleHttpStore implements DataStore {
+public class DavStore implements DataStore {
+
+	public static class Factory implements DataStoreFactory {
+
+		@Override
+		public DataStore newStore(StoreContent type, CLI cli) {
+			String url = cli.option("dav-" + type.name().toLowerCase(), System.getenv("DAV_" + type.name()));
+			if (url == null || url.isEmpty()) url = cli.option("dav-url", System.getenv("DAV_URL"));
+			return new DavStore(url);
+		}
+	}
 
 	private final String baseUrl;
 
-	public SimpleHttpStore(String baseUrl) {
+	private DavStore(String baseUrl) {
 		this.baseUrl = baseUrl;
 	}
 

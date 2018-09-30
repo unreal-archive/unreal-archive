@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import net.shrimpworks.unreal.archive.DataStore;
+import net.shrimpworks.unreal.archive.storage.DataStore;
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.YAML;
 

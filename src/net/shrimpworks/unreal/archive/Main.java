@@ -13,12 +13,14 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import net.shrimpworks.unreal.archive.indexer.Content;
 import net.shrimpworks.unreal.archive.indexer.ContentManager;
 import net.shrimpworks.unreal.archive.indexer.Indexer;
 import net.shrimpworks.unreal.archive.scraper.AutoIndexPHPScraper;
 import net.shrimpworks.unreal.archive.scraper.Downloader;
+import net.shrimpworks.unreal.archive.storage.DataStore;
 import net.shrimpworks.unreal.packages.Umod;
 
 public class Main {
@@ -71,14 +73,31 @@ public class Main {
 			System.exit(3);
 		}
 
-		final DataStore imageStore = new SimpleHttpStore("http://localhost/~shrimp/archive/");
+		final DataStore imageStore = store(DataStore.StoreContent.IMAGES, cli);
+		final DataStore attachmentStore = store(DataStore.StoreContent.ATTACHMENTS, cli);
+		final DataStore contentStore = store(DataStore.StoreContent.CONTENT, cli);
 
 		final long start = System.currentTimeMillis();
-		final ContentManager contentManager = new ContentManager(contentPath, imageStore, imageStore, imageStore);
+		final ContentManager contentManager = new ContentManager(contentPath, contentStore, imageStore, attachmentStore);
 		System.err.printf("Loaded content index with %d items in %.2fs%n",
 						  contentManager.size(), (System.currentTimeMillis() - start) / 1000f);
 
 		return contentManager;
+	}
+
+	private static DataStore store(DataStore.StoreContent contentType, CLI cli) {
+		String stringType = cli.option(contentType.name().toLowerCase() + "-store", cli.option("store", null));
+		if (stringType == null) {
+			System.err.println(contentType.name().toLowerCase() + "-store or store must be specified!");
+			System.err.println("Valid options are: " + Arrays.stream(DataStore.StoreType.values())
+															 .map(Enum::name)
+															 .collect(Collectors.joining(", ")));
+			System.exit(3);
+		}
+
+		DataStore.StoreType storeType = DataStore.StoreType.valueOf(stringType.toUpperCase());
+
+		return storeType.newStore(contentType, cli);
 	}
 
 	private static void index(ContentManager contentManager, CLI cli) throws IOException {
@@ -254,14 +273,14 @@ public class Main {
 		System.out.println("    List indexed content in <content-path>, filtered by game, type or author");
 		System.out.println("  show [name ...] [hash ...] --content-path=<path>");
 		System.out.println("    Show data for the content items specified");
-		System.out.println("  unpack <umod-file> <destination> --content-path=<path>");
+		System.out.println("  unpack <umod-file> <destination>");
 		System.out.println("    Unpack the contents of <umod-file> to directory <destination>");
-		System.out.println("  scrape <type> <start-url> --style-prefix=<prefix> [--slowdown=<millis>] --content-path=<path>");
+		System.out.println("  scrape <type> <start-url> --style-prefix=<prefix> [--slowdown=<millis>]");
 		System.out.println("    Scrape file listings from the provided URL, <type> is the type of scraper ");
 		System.out.println("    to use ('autoindexphp' supported), and <style-prefix> is the prefix used in ");
 		System.out.println("    styles on Autoindex PHP links. [slowdown] will cause the scraper to pause");
 		System.out.println("    between page loads, defaults to 2000ms.");
-		System.out.println("  download <file-list> <output-path> [--slowdown=<millis>] --content-path=<path>");
+		System.out.println("  download <file-list> <output-path> [--slowdown=<millis>]");
 		System.out.println("    Download previously-scraped files defined in the file <file-list>, and write");
 		System.out.println("    them out to <output-path>, along with a YML file containing the original URL.");
 		System.out.println("    [slowdown] will cause the downloader to pause between downloads, defaults to 2000ms.");
