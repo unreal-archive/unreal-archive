@@ -10,6 +10,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -158,14 +159,14 @@ public class Indexer {
 
 			if ((content != null && !force)) {
 				// lets not support re-index yet, but we can update with urls if there are any
-//				if (!content.deleted && sub.sourceUrls != null && sub.sourceUrls.length > 0) {
-//					for (String url : sub.sourceUrls) {
-//						if (!content.hasDownload(url)) {
-//							content.downloads.add(new Content.Download(url, LocalDate.now(), false));
-//						}
-//					}
-////					contentManager.checkin(content);
-//				}
+				if (!content.deleted && sub.sourceUrls != null) {
+					for (String url : sub.sourceUrls) {
+						if (!content.hasDownload(url)) {
+							content.downloads.add(new Content.Download(url, LocalDate.now(), false));
+						}
+					}
+					contentManager.checkin(new IndexResult<>(content, Collections.emptySet()));
+				}
 				return;
 			}
 
@@ -183,7 +184,7 @@ public class Indexer {
 				type.indexer.get().index(incoming, content, c -> {
 					try {
 						c.content.lastIndex = LocalDateTime.now();
-						if (sub.sourceUrls != null && sub.sourceUrls.length > 0) {
+						if (sub.sourceUrls != null) {
 							for (String url : sub.sourceUrls) {
 								if (!c.content.hasDownload(url)) {
 									c.content.downloads.add(new Content.Download(url, LocalDate.now(), false));
