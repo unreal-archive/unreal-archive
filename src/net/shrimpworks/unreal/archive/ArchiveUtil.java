@@ -137,6 +137,8 @@ public class ArchiveUtil {
 		}
 
 		if (process.exitValue() != 0) {
+			// cleanup
+			cleanPath(destination);
 			throw new IllegalStateException(String.format("File %s was not unpacked successfully", source));
 		}
 
