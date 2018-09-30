@@ -63,7 +63,10 @@ public class MapIndexHandler implements IndexHandler<Map> {
 		Set<IndexResult.NewAttachment> attachments = new HashSet<>();
 
 		try (Package map = map(incoming)) {
+			// attempt to detect Unreal maps by possible release date
 			if (map.version < 68 || (m.releaseDate != null && m.releaseDate.compareTo(RELEASE_UT99) < 0)) m.game = "Unreal";
+			// Unreal does not contain a LevelSummary
+			if (map.version == 68 && map.objectsByClassName("LevelSummary").isEmpty()) m.game = "Unreal";
 
 			// read level info (also in LevelSummary, but missing Screenshot)
 			Collection<ExportedObject> maybeLevelInfo = map.objectsByClassName("LevelInfo");
@@ -104,7 +107,7 @@ public class MapIndexHandler implements IndexHandler<Map> {
 			Property screenshot = level.property("Screenshot");
 
 			// use this opportunity to resolve some version overlap between game versions
-			if (screenshot != null && map.version < 117) m.game = "Unreal Tournament";
+			if (screenshot != null && map.version < 117 && !map.objectsByClassName("LevelSummary").isEmpty()) m.game = "Unreal Tournament";
 
 			List<BufferedImage> screenshots = screenshots(incoming, map, screenshot);
 			saveImages(SHOT_NAME, m, screenshots, attachments);
