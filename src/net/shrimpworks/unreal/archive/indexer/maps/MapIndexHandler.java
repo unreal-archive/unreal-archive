@@ -108,6 +108,7 @@ public class MapIndexHandler implements IndexHandler<Map> {
 
 			// use this opportunity to resolve some version overlap between game versions
 			if (screenshot != null && map.version < 117 && !map.objectsByClassName("LevelSummary").isEmpty()) m.game = "Unreal Tournament";
+			if (m.gametype.equals("XMP") && map.version >= 126 && !map.exportsByClassName("DeploymentPoint").isEmpty()) m.game = "Unreal 2";
 
 			List<BufferedImage> screenshots = screenshots(incoming, map, screenshot);
 			saveImages(SHOT_NAME, m, screenshots, attachments);
@@ -166,6 +167,7 @@ public class MapIndexHandler implements IndexHandler<Map> {
 		if (name.toLowerCase().startsWith("th")) return "Thievery";
 		if (name.toLowerCase().startsWith("u4e")) return "Unreal4Ever";
 		if (name.toLowerCase().startsWith("unf")) return "Unreal Fortress";
+		if (name.toLowerCase().startsWith("xmp")) return "XMP";
 
 		if (maybeSingleplayer(incoming)) return "Single Player";
 
@@ -198,6 +200,7 @@ public class MapIndexHandler implements IndexHandler<Map> {
 
 		for (String k : incoming.files.keySet()) {
 			if (k.toLowerCase().endsWith(".unr")) return "Unreal Tournament";
+			if (k.toLowerCase().endsWith(".un2")) return "Unreal 2";
 			if (k.toLowerCase().endsWith(".ut2")) return "Unreal Tournament 2004";
 			if (k.toLowerCase().endsWith(".ut3")) return "Unreal Tournament 3";
 		}
