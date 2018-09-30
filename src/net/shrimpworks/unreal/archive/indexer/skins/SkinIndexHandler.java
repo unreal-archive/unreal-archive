@@ -46,16 +46,26 @@ public class SkinIndexHandler implements IndexHandler<Skin> {
 
 		String origName = s.name;
 
-		skinDescriptors(incoming).forEach(d -> {
-			if (d.value.containsKey("Description") && Skin.NAME_MATCH.matcher(d.value.get("Name")).matches()) {
-				if (s.name == null || s.name.equals(origName)) s.name = d.value.get("Description");
-				s.skins.add(d.value.get("Description").trim());
-			} else if (Skin.TEAM_MATCH.matcher(d.value.get("Name")).matches()) {
-				s.teamSkins = true;
-			} else if (d.value.containsKey("Description") && Skin.FACE_MATCH.matcher(d.value.get("Name")).matches()) {
-				s.faces.add(d.value.get("Description"));
-			}
-		});
+		if (!incoming.files(Incoming.FileType.PLAYER).isEmpty()) {
+			playerDescriptors(incoming).forEach(p -> {
+				if (p.value.containsKey("DefaultName")) {
+					if (s.name == null || s.name.equals(origName)) s.name = p.value.get("DefaultName");
+					s.skins.add(p.value.get("DefaultName").trim());
+				}
+			});
+		} else {
+			// find skin via .int files
+			skinDescriptors(incoming).forEach(d -> {
+				if (d.value.containsKey("Description") && Skin.NAME_MATCH.matcher(d.value.get("Name")).matches()) {
+					if (s.name == null || s.name.equals(origName)) s.name = d.value.get("Description");
+					s.skins.add(d.value.get("Description").trim());
+				} else if (Skin.TEAM_MATCH.matcher(d.value.get("Name")).matches()) {
+					s.teamSkins = true;
+				} else if (d.value.containsKey("Description") && Skin.FACE_MATCH.matcher(d.value.get("Name")).matches()) {
+					s.faces.add(d.value.get("Description"));
+				}
+			});
+		}
 
 		try {
 			if (s.releaseDate != null && s.releaseDate.compareTo(RELEASE_UT99) < 0) s.game = "Unreal";
@@ -81,13 +91,12 @@ public class SkinIndexHandler implements IndexHandler<Skin> {
 	}
 
 	private List<IntFile.MapValue> skinDescriptors(Incoming incoming) {
-
 		return incoming.files(Incoming.FileType.INT).stream()
 					   .map(f -> {
 						   try {
 							   return new IntFile(f.asChannel());
 						   } catch (IOException e) {
-							   // TODO add log to this step
+							   incoming.log.log(IndexLog.EntryType.CONTINUE, "Couldn't load INT file " + f.fileName(), e);
 							   return null;
 						   }
 					   })
@@ -115,8 +124,42 @@ public class SkinIndexHandler implements IndexHandler<Skin> {
 					   .collect(Collectors.toList());
 	}
 
+	private List<IntFile.MapValue> playerDescriptors(Incoming incoming) {
+		return incoming.files(Incoming.FileType.PLAYER).stream()
+					   .map(f -> {
+						   try {
+							   return new IntFile(f.asChannel());
+						   } catch (IOException e) {
+							   incoming.log.log(IndexLog.EntryType.CONTINUE, "Couldn't load UPL file " + f.fileName(), e);
+							   return null;
+						   }
+					   })
+					   .filter(Objects::nonNull)
+					   .flatMap(intFile -> {
+						   List<IntFile.MapValue> vals = new ArrayList<>();
+
+						   IntFile.Section section = intFile.section("public");
+						   if (section == null) return Stream.empty();
+
+						   IntFile.ListValue objects = section.asList("Player");
+						   for (IntFile.Value value : objects.values) {
+							   if (value instanceof IntFile.MapValue
+								   && ((IntFile.MapValue)value).value.containsKey("DefaultName")) {
+
+								   vals.add((IntFile.MapValue)value);
+							   }
+						   }
+
+						   return vals.stream();
+					   })
+					   .filter(Objects::nonNull)
+					   .collect(Collectors.toList());
+	}
+
 	private String game(Incoming incoming) throws IOException {
 		if (incoming.submission.override.get("game", null) != null) return incoming.submission.override.get("game", "Unreal Tournament");
+
+		if (!incoming.files(Incoming.FileType.PLAYER).isEmpty()) return "Unreal Tournament 2004";
 
 		Set<Incoming.IncomingFile> files = incoming.files(Incoming.FileType.TEXTURE);
 		if (files.isEmpty()) return UNKNOWN;

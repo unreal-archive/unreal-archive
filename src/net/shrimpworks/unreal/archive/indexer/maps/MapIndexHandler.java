@@ -37,7 +37,8 @@ public class MapIndexHandler implements IndexHandler<Map> {
 
 	private static final String SHOT_NAME = "%s_shot_%d.png";
 
-	private static final Pattern SP_MATCH = Pattern.compile("(.+)?(single ?player|cooperative)([\\s:]+)?yes(\\s+)?", Pattern.CASE_INSENSITIVE);
+	private static final Pattern SP_MATCH = Pattern.compile("(.+)?(single ?player|cooperative)([\\s:]+)?yes(\\s+)?",
+															Pattern.CASE_INSENSITIVE);
 
 	public static class MapIndexHandlerFactory implements IndexHandlerFactory<Map> {
 
@@ -108,7 +109,10 @@ public class MapIndexHandler implements IndexHandler<Map> {
 
 			// use this opportunity to resolve some version overlap between game versions
 			if (screenshot != null && map.version < 117 && !map.objectsByClassName("LevelSummary").isEmpty()) m.game = "Unreal Tournament";
-			if (m.gametype.equals("XMP") && map.version >= 126 && !map.exportsByClassName("DeploymentPoint").isEmpty()) m.game = "Unreal 2";
+			if (m.gametype.equals("XMP") && map.version >= 126
+				&& !map.exportsByClassName("DeploymentPoint").isEmpty() && m.game.equals("Unreal Tournament")) {
+				m.game = "Unreal 2";
+			}
 
 			List<BufferedImage> screenshots = screenshots(incoming, map, screenshot);
 			saveImages(SHOT_NAME, m, screenshots, attachments);

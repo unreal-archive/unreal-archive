@@ -2,6 +2,7 @@ package net.shrimpworks.unreal.archive.indexer.skins;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Matcher;
 
 import net.shrimpworks.unreal.archive.indexer.Classifier;
@@ -27,22 +28,25 @@ public class SkinClassifier implements Classifier {
 
 	@Override
 	public boolean classify(Incoming incoming) {
-		// TODO support UT2004 via .upl files
-
-		// count all int files in the archive
-		long ints = incoming.files(Incoming.FileType.INT).size();
+		Set<Incoming.IncomingFile> intFiles = incoming.files(Incoming.FileType.INT);
+		Set<Incoming.IncomingFile> playerFiles = incoming.files(Incoming.FileType.PLAYER);
 
 		// more often than not multiple ints probably indicates a model
-		if (ints != 1) return false;
+		if (intFiles.size() != 1 && playerFiles.size() != 1) return false;
 
-		long texes = incoming.files(Incoming.FileType.TEXTURE).size();
+		if (incoming.files(Incoming.FileType.TEXTURE).isEmpty()) return false;
 
-		if (texes < 1) return false;
+		if (!intFiles.isEmpty()) return utSkin(incoming, intFiles);
+		else if (!playerFiles.isEmpty()) return ut2004Skin(incoming, playerFiles);
 
+		return false;
+	}
+
+	private boolean utSkin(Incoming incoming, Set<Incoming.IncomingFile> intFiles) {
 		boolean[] seemsToBeASkin = new boolean[] { false };
 
 		// search int files for objects describing a skin
-		incoming.files(Incoming.FileType.INT).stream()
+		intFiles.stream()
 				.map(f -> {
 					try {
 						return new IntFile(f.asChannel());
@@ -75,5 +79,10 @@ public class SkinClassifier implements Classifier {
 				});
 
 		return seemsToBeASkin[0];
+	}
+
+	private boolean ut2004Skin(Incoming incoming, Set<Incoming.IncomingFile> playerFiles) {
+		// indicates a model - presence of a player file indicates a plain skin
+		return incoming.files(Incoming.FileType.ANIMATION).isEmpty();
 	}
 }
