@@ -31,8 +31,35 @@ public class Main {
 			System.exit(1);
 		}
 
-		// TODO probably only load the content for specific commands
+		switch (cli.commands()[0].toLowerCase()) {
+			case "index":
+				index(contentManager(cli), cli);
+				break;
+			case "summary":
+				summary(contentManager(cli));
+				break;
+			case "ls":
+				list(contentManager(cli), cli);
+				break;
+			case "show":
+				show(contentManager(cli), cli);
+				break;
+			case "scrape":
+				scrape(cli);
+				break;
+			case "download":
+				download(cli);
+				break;
+			case "unpack":
+				unpack(cli);
+				break;
+			default:
+				System.out.printf("Command \"%s\" has not been implemented!", cli.commands()[0]);
+		}
 
+	}
+
+	private static ContentManager contentManager(CLI cli) throws IOException {
 		if (cli.option("content-path", null) == null) {
 			System.err.println("content-path must be specified!");
 			System.exit(2);
@@ -51,32 +78,7 @@ public class Main {
 		System.err.printf("Loaded content index with %d items in %.2fs%n",
 						  contentManager.size(), (System.currentTimeMillis() - start) / 1000f);
 
-		switch (cli.commands()[0].toLowerCase()) {
-			case "index":
-				index(contentManager, cli);
-				break;
-			case "summary":
-				summary(contentManager);
-				break;
-			case "ls":
-				list(contentManager, cli);
-				break;
-			case "show":
-				show(contentManager, cli);
-				break;
-			case "scrape":
-				scrape(cli);
-				break;
-			case "download":
-				download(cli);
-				break;
-			case "unpack":
-				unpack(cli);
-				break;
-			default:
-				System.out.printf("Command \"%s\" has not been implemented!", cli.commands()[0]);
-		}
-
+		return contentManager;
 	}
 
 	private static void index(ContentManager contentManager, CLI cli) throws IOException {
