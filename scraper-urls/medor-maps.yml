@@ -9463,7 +9463,7 @@
   path: "Maps/BunnyTrack/"
   url: "http://medor.no-ip.org/index.php?dir=Maps/BunnyTrack/&file=ctf-bthexa.zip"
   pageUrl: null
-- name: ""
+- name: "ctf-coret2.zip"
   path: "Maps/CTF/"
   url: "http://medor.no-ip.org/index.php?dir=Maps/CTF/&file=ctf-coret2.zip"
   pageUrl: null
@@ -45167,9 +45167,9 @@
   path: "Maps/ScavangerHunt/"
   url: "http://medor.no-ip.org/index.php?dir=Maps/ScavangerHunt/&file=shmappack1.zip"
   pageUrl: null
-- name: ""
+- name: "CTF-Face-SE[SpawnKillerVersionBR].zip"
   path: "Maps/Siege/"
-  url: "http://medor.no-ip.org/index.php?dir=Maps/Siege/&file=CTF-Face-SE%5BSpawnKillerVers%E3oBR%5D.zip"
+  url: "http://ut-files.com/index.php?dir=Maps/Siege/&file=CTF-Face-SE%5BSpawnKillerVersionBR%5D.zip"
   pageUrl: null
 - name: "CTF-'SoNY-FutureWar_V4.zip"
   path: "Maps/Siege/"
