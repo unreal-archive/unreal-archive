@@ -59,6 +59,7 @@ public class Main {
 				System.out.printf("Command \"%s\" has not been implemented!", cli.commands()[0]);
 		}
 
+		System.exit(0);
 	}
 
 	private static ContentManager contentManager(CLI cli) throws IOException {
@@ -76,6 +77,17 @@ public class Main {
 		final DataStore imageStore = store(DataStore.StoreContent.IMAGES, cli);
 		final DataStore attachmentStore = store(DataStore.StoreContent.ATTACHMENTS, cli);
 		final DataStore contentStore = store(DataStore.StoreContent.CONTENT, cli);
+
+		// prepare cleanup
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+			try {
+				imageStore.close();
+				attachmentStore.close();
+				contentStore.close();
+			} catch (IOException e) {
+				//
+			}
+		}));
 
 		final long start = System.currentTimeMillis();
 		final ContentManager contentManager = new ContentManager(contentPath, contentStore, imageStore, attachmentStore);

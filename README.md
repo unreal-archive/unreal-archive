@@ -92,3 +92,25 @@ content.
   - One or more `.upl` files present
 - No other content
 
+## Storage
+
+### HTTP/DAV
+
+- `--store=dav`
+  - `--store-[images|attachments|content]=dav`
+- `--dav-url=http://hostname/path/`
+  - `--dav-url-[images|attachments|content]=...`
+
+### Backblaze B2
+
+- `--store=b2`
+  - `--store-[images|attachments|content]=b2`
+- `--b2-acc=key-id`
+  - `--b2-acc-[images|attachments|content]=key-id`
+- `--b2-key=key`
+  - `--b2-key-[images|attachments|content]=key`
+- `--b2-bucket=bucket-id`
+  - `--b2-bucket-[images|attachments|content]=bucket-id`
+
+Environment variables may be used, eg.: replace `--b2-key-images=key` with 
+`B2_KEY_IMAGES=key`.

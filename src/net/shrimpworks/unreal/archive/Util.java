@@ -7,10 +7,44 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Map;
 
 public final class Util {
 
 	private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
+
+	private static final Map<String, String> MIME_TYPES = new HashMap<String, String>() {{
+		put("bmp", "image/bmp");
+		put("bz", "application/x-bzip");
+		put("bz2", "application/x-bzip2");
+		put("doc", "application/msword");
+		put("docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+		put("gif", "image/gif");
+		put("gz", "application/gzip");
+		put("htm", "text/html");
+		put("html", "text/html");
+		put("jar", "application/java-archive");
+		put("jpeg", "image/jpeg");
+		put("jpg", "image/jpeg");
+		put("ods", "application/vnd.oasis.opendocument.spreadsheet");
+		put("odt", "application/vnd.oasis.opendocument.text");
+		put("ogg", "audio/ogg");
+		put("png", "image/png");
+		put("pdf", "application/pdf");
+		put("rar", "application/x-rar-compressed");
+		put("rtf", "application/rtf");
+		put("svg", "image/svg+xml");
+		put("tar", "application/x-tar");
+		put("txt", "text/plain");
+		put("ini", "text/plain");
+		put("int", "text/plain");
+		put("xhtml", "application/xhtml+xml");
+		put("xls", "application/vnd.ms-excel");
+		put("xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+		put("zip", "application/zip");
+		put("7z", "application/x-7z-compressed");
+	}};
 
 	private Util() { }
 
@@ -52,6 +86,10 @@ public final class Util {
 		} catch (NoSuchAlgorithmException e) {
 			throw new IllegalArgumentException(e);
 		}
+	}
+
+	public static String mimeType(String ext) {
+		return MIME_TYPES.getOrDefault(ext, "application/octet-stream");
 	}
 
 	private static String bytesToHex(byte[] bytes) {

@@ -43,6 +43,11 @@ public class DavStore implements DataStore {
 	}
 
 	@Override
+	public void close() {
+		// no-op
+	}
+
+	@Override
 	public void store(Path path, String name, Consumer<String> stored) throws IOException {
 		URI uri = toUri(baseUrl + name);
 		Response execute = Request.Put(uri)

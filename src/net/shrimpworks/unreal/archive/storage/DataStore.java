@@ -1,15 +1,17 @@
 package net.shrimpworks.unreal.archive.storage;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
 import net.shrimpworks.unreal.archive.CLI;
 
-public interface DataStore {
+public interface DataStore extends Closeable  {
 
 	enum StoreType {
 		DAV(new DavStore.Factory()),
+		B2(new B2Store.Factory()),
 		;
 
 		private final DataStoreFactory factory;

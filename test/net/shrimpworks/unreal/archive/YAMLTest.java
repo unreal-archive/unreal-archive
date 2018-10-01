@@ -77,7 +77,7 @@ public class YAMLTest {
 	}
 
 	private Content.Download download(String url) {
-		return new Content.Download(url,
+		return new Content.Download(url, false,
 									LocalDate.now().minus((long)(Math.random() * 500), ChronoUnit.DAYS),
 									LocalDate.now().minus((long)(Math.random() * 100), ChronoUnit.DAYS),
 									true, false, false

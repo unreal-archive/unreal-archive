@@ -17,6 +17,8 @@
 		<dependency org="com.fasterxml.jackson.dataformat" name="jackson-dataformat-yaml" rev="2.9.6" conf="default"/>
 		<dependency org="org.jsoup" name="jsoup" rev="1.9.+" conf="default"/>
 		<dependency org="org.apache.httpcomponents.client5" name="httpclient5-fluent" rev="5.+" conf="default"/>
+		<dependency org="com.backblaze.b2" name="b2-sdk-core" rev="1.4.0" conf="default"/>
+		<dependency org="com.backblaze.b2" name="b2-sdk-httpclient" rev="1.4.0" conf="default"/>
 
 		<!-- test dependencies -->
 		<dependency org="junit" name="junit" rev="4.12" conf="test->default"/>
