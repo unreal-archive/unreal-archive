@@ -2,6 +2,7 @@ package net.shrimpworks.unreal.archive.indexer;
 
 import java.time.LocalDateTime;
 
+import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.indexer.maps.Map;
 import net.shrimpworks.unreal.archive.indexer.maps.MapClassifier;
 import net.shrimpworks.unreal.archive.indexer.maps.MapIndexHandler;
@@ -56,11 +57,11 @@ public enum ContentType {
 			newInstance.contentType = this.name();
 
 			if (incoming != null) {
-				newInstance.name = incoming.submission.filePath.getFileName().toString();
-				newInstance.name = newInstance.name.substring(0, newInstance.name.lastIndexOf(".")).replaceAll("/", "");
-				newInstance.name = newInstance.name.replaceAll("[^\\x20-\\x7E]", "");
+				String tmpName = incoming.submission.filePath.getFileName().toString();
+				tmpName = tmpName.substring(0, newInstance.name.lastIndexOf(".")).replaceAll("/", "").replaceAll("[^\\x20-\\x7E]", "");
+				newInstance.name = tmpName;
 				newInstance.hash = incoming.hash;
-				newInstance.originalFilename = incoming.submission.filePath.toString();
+				newInstance.originalFilename = Util.fileName(incoming.submission.filePath);
 				newInstance.fileSize = incoming.fileSize;
 
 				// populate a couple of basic overrides

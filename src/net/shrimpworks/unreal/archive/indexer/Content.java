@@ -156,6 +156,7 @@ public abstract class Content {
 	public static class Download {
 
 		public final String url;
+		public final boolean main;
 		public final LocalDate added;
 		public LocalDate lastChecked;
 		public boolean ok;                // health at last check date
@@ -163,9 +164,10 @@ public abstract class Content {
 
 		public boolean deleted;
 
-		@ConstructorProperties({ "url", "added", "lastChecked", "ok", "repack", "deleted" })
-		public Download(String url, LocalDate added, LocalDate lastChecked, boolean ok, boolean repack, boolean deleted) {
+		@ConstructorProperties({ "url", "main", "added", "lastChecked", "ok", "repack", "deleted" })
+		public Download(String url, boolean main, LocalDate added, LocalDate lastChecked, boolean ok, boolean repack, boolean deleted) {
 			this.url = url;
+			this.main = main;
 			this.added = added;
 			this.lastChecked = lastChecked;
 			this.ok = ok;
@@ -177,6 +179,7 @@ public abstract class Content {
 			this.url = url;
 			this.added = added;
 			this.repack = repack;
+			this.main = false;
 		}
 
 		@Override
@@ -185,6 +188,7 @@ public abstract class Content {
 			if (o == null || getClass() != o.getClass()) return false;
 			Download download = (Download)o;
 			return ok == download.ok
+				   && main == download.main
 				   && repack == download.repack
 				   && deleted == download.deleted
 				   && Objects.equals(url, download.url);
@@ -192,7 +196,7 @@ public abstract class Content {
 
 		@Override
 		public int hashCode() {
-			return Objects.hash(url, ok, repack, deleted);
+			return Objects.hash(url, main, ok, repack, deleted);
 		}
 	}
 }

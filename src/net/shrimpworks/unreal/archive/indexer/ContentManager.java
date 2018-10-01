@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,9 +16,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import net.shrimpworks.unreal.archive.storage.DataStore;
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.YAML;
+import net.shrimpworks.unreal.archive.storage.DataStore;
 
 public class ContentManager {
 
@@ -126,10 +127,10 @@ public class ContentManager {
 		return null;
 	}
 
-	public boolean checkin(IndexResult<? extends Content> indexed) throws IOException {
+	public boolean checkin(IndexResult<? extends Content> indexed, Submission submission) throws IOException {
 		ContentHolder current = this.content.get(indexed.content.hash);
 
-		if (current == null || !indexed.content.equals(current.content)) {
+		if (current == null || !indexed.content.equals(current.content) || indexed.content.lastIndex.isAfter(current.content.lastIndex)) {
 			// lets store the content \o/
 			Path next = indexed.content.contentPath(path);
 			Files.createDirectories(next);
@@ -168,6 +169,14 @@ public class ContentManager {
 						}
 					}
 				}
+			}
+
+			if (indexed.content.downloads.stream().noneMatch(d -> d.main)) {
+				String uploadPath = path.relativize(next.resolve(submission.filePath.getFileName())).toString();
+				contentStore.store(submission.filePath, uploadPath,
+								   s -> indexed.content.downloads.add(new Content.Download(s, true, LocalDate.now(), LocalDate.now(),
+																						   true, false, false))
+				);
 			}
 
 			Path newYml = next.resolve(String.format("%s_[%s].yml", indexed.content.name, indexed.content.hash.substring(0, 8)));

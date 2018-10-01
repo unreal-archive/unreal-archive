@@ -165,7 +165,7 @@ public class Indexer {
 							content.downloads.add(new Content.Download(url, LocalDate.now(), false));
 						}
 					}
-					contentManager.checkin(new IndexResult<>(content, Collections.emptySet()));
+					contentManager.checkin(new IndexResult<>(content, Collections.emptySet()), incoming.submission);
 				}
 				return;
 			}
@@ -175,7 +175,7 @@ public class Indexer {
 			ContentType type = ContentType.classify(incoming);
 
 			// TODO better way to handle re-indexing - we already have content, but if type changes we can't re-use it
-			if (content == null || type.toString().equalsIgnoreCase(content.contentType)) {
+			if (content == null || !type.toString().equalsIgnoreCase(content.contentType)) {
 				content = type.newContent(incoming);
 			}
 
@@ -192,15 +192,13 @@ public class Indexer {
 							}
 						}
 
-						// TODO upload file to our storage, and add to downloads url set
-
-//							Path repack = incoming.getRepack(c.name);
+//						Path repack = incoming.getRepack(c.name);
 
 						if (c.content.name.isEmpty()) {
 							throw new IllegalStateException("Name cannot be blank for " + incoming.submission.filePath);
 						}
 
-						contentManager.checkin(c);
+						contentManager.checkin(c, incoming.submission);
 					} catch (IOException e) {
 						log.log(IndexLog.EntryType.FATAL, "Failed to store content file data for " + sub.filePath.toString(), e);
 					}
