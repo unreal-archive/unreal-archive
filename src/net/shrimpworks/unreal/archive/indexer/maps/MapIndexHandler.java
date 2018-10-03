@@ -2,17 +2,14 @@ package net.shrimpworks.unreal.archive.indexer.maps;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.nio.channels.Channels;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.imageio.ImageIO;
 
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.indexer.Content;
@@ -57,17 +54,26 @@ public class MapIndexHandler implements IndexHandler<Map> {
 
 		// populate basic information; the rest of this will be filled in later if possible
 		m.name = mapName(incoming);
-		m.game = game(incoming);
 		m.gametype = gameType(incoming, m.name);
 		m.title = m.name;
+
+		boolean gameOverride = false;
+		if (incoming.submission.override.get("game", null) != null) {
+			gameOverride = true;
+			m.game = incoming.submission.override.get("game", "Unreal Tournament");
+		} else {
+			m.game = game(incoming);
+		}
 
 		Set<IndexResult.NewAttachment> attachments = new HashSet<>();
 
 		try (Package map = map(incoming)) {
-			// attempt to detect Unreal maps by possible release date
-			if (map.version < 68 || (m.releaseDate != null && m.releaseDate.compareTo(RELEASE_UT99) < 0)) m.game = "Unreal";
-			// Unreal does not contain a LevelSummary
-			if (map.version == 68 && map.objectsByClassName("LevelSummary").isEmpty()) m.game = "Unreal";
+			if (!gameOverride) {
+				// attempt to detect Unreal maps by possible release date
+				if (map.version < 68 || (m.releaseDate != null && m.releaseDate.compareTo(RELEASE_UT99) < 0)) m.game = "Unreal";
+				// Unreal does not contain a LevelSummary
+				if (map.version == 68 && map.objectsByClassName("LevelSummary").isEmpty()) m.game = "Unreal";
+			}
 
 			// read level info (also in LevelSummary, but missing Screenshot)
 			Collection<ExportedObject> maybeLevelInfo = map.objectsByClassName("LevelInfo");
@@ -107,15 +113,20 @@ public class MapIndexHandler implements IndexHandler<Map> {
 
 			Property screenshot = level.property("Screenshot");
 
-			// use this opportunity to resolve some version overlap between game versions
-			if (screenshot != null && map.version < 117 && !map.objectsByClassName("LevelSummary").isEmpty()) m.game = "Unreal Tournament";
-			if (m.gametype.equals("XMP") && map.version >= 126
-				&& !map.exportsByClassName("DeploymentPoint").isEmpty() && m.game.equals("Unreal Tournament")) {
-				m.game = "Unreal 2";
+			if (!gameOverride) {
+				// use this opportunity to resolve some version overlap between game versions
+				if (screenshot != null && map.version < 117 && !map.objectsByClassName("LevelSummary").isEmpty()) {
+					m.game = "Unreal Tournament";
+				}
+				if (m.gametype.equals("XMP") && map.version >= 126
+					&& !map.exportsByClassName("DeploymentPoint").isEmpty() && m.game.equals("Unreal Tournament")) {
+					m.game = "Unreal 2";
+				}
 			}
 
 			List<BufferedImage> screenshots = screenshots(incoming, map, screenshot);
-			saveImages(SHOT_NAME, m, screenshots, attachments);
+			screenshots.addAll(IndexHandler.findImageFiles(incoming));
+			IndexHandler.saveImages(SHOT_NAME, m, screenshots, attachments);
 
 		} catch (IOException e) {
 			log.log(IndexLog.EntryType.CONTINUE, "Failed to read map package", e);
@@ -202,11 +213,11 @@ public class MapIndexHandler implements IndexHandler<Map> {
 	private String game(Incoming incoming) {
 		if (incoming.submission.override.get("game", null) != null) return incoming.submission.override.get("game", "Unreal Tournament");
 
-		for (String k : incoming.files.keySet()) {
-			if (k.toLowerCase().endsWith(".unr")) return "Unreal Tournament";
-			if (k.toLowerCase().endsWith(".un2")) return "Unreal 2";
-			if (k.toLowerCase().endsWith(".ut2")) return "Unreal Tournament 2004";
-			if (k.toLowerCase().endsWith(".ut3")) return "Unreal Tournament 3";
+		for (Incoming.IncomingFile f : incoming.files(Incoming.FileType.MAP)) {
+			if (f.fileName().toLowerCase().endsWith(".unr")) return "Unreal Tournament";
+			if (f.fileName().toLowerCase().endsWith(".ut2")) return "Unreal Tournament 2004";
+			if (f.fileName().toLowerCase().endsWith(".ut3")) return "Unreal Tournament 3";
+			if (f.fileName().toLowerCase().endsWith(".un2")) return "Unreal 2";
 		}
 
 		return UNKNOWN;
@@ -228,7 +239,7 @@ public class MapIndexHandler implements IndexHandler<Map> {
 					Named pkg = ((Import)shotResolved).packageName.get();
 					try {
 						String parentPkg = pkg instanceof Import ? ((Import)pkg).packageName.get().name().name : "None";
-						shotPackage = findPackage(incoming, parentPkg.equals("None") ? pkg.name().name : parentPkg);
+						shotPackage = IndexHandler.findPackage(incoming, parentPkg.equals("None") ? pkg.name().name : parentPkg);
 						ExportedObject exp = shotPackage.objectByName(((Import)shotResolved).name);
 						object = exp.object();
 					} catch (Exception e) {
@@ -295,31 +306,7 @@ public class MapIndexHandler implements IndexHandler<Map> {
 			}
 		}
 
-		if (images.isEmpty()) {
-			// hmm, no screenshots were found... lets also look in the archive if there's a jpg or something
-			try {
-				Set<Incoming.IncomingFile> files = incoming.files(Incoming.FileType.IMAGE);
-				for (Incoming.IncomingFile img : files) {
-					BufferedImage image = ImageIO.read(Channels.newInputStream(Objects.requireNonNull(img.asChannel())));
-					if (image != null) images.add(image);
-				}
-			} catch (Exception e) {
-				incoming.log.log(IndexLog.EntryType.CONTINUE, "Failed to load screenshot from archive", e);
-			}
-		}
-
 		return images;
 	}
 
-	private Package findPackage(Incoming incoming, String pkg) {
-		Set<Incoming.IncomingFile> files = incoming.files(Incoming.FileType.IMPORTANT);
-		for (Incoming.IncomingFile f : files) {
-			String name = f.fileName();
-			name = name.substring(0, name.lastIndexOf("."));
-			if (name.equalsIgnoreCase(pkg)) {
-				return new Package(new PackageReader(f.asChannel()));
-			}
-		}
-		throw new IllegalStateException("Failed to find package " + pkg);
-	}
 }

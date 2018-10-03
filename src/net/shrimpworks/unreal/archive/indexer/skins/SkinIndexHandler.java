@@ -2,7 +2,6 @@ package net.shrimpworks.unreal.archive.indexer.skins;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.nio.channels.Channels;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -12,7 +11,6 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.imageio.ImageIO;
 
 import net.shrimpworks.unreal.archive.indexer.Content;
 import net.shrimpworks.unreal.archive.indexer.Incoming;
@@ -80,9 +78,9 @@ public class SkinIndexHandler implements IndexHandler<Skin> {
 			log.log(IndexLog.EntryType.CONTINUE, "Failed attempt to read author", e);
 		}
 
-		List<BufferedImage> images = images(incoming);
 		try {
-			saveImages(SHOT_NAME, s, images, attachments);
+			List<BufferedImage> images = IndexHandler.findImageFiles(incoming);
+			IndexHandler.saveImages(SHOT_NAME, s, images, attachments);
 		} catch (IOException e) {
 			log.log(IndexLog.EntryType.CONTINUE, "Failed to save images", e);
 		}
@@ -169,20 +167,6 @@ public class SkinIndexHandler implements IndexHandler<Skin> {
 			else if (pkg.version < 117) return "Unreal Tournament";
 			else return "Unreal Tournament 2004";
 		}
-	}
-
-	private List<BufferedImage> images(Incoming incoming) {
-		List<BufferedImage> images = new ArrayList<>();
-		try {
-			Set<Incoming.IncomingFile> files = incoming.files(Incoming.FileType.IMAGE);
-			for (Incoming.IncomingFile img : files) {
-				BufferedImage image = ImageIO.read(Channels.newInputStream(Objects.requireNonNull(img.asChannel())));
-				if (image != null) images.add(image);
-			}
-		} catch (Exception e) {
-			incoming.log.log(IndexLog.EntryType.CONTINUE, "Failed to load image", e);
-		}
-		return images;
 	}
 
 	private String author(Incoming incoming) throws IOException {

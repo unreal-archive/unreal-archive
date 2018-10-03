@@ -3,6 +3,9 @@ package net.shrimpworks.unreal.archive.indexer;
 import java.time.LocalDateTime;
 
 import net.shrimpworks.unreal.archive.Util;
+import net.shrimpworks.unreal.archive.indexer.mappacks.MapPack;
+import net.shrimpworks.unreal.archive.indexer.mappacks.MapPackClassifier;
+import net.shrimpworks.unreal.archive.indexer.mappacks.MapPackIndesHandler;
 import net.shrimpworks.unreal.archive.indexer.maps.Map;
 import net.shrimpworks.unreal.archive.indexer.maps.MapClassifier;
 import net.shrimpworks.unreal.archive.indexer.maps.MapIndexHandler;
@@ -12,7 +15,7 @@ import net.shrimpworks.unreal.archive.indexer.skins.SkinIndexHandler;
 
 public enum ContentType {
 	MAP(new MapClassifier(), new MapIndexHandler.MapIndexHandlerFactory(), Map.class),
-	MAP_PACK(new Classifier.NoOpClassifier(), new IndexHandler.NoOpIndexHandlerFactory(), UnknownContent.class),
+	MAP_PACK(new MapPackClassifier(), new MapPackIndesHandler.MapPackIndesHandlerFactory(), MapPack.class),
 	SKIN(new SkinClassifier(), new SkinIndexHandler.SkinIndexHandlerFactory(), Skin.class),
 	MODEL(new Classifier.NoOpClassifier(), new IndexHandler.NoOpIndexHandlerFactory(), UnknownContent.class),
 	VOICE(new Classifier.NoOpClassifier(), new IndexHandler.NoOpIndexHandlerFactory(), UnknownContent.class),

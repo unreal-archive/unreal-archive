@@ -13,6 +13,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import net.shrimpworks.unreal.archive.indexer.mappacks.MapPack;
 import net.shrimpworks.unreal.archive.indexer.maps.Map;
 import net.shrimpworks.unreal.archive.indexer.skins.Skin;
 
@@ -20,6 +21,7 @@ import net.shrimpworks.unreal.archive.indexer.skins.Skin;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, visible = true, property = "contentType")
 @JsonSubTypes({
 		@JsonSubTypes.Type(value = Map.class, name = "MAP"),
+		@JsonSubTypes.Type(value = MapPack.class, name = "MAP_PACK"),
 		@JsonSubTypes.Type(value = Skin.class, name = "SKIN"),
 		@JsonSubTypes.Type(value = UnknownContent.class, name = "UNKNOWN")
 })
