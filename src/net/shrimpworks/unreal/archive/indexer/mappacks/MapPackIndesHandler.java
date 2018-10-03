@@ -2,35 +2,27 @@ package net.shrimpworks.unreal.archive.indexer.mappacks;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.nio.channels.Channels;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.regex.Pattern;
-import javax.imageio.ImageIO;
 
-import net.shrimpworks.unreal.archive.YAML;
+import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.indexer.Content;
 import net.shrimpworks.unreal.archive.indexer.Incoming;
 import net.shrimpworks.unreal.archive.indexer.IndexHandler;
 import net.shrimpworks.unreal.archive.indexer.IndexLog;
 import net.shrimpworks.unreal.archive.indexer.IndexResult;
-import net.shrimpworks.unreal.archive.indexer.Indexer;
+import net.shrimpworks.unreal.archive.indexer.IndexUtils;
 import net.shrimpworks.unreal.packages.Package;
 import net.shrimpworks.unreal.packages.PackageReader;
 import net.shrimpworks.unreal.packages.entities.ExportedObject;
-import net.shrimpworks.unreal.packages.entities.Import;
-import net.shrimpworks.unreal.packages.entities.Named;
-import net.shrimpworks.unreal.packages.entities.ObjectReference;
 import net.shrimpworks.unreal.packages.entities.objects.Object;
-import net.shrimpworks.unreal.packages.entities.objects.Texture;
-import net.shrimpworks.unreal.packages.entities.properties.ObjectProperty;
 import net.shrimpworks.unreal.packages.entities.properties.Property;
+import net.shrimpworks.unreal.packages.entities.properties.StringProperty;
 
 public class MapPackIndesHandler implements IndexHandler<MapPack> {
 
@@ -78,9 +70,9 @@ public class MapPackIndesHandler implements IndexHandler<MapPack> {
 		Set<IndexResult.NewAttachment> attachments = new HashSet<>();
 		for (Incoming.IncomingFile map : maps) {
 			try {
-				m.maps.add(addMap(map, images -> {
+				m.maps.add(addMap(incoming, map, images -> {
 					try {
-						IndexHandler.saveImages(SHOT_NAME, m, images, attachments);
+						IndexUtils.saveImages(SHOT_NAME, m, images, attachments);
 					} catch (IOException e) {
 						log.log(IndexLog.EntryType.CONTINUE, "Failed saving images for map pack map", e);
 					}
@@ -90,20 +82,53 @@ public class MapPackIndesHandler implements IndexHandler<MapPack> {
 			}
 		}
 
-		try {
-			System.out.println(YAML.toString(m));
-		} catch (IOException e) {
-			e.printStackTrace();
+		m.author = UNKNOWN;
+		for (MapPack.PackMap map : m.maps) {
+			if (m.author.equals(UNKNOWN)) {
+				m.author = map.author;
+			} else if (!m.author.equalsIgnoreCase(map.author)) {
+				m.author = "Various";
+				break;
+			}
 		}
 
 		completed.accept(new IndexResult<>(m, Collections.emptySet()));
 	}
 
-	private MapPack.PackMap addMap(Incoming.IncomingFile map, Consumer<List<BufferedImage>> listConsumer) throws IOException {
+	private MapPack.PackMap addMap(Incoming incoming, Incoming.IncomingFile map, Consumer<List<BufferedImage>> listConsumer) {
+		MapPack.PackMap p = new MapPack.PackMap();
+		p.author = UNKNOWN;
+		p.name = Util.fileName(map.fileName());
+		p.name = p.name.substring(0, p.name.lastIndexOf(".")).replaceAll("/", "").trim().replaceAll("[^\\x20-\\x7E]", "").trim();
+		p.title = p.name;
+
+		List<BufferedImage> images = new ArrayList<>();
+
 		try (Package pkg = map(map)) {
-			listConsumer.accept(Collections.emptyList());
-			return null;
+
+			Collection<ExportedObject> maybeLevelInfo = pkg.objectsByClassName("LevelInfo");
+			if (maybeLevelInfo != null && !maybeLevelInfo.isEmpty()) {
+				ExportedObject levelInfo = maybeLevelInfo.iterator().next();
+				if (levelInfo == null) return p;
+
+				Object level = levelInfo.object();
+
+				Property author = level.property("Author");
+				Property title = level.property("Title");
+
+				if (author != null) p.author = ((StringProperty)author).value.trim();
+				if (title != null) p.title = ((StringProperty)title).value.trim();
+
+				Property screenshot = level.property("Screenshot");
+				images.addAll(IndexUtils.screenshots(incoming, pkg, screenshot));
+			}
+
+		} catch (Exception e) {
+			incoming.log.log(IndexLog.EntryType.CONTINUE, "Failed to read map properties", e);
 		}
+
+		listConsumer.accept(images);
+		return p;
 	}
 
 	private String game(Incoming.IncomingFile incoming) {
@@ -132,92 +157,6 @@ public class MapPackIndesHandler implements IndexHandler<MapPack> {
 
 	private Package map(Incoming.IncomingFile file) {
 		return new Package(new PackageReader(file.asChannel()));
-	}
-
-	private List<BufferedImage> screenshots(Incoming incoming, Package map, Property screenshot) {
-		List<BufferedImage> images = new ArrayList<>();
-		if (screenshot != null) {
-			ObjectReference shotRef = ((ObjectProperty)screenshot).value;
-			Named shotResolved = shotRef.get();
-
-			Package shotPackage = map;
-
-			try {
-				Object object = null;
-
-				if (shotResolved instanceof Import) {
-					// sigh... its stored in another package
-					Named pkg = ((Import)shotResolved).packageName.get();
-					try {
-						String parentPkg = pkg instanceof Import ? ((Import)pkg).packageName.get().name().name : "None";
-						shotPackage = IndexHandler.findPackage(incoming, parentPkg.equals("None") ? pkg.name().name : parentPkg);
-						ExportedObject exp = shotPackage.objectByName(((Import)shotResolved).name);
-						object = exp.object();
-					} catch (Exception e) {
-						// oh well, no screenshots
-					}
-				} else {
-					ExportedObject exp = map.objectByRef(shotRef);
-					object = exp.object();
-				}
-
-				if (object != null) {
-					// get a texture form a UT2003/4 material sequence (they cycle several images in the map preview)
-					if (object.className().equals("MaterialSequence")) {
-						Property fallbackMaterial = object.property("FallbackMaterial");
-						if (fallbackMaterial != null) {
-							ExportedObject fallback = shotPackage.objectByRef(((ObjectProperty)fallbackMaterial).value);
-							Object fallbackObj = fallback.object();
-							if (fallbackObj instanceof Texture) {
-								object = fallbackObj;
-							}
-						} else {
-							// just find some textures that look like screenshots
-							Collection<ExportedObject> textures = shotPackage.objectsByClassName("Texture");
-							for (ExportedObject texture : textures) {
-								if (texture.name.name.toLowerCase().contains("shot")
-									|| texture.name.name.toLowerCase().contains("screen")
-									|| texture.name.name.toLowerCase().contains("preview")) {
-									object = texture.object();
-									break;
-								}
-							}
-
-							// still not found anything... look for a texture with typical preview dimensions (512x256)
-							if (!(object instanceof Texture)) {
-								for (ExportedObject texture : textures) {
-									Texture tex = (Texture)texture.object();
-									Texture.MipMap mip = tex.mipMaps()[0];
-									if (mip.width == 512 && mip.height == 256) {
-										object = texture.object();
-										break;
-									}
-								}
-							}
-						}
-					}
-
-					if (object instanceof Texture) {
-						Texture.MipMap[] mipMaps = ((Texture)object).mipMaps();
-						BufferedImage bufferedImage = mipMaps[0].get();
-						images.add(bufferedImage);
-					}
-				}
-			} catch (Exception e) {
-				incoming.log.log(IndexLog.EntryType.CONTINUE, "Failed to read screenshot from packages", e);
-			} finally {
-				// cleanup if we spun up an external package for screenshots
-				if (shotPackage != map) {
-					try {
-						shotPackage.close();
-					} catch (IOException e) {
-						incoming.log.log(IndexLog.EntryType.INFO, "Screenshot cleanup failed", e);
-					}
-				}
-			}
-		}
-
-		return images;
 	}
 
 }

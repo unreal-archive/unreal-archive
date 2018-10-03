@@ -17,6 +17,7 @@ import net.shrimpworks.unreal.archive.indexer.Incoming;
 import net.shrimpworks.unreal.archive.indexer.IndexHandler;
 import net.shrimpworks.unreal.archive.indexer.IndexLog;
 import net.shrimpworks.unreal.archive.indexer.IndexResult;
+import net.shrimpworks.unreal.archive.indexer.IndexUtils;
 import net.shrimpworks.unreal.packages.IntFile;
 import net.shrimpworks.unreal.packages.Package;
 import net.shrimpworks.unreal.packages.PackageReader;
@@ -79,8 +80,8 @@ public class SkinIndexHandler implements IndexHandler<Skin> {
 		}
 
 		try {
-			List<BufferedImage> images = IndexHandler.findImageFiles(incoming);
-			IndexHandler.saveImages(SHOT_NAME, s, images, attachments);
+			List<BufferedImage> images = IndexUtils.findImageFiles(incoming);
+			IndexUtils.saveImages(SHOT_NAME, s, images, attachments);
 		} catch (IOException e) {
 			log.log(IndexLog.EntryType.CONTINUE, "Failed to save images", e);
 		}
@@ -170,7 +171,7 @@ public class SkinIndexHandler implements IndexHandler<Skin> {
 	}
 
 	private String author(Incoming incoming) throws IOException {
-		List<String> lines = textContent(incoming);
+		List<String> lines = IndexUtils.textContent(incoming);
 
 		for (String s : lines) {
 			Matcher m = Skin.AUTHOR_MATCH.matcher(s);
