@@ -20,6 +20,7 @@ import net.shrimpworks.unreal.archive.indexer.ContentManager;
 import net.shrimpworks.unreal.archive.indexer.Indexer;
 import net.shrimpworks.unreal.archive.scraper.AutoIndexPHPScraper;
 import net.shrimpworks.unreal.archive.scraper.Downloader;
+import net.shrimpworks.unreal.archive.scraper.UnrealPlayground;
 import net.shrimpworks.unreal.archive.storage.DataStore;
 import net.shrimpworks.unreal.packages.Umod;
 
@@ -206,6 +207,9 @@ public class Main {
 		switch (cli.commands()[1]) {
 			case "autoindexphp":
 				AutoIndexPHPScraper.index(cli);
+				break;
+			case "unrealplayground":
+				UnrealPlayground.index(cli);
 				break;
 			default:
 				throw new UnsupportedOperationException("Scraper not supported: " + cli.commands()[1]);

@@ -38,10 +38,10 @@ public class Downloader {
 
 		final long slowdown = Long.valueOf(cli.option("slowdown", "2500"));
 
-		List<AutoIndexPHPScraper.FoundUrl> urls = YAML.fromFile(fileListPath, new TypeReference<List<AutoIndexPHPScraper.FoundUrl>>() {});
+		List<Found.FoundUrl> urls = YAML.fromFile(fileListPath, new TypeReference<List<Found.FoundUrl>>() {});
 
 		for (int i = 0; i < urls.size(); i++) {
-			AutoIndexPHPScraper.FoundUrl url = urls.get(i);
+			Found.FoundUrl url = urls.get(i);
 
 			Path dir = output.resolve(url.path);
 			if (!Files.isDirectory(dir)) Files.createDirectories(dir);

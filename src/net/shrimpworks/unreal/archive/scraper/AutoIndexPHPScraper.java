@@ -1,6 +1,5 @@
 package net.shrimpworks.unreal.archive.scraper;
 
-import java.beans.ConstructorProperties;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -20,6 +19,11 @@ import org.jsoup.select.Elements;
 import net.shrimpworks.unreal.archive.CLI;
 import net.shrimpworks.unreal.archive.YAML;
 
+/**
+ * Valid, as of 2018-10.
+ *
+ * Suitable for ut-files.com as well as medor.no-ip.org.
+ */
 public class AutoIndexPHPScraper {
 
 	private static final Pattern DIR_MATCH = Pattern.compile(".+?dir=([^&]+).+?");
@@ -32,7 +36,7 @@ public class AutoIndexPHPScraper {
 
 		final Set<String> visited = new HashSet<>();
 
-		final List<FoundUrl> foundList = new ArrayList<>();
+		final List<Found.FoundUrl> foundList = new ArrayList<>();
 
 		final long slowdown = Long.valueOf(cli.option("slowdown", "2500"));
 
@@ -43,7 +47,7 @@ public class AutoIndexPHPScraper {
 
 				foundList.addAll(found.files());
 
-				for (FoundUrl dir : found.dirs()) {
+				for (Found.FoundUrl dir : found.dirs()) {
 					if (!visited.contains(dir.url)) {
 						try {
 							if (slowdown > 0) Thread.sleep(slowdown);
@@ -66,71 +70,22 @@ public class AutoIndexPHPScraper {
 
 		Elements links = doc.select(String.format("td.%s_td a.%s_a", style, style));
 
-		List<FoundUrl> collected = links.stream()
-										.filter(e -> !e.text().equalsIgnoreCase("parent directory"))
-										.filter(e -> !e.attr("href").contains("md5"))
-										.map(e -> {
+		List<Found.FoundUrl> collected = links.stream()
+											  .filter(e -> !e.text().equalsIgnoreCase("parent directory"))
+											  .filter(e -> !e.attr("href").contains("md5"))
+											  .map(e -> {
 											Matcher m = DIR_MATCH.matcher(e.absUrl("href"));
 											String dir = "";
 											if (m.matches()) {
 												dir = m.group(1);
 											}
 
-											return new FoundUrl(e.text(), dir, e.absUrl("href"), url);
+											return new Found.FoundUrl(e.text(), dir, e.absUrl("href"), url, !url.contains("&file="));
 										})
-										.sorted(Comparator.comparing(o -> o.name))
-										.collect(Collectors.toList());
+											  .sorted(Comparator.comparing(o -> o.name))
+											  .collect(Collectors.toList());
 
 		completed.accept(new Found(url, collected));
-	}
-
-	private static class Found {
-
-		private final String url;
-		private final List<FoundUrl> found;
-
-		public Found(String url, List<FoundUrl> found) {
-			this.url = url;
-			this.found = found;
-		}
-
-		public List<FoundUrl> files() {
-			return found.stream().filter(f -> !f.dir()).collect(Collectors.toList());
-		}
-
-		public List<FoundUrl> dirs() {
-			return found.stream().filter(FoundUrl::dir).collect(Collectors.toList());
-		}
-
-		@Override
-		public String toString() {
-			return String.format("Found [url=%s, found=%s]", url, found);
-		}
-	}
-
-	static class FoundUrl {
-
-		public final String name;
-		public String path;
-		public final String url;
-		public final String pageUrl;
-
-		@ConstructorProperties({ "name", "path", "url", "pageUrl" })
-		public FoundUrl(String name, String path, String url, String pageUrl) {
-			this.name = name;
-			this.path = path;
-			this.url = url;
-			this.pageUrl = pageUrl;
-		}
-
-		public boolean dir() {
-			return !url.contains("&file=");
-		}
-
-		@Override
-		public String toString() {
-			return String.format("Found [dir=%s, name=%s, url=%s]", dir(), name, url);
-		}
 	}
 
 }
