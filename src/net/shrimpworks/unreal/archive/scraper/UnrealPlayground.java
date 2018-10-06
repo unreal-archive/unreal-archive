@@ -36,6 +36,10 @@ public class UnrealPlayground {
 	private static final Pattern TITLE_NAME_MATCH = Pattern.compile(".+?Downloads - (.+)");
 
 	public static void index(CLI cli) throws IOException {
+		if (cli.commands().length < 3) throw new IllegalArgumentException("Category IDs are required!");
+
+		String[] cats = cli.commands()[2].split(",");
+
 		final Connection connection = Jsoup.connect(BASE_URL);
 		connection.timeout(60000);
 
@@ -45,7 +49,7 @@ public class UnrealPlayground {
 
 		final long slowdown = Long.valueOf(cli.option("slowdown", "2500"));
 
-		for (int cat : CATEGORIES) {
+		for (String cat : cats) {
 			index(connection, String.format(CATEGORY_URL, BASE_URL, cat, 1), slowdown, new Consumer<Found>() {
 				@Override
 				public void accept(Found found) {

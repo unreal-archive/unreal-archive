@@ -291,11 +291,10 @@ public class Main {
 		System.out.println("    Show data for the content items specified");
 		System.out.println("  unpack <umod-file> <destination>");
 		System.out.println("    Unpack the contents of <umod-file> to directory <destination>");
-		System.out.println("  scrape <type> <start-url> --style-prefix=<prefix> [--slowdown=<millis>]");
+		System.out.println("  scrape <type> [parameters ...] [--slowdown=<millis>]");
 		System.out.println("    Scrape file listings from the provided URL, <type> is the type of scraper ");
-		System.out.println("    to use ('autoindexphp' supported), and <style-prefix> is the prefix used in ");
-		System.out.println("    styles on Autoindex PHP links. [slowdown] will cause the scraper to pause");
-		System.out.println("    between page loads, defaults to 2000ms.");
+		System.out.println("    to use ('autoindexphp', 'unrealplayground' supported).");
+		System.out.println("    [slowdown] will cause the scraper to pause between page loads, defaults to 2000ms.");
 		System.out.println("  download <file-list> <output-path> [--slowdown=<millis>]");
 		System.out.println("    Download previously-scraped files defined in the file <file-list>, and write");
 		System.out.println("    them out to <output-path>, along with a YML file containing the original URL.");
