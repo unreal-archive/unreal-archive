@@ -19,6 +19,8 @@ import org.jsoup.select.Elements;
 import net.shrimpworks.unreal.archive.CLI;
 import net.shrimpworks.unreal.archive.YAML;
 
+import static net.shrimpworks.unreal.archive.scraper.Downloader.USER_AGENT;
+
 /**
  * Valid, as of 2018-10.
  *
@@ -32,6 +34,7 @@ public class AutoIndexPHPScraper {
 		if (cli.commands().length < 3) throw new IllegalArgumentException("A root URL is required!");
 
 		final Connection connection = Jsoup.connect(cli.commands()[2]);
+		connection.userAgent(Downloader.USER_AGENT);
 		connection.timeout(60000);
 
 		final Set<String> visited = new HashSet<>();

@@ -9,9 +9,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
-import org.apache.hc.client5.http.fluent.Request;
-import org.apache.hc.client5.http.fluent.Response;
-import org.apache.hc.core5.http.ContentType;
+import org.apache.http.client.fluent.Request;
+import org.apache.http.client.fluent.Response;
+import org.apache.http.entity.ContentType;
 
 import net.shrimpworks.unreal.archive.CLI;
 
@@ -53,7 +53,7 @@ public class DavStore implements DataStore {
 		Response execute = Request.Put(uri)
 								  .bodyFile(path.toFile(), ContentType.DEFAULT_BINARY)
 								  .execute();
-		if (execute.returnResponse().getCode() < 400) {
+		if (execute.returnResponse().getStatusLine().getStatusCode() < 400) {
 			stored.accept(uri.toString());
 		}
 	}
@@ -61,7 +61,7 @@ public class DavStore implements DataStore {
 	@Override
 	public void delete(String url, Consumer<Boolean> deleted) throws IOException {
 		Response execute = Request.Delete(url).execute();
-		deleted.accept(execute.returnResponse().getCode() < 400);
+		deleted.accept(execute.returnResponse().getStatusLine().getStatusCode() < 400);
 	}
 
 	@Override

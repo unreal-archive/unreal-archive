@@ -199,11 +199,6 @@ public class Main {
 	}
 
 	private static void scrape(CLI cli) throws IOException {
-		if (cli.commands().length < 3) {
-			System.err.println("A scraper type and base URL are required");
-			System.exit(255);
-		}
-
 		switch (cli.commands()[1]) {
 			case "autoindexphp":
 				AutoIndexPHPScraper.index(cli);

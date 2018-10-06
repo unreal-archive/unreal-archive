@@ -25,7 +25,7 @@ import net.shrimpworks.unreal.archive.YAML;
 public class UnrealPlayground {
 
 	private static final String BASE_URL = "http://www.unrealplayground.com/forums/downloads.php";
-	private static final String CATEGORY_URL = "%s?do=cat&id=%d&page=%d";
+	private static final String CATEGORY_URL = "%s?do=cat&id=%s&page=%d";
 
 	private static final int[] CATEGORIES = {
 			24, 25, 26, 27, 29, // Unreal Tournament
@@ -41,6 +41,7 @@ public class UnrealPlayground {
 		String[] cats = cli.commands()[2].split(",");
 
 		final Connection connection = Jsoup.connect(BASE_URL);
+		connection.userAgent(Downloader.USER_AGENT);
 		connection.timeout(60000);
 
 		final Set<String> visited = new HashSet<>();

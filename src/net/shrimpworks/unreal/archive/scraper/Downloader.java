@@ -5,20 +5,25 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import org.apache.hc.client5.http.fluent.Request;
-import org.apache.hc.client5.http.fluent.Response;
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.fluent.Request;
+import org.apache.http.client.fluent.Response;
 
 import net.shrimpworks.unreal.archive.CLI;
 import net.shrimpworks.unreal.archive.YAML;
 import net.shrimpworks.unreal.archive.indexer.Submission;
 
 public class Downloader {
+
+	static final String USER_AGENT = "unreal-archiver/1.0";
 
 	private static final Pattern AUTOINDEXPHP_PATTERN = Pattern.compile("(.+)/index.php\\?dir=([^&]+)&file=(.+)");
 	private static final String AUTOINDEXPHP_REWRITE = "%s/%s%s"; // host/dur/file
@@ -59,19 +64,25 @@ public class Downloader {
 
 				System.out.println("Downloading from " + dl);
 
-				Response response = Request.Get(url.url).execute();
-//				Header disposition = response.returnResponse().getFirstHeader("Content-Disposition");
-//				if (disposition != null) {
-//					Matcher matcher = CONTENT_DISPOSITION_FILENAME.matcher(disposition.getValue());
-//					if (matcher.matches()) {
-//						outFile = output.resolve(matcher.group(1));
-//						ymlFile = output.resolve(matcher.group(1) + ".yml");
-//					}
-//				}
+				Response response = Request.Get(url.url).userAgent(USER_AGENT).execute();
+				HttpResponse httpResponse = response.returnResponse();
+				if (httpResponse.getStatusLine().getStatusCode() >= 400) {
+					System.out.println(httpResponse.getStatusLine().getReasonPhrase());
+					continue;
+				}
 
-				response.saveContent(outFile.toFile());
+				Header disposition = httpResponse.getFirstHeader("Content-Disposition");
+				if (disposition != null) {
+					Matcher matcher = CONTENT_DISPOSITION_FILENAME.matcher(disposition.getValue());
+					if (matcher.matches()) {
+						outFile = dir.resolve(matcher.group(1));
+						ymlFile = dir.resolve(matcher.group(1) + ".yml");
+					}
+				}
 
-				Submission sub = new Submission(outFile, url.url);
+				Files.copy(httpResponse.getEntity().getContent(), outFile, StandardCopyOption.REPLACE_EXISTING);
+
+				Submission sub = new Submission(outFile, url.pageUrl);
 				Files.write(ymlFile, YAML.toString(sub).getBytes(StandardCharsets.UTF_8),
 							StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 
