@@ -45,10 +45,12 @@ public class MapIndexHandler implements IndexHandler<Map> {
 		IndexLog log = incoming.log;
 		Map m = (Map)content;
 
+		Incoming.IncomingFile baseMap = baseMap(incoming);
+
 		// TODO find .txt file in content root and scan for dates, authors, etc
 
 		// populate basic information; the rest of this will be filled in later if possible
-		m.name = mapName(incoming);
+		m.name = mapName(baseMap);
 		m.gametype = gameType(incoming, m.name);
 		m.title = m.name;
 
@@ -62,7 +64,7 @@ public class MapIndexHandler implements IndexHandler<Map> {
 
 		Set<IndexResult.NewAttachment> attachments = new HashSet<>();
 
-		try (Package map = map(incoming)) {
+		try (Package map = map(baseMap)) {
 			if (!gameOverride) {
 				// attempt to detect Unreal maps by possible release date
 				if (map.version < 68 || (m.releaseDate != null && m.releaseDate.compareTo(RELEASE_UT99) < 0)) m.game = "Unreal";
@@ -132,22 +134,24 @@ public class MapIndexHandler implements IndexHandler<Map> {
 		completed.accept(new IndexResult<>(m, attachments));
 	}
 
-	private Package map(Incoming incoming) {
+	private Incoming.IncomingFile baseMap(Incoming incoming) {
 		Set<Incoming.IncomingFile> maps = incoming.files(Incoming.FileType.MAP);
-		if (maps.isEmpty()) throw new IllegalStateException("Failed to find a map file...");
 
-		return new Package(new PackageReader(maps.iterator().next().asChannel()));
+		Incoming.IncomingFile shortestMap = null;
+		for (Incoming.IncomingFile map : maps) {
+			if (shortestMap == null || map.fileName().length() < shortestMap.fileName().length()) {
+				shortestMap = map;
+			}
+		}
+		return shortestMap;
 	}
 
-	private String mapName(Incoming incoming) {
-		String name = incoming.submission.filePath.getFileName().toString();
+	private Package map(Incoming.IncomingFile mapFile) {
+		return new Package(new PackageReader(mapFile.asChannel()));
+	}
 
-		Set<Incoming.IncomingFile> maps = incoming.files(Incoming.FileType.MAP);
-		if (!maps.isEmpty()) {
-			name = Util.fileName(maps.iterator().next().file);
-		}
-
-		return name.substring(0, name.lastIndexOf(".")).replaceAll("/", "").trim().replaceAll("[^\\x20-\\x7E]", "");
+	private String mapName(Incoming.IncomingFile mapFile) {
+		return Util.plainName(mapFile.fileName());
 	}
 
 	private String gameType(Incoming incoming, String name) {

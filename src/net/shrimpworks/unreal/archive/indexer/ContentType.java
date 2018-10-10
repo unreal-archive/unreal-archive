@@ -60,9 +60,7 @@ public enum ContentType {
 			newInstance.contentType = this.name();
 
 			if (incoming != null) {
-				String tmpName = incoming.submission.filePath.getFileName().toString();
-				tmpName = tmpName.substring(0, tmpName.lastIndexOf(".")).replaceAll("/", "").replaceAll("[^\\x20-\\x7E]", "");
-				newInstance.name = tmpName;
+				newInstance.name = Util.plainName(incoming.submission.filePath);
 				newInstance.hash = incoming.hash;
 				newInstance.originalFilename = Util.fileName(incoming.submission.filePath);
 				newInstance.fileSize = incoming.fileSize;

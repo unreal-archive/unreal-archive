@@ -70,6 +70,15 @@ public final class Util {
 		return tmp.substring(0, Math.max(0, tmp.lastIndexOf("/")));
 	}
 
+	public static String plainName(Path path) {
+		return plainName(path.toString());
+	}
+
+	public static String plainName(String path) {
+		String tmp = fileName(path);
+		return tmp.substring(0, tmp.lastIndexOf(".")).replaceAll("/", "").trim().replaceAll("[^\\x20-\\x7E]", "");
+	}
+
 	public static String hash(Path path) throws IOException {
 		try (FileChannel channel = FileChannel.open(path, StandardOpenOption.READ)) {
 			MessageDigest md = MessageDigest.getInstance("SHA-1");
