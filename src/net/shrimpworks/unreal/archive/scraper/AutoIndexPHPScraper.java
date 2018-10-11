@@ -19,11 +19,9 @@ import org.jsoup.select.Elements;
 import net.shrimpworks.unreal.archive.CLI;
 import net.shrimpworks.unreal.archive.YAML;
 
-import static net.shrimpworks.unreal.archive.scraper.Downloader.USER_AGENT;
-
 /**
  * Valid, as of 2018-10.
- *
+ * <p>
  * Suitable for ut-files.com as well as medor.no-ip.org.
  */
 public class AutoIndexPHPScraper {
@@ -77,14 +75,14 @@ public class AutoIndexPHPScraper {
 											  .filter(e -> !e.text().equalsIgnoreCase("parent directory"))
 											  .filter(e -> !e.attr("href").contains("md5"))
 											  .map(e -> {
-											Matcher m = DIR_MATCH.matcher(e.absUrl("href"));
-											String dir = "";
-											if (m.matches()) {
-												dir = m.group(1);
-											}
+												  Matcher m = DIR_MATCH.matcher(e.absUrl("href"));
+												  String dir = "";
+												  if (m.matches()) {
+													  dir = m.group(1);
+												  }
 
-											return new Found.FoundUrl(e.text(), dir, e.absUrl("href"), url, !url.contains("&file="));
-										})
+												  return new Found.FoundUrl(e.text(), dir, e.absUrl("href"), url, !url.contains("&file="));
+											  })
 											  .sorted(Comparator.comparing(o -> o.name))
 											  .collect(Collectors.toList());
 

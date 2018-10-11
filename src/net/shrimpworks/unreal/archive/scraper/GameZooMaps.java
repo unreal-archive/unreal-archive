@@ -13,6 +13,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import net.shrimpworks.unreal.archive.CLI;
+import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.YAML;
 
 public class GameZooMaps {
@@ -35,7 +36,7 @@ public class GameZooMaps {
 		for (Element link : links) {
 			Matcher m = PATH_MATCH.matcher(link.attr("href"));
 			if (m.matches()) {
-				foundList.add(new Found.FoundUrl(link.text(), m.group(1), link.absUrl("href"), BASE_URL));
+				foundList.add(new Found.FoundUrl(Util.fileName(link.attr("href")), m.group(1), link.absUrl("href"), BASE_URL));
 			}
 		}
 

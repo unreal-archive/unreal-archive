@@ -1,6 +1,10 @@
 package net.shrimpworks.unreal.archive.scraper;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -29,7 +33,6 @@ public class Downloader {
 	private static final String AUTOINDEXPHP_REWRITE = "%s/%s%s"; // host/dur/file
 
 	private static final Pattern CONTENT_DISPOSITION_FILENAME = Pattern.compile(".+filename=\"?([^\"]+)\"?");
-	//attachment; filename="DM-Morbias_Arena.zip";
 
 	public static void download(CLI cli) throws IOException {
 		if (cli.commands().length < 2) throw new IllegalArgumentException("An input file list is required!");
@@ -48,6 +51,26 @@ public class Downloader {
 		for (int i = 0; i < urls.size(); i++) {
 			Found.FoundUrl url = urls.get(i);
 
+			download(output, url);
+
+			if (slowdown > 0) {
+				try {
+					long deadline = System.currentTimeMillis() + slowdown;
+					while (System.currentTimeMillis() < deadline) {
+						Thread.sleep(250);
+						System.out.printf("Completed %d of %d; Waiting %dms\r", i + 1, urls.size(), deadline - System.currentTimeMillis());
+					}
+				} catch (InterruptedException e) {
+					throw new RuntimeException(e);
+				}
+			} else {
+				System.out.printf("Completed %d of %d\r", i + 1, urls.size());
+			}
+		}
+	}
+
+	public static void download(Path output, Found.FoundUrl url) {
+		try {
 			Path dir = output.resolve(url.path);
 			if (!Files.isDirectory(dir)) Files.createDirectories(dir);
 
@@ -64,11 +87,11 @@ public class Downloader {
 
 				System.out.println("Downloading from " + dl);
 
-				Response response = Request.Get(url.url).userAgent(USER_AGENT).execute();
+				Response response = Request.Get(toUri(dl)).userAgent(USER_AGENT).execute();
 				HttpResponse httpResponse = response.returnResponse();
 				if (httpResponse.getStatusLine().getStatusCode() >= 400) {
 					System.out.println(httpResponse.getStatusLine().getReasonPhrase());
-					continue;
+					return;
 				}
 
 				Header disposition = httpResponse.getFirstHeader("Content-Disposition");
@@ -87,22 +110,19 @@ public class Downloader {
 							StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 
 				System.out.println("Wrote file to " + outFile.toString());
-
-				try {
-					if (slowdown > 0) {
-						long deadline = System.currentTimeMillis() + slowdown;
-						while (System.currentTimeMillis() < deadline) {
-							Thread.sleep(250);
-							System.out.printf("Completed %d of %d; Waiting %dms\r", i + 1, urls.size(),
-											  deadline - System.currentTimeMillis());
-						}
-					}
-				} catch (InterruptedException e) {
-					throw new RuntimeException(e);
-				}
 			}
+		} catch (Exception e) {
+			System.err.printf("Failed to download %s: %s%n", url.name, e.getMessage());
+		}
 
-			System.out.printf("Completed %d of %d\r", i + 1, urls.size());
+	}
+
+	private static URI toUri(String s) throws IOException {
+		try {
+			URL url = new URL(s);
+			return new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
+		} catch (URISyntaxException | MalformedURLException e) {
+			throw new IOException("Invalid URL: " + s, e);
 		}
 	}
 }

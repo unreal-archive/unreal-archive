@@ -58,6 +58,8 @@ public class UnrealPlayground {
 
 					foundList.addAll(found.files());
 
+					System.out.println(found.files());
+
 					// more pages
 					for (Found.FoundUrl dir : found.dirs()) {
 						if (!visited.contains(dir.url)) {

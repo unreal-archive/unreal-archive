@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="unreal-archive" default="dist" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
+<project name="unreal-archive" default="bin" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
 
 	<property name="module.version" value="1.0"/>
 
@@ -138,6 +138,22 @@
 			<zipfileset dir="${dist.dir}/lib" prefix="lib"/>
 			<fileset dir="${dist.dir}" includes="${ant.project.name}.jar"/>
 		</zip>
+	</target>
+
+	<!-- build fat binary executable -->
+	<target name="bin" depends="dist">
+		<jar destfile="${dist.dir}/${ant.project.name}-exec.jar" basedir="${build.src.dir}">
+			<manifest>
+				<attribute name="Main-Class" value="${main.class}"/>
+			</manifest>
+			<zipgroupfileset dir="${dist.dir}/lib" includes="*.jar"/>
+		</jar>
+
+		<exec osfamily="unix" executable="resources/build-launcher.sh">
+			<arg line="resources/launcher.sh "/>
+			<arg value="${dist.dir}/${ant.project.name}-exec.jar"/>
+			<arg value="${dist.dir}/${ant.project.name}"/>
+		</exec>
 	</target>
 
 	<!-- Build test classes -->
