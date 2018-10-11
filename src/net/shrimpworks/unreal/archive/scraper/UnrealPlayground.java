@@ -97,7 +97,7 @@ public class UnrealPlayground {
 			System.err.printf("Indexing URL: %s [%d of %d] \r", url, i, downloadPages.size());
 			try {
 				if (slowdown > 0) Thread.sleep(slowdown);
-				indesPage(connection, downloadPages.get(i), category, completed);
+				indexPage(connection, downloadPages.get(i), category, completed);
 			} catch (Exception e) {
 				//
 			}
@@ -115,7 +115,7 @@ public class UnrealPlayground {
 						 new Found(url, Collections.singletonList(new Found.FoundUrl(category, category, u, url, true)))));
 	}
 
-	private static void indesPage(Connection connection, String url, String category, Consumer<Found> completed) throws IOException {
+	private static void indexPage(Connection connection, String url, String category, Consumer<Found> completed) throws IOException {
 		Document doc = connection.url(url).get();
 
 		Matcher m = TITLE_NAME_MATCH.matcher(doc.title());

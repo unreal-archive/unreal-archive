@@ -20,6 +20,7 @@ import net.shrimpworks.unreal.archive.indexer.ContentManager;
 import net.shrimpworks.unreal.archive.indexer.Indexer;
 import net.shrimpworks.unreal.archive.scraper.AutoIndexPHPScraper;
 import net.shrimpworks.unreal.archive.scraper.Downloader;
+import net.shrimpworks.unreal.archive.scraper.GameZooMaps;
 import net.shrimpworks.unreal.archive.scraper.UnrealPlayground;
 import net.shrimpworks.unreal.archive.storage.DataStore;
 import net.shrimpworks.unreal.packages.Umod;
@@ -206,6 +207,9 @@ public class Main {
 			case "unrealplayground":
 				UnrealPlayground.index(cli);
 				break;
+			case "gamezoo":
+				GameZooMaps.index(cli);
+				break;
 			default:
 				throw new UnsupportedOperationException("Scraper not supported: " + cli.commands()[1]);
 		}
@@ -288,7 +292,7 @@ public class Main {
 		System.out.println("    Unpack the contents of <umod-file> to directory <destination>");
 		System.out.println("  scrape <type> [parameters ...] [--slowdown=<millis>]");
 		System.out.println("    Scrape file listings from the provided URL, <type> is the type of scraper ");
-		System.out.println("    to use ('autoindexphp', 'unrealplayground' supported).");
+		System.out.println("    to use ('autoindexphp', 'unrealplayground', 'gamezoo' supported).");
 		System.out.println("    [slowdown] will cause the scraper to pause between page loads, defaults to 2000ms.");
 		System.out.println("  download <file-list> <output-path> [--slowdown=<millis>]");
 		System.out.println("    Download previously-scraped files defined in the file <file-list>, and write");
