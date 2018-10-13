@@ -94,6 +94,15 @@ public class ContentManager {
 		return null;
 	}
 
+	@SuppressWarnings("unchecked")
+	public <T extends Content> Collection<T> get(Class<T> type) {
+		return content.values().parallelStream()
+					  .map(c -> c.content)
+					  .filter(c -> type.isAssignableFrom(c.getClass()))
+					  .map(c -> (T)c)
+					  .collect(Collectors.toSet());
+	}
+
 	/**
 	 * Return all content which contains the provided file hash.
 	 *

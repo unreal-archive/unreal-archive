@@ -23,6 +23,7 @@ import net.shrimpworks.unreal.archive.scraper.Downloader;
 import net.shrimpworks.unreal.archive.scraper.GameZooMaps;
 import net.shrimpworks.unreal.archive.scraper.UnrealPlayground;
 import net.shrimpworks.unreal.archive.storage.DataStore;
+import net.shrimpworks.unreal.archive.www.Maps;
 import net.shrimpworks.unreal.packages.Umod;
 
 public class Main {
@@ -38,6 +39,9 @@ public class Main {
 		switch (cli.commands()[0].toLowerCase()) {
 			case "index":
 				index(contentManager(cli), cli);
+				break;
+			case "www":
+				www(contentManager(cli), cli);
 				break;
 			case "summary":
 				summary(contentManager(cli));
@@ -130,6 +134,21 @@ public class Main {
 
 		Indexer indexer = new Indexer(contentManager, cli);
 		indexer.index(inputPath, force);
+	}
+
+	private static void www(ContentManager contentManager, CLI cli) throws IOException {
+		if (cli.option("output-path", null) == null) {
+			System.err.println("output-path must be specified!");
+			System.exit(2);
+		}
+
+		Path outputPath = Paths.get(cli.option("output-path", null));
+		if (!Files.exists(outputPath)) {
+			Files.createDirectories(outputPath);
+		}
+
+		Maps maps = new Maps(contentManager, outputPath);
+		maps.generate();
 	}
 
 	private static void summary(ContentManager contentManager) {
@@ -278,6 +297,8 @@ public class Main {
 		System.out.println("Commands:");
 		System.out.println("  index --content-path=<path> --input-path=<path>");
 		System.out.println("    Index the contents of <input-path>, writing the results to <content-path>");
+		System.out.println("  www --content-path=<path> --output-path=<path>");
+		System.out.println("    Generate the HTML website for browsing content.");
 		System.out.println("  refresh --content-path=<path>");
 		System.out.println("    Perform a liveliness check of all download URLs");
 		System.out.println("  mirror --content-path=<path> --output-path=<path>");
