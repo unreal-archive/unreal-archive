@@ -54,6 +54,12 @@ public abstract class Content {
 
 	public abstract Path contentPath(Path root);
 
+	public String subGrouping() {
+		char first = name.toUpperCase().replaceAll("[^A-Z0-9]", "").charAt(0);
+		if (Character.isDigit(first)) first = '0';
+		return Character.toString(first);
+	}
+
 	public boolean hasDownload(String url) {
 		for (Download download : downloads) {
 			if (download.url.equals(url)) return true;

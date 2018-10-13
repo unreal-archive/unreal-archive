@@ -8,7 +8,7 @@ import net.shrimpworks.unreal.archive.indexer.Content;
 
 public class MapPack extends Content {
 
-	// Type/Game/NAME5
+	// Type/Game/A/
 	private static final String PATH_STRING = "%s/%s/%s/";
 
 	public List<PackMap> maps = new ArrayList<>();
@@ -16,8 +16,7 @@ public class MapPack extends Content {
 	@Override
 
 	public Path contentPath(Path root) {
-		String namePrefix = name.toUpperCase().replaceAll("[^A-Z0-9]", "");
-		namePrefix = namePrefix.substring(0, Math.min(4, namePrefix.length() - 1));
+		String namePrefix = subGrouping();
 		return root.resolve(String.format(PATH_STRING,
 										  "MapPacks",
 										  game,

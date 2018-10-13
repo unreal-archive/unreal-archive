@@ -157,33 +157,11 @@ public class MapIndexHandler implements IndexHandler<Map> {
 	private String gameType(Incoming incoming, String name) {
 		if (incoming.submission.override.get("gameType", null) != null) return incoming.submission.override.get("gameType", "DeathMatch");
 
-		if (name.toLowerCase().startsWith("sp")) return "Single Player";
-		if (name.toLowerCase().startsWith("dm")) return "DeathMatch";
-		if (name.toLowerCase().startsWith("ctf-bt")) return "BunnyTrack";
-		if (name.toLowerCase().startsWith("ctf4")) return "Multi-team Capture The Flag";
-		if (name.toLowerCase().startsWith("ctfm")) return "Multi-team Capture The Flag";
-		if (name.toLowerCase().startsWith("ctf")) return "Capture The Flag";
-		if (name.toLowerCase().startsWith("dom")) return "Domination";
-		if (name.toLowerCase().startsWith("as")) return "Assault";
-		if (name.toLowerCase().startsWith("br")) return "Bombing Run";
-		if (name.toLowerCase().startsWith("ons")) return "Onslaught";
-		if (name.toLowerCase().startsWith("vctf")) return "Vehicle Capture The Flag";
-		if (name.toLowerCase().startsWith("mh")) return "Monster Hunt";
-		if (name.toLowerCase().startsWith("ma")) return "Monster Arena";
-		if (name.toLowerCase().startsWith("tmh")) return "Team Monster Arena";
-		if (name.toLowerCase().startsWith("ra")) return "Rocket Arena";
-		if (name.toLowerCase().startsWith("jb")) return "Jailbreak";
-		if (name.toLowerCase().startsWith("to")) return "Tactical Ops";
-		if (name.toLowerCase().startsWith("inf")) return "Infiltration";
-		if (name.toLowerCase().startsWith("bt")) return "BunnyTrack";
-		if (name.toLowerCase().startsWith("uw")) return "UnWheel";
-		if (name.toLowerCase().startsWith("scr")) return "Soccer";
-		if (name.toLowerCase().startsWith("th")) return "Thievery";
-		if (name.toLowerCase().startsWith("u4e")) return "Unreal4Ever";
-		if (name.toLowerCase().startsWith("unf")) return "Unreal Fortress";
-		if (name.toLowerCase().startsWith("xmp")) return "XMP";
+		GameTypes.GameType gameType = GameTypes.forMap(name);
 
-		if (maybeSingleplayer(incoming)) return "Single Player";
+		if (gameType == null && maybeSingleplayer(incoming)) return "Single Player";
+
+		if (gameType != null) return gameType.name;
 
 		return UNKNOWN;
 	}

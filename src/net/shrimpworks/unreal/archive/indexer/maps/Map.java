@@ -7,7 +7,7 @@ import net.shrimpworks.unreal.archive.indexer.Content;
 
 public class Map extends Content {
 
-	// Type/Game/Gametype/NAME5
+	// Type/Game/Gametype/A/
 	private static final String PATH_STRING = "%s/%s/%s/%s/";
 
 	public String gametype = "Unknown";             // Deathmatch
@@ -15,9 +15,25 @@ public class Map extends Content {
 	public String playerCount = "Unknown";          // 2 - 4 Players
 
 	@Override
+	public String subGrouping() {
+		GameTypes.GameType gt = GameTypes.byName(gametype);
+		if (gt != null) {
+			String s = name.toLowerCase().trim();
+			for (String prefix : gt.mapPrefixes) {
+				if (s.startsWith(prefix.toLowerCase())) {
+					char first = name.replaceFirst(prefix, "").toUpperCase().replaceAll("[^A-Z0-9]", "").charAt(0);
+					if (Character.isDigit(first)) first = '0';
+					return Character.toString(first);
+				}
+			}
+		}
+
+		return super.subGrouping();
+	}
+
+	@Override
 	public Path contentPath(Path root) {
-		String namePrefix = name.toUpperCase().replaceAll("[^A-Z0-9]", "");
-		namePrefix = namePrefix.substring(0, Math.min(4, namePrefix.length() - 1));
+		String namePrefix = subGrouping();
 		return root.resolve(String.format(PATH_STRING,
 										  "Maps",
 										  game,
