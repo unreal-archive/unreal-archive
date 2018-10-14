@@ -61,7 +61,7 @@ class Found {
 
 		@Override
 		public String toString() {
-			return String.format("Found [dir=%s, name=%s, url=%s]", dir(), name, url);
+			return String.format("FoundUrl [name=%s, path=%s, url=%s, pageUrl=%s, dir=%s]", name, path, url, pageUrl, dir);
 		}
 	}
 }

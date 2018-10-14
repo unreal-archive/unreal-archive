@@ -51,9 +51,9 @@ public class Downloader {
 		for (int i = 0; i < urls.size(); i++) {
 			Found.FoundUrl url = urls.get(i);
 
-			download(output, url);
+			boolean downloaded = download(output, url);
 
-			if (slowdown > 0) {
+			if (downloaded && slowdown > 0) {
 				try {
 					long deadline = System.currentTimeMillis() + slowdown;
 					while (System.currentTimeMillis() < deadline) {
@@ -69,7 +69,7 @@ public class Downloader {
 		}
 	}
 
-	public static void download(Path output, Found.FoundUrl url) {
+	public static boolean download(Path output, Found.FoundUrl url) {
 		try {
 			Path dir = output.resolve(url.path);
 			if (!Files.isDirectory(dir)) Files.createDirectories(dir);
@@ -77,44 +77,44 @@ public class Downloader {
 			Path ymlFile = dir.resolve(url.name + ".yml");
 			Path outFile = dir.resolve(url.name);
 
-			if (!Files.exists(ymlFile)) {
+			if (Files.exists(ymlFile)) return false;
 
-				String dl = url.url;
-				Matcher m = AUTOINDEXPHP_PATTERN.matcher(dl);
-				if (m.matches()) {
-					dl = String.format(AUTOINDEXPHP_REWRITE, m.group(1), m.group(2), m.group(3));
-				}
-
-				System.out.println("Downloading from " + dl);
-
-				Response response = Request.Get(toUri(dl)).userAgent(USER_AGENT).execute();
-				HttpResponse httpResponse = response.returnResponse();
-				if (httpResponse.getStatusLine().getStatusCode() >= 400) {
-					System.out.println(httpResponse.getStatusLine().getReasonPhrase());
-					return;
-				}
-
-				Header disposition = httpResponse.getFirstHeader("Content-Disposition");
-				if (disposition != null) {
-					Matcher matcher = CONTENT_DISPOSITION_FILENAME.matcher(disposition.getValue());
-					if (matcher.matches()) {
-						outFile = dir.resolve(matcher.group(1));
-						ymlFile = dir.resolve(matcher.group(1) + ".yml");
-					}
-				}
-
-				Files.copy(httpResponse.getEntity().getContent(), outFile, StandardCopyOption.REPLACE_EXISTING);
-
-				Submission sub = new Submission(outFile, url.pageUrl);
-				Files.write(ymlFile, YAML.toString(sub).getBytes(StandardCharsets.UTF_8),
-							StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-
-				System.out.println("Wrote file to " + outFile.toString());
+			String dl = url.url;
+			Matcher m = AUTOINDEXPHP_PATTERN.matcher(dl);
+			if (m.matches()) {
+				dl = String.format(AUTOINDEXPHP_REWRITE, m.group(1), m.group(2), m.group(3));
 			}
+
+			System.out.println("Downloading from " + dl);
+
+			Response response = Request.Get(toUri(dl)).userAgent(USER_AGENT).addHeader("Connection", "close").execute();
+			HttpResponse httpResponse = response.returnResponse();
+			if (httpResponse.getStatusLine().getStatusCode() >= 400) {
+				System.out.println(httpResponse.getStatusLine().getReasonPhrase());
+				return false;
+			}
+
+			Header disposition = httpResponse.getFirstHeader("Content-Disposition");
+			if (disposition != null) {
+				Matcher matcher = CONTENT_DISPOSITION_FILENAME.matcher(disposition.getValue());
+				if (matcher.matches()) {
+					outFile = dir.resolve(matcher.group(1));
+					ymlFile = dir.resolve(matcher.group(1) + ".yml");
+				}
+			}
+
+			Files.copy(httpResponse.getEntity().getContent(), outFile, StandardCopyOption.REPLACE_EXISTING);
+
+			Submission sub = new Submission(outFile, url.pageUrl);
+			Files.write(ymlFile, YAML.toString(sub).getBytes(StandardCharsets.UTF_8),
+						StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+
+			System.out.println("Wrote file to " + outFile.toString());
 		} catch (Exception e) {
-			System.err.printf("Failed to download %s: %s%n", url.name, e.getMessage());
+			System.err.printf("Failed to download %s: %s%n", url.name, e.toString());
 		}
 
+		return true;
 	}
 
 	private static URI toUri(String s) throws IOException {

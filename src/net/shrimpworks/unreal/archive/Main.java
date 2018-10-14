@@ -20,6 +20,7 @@ import net.shrimpworks.unreal.archive.indexer.ContentManager;
 import net.shrimpworks.unreal.archive.indexer.Indexer;
 import net.shrimpworks.unreal.archive.scraper.AutoIndexPHPScraper;
 import net.shrimpworks.unreal.archive.scraper.Downloader;
+import net.shrimpworks.unreal.archive.scraper.GameFrontOnline;
 import net.shrimpworks.unreal.archive.scraper.GameZooMaps;
 import net.shrimpworks.unreal.archive.scraper.UnrealPlayground;
 import net.shrimpworks.unreal.archive.storage.DataStore;
@@ -228,6 +229,9 @@ public class Main {
 				break;
 			case "gamezoo":
 				GameZooMaps.index(cli);
+				break;
+			case "gamefrontonline":
+				GameFrontOnline.index(cli);
 				break;
 			default:
 				throw new UnsupportedOperationException("Scraper not supported: " + cli.commands()[1]);
