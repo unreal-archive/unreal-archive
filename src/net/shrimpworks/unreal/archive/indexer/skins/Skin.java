@@ -9,7 +9,7 @@ import net.shrimpworks.unreal.archive.indexer.Content;
 
 public class Skin extends Content {
 
-	// Type/Game/A/
+	// Game/Type/A/
 	private static final String PATH_STRING = "%s/%s/%s/";
 
 	static final Pattern NAME_MATCH = Pattern.compile(".+?\\..+?\\d");
@@ -27,8 +27,8 @@ public class Skin extends Content {
 	public Path contentPath(Path root) {
 		String namePrefix = subGrouping();
 		return root.resolve(String.format(PATH_STRING,
-										  "Skins",
 										  game,
+										  "Skins",
 										  namePrefix
 		));
 	}

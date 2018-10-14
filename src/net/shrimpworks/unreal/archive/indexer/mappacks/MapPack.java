@@ -8,7 +8,7 @@ import net.shrimpworks.unreal.archive.indexer.Content;
 
 public class MapPack extends Content {
 
-	// Type/Game/A/
+	// Game/Type/A/
 	private static final String PATH_STRING = "%s/%s/%s/";
 
 	public List<PackMap> maps = new ArrayList<>();
@@ -18,8 +18,8 @@ public class MapPack extends Content {
 	public Path contentPath(Path root) {
 		String namePrefix = subGrouping();
 		return root.resolve(String.format(PATH_STRING,
-										  "MapPacks",
 										  game,
+										  "MapPacks",
 										  namePrefix
 		));
 	}

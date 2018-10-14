@@ -7,7 +7,7 @@ import net.shrimpworks.unreal.archive.indexer.Content;
 
 public class Map extends Content {
 
-	// Type/Game/Gametype/A/
+	// Game/Type/Gametype/A/
 	private static final String PATH_STRING = "%s/%s/%s/%s/";
 
 	public String gametype = "Unknown";             // Deathmatch
@@ -35,8 +35,8 @@ public class Map extends Content {
 	public Path contentPath(Path root) {
 		String namePrefix = subGrouping();
 		return root.resolve(String.format(PATH_STRING,
-										  "Maps",
 										  game,
+										  "Maps",
 										  gametype,
 										  namePrefix
 		));
