@@ -22,8 +22,6 @@ public class B2StoreTest {
 		Path file = Files.write(Files.createTempFile("upload", ".tmp"), Long.toString(System.nanoTime()).getBytes());
 		try (B2Store b2 = new B2Store(keyId, appId, bucket)) {
 			b2.store(file, file.getFileName().toString(), s -> {
-				// TODO download the file
-				// TODO delete the file
 				try {
 					b2.download(s, dl -> {
 						try {

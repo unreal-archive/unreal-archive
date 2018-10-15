@@ -69,7 +69,7 @@ public class B2Store implements DataStore {
 	}
 
 	@Override
-	public void close() throws IOException {
+	public void close() {
 		this.client.close();
 	}
 
@@ -79,6 +79,18 @@ public class B2Store implements DataStore {
 
 		try {
 			checkAccount();
+
+			// first, check if file exists; if it does, just return existing file
+			try {
+				B2FileVersion fileInfo = client.getFileInfoByName(bucketInfo.getBucketName(), name);
+				stored.accept(String.format(DOWNLOAD_URL, account.getDownloadUrl(), bucketInfo.getBucketName(), fileInfo.getFileName()));
+				return;
+			} catch (B2Exception ex) {
+				if (ex.getStatus() != 404) {
+					throw new IOException("File existence check failed", ex);
+				}
+			}
+
 			final B2FileVersion upload = this.client.uploadSmallFile(
 					B2UploadFileRequest.builder(bucket, name, Util.mimeType(Util.extension(path)),
 												B2FileContentSource.build(path.toFile())).build()
