@@ -4,10 +4,12 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SeekableByteChannel;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.FileTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -17,6 +19,7 @@ import java.util.stream.Collectors;
 
 import net.shrimpworks.unreal.archive.indexer.Content;
 import net.shrimpworks.unreal.archive.indexer.ContentManager;
+import net.shrimpworks.unreal.archive.indexer.IndexResult;
 import net.shrimpworks.unreal.archive.indexer.Indexer;
 import net.shrimpworks.unreal.archive.scraper.AutoIndexPHPScraper;
 import net.shrimpworks.unreal.archive.scraper.Downloader;
@@ -29,7 +32,7 @@ import net.shrimpworks.unreal.packages.Umod;
 
 public class Main {
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, InterruptedException {
 		final CLI cli = CLI.parse(Collections.emptyMap(), args);
 
 		if (cli.commands().length == 0) {
@@ -40,6 +43,9 @@ public class Main {
 		switch (cli.commands()[0].toLowerCase()) {
 			case "index":
 				index(contentManager(cli), cli);
+				break;
+			case "edit":
+				edit(contentManager(cli), cli);
 				break;
 			case "www":
 				www(contentManager(cli), cli);
@@ -135,6 +141,38 @@ public class Main {
 
 		Indexer indexer = new Indexer(contentManager, cli);
 		indexer.index(inputPath, force);
+	}
+
+	private static void edit(ContentManager contentManager, CLI cli) throws IOException, InterruptedException {
+		if (cli.commands().length < 2) {
+			System.err.println("A content hash should be provided!");
+			System.exit(2);
+		}
+
+		Content content = contentManager.forHash(cli.commands()[1]);
+		if (content == null) {
+			System.err.println("Content for provided hash does not exist!");
+			System.exit(4);
+		}
+
+		Path yaml = Files.write(Files.createTempFile(content.hash, ".yml"), YAML.toString(content).getBytes(StandardCharsets.UTF_8),
+								StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+
+		FileTime fileTime = Files.getLastModifiedTime(yaml);
+		Process editor = new ProcessBuilder("sensible-editor", yaml.toString()).inheritIO().start();
+		int res = editor.waitFor();
+		if (res == 0) {
+			if (!fileTime.equals(Files.getLastModifiedTime(yaml))) {
+				Content updated = YAML.fromFile(yaml, Content.class);
+				if (contentManager.checkin(new IndexResult<>(updated, Collections.emptySet()), null)) {
+					System.out.println("Stored changes!");
+				} else {
+					System.out.println("Failed to apply");
+				}
+			} else {
+				System.out.println("No changes!");
+			}
+		}
 	}
 
 	private static void www(ContentManager contentManager, CLI cli) throws IOException {
@@ -301,18 +339,20 @@ public class Main {
 		System.out.println("Commands:");
 		System.out.println("  index --content-path=<path> --input-path=<path>");
 		System.out.println("    Index the contents of <input-path>, writing the results to <content-path>");
+		System.out.println("  edit <hash> --content-path=<path>");
+		System.out.println("    Edit the metadata for the <hash> provided. Relies on `sensible-editor` on Linux.");
 		System.out.println("  www --content-path=<path> --output-path=<path>");
 		System.out.println("    Generate the HTML website for browsing content.");
-		System.out.println("  refresh --content-path=<path>");
-		System.out.println("    Perform a liveliness check of all download URLs");
-		System.out.println("  mirror --content-path=<path> --output-path=<path>");
-		System.out.println("    Download all content in the index to <output-path>");
 		System.out.println("  summary --content-path=<path>");
 		System.out.println("    Show stats and counters for the content index in <content-path>");
 		System.out.println("  ls [--game=<game>] [--type=<type>] [--author=<author>] --content-path=<path>");
 		System.out.println("    List indexed content in <content-path>, filtered by game, type or author");
 		System.out.println("  show [name ...] [hash ...] --content-path=<path>");
 		System.out.println("    Show data for the content items specified");
+		System.out.println("  refresh --content-path=<path>");
+		System.out.println("    Perform a liveliness check of all download URLs");
+		System.out.println("  mirror --content-path=<path> --output-path=<path>");
+		System.out.println("    Download all content in the index to <output-path>");
 		System.out.println("  unpack <umod-file> <destination>");
 		System.out.println("    Unpack the contents of <umod-file> to directory <destination>");
 		System.out.println("  scrape <type> [parameters ...] [--slowdown=<millis>]");

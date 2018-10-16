@@ -181,7 +181,7 @@ public class ContentManager {
 //				}
 //			}
 
-			if (indexed.content.downloads.stream().noneMatch(d -> d.main)) {
+			if (submission != null && indexed.content.downloads.stream().noneMatch(d -> d.main)) {
 				String uploadPath = path.relativize(next.resolve(submission.filePath.getFileName())).toString();
 				contentStore.store(submission.filePath, uploadPath,
 								   s -> indexed.content.downloads.add(new Content.Download(s, true, LocalDate.now(), LocalDate.now(),
