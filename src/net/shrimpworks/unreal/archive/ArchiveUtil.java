@@ -26,7 +26,7 @@ public class ArchiveUtil {
 
 	public static boolean isArchive(Path path) {
 		if (!Files.isRegularFile(path)) return false;
-		return ARCHIVES.contains(Util.extension(path));
+		return ARCHIVES.contains(Util.extension(path.toString().toLowerCase()));
 	}
 
 	public static Path extract(Path source, Path destination, Duration timeout)
