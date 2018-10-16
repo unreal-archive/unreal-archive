@@ -7,7 +7,8 @@ import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashMap;
+import java.util.stream.Collectors;
 
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
@@ -42,11 +43,22 @@ public class Maps {
 	public void generate() {
 		try {
 			Path mapsPath = output.resolve("maps");
-			try (Writer indexWriter = templateOut(mapsPath.resolve("index.html"))) {
+			try (Writer tpl = templateOut(mapsPath.resolve("index.html"))) {
 				Template index = template("maps/index.ftl");
-				java.util.Map<String, Object> vars = Collections.singletonMap("maps", allMaps);
-				index.process(vars, indexWriter);
+				java.util.Map<String, Object> vars = new HashMap<>();
+				vars.put("title", "Maps");
+				vars.put("maps", allMaps);
+				index.process(vars, tpl);
 			}
+
+			try (Writer writer = templateOut(mapsPath.resolve("games.html"))) {
+				Template tpl = template("maps/games.ftl");
+				java.util.Map<String, Object> vars = new HashMap<>();
+				vars.put("title", "Maps");
+				vars.put("games", allMaps.stream().map(m -> m.game).distinct().sorted().collect(Collectors.toList()));
+				tpl.process(vars, writer);
+			}
+
 		} catch (TemplateException | IOException e) {
 			throw new RuntimeException("Failed to render page", e);
 		}
