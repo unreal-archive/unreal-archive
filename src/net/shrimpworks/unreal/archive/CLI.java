@@ -41,7 +41,7 @@ public class CLI {
 				Properties fileProps = new Properties();
 				fileProps.load(Files.newInputStream(confFile));
 				for (String p : fileProps.stringPropertyNames()) {
-					props.put(p, props.get(p));
+					props.put(p, fileProps.getProperty(p));
 				}
 			} catch (IOException e) {
 				System.err.println("Failed to read properties from file " + confFile + ": " + e.toString());
