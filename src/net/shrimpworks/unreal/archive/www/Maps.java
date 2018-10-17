@@ -42,11 +42,13 @@ public class Maps {
 	private final Path output;
 
 	private final Games games;
+	private final Authors authors;
 
 	public Maps(ContentManager content, Path output) {
 		this.content = content;
 		this.output = output;
 		this.games = new Games();
+		this.authors = new Authors();
 
 		Collection<Map> maps = content.get(Map.class);
 		for (Map m : maps) {
@@ -54,6 +56,9 @@ public class Maps {
 			Gametype gametype = g.gametypes.computeIfAbsent(m.gametype, Gametype::new);
 			LetterGroup letter = gametype.letters.computeIfAbsent(m.subGrouping(), LetterGroup::new);
 			letter.add(m);
+
+			Author a = authors.authors.computeIfAbsent(m.author, Author::new);
+			a.maps.add(new MapInfo(m));
 		}
 	}
 
@@ -66,8 +71,8 @@ public class Maps {
 			// map page: /maps/game/gametype/a/1/name_hash8.html
 
 			Path mapsPath = output.resolve("maps");
-			try (Writer writer = templateOut(mapsPath.resolve("index.html"))) {
-				Template tpl = template("maps/index.ftl");
+			try (Writer writer = templateOut(mapsPath.resolve("games.html"))) {
+				Template tpl = template("maps/games.ftl");
 				java.util.Map<String, Object> vars = new HashMap<>();
 				vars.put("title", "Maps");
 				vars.put("games", games);
@@ -198,6 +203,23 @@ public class Maps {
 		public MapInfo(Map map) {
 			this.map = map;
 			this.slug = slug(map.name + "_" + map.hash.substring(0, 8));
+		}
+	}
+
+	public static class Authors {
+
+		public final java.util.Map<String, Author> authors = new TreeMap<>();
+	}
+
+	public static class Author {
+
+		public final String name;
+		public final String slug;
+		public final List<MapInfo> maps = new ArrayList<>();
+
+		public Author(String name) {
+			this.name = name;
+			this.slug = slug(name);
 		}
 	}
 
