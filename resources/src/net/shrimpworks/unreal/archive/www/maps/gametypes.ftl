@@ -2,13 +2,13 @@
 
 	<section class="header">
 		<h1>
-			Hello World
+			${game.name}
 		</h1>
 	</section>
 	<article>
 		<ul>
-		<#list games as game>
-			<li>${game}</li>
+		<#list game.gametypes as k, v>
+			<li><a href="${game.slug}/${v.slug}.html">${v.name}</a></li>
 		</#list>
 		</ul>
 	</article>
