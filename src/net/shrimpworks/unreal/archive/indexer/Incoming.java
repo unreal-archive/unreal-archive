@@ -199,7 +199,7 @@ public class Incoming implements Closeable {
 		} else {
 			// its simply an loose file of a type we're interested in
 			if (FileType.important(incoming)) {
-				return Files.copy(incoming, tempDir, StandardCopyOption.REPLACE_EXISTING);
+				return Files.copy(incoming, tempDir.resolve(incoming.getFileName()), StandardCopyOption.REPLACE_EXISTING);
 			}
 		}
 

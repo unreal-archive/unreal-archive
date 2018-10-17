@@ -1,16 +1,23 @@
 package net.shrimpworks.unreal.archive;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CLI {
 
 	private static final String OPTION_PATTERN = "--([a-zA-Z0-9-_]+)=(.+)?";
+
+	private static final String PROPERTIES = ".unreal-archive.conf";
 
 	private final String[] commands;
 	private final Map<String, String> options;
@@ -27,9 +34,21 @@ public class CLI {
 		// populate default options
 		props.putAll(defOptions);
 
-		Pattern optPattern = Pattern.compile(OPTION_PATTERN);
+		Path confFile = Paths.get(PROPERTIES);
+		if (!Files.exists(confFile)) confFile = Paths.get(System.getenv("HOME")).resolve(PROPERTIES);
+		if (Files.exists(confFile)) {
+			try {
+				Properties fileProps = new Properties();
+				fileProps.load(Files.newInputStream(confFile));
+				for (String p : fileProps.stringPropertyNames()) {
+					props.put(p, fileProps.getProperty(p));
+				}
+			} catch (IOException e) {
+				System.err.println("Failed to read properties from file " + confFile + ": " + e.toString());
+			}
+		}
 
-		final StringBuilder commandBuilder = new StringBuilder();
+		Pattern optPattern = Pattern.compile(OPTION_PATTERN);
 
 		for (String arg : args) {
 			Matcher optMatcher = optPattern.matcher(arg);

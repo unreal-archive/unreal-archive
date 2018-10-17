@@ -6,7 +6,11 @@
 		</h1>
 	</section>
 	<article>
-		hello world
+		<ul>
+		<#list games as game>
+			<li>${game}</li>
+		</#list>
+		</ul>
 	</article>
 
 <#include "_footer.ftl">

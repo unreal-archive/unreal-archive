@@ -26,7 +26,7 @@ public class ArchiveUtil {
 
 	public static boolean isArchive(Path path) {
 		if (!Files.isRegularFile(path)) return false;
-		return ARCHIVES.contains(Util.extension(path));
+		return ARCHIVES.contains(Util.extension(path.toString().toLowerCase()));
 	}
 
 	public static Path extract(Path source, Path destination, Duration timeout)
@@ -118,7 +118,8 @@ public class ArchiveUtil {
 	private static String[] rarCmd(Path source, Path destination) {
 		return new String[] {
 				UNRAR_BIN,
-				"-xf",                 // extract, force overwrite
+				"e",                   // extract
+				"-y",                  // yes to all
 				source.toString(),     // file to extract
 				destination.toString() // destination directory
 		};

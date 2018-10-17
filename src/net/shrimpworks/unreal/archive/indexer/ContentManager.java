@@ -163,24 +163,25 @@ public class ContentManager {
 				}
 			}
 
+			// TODO KW 20181015 - don't do this - updates any updates not involving a re-index will wipe attachments out
 			// delete removed attachments from remote
-			if (current != null) {
-				for (Content.Attachment had : current.content.attachments) {
-					if (!indexed.content.attachments.contains(had)) {
-						switch (had.type) {
-							case IMAGE:
-								imageStore.delete(had.url, d -> {
-								});
-								break;
-							default:
-								attachmentStore.delete(had.url, d -> {
-								});
-						}
-					}
-				}
-			}
+//			if (current != null) {
+//				for (Content.Attachment had : current.content.attachments) {
+//					if (!indexed.content.attachments.contains(had)) {
+//						switch (had.type) {
+//							case IMAGE:
+//								imageStore.delete(had.url, d -> {
+//								});
+//								break;
+//							default:
+//								attachmentStore.delete(had.url, d -> {
+//								});
+//						}
+//					}
+//				}
+//			}
 
-			if (indexed.content.downloads.stream().noneMatch(d -> d.main)) {
+			if (submission != null && indexed.content.downloads.stream().noneMatch(d -> d.main)) {
 				String uploadPath = path.relativize(next.resolve(submission.filePath.getFileName())).toString();
 				contentStore.store(submission.filePath, uploadPath,
 								   s -> indexed.content.downloads.add(new Content.Download(s, true, LocalDate.now(), LocalDate.now(),

@@ -28,7 +28,7 @@ public class MapClassifier implements Classifier {
 
 		String baseName = "";
 		for (Incoming.IncomingFile map : maps) {
-			String tmp = Util.plainName(map.fileName());
+			String tmp = Util.plainName(map.fileName()).toUpperCase().replaceAll("[^A-Z0-9]", "");
 			if (baseName.isEmpty() || tmp.length() < baseName.length()) {
 				baseName = tmp;
 			}
@@ -36,7 +36,7 @@ public class MapClassifier implements Classifier {
 
 		int variations = 0;
 		for (Incoming.IncomingFile map : maps) {
-			String tmp = Util.plainName(map.fileName());
+			String tmp = Util.plainName(map.fileName()).toUpperCase().replaceAll("[^A-Z0-9]", "");
 			if (tmp.startsWith(baseName)) variations++;
 		}
 
