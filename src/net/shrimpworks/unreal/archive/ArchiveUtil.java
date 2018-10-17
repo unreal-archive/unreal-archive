@@ -118,7 +118,8 @@ public class ArchiveUtil {
 	private static String[] rarCmd(Path source, Path destination) {
 		return new String[] {
 				UNRAR_BIN,
-				"-xf",                 // extract, force overwrite
+				"e",                   // extract
+				"-y",                  // yes to all
 				source.toString(),     // file to extract
 				destination.toString() // destination directory
 		};
