@@ -8,7 +8,7 @@
 	<article>
 		<ul>
 		<#list page.maps as m>
-			<li><a href="${m.slug}.html">${m.map.title}</a></li>
+			<li><a href="${relUrl(page.path, m.path + ".html")}">${m.map.title}</a></li>
 		</#list>
 		</ul>
 	</article>

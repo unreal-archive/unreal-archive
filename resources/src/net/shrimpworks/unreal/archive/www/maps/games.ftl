@@ -8,7 +8,7 @@
 	<article>
 		<ul>
 		<#list games.games as k, v>
-			<li><a href="${v.slug}.html">${v.name}</a></li>
+			<li><a href="${v.path}/index.html">${v.name} (${v.maps})</a></li>
 		</#list>
 		</ul>
 	</article>
