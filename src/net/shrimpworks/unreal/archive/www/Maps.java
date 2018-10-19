@@ -1,46 +1,24 @@
 package net.shrimpworks.unreal.archive.www;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
-
-import freemarker.template.Configuration;
-import freemarker.template.DefaultObjectWrapper;
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
-import freemarker.template.TemplateMethodModelEx;
-import freemarker.template.TemplateModelException;
 
 import net.shrimpworks.unreal.archive.indexer.ContentManager;
 import net.shrimpworks.unreal.archive.indexer.maps.Map;
 
 public class Maps {
 
-	private static final Configuration TPL_CONFIG = new Configuration(Configuration.VERSION_2_3_27);
 	private static final int PAGE_SIZE = 100;
 
 	private static final Pattern NONLATIN = Pattern.compile("[^\\w-]");
 	private static final Pattern WHITESPACE = Pattern.compile("[\\s]");
-
-	static {
-		TPL_CONFIG.setClassForTemplateLoading(Maps.class, "");
-		DefaultObjectWrapper ow = new DefaultObjectWrapper(TPL_CONFIG.getIncompatibleImprovements());
-		ow.setExposeFields(true);
-		TPL_CONFIG.setObjectWrapper(ow);
-	}
 
 	private final ContentManager content;
 	private final Path output;
@@ -74,24 +52,16 @@ public class Maps {
 
 			Path root = output.resolve("maps");
 
-			try (Writer writer = templateOut(root.resolve("games.html"))) {
-				Template tpl = template("maps/games.ftl");
-				java.util.Map<String, Object> vars = new HashMap<>();
-				vars.put("relUrl", new RelUrlMethod());
-				vars.put("title", "Maps");
-				vars.put("games", games);
-				tpl.process(vars, writer);
-			}
+			Templates.template("maps/games.ftl")
+					 .put("title", "Maps")
+					 .put("games", games)
+					 .write(root.resolve("games.html"));
 
 			for (java.util.Map.Entry<String, Game> g : games.games.entrySet()) {
-				try (Writer writer = templateOut(root.resolve(g.getValue().path).resolve("index.html"))) {
-					Template tpl = template("maps/gametypes.ftl");
-					java.util.Map<String, Object> vars = new HashMap<>();
-					vars.put("relUrl", new RelUrlMethod());
-					vars.put("title", String.join(" / ", "Maps", g.getKey()));
-					vars.put("game", g.getValue());
-					tpl.process(vars, writer);
-				}
+				Templates.template("maps/gametypes.ftl")
+						 .put("title", String.join(" / ", "Maps", g.getKey()))
+						 .put("game", g.getValue())
+						 .write(root.resolve(g.getValue().path).resolve("index.html"));
 
 				for (java.util.Map.Entry<String, Gametype> gt : g.getValue().gametypes.entrySet()) {
 
@@ -100,26 +70,15 @@ public class Maps {
 					for (java.util.Map.Entry<String, LetterGroup> l : gt.getValue().letters.entrySet()) {
 
 						for (Page p : l.getValue().pages) {
-							try (Writer writer = templateOut(root.resolve(p.path).resolve("index.html"))) {
-								Template tpl = template("maps/listing.ftl");
-								java.util.Map<String, Object> vars = new HashMap<>();
-								vars.put("relUrl", new RelUrlMethod());
-								vars.put("title", String.join(" / ", "Maps", g.getKey(), gt.getKey()));
-								vars.put("game", g.getValue());
-								vars.put("gametype", gt.getValue());
-								vars.put("letter", l.getValue());
-								vars.put("page", p);
-								tpl.process(vars, writer);
-							}
+							Templates.Tpl tpl = Templates.template("maps/listing.ftl")
+														 .put("title", String.join(" / ", "Maps", g.getKey(), gt.getKey()))
+														 .put("page", p)
+														 .write(root.resolve(p.path).resolve("index.html"));
 
 							if (first) {
 								// FIXME urls are obviously broken like this
-								Files.copy(root.resolve(p.path).resolve("index.html"),
-										   root.resolve(l.getValue().path).resolve("index.html"),
-										   StandardCopyOption.REPLACE_EXISTING);
-								Files.copy(root.resolve(p.path).resolve("index.html"),
-										   root.resolve(gt.getValue().path).resolve("index.html"),
-										   StandardCopyOption.REPLACE_EXISTING);
+								tpl.write(root.resolve(l.getValue().path).resolve("index.html"));
+								tpl.write(root.resolve(gt.getValue().path).resolve("index.html"));
 								first = false;
 							}
 
@@ -131,29 +90,16 @@ public class Maps {
 				}
 			}
 
-		} catch (TemplateException | IOException e) {
+		} catch (IOException e) {
 			throw new RuntimeException("Failed to render page", e);
 		}
 	}
 
-	private void mapPage(Path root, MapInfo map) throws IOException, TemplateException {
-		try (Writer writer = templateOut(root.resolve(map.path + ".html"))) {
-			Template tpl = template("maps/map.ftl");
-			java.util.Map<String, Object> vars = new HashMap<>();
-			vars.put("relUrl", new RelUrlMethod());
-			vars.put("title", String.join(" / ", "Maps", map.page.letter.gametype.game.name, map.page.letter.gametype.name, map.map.title));
-			vars.put("map", map);
-			tpl.process(vars, writer);
-		}
-	}
-
-	private Template template(String name) throws IOException {
-		return TPL_CONFIG.getTemplate(name);
-	}
-
-	private Writer templateOut(Path target) throws IOException {
-		if (!Files.exists(target.getParent())) Files.createDirectories(target.getParent());
-		return new BufferedWriter(new FileWriter(target.toFile()));
+	private void mapPage(Path root, MapInfo map) throws IOException {
+		Templates.template("maps/map.ftl")
+				 .put("title", String.join(" / ", "Maps", map.page.letter.gametype.game.name, map.page.letter.gametype.name, map.map.title))
+				 .put("map", map)
+				 .write(root.resolve(map.path + ".html"));
 	}
 
 	public static String slug(String input) {
@@ -292,16 +238,6 @@ public class Maps {
 		public Author(String name) {
 			this.name = name;
 			this.slug = slug(name);
-		}
-	}
-
-	public class RelUrlMethod implements TemplateMethodModelEx {
-
-		public Object exec(List args) throws TemplateModelException {
-			if (args.size() != 2) {
-				throw new TemplateModelException("Wrong arguments");
-			}
-			return Paths.get(args.get(0).toString()).relativize(Paths.get(args.get(1).toString()));
 		}
 	}
 

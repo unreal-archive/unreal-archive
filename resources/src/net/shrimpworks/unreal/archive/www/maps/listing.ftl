@@ -2,7 +2,7 @@
 
 	<section class="header">
 		<h1>
-		${game.name} / ${gametype.name} / ${letter.letter} / pg ${page.number}
+		${page.letter.gametype.game.name} / ${page.letter.gametype.name} / ${page.letter.letter} / pg ${page.number}
 		</h1>
 	</section>
 	<article>
