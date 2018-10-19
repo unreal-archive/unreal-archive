@@ -126,21 +126,23 @@ public class Main {
 	}
 
 	private static void index(ContentManager contentManager, CLI cli) throws IOException {
-		if (cli.option("input-path", null) == null) {
-			System.err.println("input-path must be specified!");
+		if (cli.commands().length < 2) {
+			System.err.println("An index path must be specified!");
 			System.exit(2);
-		}
-
-		Path inputPath = Paths.get(cli.option("input-path", null));
-		if (!Files.exists(inputPath)) {
-			System.err.println("input-path does not exist!");
-			System.exit(4);
 		}
 
 		boolean force = Boolean.valueOf(cli.option("force", "false"));
 
 		Indexer indexer = new Indexer(contentManager, cli);
-		indexer.index(inputPath, force);
+
+		for (int i = 1; i < cli.commands().length; i++) {
+			Path indexPath = Paths.get(cli.commands()[i]);
+			if (!Files.exists(indexPath)) {
+				System.err.println("Index path does not exist: " + indexPath.toString());
+				System.exit(4);
+			}
+			indexer.index(indexPath, force);
+		}
 	}
 
 	private static void edit(ContentManager contentManager, CLI cli) throws IOException, InterruptedException {
@@ -176,14 +178,18 @@ public class Main {
 	}
 
 	private static void www(ContentManager contentManager, CLI cli) throws IOException {
-		if (cli.option("output-path", null) == null) {
-			System.err.println("output-path must be specified!");
+		if (cli.commands().length < 2) {
+			System.err.println("An output path must be specified!");
 			System.exit(2);
 		}
 
-		Path outputPath = Paths.get(cli.option("output-path", null));
+		Path outputPath = Paths.get(cli.commands()[1]);
 		if (!Files.exists(outputPath)) {
+			System.out.println("Creating directory " + outputPath);
 			Files.createDirectories(outputPath);
+		} else if (!Files.isDirectory(outputPath)) {
+			System.err.println("Output path must be a directory!");
+			System.exit(4);
 		}
 
 		Maps maps = new Maps(contentManager, outputPath);
@@ -337,11 +343,12 @@ public class Main {
 		System.out.println("Usage: unreal-archive.jar <command> [options]");
 		System.out.println();
 		System.out.println("Commands:");
-		System.out.println("  index --content-path=<path> --input-path=<path>");
-		System.out.println("    Index the contents of <input-path>, writing the results to <content-path>");
+		System.out.println("  index <file ...> --content-path=<path> [--force=<true|false>]");
+		System.out.println("    Index the contents of files, writing the results to <content-path>.");
+		System.out.println("    Optionally force re-indexing of existing content, rather than skipping it.");
 		System.out.println("  edit <hash> --content-path=<path>");
 		System.out.println("    Edit the metadata for the <hash> provided. Relies on `sensible-editor` on Linux.");
-		System.out.println("  www --content-path=<path> --output-path=<path>");
+		System.out.println("  www <output-path> --content-path=<path>");
 		System.out.println("    Generate the HTML website for browsing content.");
 		System.out.println("  summary --content-path=<path>");
 		System.out.println("    Show stats and counters for the content index in <content-path>");
@@ -351,7 +358,7 @@ public class Main {
 		System.out.println("    Show data for the content items specified");
 		System.out.println("  refresh --content-path=<path>");
 		System.out.println("    Perform a liveliness check of all download URLs");
-		System.out.println("  mirror --content-path=<path> --output-path=<path>");
+		System.out.println("  mirror <output-path> --content-path=<path>");
 		System.out.println("    Download all content in the index to <output-path>");
 		System.out.println("  unpack <umod-file> <destination>");
 		System.out.println("    Unpack the contents of <umod-file> to directory <destination>");

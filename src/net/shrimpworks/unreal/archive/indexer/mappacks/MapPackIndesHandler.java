@@ -4,7 +4,6 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -92,7 +91,7 @@ public class MapPackIndesHandler implements IndexHandler<MapPack> {
 			}
 		}
 
-		completed.accept(new IndexResult<>(m, Collections.emptySet()));
+		completed.accept(new IndexResult<>(m, attachments));
 	}
 
 	private MapPack.PackMap addMap(Incoming incoming, Incoming.IncomingFile map, Consumer<List<BufferedImage>> listConsumer) {
