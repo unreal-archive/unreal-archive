@@ -5,10 +5,12 @@ import java.nio.file.Path;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import net.shrimpworks.unreal.archive.indexer.ContentManager;
 import net.shrimpworks.unreal.archive.indexer.maps.Map;
@@ -65,28 +67,56 @@ public class Maps {
 
 				for (java.util.Map.Entry<String, Gametype> gt : g.getValue().gametypes.entrySet()) {
 
-					boolean first = true;
+					if (gt.getValue().maps < PAGE_SIZE) {
+						// we can output all maps on a single page
+						List<MapInfo> all = gt.getValue().letters.values().stream()
+																 .flatMap(l -> l.pages.stream())
+																 .flatMap(e -> e.maps.stream())
+																 .sorted()
+																 .collect(Collectors.toList());
+						Templates.template("maps/listing_single.ftl")
+								 .put("title", String.join(" / ", "Maps", g.getKey(), gt.getKey()))
+								 .put("gametype", gt.getValue())
+								 .put("maps", all)
+								 .write(root.resolve(gt.getValue().path).resolve("index.html"));
+
+						// still generate all map pages
+						for (MapInfo map : all) {
+							mapPage(root, map);
+						}
+
+						continue;
+					}
 
 					for (java.util.Map.Entry<String, LetterGroup> l : gt.getValue().letters.entrySet()) {
 
 						for (Page p : l.getValue().pages) {
-							Templates.Tpl tpl = Templates.template("maps/listing.ftl")
-														 .put("title", String.join(" / ", "Maps", g.getKey(), gt.getKey()))
-														 .put("page", p)
-														 .write(root.resolve(p.path).resolve("index.html"));
-
-							if (first) {
-								// FIXME urls are obviously broken like this
-								tpl.write(root.resolve(l.getValue().path).resolve("index.html"));
-								tpl.write(root.resolve(gt.getValue().path).resolve("index.html"));
-								first = false;
-							}
+							Templates.template("maps/listing.ftl")
+									 .put("title", String.join(" / ", "Maps", g.getKey(), gt.getKey()))
+									 .put("page", p)
+									 .put("root", p.path)
+									 .write(root.resolve(p.path).resolve("index.html"));
 
 							for (MapInfo map : p.maps) {
 								mapPage(root, map);
 							}
 						}
+
+						// output first letter/page combo, with appropriate relative links
+						Templates.template("maps/listing.ftl")
+								 .put("title", String.join(" / ", "Maps", g.getKey(), gt.getKey()))
+								 .put("page", l.getValue().pages.get(0))
+								 .put("root", l.getValue().path)
+								 .write(root.resolve(l.getValue().path).resolve("index.html"));
+
 					}
+
+					// output first letter/page combo, with appropriate relative links
+					Templates.template("maps/listing.ftl")
+							 .put("title", String.join(" / ", "Maps", g.getKey(), gt.getKey()))
+							 .put("page", gt.getValue().letters.firstEntry().getValue().pages.get(0))
+							 .put("root", gt.getValue().path)
+							 .write(root.resolve(gt.getValue().path).resolve("index.html"));
 				}
 			}
 
@@ -111,7 +141,7 @@ public class Maps {
 
 	public static class Games {
 
-		public final java.util.Map<String, Game> games = new TreeMap<>();
+		public final TreeMap<String, Game> games = new TreeMap<>();
 	}
 
 	public static class Game {
@@ -119,7 +149,7 @@ public class Maps {
 		public final String name;
 		public final String slug;
 		public final String path;
-		public final java.util.Map<String, Gametype> gametypes = new TreeMap<>();
+		public final TreeMap<String, Gametype> gametypes = new TreeMap<>();
 		public int maps;
 
 		public Game(String name) {
@@ -143,7 +173,7 @@ public class Maps {
 		public final String name;
 		public final String slug;
 		public final String path;
-		public final java.util.Map<String, LetterGroup> letters = new TreeMap<>();
+		public final TreeMap<String, LetterGroup> letters = new TreeMap<>();
 		public int maps;
 
 		public Gametype(Game game, String name) {
@@ -204,10 +234,11 @@ public class Maps {
 
 		public void add(Map map) {
 			this.maps.add(new MapInfo(this, map));
+			Collections.sort(maps);
 		}
 	}
 
-	public static class MapInfo {
+	public static class MapInfo implements Comparable<MapInfo> {
 
 		public final Page page;
 		public final Map map;
@@ -222,11 +253,16 @@ public class Maps {
 			if (page != null) this.path = String.join("/", page.path, slug);
 			else this.path = slug;
 		}
+
+		@Override
+		public int compareTo(MapInfo o) {
+			return map.name.compareTo(o.map.name);
+		}
 	}
 
 	public static class Authors {
 
-		public final java.util.Map<String, Author> authors = new TreeMap<>();
+		public final TreeMap<String, Author> authors = new TreeMap<>();
 	}
 
 	public static class Author {

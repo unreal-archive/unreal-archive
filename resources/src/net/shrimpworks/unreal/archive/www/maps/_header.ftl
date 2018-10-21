@@ -7,6 +7,9 @@
 		body {
 			padding: 0;
 			margin: 0;
+
+			font-family: sans-serif;
+			font-size: 0.9em;
 		}
 
 		.page {
@@ -32,6 +35,10 @@
 			bottom: 0;
 			color: white;
 			text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
+		}
+
+		.maplist {
+			width: 100%;
 		}
 	</style>
 </head>

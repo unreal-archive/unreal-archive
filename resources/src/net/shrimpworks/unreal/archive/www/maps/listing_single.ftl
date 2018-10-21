@@ -2,7 +2,7 @@
 
 	<section class="header">
 		<h1>
-		${page.letter.gametype.game.name} / ${page.letter.gametype.name} / ${page.letter.letter} / pg ${page.number}
+		${gametype.game.name} / ${gametype.name}
 		</h1>
 	</section>
 	<article>
@@ -16,9 +16,9 @@
 			</tr>
 			</thead>
 			<tbody>
-				<#list page.maps as m>
+				<#list maps as m>
 				<tr>
-					<td><a href="${relUrl(root, m.path + ".html")}">${m.map.name}</a></td>
+					<td><a href="${relUrl(gametype.path, m.path + ".html")}">${m.map.name}</a></td>
 					<td>${m.map.title}</td>
 					<td>${m.map.author}</td>
 					<td>${m.map.playerCount}</td>
