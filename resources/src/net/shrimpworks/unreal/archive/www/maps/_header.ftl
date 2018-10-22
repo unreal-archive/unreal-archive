@@ -4,12 +4,14 @@
 	<meta charset="UTF-8">
 	<title>${title}</title>
 	<style>
+		@import url('https://fonts.googleapis.com/css?family=Abel|Anton');
+
 		body {
 			padding: 0;
 			margin: 0;
 
-			font-family: sans-serif;
-			font-size: 0.9em;
+			font-family: 'Abel', sans-serif;
+			font-size: 1em;
 		}
 
 		.page {
@@ -31,6 +33,7 @@
 		}
 
 		section.header h1 {
+			font-family: 'Anton', sans-serif;
 			font-size: 1.8em;
 			position: absolute;
 			bottom: 0;
@@ -68,21 +71,28 @@
 
 		.maplist nav.letters a.active {
 			background-color: white;
+			border-bottom-width: 4px;
 		}
 
 		.maplist nav.pages a.active {
 			background-color: white;
+			border-bottom-width: 4px;
 		}
 
 		table.maps {
 			width: 100%;
 		}
 
+		table.maps thead {
+			background-color: #4D7A97;
+			color: white;
+		}
+
 		table.maps tr.odd {
 			background-color: #d0d9e0;
 		}
 
-		table.maps td {
+		table.maps td, table.maps th {
 			padding: 5px 0;
 		}
 	</style>

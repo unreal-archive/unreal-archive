@@ -6,6 +6,7 @@ import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.TreeMap;
@@ -34,7 +35,9 @@ public class Maps {
 		this.games = new Games();
 		this.authors = new Authors();
 
-		Collection<Map> maps = content.get(Map.class);
+		Collection<Map> maps = content.get(Map.class).stream()
+									  .sorted(Comparator.comparing(a -> a.name.toLowerCase()))
+									  .collect(Collectors.toList());
 		for (Map m : maps) {
 			Game g = games.games.computeIfAbsent(m.game, Game::new);
 			g.add(m);
