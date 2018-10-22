@@ -3,13 +3,14 @@
 	<#list maps as m>
 		<#list m.map.attachments as a>
 			<#if a.type == "IMAGE">
-				<#assign headerbg>${a.url}</#assign>
+				<#assign headerbg=a.url?url_path?replace('https%3A', 'https:')>
 				<#break>
 			</#if>
 		</#list>
+		<#if headerbg??><#break></#if>
 	</#list>
 
-	<section class="header" <#if headerbg??>style="background-image: url( '${headerbg?url_path?replace("https%3A", "https:")}' )"</#if>>
+	<section class="header" <#if headerbg??>style="background-image: url('${headerbg}')"</#if>>
 		<h1>
 		${gametype.game.name} / ${gametype.name}
 		</h1>

@@ -21,7 +21,7 @@ public class Map extends Content {
 			String s = name.toLowerCase().trim();
 			for (String prefix : gt.mapPrefixes) {
 				if (s.startsWith(prefix.toLowerCase())) {
-					char first = name.replaceFirst(prefix, "").toUpperCase().replaceAll("[^A-Z0-9]", "").charAt(0);
+					char first = s.replaceFirst(prefix.toLowerCase(), "").toUpperCase().replaceAll("[^A-Z0-9]", "").charAt(0);
 					if (Character.isDigit(first)) first = '0';
 					return Character.toString(first);
 				}
