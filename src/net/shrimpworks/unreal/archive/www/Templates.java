@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -27,6 +28,7 @@ public class Templates {
 		DefaultObjectWrapper ow = new DefaultObjectWrapper(TPL_CONFIG.getIncompatibleImprovements());
 		ow.setExposeFields(true);
 		TPL_CONFIG.setObjectWrapper(ow);
+		TPL_CONFIG.setOutputEncoding(StandardCharsets.UTF_8.name());
 	}
 
 	public static Tpl template(String name) throws IOException {

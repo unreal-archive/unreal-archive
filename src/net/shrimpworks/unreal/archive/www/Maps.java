@@ -17,7 +17,7 @@ import net.shrimpworks.unreal.archive.indexer.maps.Map;
 
 public class Maps {
 
-	private static final int PAGE_SIZE = 100;
+	private static final int PAGE_SIZE = 150;
 
 	private static final Pattern NONLATIN = Pattern.compile("[^\\w-]");
 	private static final Pattern WHITESPACE = Pattern.compile("[\\s]");

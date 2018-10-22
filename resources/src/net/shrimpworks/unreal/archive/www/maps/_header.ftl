@@ -25,9 +25,9 @@
 		section.header {
 			position: relative;
 			height: 150px;
+			box-shadow: inset 0 0 100px 0 rgba(0, 0, 0, 0.75);
+			background: gray center;
 			background-size: cover;
-			background-color: gray;
-			box-shadow: inset 0px 0px 100px 0px rgba(0, 0, 0, 0.75);
 		}
 
 		section.header h1 {
@@ -39,6 +39,10 @@
 
 		.maplist {
 			width: 100%;
+		}
+
+		.maplist tr.odd {
+			background-color: #d0d9e0;
 		}
 	</style>
 </head>

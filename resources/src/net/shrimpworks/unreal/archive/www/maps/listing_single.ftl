@@ -1,6 +1,15 @@
 <#include "_header.ftl">
 
-	<section class="header">
+	<#list maps as m>
+		<#list m.map.attachments as a>
+			<#if a.type == "IMAGE">
+				<#assign headerbg>${a.url}</#assign>
+				<#break>
+			</#if>
+		</#list>
+	</#list>
+
+	<section class="header" <#if headerbg??>style="background-image: url( '${headerbg?url_path?replace("https%3A", "https:")}' )"</#if>>
 		<h1>
 		${gametype.game.name} / ${gametype.name}
 		</h1>
