@@ -1,13 +1,24 @@
 package net.shrimpworks.unreal.archive.www;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Writer;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +44,55 @@ public class Templates {
 
 	public static Tpl template(String name) throws IOException {
 		return new Tpl(TPL_CONFIG.getTemplate(name));
+	}
+
+	public static boolean unpackResources(String resourceBase, Path destination) throws IOException {
+		try (InputStream in = Templates.class.getResourceAsStream(resourceBase);
+			 BufferedReader br = new BufferedReader(new InputStreamReader(in))) {
+
+			String resource;
+			while ((resource = br.readLine()) != null) {
+				Path destPath = destination.resolve(resource);
+				if (!resource.contains(".")) {
+					// we naively assume this to be a directory... we can't support directories with dots in their names
+					Files.createDirectories(destPath);
+					unpackResources(resourceBase + "/" + resource, destPath);
+				} else {
+					Files.copy(Templates.class.getResourceAsStream(resourceBase + "/" + resource), destPath,
+							   StandardCopyOption.REPLACE_EXISTING);
+				}
+			}
+		}
+
+		return true;
+	}
+
+	public static boolean unpackResourceZip(String zipFile, Path destination) throws IOException {
+		Path tmpZip = Files.createTempFile("resource-" + zipFile, ".zip");
+		try {
+			Files.copy(Templates.class.getResourceAsStream(zipFile), tmpZip, StandardCopyOption.REPLACE_EXISTING);
+			URI zipUri = URI.create("jar:file:" + tmpZip.toUri().getPath());
+			FileSystem fs = FileSystems.newFileSystem(zipUri, Collections.emptyMap());
+			Files.walkFileTree(fs.getPath("/"), new SimpleFileVisitor<Path>() {
+				@Override
+				public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+					String relDir = fs.getPath("/").relativize(dir).toString();
+					if (!Files.exists(destination.resolve(relDir))) Files.createDirectories(destination.resolve(relDir));
+					return super.preVisitDirectory(dir, attrs);
+				}
+
+				@Override
+				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+					String relFile = fs.getPath("/").relativize(file).toString();
+					Files.copy(Files.newInputStream(file), destination.resolve(relFile), StandardCopyOption.REPLACE_EXISTING);
+					return super.visitFile(file, attrs);
+				}
+			});
+		} finally {
+			Files.deleteIfExists(tmpZip);
+		}
+
+		return true;
 	}
 
 	public static class Tpl {

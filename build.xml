@@ -97,6 +97,10 @@
 		<copy todir="${build.src.dir}">
 			<fileset dir="resources/src"/>
 		</copy>
+
+		<!-- package the static resources, to make them easier to unpack later -->
+		<zip destfile="${build.src.dir}/net/shrimpworks/unreal/archive/www/static.zip"
+			 baseDir="resources/src/net/shrimpworks/unreal/archive/www/static"/>
 	</target>
 
 	<!-- Generate Javadocs -->

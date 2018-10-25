@@ -10,7 +10,7 @@
 		<#if headerbg??><#break></#if>
 	</#list>
 
-	<section class="header" <#if headerbg??>style="background-image: url('${headerbg}')"</#if>>
+	<section class="header" <#if headerbg??>style='background-image: url("${headerbg}")'</#if>>
 		<h1>
 		${gametype.game.name} / ${gametype.name}
 		</h1>

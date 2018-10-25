@@ -25,13 +25,15 @@ public class Maps {
 
 	private final ContentManager content;
 	private final Path output;
+	private final Path staticRoot;
 
 	private final Games games;
 	private final Authors authors;
 
-	public Maps(ContentManager content, Path output) {
+	public Maps(ContentManager content, Path output, Path staticRoot) {
 		this.content = content;
 		this.output = output;
+		this.staticRoot = staticRoot;
 		this.games = new Games();
 		this.authors = new Authors();
 
@@ -59,6 +61,7 @@ public class Maps {
 			Path root = output.resolve("maps");
 
 			Templates.template("maps/games.ftl")
+					 .put("static", root.relativize(staticRoot))
 					 .put("title", "Maps")
 					 .put("games", games)
 					 .write(root.resolve("games.html"));
@@ -66,6 +69,7 @@ public class Maps {
 
 			for (java.util.Map.Entry<String, Game> g : games.games.entrySet()) {
 				Templates.template("maps/gametypes.ftl")
+						 .put("static", root.resolve(g.getValue().path).relativize(staticRoot))
 						 .put("title", String.join(" / ", "Maps", g.getKey()))
 						 .put("game", g.getValue())
 						 .write(root.resolve(g.getValue().path).resolve("index.html"));
@@ -81,6 +85,7 @@ public class Maps {
 																 .sorted()
 																 .collect(Collectors.toList());
 						Templates.template("maps/listing_single.ftl")
+								 .put("static", root.resolve(gt.getValue().path).relativize(staticRoot))
 								 .put("title", String.join(" / ", "Maps", g.getKey(), gt.getKey()))
 								 .put("gametype", gt.getValue())
 								 .put("maps", all)
@@ -100,6 +105,7 @@ public class Maps {
 
 						for (Page p : l.getValue().pages) {
 							Templates.template("maps/listing.ftl")
+									 .put("static", root.resolve(p.path).relativize(staticRoot))
 									 .put("title", String.join(" / ", "Maps", g.getKey(), gt.getKey()))
 									 .put("page", p)
 									 .put("root", p.path)
@@ -114,6 +120,7 @@ public class Maps {
 
 						// output first letter/page combo, with appropriate relative links
 						Templates.template("maps/listing.ftl")
+								 .put("static", root.resolve(l.getValue().path).relativize(staticRoot))
 								 .put("title", String.join(" / ", "Maps", g.getKey(), gt.getKey()))
 								 .put("page", l.getValue().pages.get(0))
 								 .put("root", l.getValue().path)
@@ -124,6 +131,7 @@ public class Maps {
 
 					// output first letter/page combo, with appropriate relative links
 					Templates.template("maps/listing.ftl")
+							 .put("static", root.resolve(gt.getValue().path).relativize(staticRoot))
 							 .put("title", String.join(" / ", "Maps", g.getKey(), gt.getKey()))
 							 .put("page", gt.getValue().letters.firstEntry().getValue().pages.get(0))
 							 .put("root", gt.getValue().path)
@@ -141,6 +149,7 @@ public class Maps {
 
 	private void mapPage(Path root, MapInfo map) throws IOException {
 		Templates.template("maps/map.ftl")
+				 .put("static", root.resolve(map.path).getParent().relativize(staticRoot))
 				 .put("title", String.join(" / ", "Maps", map.page.letter.gametype.game.name, map.page.letter.gametype.name, map.map.title))
 				 .put("map", map)
 				 .write(root.resolve(map.path + ".html"));
