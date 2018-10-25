@@ -2,7 +2,7 @@
 
 	<section class="header" style='background-image: url("${static}/images/games/${game.name}.png")'>
 		<h1>
-			${game.name}
+			Maps / ${game.name}
 		</h1>
 	</section>
 	<article class="biglist">

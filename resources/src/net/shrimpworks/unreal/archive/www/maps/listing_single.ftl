@@ -12,7 +12,7 @@
 
 	<section class="header" <#if headerbg??>style='background-image: url("${headerbg}")'</#if>>
 		<h1>
-		${gametype.game.name} / ${gametype.name}
+			Maps / ${gametype.game.name} / ${gametype.name}
 		</h1>
 	</section>
 	<article class="maplist">

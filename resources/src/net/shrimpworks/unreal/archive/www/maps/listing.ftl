@@ -12,7 +12,7 @@
 
 	<section class="header" <#if headerbg??>style='background-image: url("${headerbg}")'</#if>>
 		<h1>
-		${page.letter.gametype.game.name} / ${page.letter.gametype.name} / ${page.letter.letter} / pg ${page.number}
+			Maps / ${page.letter.gametype.game.name} / ${page.letter.gametype.name} / ${page.letter.letter} / pg ${page.number}
 		</h1>
 	</section>
 

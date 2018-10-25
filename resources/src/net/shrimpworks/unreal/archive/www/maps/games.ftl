@@ -2,7 +2,7 @@
 
 	<section class="header">
 		<h1>
-			Games
+			Maps
 		</h1>
 	</section>
 	<article class="biglist">
