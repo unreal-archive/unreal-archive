@@ -15,8 +15,8 @@
 		${gametype.game.name} / ${gametype.name}
 		</h1>
 	</section>
-	<article>
-		<table class="maplist">
+	<article class="maplist">
+		<table class="maps">
 			<thead>
 			<tr>
 				<th>Map</th>

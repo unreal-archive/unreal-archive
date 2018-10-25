@@ -5,10 +5,13 @@
 			Games
 		</h1>
 	</section>
-	<article>
+	<article class="biglist">
 		<ul>
 		<#list games.games as k, v>
-			<li><a href="${v.path}/index.html">${v.name} (${v.maps})</a></li>
+			<li>
+				<span class="meta">${v.maps}</span>
+				<a href="${v.path}/index.html">${v.name}</a>
+			</li>
 		</#list>
 		</ul>
 	</article>

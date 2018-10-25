@@ -5,10 +5,13 @@
 			${game.name}
 		</h1>
 	</section>
-	<article>
+	<article class="biglist">
 		<ul>
 		<#list game.gametypes as k, v>
-			<li><a href="${relUrl(game.path, v.path + "/index.html")}">${v.name} (${v.maps})</a></li>
+			<li>
+				<span class="meta">${v.maps}</span>
+				<a href="${relUrl(game.path, v.path + "/index.html")}">${v.name}</a>
+			</li>
 		</#list>
 		</ul>
 	</article>

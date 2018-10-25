@@ -5,7 +5,7 @@
 			Authors
 		</h1>
 	</section>
-	<article>
+	<article class="biglist">
 		<ul>
 		<#list authors.authors as k, v>
 			<li><a href="${v.slug}.html">${v.name}</a></li>

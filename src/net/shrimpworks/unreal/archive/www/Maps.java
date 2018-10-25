@@ -47,7 +47,8 @@ public class Maps {
 		}
 	}
 
-	public void generate() {
+	public int generate() {
+		int count = 0;
 		try {
 			// url structure:
 			// landing with games: /maps/index.html
@@ -61,12 +62,14 @@ public class Maps {
 					 .put("title", "Maps")
 					 .put("games", games)
 					 .write(root.resolve("games.html"));
+			count++;
 
 			for (java.util.Map.Entry<String, Game> g : games.games.entrySet()) {
 				Templates.template("maps/gametypes.ftl")
 						 .put("title", String.join(" / ", "Maps", g.getKey()))
 						 .put("game", g.getValue())
 						 .write(root.resolve(g.getValue().path).resolve("index.html"));
+				count++;
 
 				for (java.util.Map.Entry<String, Gametype> gt : g.getValue().gametypes.entrySet()) {
 
@@ -82,10 +85,12 @@ public class Maps {
 								 .put("gametype", gt.getValue())
 								 .put("maps", all)
 								 .write(root.resolve(gt.getValue().path).resolve("index.html"));
+						count++;
 
 						// still generate all map pages
 						for (MapInfo map : all) {
 							mapPage(root, map);
+							count++;
 						}
 
 						continue;
@@ -99,9 +104,11 @@ public class Maps {
 									 .put("page", p)
 									 .put("root", p.path)
 									 .write(root.resolve(p.path).resolve("index.html"));
+							count++;
 
 							for (MapInfo map : p.maps) {
 								mapPage(root, map);
+								count++;
 							}
 						}
 
@@ -111,6 +118,7 @@ public class Maps {
 								 .put("page", l.getValue().pages.get(0))
 								 .put("root", l.getValue().path)
 								 .write(root.resolve(l.getValue().path).resolve("index.html"));
+						count++;
 
 					}
 
@@ -120,12 +128,15 @@ public class Maps {
 							 .put("page", gt.getValue().letters.firstEntry().getValue().pages.get(0))
 							 .put("root", gt.getValue().path)
 							 .write(root.resolve(gt.getValue().path).resolve("index.html"));
+					count++;
 				}
 			}
 
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to render page", e);
 		}
+
+		return count;
 	}
 
 	private void mapPage(Path root, MapInfo map) throws IOException {

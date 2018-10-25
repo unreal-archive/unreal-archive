@@ -192,8 +192,11 @@ public class Main {
 			System.exit(4);
 		}
 
+		long start = System.currentTimeMillis();
+
 		Maps maps = new Maps(contentManager, outputPath);
-		maps.generate();
+		int pages = maps.generate();
+		System.err.printf("Output %d pages in %.2fs%n", pages, (System.currentTimeMillis() - start) / 1000f);
 	}
 
 	private static void summary(ContentManager contentManager) {
