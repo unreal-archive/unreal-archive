@@ -1,6 +1,6 @@
 <#include "_header.ftl">
 
-	<section class="header">
+	<section class="header" style='background-image: url("${static}/images/games/${game.name}.png")'>
 		<h1>
 			${game.name}
 		</h1>
