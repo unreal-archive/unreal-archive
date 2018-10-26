@@ -28,6 +28,7 @@ import java.util.Map;
 
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
+import freemarker.template.SimpleNumber;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateMethodModelEx;
@@ -105,6 +106,7 @@ public class Templates {
 		static {
 			TPL_VARS.put("relUrl", new RelUrlMethod());
 			TPL_VARS.put("urlEncode", new EncodeUrlMethod());
+			TPL_VARS.put("fileSize", new FileSizeMethod());
 		}
 
 		private final Template template;
@@ -162,6 +164,27 @@ public class Templates {
 			} catch (URISyntaxException | MalformedURLException e) {
 				throw new TemplateModelException("Invalid URL: " + args.get(0).toString(), e);
 			}
+		}
+	}
+
+	private static class FileSizeMethod implements TemplateMethodModelEx {
+
+		private static final String[] SIZES = { "B", "KB", "MB", "GB", "TB" };
+
+		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
+			if (args.size() != 1) {
+				throw new TemplateModelException("Wrong arguments");
+			}
+
+			float size = ((SimpleNumber)args.get(0)).getAsNumber().floatValue();
+
+			int cnt = 0;
+			while (size > 1024) {
+				size = size / 1024f;
+				cnt++;
+			}
+
+			return String.format("%.1f %s", size, SIZES[cnt]);
 		}
 	}
 }
