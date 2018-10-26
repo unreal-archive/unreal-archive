@@ -69,6 +69,17 @@
 					</div>
 				</#if>
 			</div>
+
+			<div class="downloads">
+				<#list map.map.downloads as d>
+					<#if !d.deleted>
+						<div class="link">
+							<span><a href="${urlEncode(d.url)}">Download</a></span>
+						</div>
+					</#if>
+				</#list>
+			</div>
+
 		</div>
 
 	</article>
