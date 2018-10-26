@@ -7,7 +7,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Writer;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -97,13 +100,20 @@ public class Templates {
 
 	public static class Tpl {
 
+		private static final Map<String, Object> TPL_VARS = new HashMap<>();
+
+		static {
+			TPL_VARS.put("relUrl", new RelUrlMethod());
+			TPL_VARS.put("urlEncode", new EncodeUrlMethod());
+		}
+
 		private final Template template;
 		private final Map<String, Object> vars;
 
 		public Tpl(Template template) {
 			this.template = template;
 			this.vars = new HashMap<>();
-			this.vars.put("relUrl", new RelUrlMethod());
+			this.vars.putAll(TPL_VARS);
 		}
 
 		public Tpl put(String var, Object val) {
@@ -135,6 +145,23 @@ public class Templates {
 				throw new TemplateModelException("Wrong arguments");
 			}
 			return Paths.get(args.get(0).toString()).relativize(Paths.get(args.get(1).toString()));
+		}
+	}
+
+	private static class EncodeUrlMethod implements TemplateMethodModelEx {
+
+		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
+			if (args.size() != 1) {
+				throw new TemplateModelException("Wrong arguments");
+			}
+
+			try {
+				URL url = new URL(args.get(0).toString());
+				return new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(),
+							   url.getQuery(), url.getRef()).toString();
+			} catch (URISyntaxException | MalformedURLException e) {
+				throw new TemplateModelException("Invalid URL: " + args.get(0).toString(), e);
+			}
 		}
 	}
 }

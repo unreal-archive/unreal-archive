@@ -3,7 +3,7 @@
 	<#list maps as m>
 		<#list m.map.attachments as a>
 			<#if a.type == "IMAGE">
-				<#assign headerbg=a.url?url_path?replace('https%3A', 'https:')>
+				<#assign headerbg=urlEncode(a.url)>
 				<#break>
 			</#if>
 		</#list>

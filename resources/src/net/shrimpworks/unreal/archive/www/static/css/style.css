@@ -123,19 +123,36 @@ section.header h1 {
 	border-bottom-width: 4px;
 }
 
-table.maps {
+.maplist table.maps {
 	width: 100%;
 }
 
-table.maps thead {
+.maplist table.maps thead {
 	background-color: #4D7A97;
 	color: white;
 }
 
-table.maps tr.odd {
+.maplist table.maps tr.odd {
 	background-color: #d0d9e0;
 }
 
-table.maps td, table.maps th {
+.maplist table.maps td, table.maps th {
 	padding: 5px 0;
+}
+
+.mapinfo {
+	margin-top: 10px;
+}
+
+.mapinfo .screenshots {
+	background-color: #4E4E4E;
+	text-align: center;
+	padding: 5px;
+}
+
+.mapinfo .thumb {
+	max-width: 256px;
+	max-height: 256px;
+	margin: 2px;
+	vertical-align: middle;
 }
