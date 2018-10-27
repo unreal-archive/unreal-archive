@@ -105,7 +105,8 @@ public class Templates {
 
 		static {
 			TPL_VARS.put("relUrl", new RelUrlMethod());
-			TPL_VARS.put("urlEncode", new EncodeUrlMethod());
+			TPL_VARS.put("urlEncode", new UrlEncodeMethod());
+			TPL_VARS.put("urlHost", new UrlHostMethod());
 			TPL_VARS.put("fileSize", new FileSizeMethod());
 		}
 
@@ -150,7 +151,7 @@ public class Templates {
 		}
 	}
 
-	private static class EncodeUrlMethod implements TemplateMethodModelEx {
+	private static class UrlEncodeMethod implements TemplateMethodModelEx {
 
 		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
 			if (args.size() != 1) {
@@ -187,4 +188,21 @@ public class Templates {
 			return String.format("%.1f %s", size, SIZES[cnt]);
 		}
 	}
+
+	private static class UrlHostMethod implements TemplateMethodModelEx {
+
+		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
+			if (args.size() != 1) {
+				throw new TemplateModelException("Wrong arguments");
+			}
+
+			try {
+				URL url = new URL(args.get(0).toString());
+				return url.getHost().replaceFirst("www\\.", "");
+			} catch (MalformedURLException e) {
+				throw new TemplateModelException("Invalid URL: " + args.get(0).toString(), e);
+			}
+		}
+	}
+
 }

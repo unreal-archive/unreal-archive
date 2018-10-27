@@ -1,15 +1,15 @@
 <#include "_header.ftl">
 
-	<#list map.map.attachments as a>
-		<#if a.type == "IMAGE">
-			<#assign headerbg=urlEncode(a.url)>
-			<#break>
-		</#if>
-	</#list>
+<#list map.map.attachments as a>
+	<#if a.type == "IMAGE">
+		<#assign headerbg=urlEncode(a.url)>
+		<#break>
+	</#if>
+</#list>
 
 	<section class="header" <#if headerbg??>style="background-image: url('${headerbg}')"</#if>>
 		<h1>
-			${map.page.letter.gametype.game.name} / ${map.page.letter.gametype.name} / ${map.map.name}
+		${map.page.letter.gametype.game.name} / ${map.page.letter.gametype.name} / ${map.map.name}
 		</h1>
 	</section>
 
@@ -54,13 +54,24 @@
 			</div>
 
 			<div class="files">
-				<#list map.map.files as f>
-					<div class="file">
-						<span>${f.name}</span>
-						<span>${fileSize(f.fileSize)}</span>
-						<span>${f.hash}</span>
-					</div>
-				</#list>
+				<table>
+					<thead>
+					<tr>
+						<th>Name</th>
+						<th>Size</th>
+						<th>Hash</th>
+					</tr>
+					</thead>
+					<tbody>
+						<#list map.map.files as f>
+						<tr>
+							<td>${f.name}</td>
+							<td>${fileSize(f.fileSize)}</td>
+							<td>${f.hash}</td>
+						</tr>
+						</#list>
+					</tbody>
+				</table>
 				<#if map.map.otherFiles gt 0>
 					<div class="otherFiles">
 						<div class="label-value">
@@ -74,7 +85,11 @@
 				<#list map.map.downloads as d>
 					<#if !d.deleted>
 						<div class="link">
-							<span><a href="${urlEncode(d.url)}">Download</a></span>
+							<#if d.main>
+								<span class="main"><a href="${urlEncode(d.url)}">Primary</a></span>
+							<#else>
+								<span class="secondary"><a href="${urlEncode(d.url)}">${urlHost(d.url)}</a></span>
+							</#if>
 						</div>
 					</#if>
 				</#list>
