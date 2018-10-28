@@ -23,7 +23,9 @@
 		</div>
 
 		<div class="info">
-			<div class="meta">
+
+			<section class="meta">
+				<h2>Map Information</h2>
 				<div class="label-value">
 					<label>Name</label><span>${map.map.name}</span>
 				</div>
@@ -51,9 +53,10 @@
 				<div class="label-value">
 					<label>Hash</label><span>${map.map.hash}</span>
 				</div>
-			</div>
+			</section>
 
-			<div class="files">
+			<section class="files">
+				<h2>Packaged Files</h2>
 				<table>
 					<thead>
 					<tr>
@@ -79,21 +82,22 @@
 						</div>
 					</div>
 				</#if>
-			</div>
+			</section>
 
-			<div class="downloads">
-				<#list map.map.downloads as d>
-					<#if !d.deleted>
-						<div class="link">
+			<section class="downloads">
+				<h2>Downloads</h2>
+				<div class="links">
+					<#list map.map.downloads as d>
+						<#if !d.deleted>
 							<#if d.main>
-								<span class="main"><a href="${urlEncode(d.url)}">Primary</a></span>
+								<a href="${urlEncode(d.url)}" class="main">Primary</a>
 							<#else>
-								<span class="secondary"><a href="${urlEncode(d.url)}">${urlHost(d.url)}</a></span>
+								<a href="${urlEncode(d.url)}" class="secondary">${urlHost(d.url)}</a>
 							</#if>
-						</div>
-					</#if>
-				</#list>
-			</div>
+						</#if>
+					</#list>
+				</div>
+			</section>
 
 		</div>
 

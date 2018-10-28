@@ -123,23 +123,6 @@ section.header h1 {
 	border-bottom-width: 4px;
 }
 
-.maplist table.maps {
-	width: 100%;
-}
-
-.maplist table.maps thead {
-	background-color: #4D7A97;
-	color: white;
-}
-
-.maplist table.maps tr.odd {
-	background-color: #d0d9e0;
-}
-
-.maplist table.maps td, table.maps th {
-	padding: 5px 0;
-}
-
 .mapinfo {
 	margin-top: 10px;
 
@@ -155,7 +138,7 @@ section.header h1 {
 .mapinfo .screenshots {
 	grid-area: screenshots;
 	text-align: center;
-	padding: 5px;
+	padding: 0 5px;
 }
 
 .mapinfo .screenshots .thumb {
@@ -172,8 +155,37 @@ section.header h1 {
 .mapinfo .files {
 }
 
-.mapinfo .files table {
-	width: 100%;
+.mapinfo .downloads {
+}
+
+.mapinfo .downloads .links a {
+	display: block;
+	padding: 10px;
+	margin: 5px 0;
+}
+
+.mapinfo .downloads .links a.main {
+	background-color: greenyellow;
+}
+
+.mapinfo .downloads .links a.secondary {
+	background-color: lightgreen;
+}
+
+.mapinfo .downloads .links a:hover {
+	background-color: white;
+}
+
+article section {
+	margin-bottom: 20px;
+}
+
+article section h2 {
+	font-family: 'Anton', sans-serif;
+	font-size: 1.5em;
+	background-color: #d0d9e0;
+	margin: 0;
+	padding: 0 10px;
 }
 
 .label-value {
@@ -182,14 +194,32 @@ section.header h1 {
 
 .label-value label {
 	display: inline-block;
-	width: 30%;
-	padding-right: 5px;
+	width: calc(25% - 10px);
+	padding-right: 10px;
 	text-align: right;
 	vertical-align: top;
 }
 
 .label-value span {
 	display: inline-block;
-	width: 69%;
+	width: 75%;
 	font-weight: bold;
 }
+
+table {
+	width: 100%;
+}
+
+table thead {
+	background-color: #4D7A97;
+	color: white;
+}
+
+table tr.odd {
+	background-color: #d0d9e0;
+}
+
+table td, table th {
+	padding: 5px 0;
+}
+
