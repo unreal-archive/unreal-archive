@@ -44,7 +44,7 @@ public class Downloader {
 		final Path output = Paths.get(cli.commands()[2]);
 		if (!Files.isDirectory(output)) throw new IllegalArgumentException("Output path is not a directory: " + output.toString());
 
-		final long slowdown = Long.valueOf(cli.option("slowdown", "2500"));
+		final long slowdown = Long.valueOf(cli.option("slowdown", "5000"));
 
 		List<Found.FoundUrl> urls = YAML.fromFile(fileListPath, new TypeReference<List<Found.FoundUrl>>() {});
 
