@@ -63,6 +63,7 @@
 						<th>Name</th>
 						<th>Size</th>
 						<th>Hash</th>
+						<th>Also In</th>
 					</tr>
 					</thead>
 					<tbody>
@@ -71,6 +72,11 @@
 							<td>${f.name}</td>
 							<td>${fileSize(f.fileSize)}</td>
 							<td>${f.hash}</td>
+							<#if map.alsoIn[f.hash]??>
+								<td>${map.alsoIn[f.hash]}</td>
+							<#else>
+								<td>-</td>
+							</#if>
 						</tr>
 						</#list>
 					</tbody>

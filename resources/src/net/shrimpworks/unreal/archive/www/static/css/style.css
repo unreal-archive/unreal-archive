@@ -173,7 +173,7 @@ section.header h1 {
 }
 
 .mapinfo .downloads .links a:hover {
-	background-color: white;
+	background-color: lawngreen;
 }
 
 article section {
@@ -208,6 +208,7 @@ article section h2 {
 
 table {
 	width: 100%;
+	border-collapse: collapse;
 }
 
 table thead {

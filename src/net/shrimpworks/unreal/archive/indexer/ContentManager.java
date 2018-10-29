@@ -10,6 +10,7 @@ import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -25,6 +26,8 @@ public class ContentManager {
 	private final Path path;
 	private final Map<String, ContentHolder> content;
 
+	private final Map<String, Collection<Content>> contentFileMap;
+
 	private final DataStore contentStore;
 	private final DataStore imageStore;
 	private final DataStore attachmentStore;
@@ -37,6 +40,7 @@ public class ContentManager {
 		this.imageStore = imageStore;
 		this.attachmentStore = attachmentStore;
 		this.content = new HashMap<>();
+		this.contentFileMap = new HashMap<>();
 
 		this.changes = new HashSet<>();
 
@@ -47,10 +51,17 @@ public class ContentManager {
 				if (Util.extension(file).equalsIgnoreCase("yml")) {
 					Content c = YAML.fromFile(file, Content.class);
 					content.put(c.hash, new ContentHolder(file, c));
+
+					// while reading this content, also index its individual files for later quick lookup
+					for (Content.ContentFile contentFile : c.files) {
+						Collection<Content> fileSet = contentFileMap.computeIfAbsent(contentFile.hash, h -> new HashSet<>());
+						fileSet.add(c);
+					}
 				}
 				return FileVisitResult.CONTINUE;
 			}
 		});
+
 	}
 
 	public int size() {
@@ -110,10 +121,7 @@ public class ContentManager {
 	 * @return content containing the hash
 	 */
 	public Collection<Content> containing(String hash) {
-		return content.values().parallelStream()
-					  .filter(c -> c.content.containsFile(hash))
-					  .map(c -> c.content)
-					  .collect(Collectors.toSet());
+		return contentFileMap.getOrDefault(hash, Collections.emptySet());
 	}
 
 	// intent: when some content is going to be worked on, a clone is checked out.
@@ -163,7 +171,7 @@ public class ContentManager {
 				}
 			}
 
-			// TODO KW 20181015 - don't do this - updates any updates not involving a re-index will wipe attachments out
+			// TODO KW 20181015 - don't do this - any updates not involving a re-index will wipe attachments out
 			// delete removed attachments from remote
 //			if (current != null) {
 //				for (Content.Attachment had : current.content.attachments) {

@@ -7,12 +7,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import net.shrimpworks.unreal.archive.indexer.Content;
 import net.shrimpworks.unreal.archive.indexer.ContentManager;
 import net.shrimpworks.unreal.archive.indexer.maps.Map;
 
@@ -162,12 +164,12 @@ public class Maps {
 		return slug.toLowerCase(Locale.ENGLISH);
 	}
 
-	public static class Games {
+	public class Games {
 
 		public final TreeMap<String, Game> games = new TreeMap<>();
 	}
 
-	public static class Game {
+	public class Game {
 
 		public final String name;
 		public final String slug;
@@ -189,7 +191,7 @@ public class Maps {
 		}
 	}
 
-	public static class Gametype {
+	public class Gametype {
 
 		public final Game game;
 
@@ -214,7 +216,7 @@ public class Maps {
 		}
 	}
 
-	public static class LetterGroup {
+	public class LetterGroup {
 
 		public final Gametype gametype;
 		public final String letter;
@@ -242,7 +244,7 @@ public class Maps {
 		}
 	}
 
-	public static class Page {
+	public class Page {
 
 		public final LetterGroup letter;
 		public final int number;
@@ -261,12 +263,14 @@ public class Maps {
 		}
 	}
 
-	public static class MapInfo implements Comparable<MapInfo> {
+	public class MapInfo implements Comparable<MapInfo> {
 
 		public final Page page;
 		public final Map map;
 		public final String slug;
 		public final String path;
+
+		public final java.util.Map<String, Integer> alsoIn;
 
 		public MapInfo(Page page, Map map) {
 			this.page = page;
@@ -275,6 +279,14 @@ public class Maps {
 
 			if (page != null) this.path = String.join("/", page.path, slug);
 			else this.path = slug;
+
+			this.alsoIn = new HashMap<>();
+			for (Content.ContentFile f : map.files) {
+				Collection<Content> containing = content.containing(f.hash);
+				if (containing.size() > 1) {
+					alsoIn.put(f.hash, containing.size());
+				}
+			}
 		}
 
 		@Override
@@ -283,12 +295,12 @@ public class Maps {
 		}
 	}
 
-	public static class Authors {
+	public class Authors {
 
 		public final TreeMap<String, Author> authors = new TreeMap<>();
 	}
 
-	public static class Author {
+	public class Author {
 
 		public final String name;
 		public final String slug;
