@@ -26,6 +26,7 @@ import net.shrimpworks.unreal.archive.scraper.Downloader;
 import net.shrimpworks.unreal.archive.scraper.FPSNetwork;
 import net.shrimpworks.unreal.archive.scraper.GameFrontOnline;
 import net.shrimpworks.unreal.archive.scraper.GameZooMaps;
+import net.shrimpworks.unreal.archive.scraper.UTTexture;
 import net.shrimpworks.unreal.archive.scraper.UnrealPlayground;
 import net.shrimpworks.unreal.archive.storage.DataStore;
 import net.shrimpworks.unreal.archive.www.Maps;
@@ -286,6 +287,9 @@ public class Main {
 				break;
 			case "fpsnetwork":
 				FPSNetwork.index(cli);
+				break;
+			case "uttexture":
+				UTTexture.index(cli);
 				break;
 			default:
 				throw new UnsupportedOperationException("Scraper not supported: " + cli.commands()[1]);

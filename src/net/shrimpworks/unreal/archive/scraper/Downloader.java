@@ -90,7 +90,7 @@ public class Downloader {
 			Response response = Request.Get(toUri(dl)).userAgent(USER_AGENT).addHeader("Connection", "close").execute();
 			HttpResponse httpResponse = response.returnResponse();
 			if (httpResponse.getStatusLine().getStatusCode() >= 400) {
-				System.out.println(httpResponse.getStatusLine().getReasonPhrase());
+				System.out.println("HTTP Failure: " + httpResponse.getStatusLine().getReasonPhrase());
 				return false;
 			}
 
