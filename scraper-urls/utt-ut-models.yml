@@ -335,7 +335,7 @@
   path: "Models/ModelsU"
   url: "http://uttexture.com/UT/Downloads/Models/ModelsU/UT-Homer.zip"
   pageUrl: "http://uttexture.com/UT/Downloads/Models/ModelsU/UT-Homer.zip"
-- name: "UT2k4_Characters_for..>"
+- name: "UT2k4_Characters_for_UT.zip"
   path: "Models/ModelsU"
   url: "http://uttexture.com/UT/Downloads/Models/ModelsU/UT2k4_Characters_for_UT.zip"
   pageUrl: "http://uttexture.com/UT/Downloads/Models/ModelsU/UT2k4_Characters_for_UT.zip"
@@ -411,7 +411,7 @@
   path: "Models/ModelsU"
   url: "http://uttexture.com/UT/Downloads/Models/ModelsU/utmdl-kazextreme.zip"
   pageUrl: "http://uttexture.com/UT/Downloads/Models/ModelsU/utmdl-kazextreme.zip"
-- name: "utmdl-keek(censored)..>"
+- name: "utmdl-keek(censored).zip"
   path: "Models/ModelsU"
   url: "http://uttexture.com/UT/Downloads/Models/ModelsU/utmdl-keek(censored).zip"
   pageUrl: "http://uttexture.com/UT/Downloads/Models/ModelsU/utmdl-keek(censored).zip"
@@ -471,4 +471,3 @@
   path: "Models/ModelsY"
   url: "http://uttexture.com/UT/Downloads/Models/ModelsY/Yoshi.zip"
   pageUrl: "http://uttexture.com/UT/Downloads/Models/ModelsY/Yoshi.zip"
-
