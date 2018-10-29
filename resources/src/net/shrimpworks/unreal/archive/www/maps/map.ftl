@@ -1,4 +1,4 @@
-<#include "_header.ftl">
+<#include "../_header.ftl">
 
 <#list map.map.attachments as a>
 	<#if a.type == "IMAGE">
@@ -73,7 +73,9 @@
 							<td>${fileSize(f.fileSize)}</td>
 							<td>${f.hash}</td>
 							<#if map.alsoIn[f.hash]??>
-								<td>${map.alsoIn[f.hash]}</td>
+								<td>
+									<a href="${relUrl(siteRoot, "files/" + f.hash[0..1] + "/" + f.hash + ".html")}">${map.alsoIn[f.hash]}</a>
+								</td>
 							<#else>
 								<td>-</td>
 							</#if>
@@ -109,4 +111,4 @@
 
 	</article>
 
-<#include "_footer.ftl">
+<#include "../_footer.ftl">

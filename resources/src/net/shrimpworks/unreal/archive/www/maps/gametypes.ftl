@@ -1,4 +1,4 @@
-<#include "_header.ftl">
+<#include "../_header.ftl">
 
 	<section class="header" style='background-image: url("${static}/images/games/${game.name}.png")'>
 		<h1>
@@ -16,4 +16,4 @@
 		</ul>
 	</article>
 
-<#include "_footer.ftl">
+<#include "../_footer.ftl">

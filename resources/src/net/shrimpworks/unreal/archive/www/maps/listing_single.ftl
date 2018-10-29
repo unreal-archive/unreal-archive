@@ -1,4 +1,4 @@
-<#include "_header.ftl">
+<#include "../_header.ftl">
 
 	<#list maps as m>
 		<#list m.map.attachments as a>
@@ -38,4 +38,4 @@
 		</table>
 	</article>
 
-<#include "_footer.ftl">
+<#include "../_footer.ftl">

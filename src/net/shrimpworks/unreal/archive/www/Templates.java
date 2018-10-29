@@ -128,7 +128,7 @@ public class Templates {
 			try (Writer writer = templateOut(output)) {
 				template.process(vars, writer);
 			} catch (TemplateException e) {
-				throw new IOException("Template outout failed", e);
+				throw new IOException("Template output failed", e);
 			}
 
 			return this;

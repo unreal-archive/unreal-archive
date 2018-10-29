@@ -48,6 +48,7 @@ public abstract class Content {
 	public int fileSize;
 	public List<ContentFile> files = new ArrayList<>();     // [DM-MyMap.unr, MyTex.utx]
 	public int otherFiles = 0;                              // count of non-content files (readme, html, etc)
+
 	public List<Download> downloads = new ArrayList<>();
 
 	public boolean deleted = false;

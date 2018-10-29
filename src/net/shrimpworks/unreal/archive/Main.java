@@ -29,6 +29,7 @@ import net.shrimpworks.unreal.archive.scraper.GameZooMaps;
 import net.shrimpworks.unreal.archive.scraper.UTTexture;
 import net.shrimpworks.unreal.archive.scraper.UnrealPlayground;
 import net.shrimpworks.unreal.archive.storage.DataStore;
+import net.shrimpworks.unreal.archive.www.FileDetails;
 import net.shrimpworks.unreal.archive.www.Maps;
 import net.shrimpworks.unreal.archive.www.Templates;
 import net.shrimpworks.unreal.packages.Umod;
@@ -199,8 +200,14 @@ public class Main {
 
 		Templates.unpackResourceZip("static.zip", Files.createDirectories(outputPath.resolve("static")));
 
+		int pages = 0;
+
 		Maps maps = new Maps(contentManager, outputPath, outputPath.resolve("static"));
-		int pages = maps.generate();
+		pages += maps.generate();
+
+		FileDetails files = new FileDetails(contentManager, outputPath, outputPath.resolve("static"));
+		pages += files.generate();
+
 		System.err.printf("Output %d pages in %.2fs%n", pages, (System.currentTimeMillis() - start) / 1000f);
 	}
 

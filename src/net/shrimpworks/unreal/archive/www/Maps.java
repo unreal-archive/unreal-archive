@@ -154,6 +154,7 @@ public class Maps {
 				 .put("static", root.resolve(map.path).getParent().relativize(staticRoot))
 				 .put("title", String.join(" / ", "Maps", map.page.letter.gametype.game.name, map.page.letter.gametype.name, map.map.title))
 				 .put("map", map)
+				 .put("siteRoot", root.resolve(map.path).getParent().relativize(output))
 				 .write(root.resolve(map.path + ".html"));
 	}
 
@@ -284,9 +285,11 @@ public class Maps {
 			for (Content.ContentFile f : map.files) {
 				Collection<Content> containing = content.containing(f.hash);
 				if (containing.size() > 1) {
-					alsoIn.put(f.hash, containing.size());
+					alsoIn.put(f.hash, containing.size() - 1);
 				}
 			}
+
+			this.map.downloads.sort((a, b) -> a.main ? -1 : 0);
 		}
 
 		@Override

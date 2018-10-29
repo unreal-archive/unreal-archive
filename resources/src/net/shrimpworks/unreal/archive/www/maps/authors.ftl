@@ -1,4 +1,4 @@
-<#include "_header.ftl">
+<#include "../_header.ftl">
 
 	<section class="header">
 		<h1>
@@ -13,4 +13,4 @@
 		</ul>
 	</article>
 
-<#include "_footer.ftl">
+<#include "../_footer.ftl">
