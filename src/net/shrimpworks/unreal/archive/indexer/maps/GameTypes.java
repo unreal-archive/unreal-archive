@@ -26,13 +26,15 @@ public class GameTypes {
 			new GameType("Jailbreak", "JB"),
 			new GameType("Tactical Ops", "TO"),
 			new GameType("Tactical Ops", "SW"),
+			new GameType("Strike Force", "SF"),
 			new GameType("UnWheel", "UW"),
-			new GameType("Thievery", "Thievery"),
+			new GameType("Thievery", "TH"),
 			new GameType("Unreal4Ever", "U4E"),
 			new GameType("Unreal Fortress", "UNF"),
 			new GameType("XMP", "XMP"),
 			new GameType("FragBall", "FB"),
-			new GameType("Flag Domination", "FD")
+			new GameType("Flag Domination", "FD"),
+			new GameType("Soccer Tournament", "SCR")
 	);
 
 	public static GameType forMap(String mapName) {

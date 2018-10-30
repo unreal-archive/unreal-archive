@@ -4,21 +4,49 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 
 import net.shrimpworks.unreal.archive.indexer.Content;
+import net.shrimpworks.unreal.archive.indexer.ContentManager;
 import net.shrimpworks.unreal.archive.indexer.ContentType;
+import net.shrimpworks.unreal.archive.indexer.IndexResult;
 import net.shrimpworks.unreal.archive.indexer.maps.Map;
+import net.shrimpworks.unreal.archive.storage.DataStore;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
 public class YAMLTest {
+
+	@Test
+	@Ignore
+	public void fixThings() throws IOException {
+		ContentManager cm = new ContentManager(Paths.get("unreal-archive-data/archive-content/"),
+											   new DataStore.NopStore(), new DataStore.NopStore(), new DataStore.NopStore());
+		Collection<Content> search = cm.search("Unreal", "MAP", "ra", null);
+		for (Content c : search) {
+			if (c instanceof Map && c.name.toLowerCase().startsWith("ra")) {
+				Map map = (Map)cm.checkout(c.hash);
+				if (!map.gametype.equalsIgnoreCase("rocket arena")) continue;
+
+				map.gametype = "Single Player";
+				if (cm.checkin(new IndexResult<>(map, Collections.emptySet()), null)) {
+					System.out.println("Stored changes for " + String.join(" / ", map.game, map.gametype, map.name));
+				} else {
+					System.out.println("Failed to apply");
+				}
+			}
+		}
+	}
 
 	@Test
 	public void serialiseStuff() throws IOException {
