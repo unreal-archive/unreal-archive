@@ -19,8 +19,6 @@ import static net.shrimpworks.unreal.archive.www.Templates.slug;
 
 public class Maps {
 
-	private static final int PAGE_SIZE = 150;
-
 	private final ContentManager content;
 	private final Path output;
 	private final Path staticRoot;
@@ -75,7 +73,7 @@ public class Maps {
 
 				for (java.util.Map.Entry<String, Gametype> gt : g.getValue().gametypes.entrySet()) {
 
-					if (gt.getValue().maps < PAGE_SIZE) {
+					if (gt.getValue().maps < Templates.PAGE_SIZE) {
 						// we can output all maps on a single page
 						List<MapInfo> all = gt.getValue().letters.values().stream()
 																 .flatMap(l -> l.pages.stream())
@@ -224,7 +222,7 @@ public class Maps {
 		public void add(Map map) {
 			if (pages.isEmpty()) pages.add(new Page(this, pages.size() + 1));
 			Page page = pages.get(pages.size() - 1);
-			if (page.maps.size() == PAGE_SIZE) {
+			if (page.maps.size() == Templates.PAGE_SIZE) {
 				page = new Page(this, pages.size() + 1);
 				pages.add(page);
 			}

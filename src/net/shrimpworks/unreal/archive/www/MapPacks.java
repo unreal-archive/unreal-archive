@@ -8,8 +8,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import net.shrimpworks.unreal.archive.indexer.Content;
@@ -19,11 +19,6 @@ import net.shrimpworks.unreal.archive.indexer.mappacks.MapPack;
 import static net.shrimpworks.unreal.archive.www.Templates.slug;
 
 public class MapPacks {
-
-	private static final int PAGE_SIZE = 150;
-
-	private static final Pattern NONLATIN = Pattern.compile("[^\\w-]");
-	private static final Pattern WHITESPACE = Pattern.compile("[\\s]");
 
 	private final ContentManager content;
 	private final Path output;
@@ -58,20 +53,66 @@ public class MapPacks {
 					 .write(root.resolve("games.html"));
 			count++;
 
-//			for (java.util.Map.Entry<String, Game> g : games.games.entrySet()) {
-//				Templates.template("maps/gametypes.ftl")
-//						 .put("static", root.resolve(g.getValue().path).relativize(staticRoot))
-//						 .put("title", String.join(" / ", "Maps", g.getKey()))
-//						 .put("game", g.getValue())
-//						 .write(root.resolve(g.getValue().path).resolve("index.html"));
-//				count++;
-//			}
+			for (java.util.Map.Entry<String, Game> g : games.games.entrySet()) {
+
+				if (g.getValue().packs < Templates.PAGE_SIZE) {
+					// we can output all maps on a single page
+					List<MapPackInfo> all = g.getValue().pages.stream()
+															  .flatMap(p -> p.packs.stream())
+															  .sorted()
+															  .collect(Collectors.toList());
+					Templates.template("mappacks/listing_single.ftl")
+							 .put("static", root.resolve(g.getValue().path).relativize(staticRoot))
+							 .put("title", String.join(" / ", "Map Packs", g.getKey()))
+							 .put("game", g.getValue())
+							 .put("packs", all)
+							 .write(root.resolve(g.getValue().path).resolve("index.html"));
+					count++;
+
+					// still generate all map pages
+					for (MapPackInfo pack : all) {
+						packPage(root, pack);
+						count++;
+					}
+
+					continue;
+				}
+
+				for (Page p : g.getValue().pages) {
+					Templates.template("mappacks/listing.ftl")
+							 .put("static", root.resolve(p.path).relativize(staticRoot))
+							 .put("title", String.join(" / ", "Map Packs", g.getKey()))
+							 .put("page", p)
+							 .put("root", p.path)
+							 .write(root.resolve(p.path).resolve("index.html"));
+					count++;
+
+					for (MapPackInfo pack : p.packs) {
+						packPage(root, pack);
+						count++;
+					}
+				}
+
+				// output first letter/page combo, with appropriate relative links
+				Templates.template("mappacks/listing.ftl")
+						 .put("static", root.resolve(g.getValue().path).relativize(staticRoot))
+						 .put("title", String.join(" / ", "Map Packs", g.getKey()))
+						 .put("page", g.getValue().pages.get(0))
+						 .put("root", g.getValue().path)
+						 .write(root.resolve(g.getValue().path).resolve("index.html"));
+				count++;
+
+			}
 
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to render page", e);
 		}
 
 		return count;
+	}
+
+	private void packPage(Path root, MapPackInfo pack) {
+		//
 	}
 
 	public class Games {
@@ -84,12 +125,39 @@ public class MapPacks {
 		public final String name;
 		public final String slug;
 		public final String path;
-		public final List<MapPackInfo> packs = new ArrayList<>();
+		public final List<Page> pages = new ArrayList<>();
+		public int packs;
 
 		public Game(String name) {
 			this.name = name;
 			this.slug = slug(name);
 			this.path = slug;
+		}
+
+		public void add(MapPack p) {
+			if (pages.isEmpty()) pages.add(new Page(this, pages.size() + 1));
+			Page page = pages.get(pages.size() - 1);
+			if (page.packs.size() == Templates.PAGE_SIZE) {
+				page = new Page(this, pages.size() + 1);
+				pages.add(page);
+			}
+
+			page.add(p);
+			this.packs++;
+		}
+	}
+
+	public class Page {
+
+		public final Game game;
+		public final int number;
+		public final String path;
+		public final List<MapPackInfo> packs = new ArrayList<>();
+
+		public Page(Game game, int number) {
+			this.game = game;
+			this.number = number;
+			this.path = String.join("/", game.path, Integer.toString(number));
 		}
 
 		public void add(MapPack p) {
@@ -100,19 +168,19 @@ public class MapPacks {
 
 	public class MapPackInfo implements Comparable<MapPackInfo> {
 
-		public final Game game;
+		public final Page page;
 		public final MapPack pack;
 		public final String slug;
 		public final String path;
 
-		public final java.util.Map<String, Integer> alsoIn;
+		public final Map<String, Integer> alsoIn;
 
-		public MapPackInfo(Game game, MapPack pack) {
-			this.game = game;
+		public MapPackInfo(Page page, MapPack pack) {
+			this.page = page;
 			this.pack = pack;
 			this.slug = slug(pack.name + "_" + pack.hash.substring(0, 8));
 
-			if (game != null) this.path = String.join("/", game.path, slug);
+			if (page != null) this.path = String.join("/", page.path, slug);
 			else this.path = slug;
 
 			this.alsoIn = new HashMap<>();

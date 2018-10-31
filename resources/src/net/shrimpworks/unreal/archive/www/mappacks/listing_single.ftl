@@ -17,7 +17,7 @@
 			<tbody>
 				<#list packs as p>
 				<tr>
-					<td><a href="${m.path}.html">${p.pack.name}</a></td>
+					<td><a href="${relUrl(game.path, p.path + ".html")}">${p.pack.name}</a></td>
 					<td>${p.pack.author}</td>
 					<td>${p.pack.maps?size}</td>
 				</tr>

@@ -39,9 +39,12 @@ import freemarker.template.TemplateModelException;
 
 public class Templates {
 
-	private static final Configuration TPL_CONFIG = new Configuration(Configuration.VERSION_2_3_27);
+	static final int PAGE_SIZE = 150;
+
 	private static final Pattern NONLATIN = Pattern.compile("[^\\w-]");
 	private static final Pattern WHITESPACE = Pattern.compile("[\\s]");
+
+	private static final Configuration TPL_CONFIG = new Configuration(Configuration.VERSION_2_3_27);
 
 	static {
 		TPL_CONFIG.setClassForTemplateLoading(Maps.class, "");
