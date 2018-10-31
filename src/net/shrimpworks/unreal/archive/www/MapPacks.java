@@ -50,7 +50,7 @@ public class MapPacks {
 					 .put("static", root.relativize(staticRoot))
 					 .put("title", "Map Packs")
 					 .put("games", games)
-					 .write(root.resolve("games.html"));
+					 .write(root.resolve("index.html"));
 			count++;
 
 			for (java.util.Map.Entry<String, Game> g : games.games.entrySet()) {
@@ -201,7 +201,7 @@ public class MapPacks {
 
 		@Override
 		public int compareTo(MapPackInfo o) {
-			return pack.name.compareTo(o.pack.name);
+			return pack.name.toLowerCase().compareTo(o.pack.name.toLowerCase());
 		}
 	}
 

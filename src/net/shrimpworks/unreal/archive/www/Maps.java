@@ -60,7 +60,7 @@ public class Maps {
 					 .put("static", root.relativize(staticRoot))
 					 .put("title", "Maps")
 					 .put("games", games)
-					 .write(root.resolve("games.html"));
+					 .write(root.resolve("index.html"));
 			count++;
 
 			for (java.util.Map.Entry<String, Game> g : games.games.entrySet()) {
@@ -281,7 +281,7 @@ public class Maps {
 
 		@Override
 		public int compareTo(MapInfo o) {
-			return map.name.compareTo(o.map.name);
+			return map.name.toLowerCase().compareTo(o.map.name.toLowerCase());
 		}
 	}
 

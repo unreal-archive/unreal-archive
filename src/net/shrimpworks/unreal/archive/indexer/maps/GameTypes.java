@@ -9,7 +9,7 @@ public class GameTypes {
 	private static final List<GameType> GAME_TYPES = Arrays.asList(
 			new GameType("Single Player", "SP"),
 			new GameType("1 on 1", "DM-1on1", "DM-1v1", "DM-1-on-1"),
-			new GameType("Infiltration", "INF", "CTF-INF-", "DM-INF-", "DOM-INF-"),
+			new GameType("Infiltration", "INF", "CTF-INF-", "DM-INF-", "DOM-INF-", "AS-INF-", "EAS-INF-"),
 			new GameType("DeathMatch", "DM"),
 			new GameType("BunnyTrack", "CTF-BT", "BT"),
 			new GameType("Multi-Team CTF", "CTF4", "CTFM"),
