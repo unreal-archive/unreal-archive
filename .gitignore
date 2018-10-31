@@ -4,3 +4,4 @@ lib
 out
 .idea
 *.iml
+/.unreal-archive.conf

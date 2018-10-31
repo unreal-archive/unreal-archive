@@ -24,6 +24,7 @@ import net.shrimpworks.unreal.archive.indexer.Indexer;
 import net.shrimpworks.unreal.archive.scraper.AutoIndexPHPScraper;
 import net.shrimpworks.unreal.archive.scraper.Downloader;
 import net.shrimpworks.unreal.archive.scraper.FPSNetwork;
+import net.shrimpworks.unreal.archive.scraper.GameBanana;
 import net.shrimpworks.unreal.archive.scraper.GameFrontOnline;
 import net.shrimpworks.unreal.archive.scraper.GameZooMaps;
 import net.shrimpworks.unreal.archive.scraper.UTTexture;
@@ -301,6 +302,9 @@ public class Main {
 				break;
 			case "uttexture":
 				UTTexture.index(cli);
+				break;
+			case "gamebanana":
+				GameBanana.index(cli);
 				break;
 			default:
 				throw new UnsupportedOperationException("Scraper not supported: " + cli.commands()[1]);
