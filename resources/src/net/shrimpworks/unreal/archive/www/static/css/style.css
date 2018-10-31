@@ -28,7 +28,7 @@ section.header {
 
 section.header h1 {
 	font-family: 'Anton', sans-serif;
-	font-size: 1.8em;
+	font-size: 1.9em;
 	position: absolute;
 	bottom: 0;
 	color: white;
@@ -55,7 +55,7 @@ section.header h1 {
 	background: gray center;
 	background-size: cover;
 
-	font-size: 1.5em;
+	font-size: 1.9em;
 	font-weight: bold;
 	color: white;
 }
@@ -79,7 +79,7 @@ section.header h1 {
 
 .biglist ul li .meta {
 	color: rgba(255, 255, 255, 0.5);
-	font-size: 2em;
+	font-size: 1.5em;
 
 	position: absolute;
 	bottom: -10px;
@@ -123,56 +123,58 @@ section.header h1 {
 	border-bottom-width: 4px;
 }
 
-.mapinfo {
+article.info {
 	margin-top: 10px;
 
 	display: grid;
 	grid-template-columns: auto 310px;
 	grid-template-rows: auto auto;
-	grid-template-areas:
-					'info screenshots';
+	grid-template-areas: 'info screenshots';
 	grid-column-gap: 10px;
 	align-content: start;
 }
 
-.mapinfo .screenshots {
+article.info .screenshots {
 	grid-area: screenshots;
 	text-align: center;
 	padding: 0 5px;
 }
 
-.mapinfo .screenshots .thumb {
+article.info .screenshots .thumb {
 	width: 300px;
 	max-height: 300px;
 	margin: 2px;
 	vertical-align: middle;
 }
 
-.mapinfo .info {
+article.info .info {
 	grid-area: info;
 }
 
-.mapinfo .files {
+article.info .meta {
 }
 
-.mapinfo .downloads {
+article.info .files {
 }
 
-.mapinfo .downloads .links a {
+article.info .downloads {
+}
+
+article.info .downloads .links a {
 	display: block;
 	padding: 10px;
 	margin: 5px 0;
 }
 
-.mapinfo .downloads .links a.main {
+article.info .downloads .links a.main {
 	background-color: greenyellow;
 }
 
-.mapinfo .downloads .links a.secondary {
+article.info .downloads .links a.secondary {
 	background-color: lightgreen;
 }
 
-.mapinfo .downloads .links a:hover {
+article.info .downloads .links a:hover {
 	background-color: lawngreen;
 }
 

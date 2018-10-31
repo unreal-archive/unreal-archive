@@ -1,6 +1,6 @@
 <#include "../_header.ftl">
 
-<#list map.map.attachments as a>
+<#list pack.pack.attachments as a>
 	<#if a.type == "IMAGE">
 		<#assign headerbg=urlEncode(a.url)>
 		<#break>
@@ -9,13 +9,14 @@
 
 	<section class="header" <#if headerbg??>style="background-image: url('${headerbg}')"</#if>>
 		<h1>
-		${map.page.letter.gametype.game.name} / ${map.page.letter.gametype.name} / ${map.map.name}
+		${pack.page.game.name} / ${pack.pack.name}
 		</h1>
 	</section>
 
 	<article class="info">
+
 		<div class="screenshots">
-			<#list map.map.attachments as a>
+			<#list pack.pack.attachments as a>
 				<#if a.type == "IMAGE">
 					<img src="${urlEncode(a.url)}" class="thumb"/>
 				</#if>
@@ -27,37 +28,48 @@
 			<section class="meta">
 				<h2>Map Information</h2>
 				<div class="label-value">
-					<label>Name</label><span>${map.map.name}</span>
+					<label>Name</label><span>${pack.pack.name}</span>
 				</div>
 				<div class="label-value">
-					<label>Game Type</label><span>
-						<a href="${relUrl(siteRoot, "maps/" + map.page.letter.gametype.path + "/index.html")}">${map.map.gametype}</a>
-					</span>
+					<label>Maps</label><span>${pack.pack.maps?size}</span>
 				</div>
 				<div class="label-value">
-					<label>Title</label><span>${map.map.title}</span>
+					<label>Author</label><span>${pack.pack.author}</span>
 				</div>
 				<div class="label-value">
-					<label>Author</label><span>${map.map.author}</span>
+					<label>Release (est.)</label><span>${pack.pack.releaseDate}</span>
 				</div>
 				<div class="label-value">
-					<label>Player Count</label><span>${map.map.playerCount}</span>
+					<label>File Size</label><span>${fileSize(pack.pack.fileSize)}</span>
 				</div>
 				<div class="label-value">
-					<label>Release (est.)</label><span>${map.map.releaseDate}</span>
+					<label>File Name</label><span>${pack.pack.originalFilename}</span>
 				</div>
 				<div class="label-value">
-					<label>Description</label><span>${map.map.description}</span>
+					<label>Hash</label><span>${pack.pack.hash}</span>
 				</div>
-				<div class="label-value">
-					<label>File Size</label><span>${fileSize(map.map.fileSize)}</span>
-				</div>
-				<div class="label-value">
-					<label>File Name</label><span>${map.map.originalFilename}</span>
-				</div>
-				<div class="label-value">
-					<label>Hash</label><span>${map.map.hash}</span>
-				</div>
+			</section>
+
+			<section class="maps">
+				<h2>Maps</h2>
+				<table>
+					<thead>
+					<tr>
+						<th>Name</th>
+						<th>Title</th>
+						<th>Author</th>
+					</tr>
+					</thead>
+					<tbody>
+						<#list pack.pack.maps as m>
+						<tr>
+							<td>${m.name}</td>
+							<td>${m.title}</td>
+							<td>${m.author}</td>
+						</tr>
+						</#list>
+					</tbody>
+				</table>
 			</section>
 
 			<section class="files">
@@ -72,14 +84,14 @@
 					</tr>
 					</thead>
 					<tbody>
-						<#list map.map.files as f>
+						<#list pack.pack.files as f>
 						<tr>
 							<td>${f.name}</td>
 							<td>${fileSize(f.fileSize)}</td>
 							<td>${f.hash}</td>
-							<#if map.alsoIn[f.hash]??>
+							<#if pack.alsoIn[f.hash]??>
 								<td>
-									<a href="${relUrl(siteRoot, "files/" + f.hash[0..1] + "/" + f.hash + ".html")}">${map.alsoIn[f.hash]}</a>
+									<a href="${relUrl(siteRoot, "files/" + f.hash[0..1] + "/" + f.hash + ".html")}">${pack.alsoIn[f.hash]}</a>
 								</td>
 							<#else>
 								<td>-</td>
@@ -88,10 +100,10 @@
 						</#list>
 					</tbody>
 				</table>
-				<#if map.map.otherFiles gt 0>
+				<#if pack.pack.otherFiles gt 0>
 					<div class="otherFiles">
 						<div class="label-value">
-							<label>Misc Files</label><span>${map.map.otherFiles}</span>
+							<label>Misc Files</label><span>${pack.pack.otherFiles}</span>
 						</div>
 					</div>
 				</#if>
@@ -100,7 +112,7 @@
 			<section class="downloads">
 				<h2>Downloads</h2>
 				<div class="links">
-					<#list map.map.downloads as d>
+					<#list pack.pack.downloads as d>
 						<#if !d.deleted>
 							<#if d.main>
 								<a href="${urlEncode(d.url)}" class="main">Primary</a>

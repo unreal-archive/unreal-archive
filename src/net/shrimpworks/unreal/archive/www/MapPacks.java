@@ -111,8 +111,13 @@ public class MapPacks {
 		return count;
 	}
 
-	private void packPage(Path root, MapPackInfo pack) {
-		//
+	private void packPage(Path root, MapPackInfo pack) throws IOException {
+		Templates.template("mappacks/mappack.ftl")
+				 .put("static", root.resolve(pack.path).getParent().relativize(staticRoot))
+				 .put("title", String.join(" / ", "Map Packs", pack.page.game.name, pack.pack.name))
+				 .put("pack", pack)
+				 .put("siteRoot", root.resolve(pack.path).getParent().relativize(output))
+				 .write(root.resolve(pack.path + ".html"));
 	}
 
 	public class Games {
