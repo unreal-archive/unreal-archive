@@ -30,7 +30,9 @@
 					<label>Name</label><span>${map.map.name}</span>
 				</div>
 				<div class="label-value">
-					<label>Game Type</label><span>${map.map.gametype}</span>
+					<label>Game Type</label><span>
+						<a href="${relUrl(siteRoot, "maps/" + map.page.letter.gametype.path + "/index.html")}">${map.map.gametype}</a>
+					</span>
 				</div>
 				<div class="label-value">
 					<label>Title</label><span>${map.map.title}</span>

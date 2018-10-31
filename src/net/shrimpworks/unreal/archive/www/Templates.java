@@ -21,10 +21,13 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.text.Normalizer;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
@@ -37,6 +40,8 @@ import freemarker.template.TemplateModelException;
 public class Templates {
 
 	private static final Configuration TPL_CONFIG = new Configuration(Configuration.VERSION_2_3_27);
+	private static final Pattern NONLATIN = Pattern.compile("[^\\w-]");
+	private static final Pattern WHITESPACE = Pattern.compile("[\\s]");
 
 	static {
 		TPL_CONFIG.setClassForTemplateLoading(Maps.class, "");
@@ -97,6 +102,13 @@ public class Templates {
 		}
 
 		return true;
+	}
+
+	public static String slug(String input) {
+		String nowhitespace = WHITESPACE.matcher(input).replaceAll("-");
+		String normalized = Normalizer.normalize(nowhitespace, Normalizer.Form.NFD);
+		String slug = NONLATIN.matcher(normalized).replaceAll("");
+		return slug.toLowerCase(Locale.ENGLISH);
 	}
 
 	public static class Tpl {

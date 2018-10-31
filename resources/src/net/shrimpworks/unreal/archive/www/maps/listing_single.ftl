@@ -1,21 +1,11 @@
 <#include "../_header.ftl">
 
-	<#list maps as m>
-		<#list m.map.attachments as a>
-			<#if a.type == "IMAGE">
-				<#assign headerbg=urlEncode(a.url)>
-				<#break>
-			</#if>
-		</#list>
-		<#if headerbg??><#break></#if>
-	</#list>
-
-	<section class="header" <#if headerbg??>style='background-image: url("${headerbg}")'</#if>>
+	<section class="header" style='background-image: url("${static}/images/gametypes/${gametype.game.name}/${gametype.name}.png")'>
 		<h1>
 			Maps / ${gametype.game.name} / ${gametype.name}
 		</h1>
 	</section>
-	<article class="maplist">
+	<article class="list">
 		<table class="maps">
 			<thead>
 			<tr>

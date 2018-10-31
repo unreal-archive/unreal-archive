@@ -30,6 +30,7 @@ import net.shrimpworks.unreal.archive.scraper.UTTexture;
 import net.shrimpworks.unreal.archive.scraper.UnrealPlayground;
 import net.shrimpworks.unreal.archive.storage.DataStore;
 import net.shrimpworks.unreal.archive.www.FileDetails;
+import net.shrimpworks.unreal.archive.www.MapPacks;
 import net.shrimpworks.unreal.archive.www.Maps;
 import net.shrimpworks.unreal.archive.www.Templates;
 import net.shrimpworks.unreal.packages.Umod;
@@ -204,6 +205,9 @@ public class Main {
 
 		Maps maps = new Maps(contentManager, outputPath, outputPath.resolve("static"));
 		pages += maps.generate();
+
+		MapPacks packs = new MapPacks(contentManager, outputPath, outputPath.resolve("static"));
+		pages += packs.generate();
 
 		FileDetails files = new FileDetails(contentManager, outputPath, outputPath.resolve("static"));
 		pages += files.generate();

@@ -2,28 +2,24 @@ package net.shrimpworks.unreal.archive.www;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.TreeMap;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import net.shrimpworks.unreal.archive.indexer.Content;
 import net.shrimpworks.unreal.archive.indexer.ContentManager;
 import net.shrimpworks.unreal.archive.indexer.maps.Map;
 
+import static net.shrimpworks.unreal.archive.www.Templates.slug;
+
 public class Maps {
 
 	private static final int PAGE_SIZE = 150;
-
-	private static final Pattern NONLATIN = Pattern.compile("[^\\w-]");
-	private static final Pattern WHITESPACE = Pattern.compile("[\\s]");
 
 	private final ContentManager content;
 	private final Path output;
@@ -156,13 +152,6 @@ public class Maps {
 				 .put("map", map)
 				 .put("siteRoot", root.resolve(map.path).getParent().relativize(output))
 				 .write(root.resolve(map.path + ".html"));
-	}
-
-	public static String slug(String input) {
-		String nowhitespace = WHITESPACE.matcher(input).replaceAll("-");
-		String normalized = Normalizer.normalize(nowhitespace, Normalizer.Form.NFD);
-		String slug = NONLATIN.matcher(normalized).replaceAll("");
-		return slug.toLowerCase(Locale.ENGLISH);
 	}
 
 	public class Games {
