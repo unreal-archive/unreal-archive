@@ -15,11 +15,15 @@
 
 	<article class="info">
 		<div class="screenshots">
-			<#list map.map.attachments as a>
-				<#if a.type == "IMAGE">
-					<img src="${urlEncode(a.url)}" class="thumb"/>
-				</#if>
-			</#list>
+			<#if map.map.attachments?size == 0>
+				<img src="${static}/images/none.png" class="thumb"/>
+			<#else>
+				<#list map.map.attachments as a>
+					<#if a.type == "IMAGE">
+						<img src="${urlEncode(a.url)}" class="thumb"/>
+					</#if>
+				</#list>
+			</#if>
 		</div>
 
 		<div class="info">

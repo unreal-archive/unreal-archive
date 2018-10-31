@@ -16,11 +16,15 @@
 	<article class="info">
 
 		<div class="screenshots">
-			<#list pack.pack.attachments as a>
-				<#if a.type == "IMAGE">
-					<img src="${urlEncode(a.url)}" class="thumb"/>
-				</#if>
-			</#list>
+			<#if pack.pack.attachments?size == 0>
+				<img src="${static}/images/none.png" class="thumb"/>
+			<#else>
+				<#list pack.pack.attachments as a>
+					<#if a.type == "IMAGE">
+						<img src="${urlEncode(a.url)}" class="thumb"/>
+					</#if>
+				</#list>
+			</#if>
 		</div>
 
 		<div class="info">
