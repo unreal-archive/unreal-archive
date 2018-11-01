@@ -59,9 +59,11 @@ public class Indexer {
 	 *
 	 * @param inputPath directory or path to index
 	 * @param force     if content has already been indexed, index it again
+	 * @param forceType if not null, use the specified content type, rather than
+	 *                  attempting to discover it automatically
 	 * @throws IOException file access failure
 	 */
-	public void index(Path inputPath, boolean force) throws IOException {
+	public void index(Path inputPath, boolean force, ContentType forceType) throws IOException {
 		final List<IndexLog> indexLogs = new ArrayList<>();
 
 		// go through all the files in the input path and index them if new
@@ -75,7 +77,7 @@ public class Indexer {
 			IndexLog log = new IndexLog(sub);
 			indexLogs.add(log);
 
-			indexFile(sub, log, force, c -> {
+			indexFile(sub, log, force, forceType, c -> {
 				for (IndexLog.LogEntry l : log.log) {
 					System.out.printf("[%s] %s: %s%n", l.type, Util.fileName(c.filePath.getFileName()), l.message);
 					if (l.exception != null
@@ -153,12 +155,12 @@ public class Indexer {
 		return all;
 	}
 
-	private void indexFile(Submission sub, IndexLog log, boolean force, Consumer<Submission> done) {
+	private void indexFile(Submission sub, IndexLog log, boolean force, ContentType forceType, Consumer<Submission> done) {
 		try (Incoming incoming = new Incoming(sub, log)) {
 			Content content = contentManager.checkout(incoming.hash);
 
 			if ((content != null && !force)) {
-				// lets not support re-index yet, but we can update with urls if there are any
+				// even when not forcing a full re-index of something, we can still update download sources
 				if (!content.deleted && sub.sourceUrls != null) {
 					for (String url : sub.sourceUrls) {
 						if (!content.hasDownload(url)) {
@@ -172,7 +174,7 @@ public class Indexer {
 
 			incoming.prepare();
 
-			ContentType type = ContentType.classify(incoming);
+			ContentType type = forceType == null ? ContentType.classify(incoming) : forceType;
 
 			// TODO better way to handle re-indexing - we already have content, but if type changes we can't re-use it
 			if (content == null || !type.toString().equalsIgnoreCase(content.contentType)) {

@@ -192,7 +192,25 @@ public class Incoming implements Closeable {
 		if (ArchiveUtil.isArchive(incoming)) {
 			// its an archive of files of some sort, unpack it to the root
 			try {
-				return ArchiveUtil.extract(incoming, tempDir, Duration.ofSeconds(30), true);
+				Path root = ArchiveUtil.extract(incoming, tempDir, Duration.ofSeconds(30), true);
+
+				// sometimes, there are archives in files... unpack these too. only supporting one level deep.
+				Files.walkFileTree(root, new SimpleFileVisitor<Path>() {
+					@Override
+					public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+						try {
+							if (ArchiveUtil.isArchive(file)) {
+								ArchiveUtil.extract(file, tempDir.resolve(Util.plainName(file)), Duration.ofSeconds(30), true);
+							}
+						} catch (Exception e) {
+							log.log(IndexLog.EntryType.CONTINUE, "Failed to unpack inner archive " + Util.fileName(file));
+						}
+						return FileVisitResult.CONTINUE;
+					}
+				});
+
+				return root;
+
 			} catch (InterruptedException e) {
 				throw new IOException("Extract took too long", e);
 			}

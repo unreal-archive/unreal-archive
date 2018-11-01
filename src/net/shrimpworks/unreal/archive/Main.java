@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 
 import net.shrimpworks.unreal.archive.indexer.Content;
 import net.shrimpworks.unreal.archive.indexer.ContentManager;
+import net.shrimpworks.unreal.archive.indexer.ContentType;
 import net.shrimpworks.unreal.archive.indexer.IndexResult;
 import net.shrimpworks.unreal.archive.indexer.Indexer;
 import net.shrimpworks.unreal.archive.scraper.AutoIndexPHPScraper;
@@ -138,6 +139,7 @@ public class Main {
 		}
 
 		boolean force = Boolean.valueOf(cli.option("force", "false"));
+		ContentType forceType = (!cli.option("type", "").isEmpty()) ? ContentType.valueOf(cli.option("type", "").toUpperCase()) : null;
 
 		Indexer indexer = new Indexer(contentManager, cli);
 
@@ -147,7 +149,7 @@ public class Main {
 				System.err.println("Index path does not exist: " + indexPath.toString());
 				System.exit(4);
 			}
-			indexer.index(indexPath, force);
+			indexer.index(indexPath, force, forceType);
 		}
 	}
 
