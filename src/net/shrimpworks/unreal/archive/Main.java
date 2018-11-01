@@ -22,6 +22,7 @@ import net.shrimpworks.unreal.archive.indexer.ContentManager;
 import net.shrimpworks.unreal.archive.indexer.ContentType;
 import net.shrimpworks.unreal.archive.indexer.IndexResult;
 import net.shrimpworks.unreal.archive.indexer.Indexer;
+import net.shrimpworks.unreal.archive.indexer.Scanner;
 import net.shrimpworks.unreal.archive.scraper.AutoIndexPHPScraper;
 import net.shrimpworks.unreal.archive.scraper.Downloader;
 import net.shrimpworks.unreal.archive.scraper.FPSNetwork;
@@ -50,6 +51,9 @@ public class Main {
 		switch (cli.commands()[0].toLowerCase()) {
 			case "index":
 				index(contentManager(cli), cli);
+				break;
+			case "scan":
+				scan(contentManager(cli), cli);
 				break;
 			case "edit":
 				edit(contentManager(cli), cli);
@@ -150,6 +154,24 @@ public class Main {
 				System.exit(4);
 			}
 			indexer.index(indexPath, force, forceType);
+		}
+	}
+
+	private static void scan(ContentManager contentManager, CLI cli) throws IOException {
+		if (cli.commands().length < 2) {
+			System.err.println("An input path must be specified!");
+			System.exit(2);
+		}
+
+		Scanner scanner = new Scanner(contentManager, cli);
+
+		for (int i = 1; i < cli.commands().length; i++) {
+			Path indexPath = Paths.get(cli.commands()[i]);
+			if (!Files.exists(indexPath)) {
+				System.err.println("Index path does not exist: " + indexPath.toString());
+				System.exit(4);
+			}
+			scanner.scan(indexPath);
 		}
 	}
 
@@ -377,6 +399,8 @@ public class Main {
 		System.out.println("  index <file ...> --content-path=<path> [--force=<true|false>]");
 		System.out.println("    Index the contents of files, writing the results to <content-path>.");
 		System.out.println("    Optionally force re-indexing of existing content, rather than skipping it.");
+		System.out.println("  scan <file ...> --content-path=<path>");
+		System.out.println("    Dry-run scan the contents of files, comparing to known content where possible.");
 		System.out.println("  edit <hash> --content-path=<path>");
 		System.out.println("    Edit the metadata for the <hash> provided. Relies on `sensible-editor` on Linux.");
 		System.out.println("  www <output-path> --content-path=<path>");

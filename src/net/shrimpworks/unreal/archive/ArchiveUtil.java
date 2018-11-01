@@ -30,17 +30,17 @@ public class ArchiveUtil {
 	}
 
 	public static Path extract(Path source, Path destination, Duration timeout)
-			throws IOException, InterruptedException, IllegalStateException {
+			throws IOException, InterruptedException, BadArchiveException {
 		return extract(source, destination, timeout, false, new HashSet<>());
 	}
 
 	public static Path extract(Path source, Path destination, Duration timeout, boolean recursive)
-			throws IOException, InterruptedException, IllegalStateException {
+			throws IOException, InterruptedException, BadArchiveException {
 		return extract(source, destination, timeout, recursive, new HashSet<>());
 	}
 
 	private static Path extract(Path source, Path destination, Duration timeout, boolean recursive, Set<Path> visited)
-			throws IOException, InterruptedException, IllegalStateException {
+			throws IOException, InterruptedException, BadArchiveException {
 
 		if (!Files.isDirectory(destination)) Files.createDirectories(destination);
 
@@ -59,7 +59,7 @@ public class ArchiveUtil {
 				result = exec(rarCmd(source, destination), source, destination, timeout);
 				break;
 			default:
-				throw new UnsupportedOperationException(String.format("Format %s not supported for archive %s", ext, source));
+				throw new UnsupportedArchiveException(String.format("Format %s not supported for archive %s", ext, source));
 		}
 
 		visited.add(source);
@@ -126,7 +126,7 @@ public class ArchiveUtil {
 	}
 
 	private static Path exec(String[] cmd, Path source, Path destination, Duration timeout)
-			throws IOException, InterruptedException, IllegalStateException {
+			throws IOException, InterruptedException, BadArchiveException {
 
 		Process process = new ProcessBuilder()
 				.command(cmd)
@@ -140,7 +140,7 @@ public class ArchiveUtil {
 		if (process.exitValue() != 0) {
 			// cleanup
 			cleanPath(destination);
-			throw new IllegalStateException(String.format("File %s was not unpacked successfully", source));
+			throw new BadArchiveException(String.format("File %s was not unpacked successfully", source));
 		}
 
 		return destination;
@@ -167,9 +167,23 @@ public class ArchiveUtil {
 		}
 
 		if (process.exitValue() != 0) {
-			throw new IllegalStateException(String.format("File %s was not unpacked successfully", source));
+			throw new IllegalStateException(String.format("File %s was not zipped successfully", source));
 		}
 
 		return destination;
+	}
+
+	public static class BadArchiveException extends IOException {
+
+		public BadArchiveException(String message) {
+			super(message);
+		}
+	}
+
+	public static class UnsupportedArchiveException extends UnsupportedOperationException {
+
+		public UnsupportedArchiveException(String message) {
+			super(message);
+		}
 	}
 }

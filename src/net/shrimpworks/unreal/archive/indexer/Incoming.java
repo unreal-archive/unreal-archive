@@ -192,25 +192,7 @@ public class Incoming implements Closeable {
 		if (ArchiveUtil.isArchive(incoming)) {
 			// its an archive of files of some sort, unpack it to the root
 			try {
-				Path root = ArchiveUtil.extract(incoming, tempDir, Duration.ofSeconds(30), true);
-
-				// sometimes, there are archives in files... unpack these too. only supporting one level deep.
-				Files.walkFileTree(root, new SimpleFileVisitor<Path>() {
-					@Override
-					public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-						try {
-							if (ArchiveUtil.isArchive(file)) {
-								ArchiveUtil.extract(file, tempDir.resolve(Util.plainName(file)), Duration.ofSeconds(30), true);
-							}
-						} catch (Exception e) {
-							log.log(IndexLog.EntryType.CONTINUE, "Failed to unpack inner archive " + Util.fileName(file));
-						}
-						return FileVisitResult.CONTINUE;
-					}
-				});
-
-				return root;
-
+				return ArchiveUtil.extract(incoming, tempDir, Duration.ofSeconds(30), true);
 			} catch (InterruptedException e) {
 				throw new IOException("Extract took too long", e);
 			}
@@ -221,7 +203,7 @@ public class Incoming implements Closeable {
 			}
 		}
 
-		throw new UnsupportedOperationException("Can't unpack file " + incoming);
+		throw new UnsupportedFileTypeException("Can't unpack file " + incoming);
 	}
 
 	@Override
@@ -312,6 +294,13 @@ public class Incoming implements Closeable {
 		@Override
 		public String toString() {
 			return String.format("IncomingFile [file=%s]", file);
+		}
+	}
+
+	public static class UnsupportedFileTypeException extends UnsupportedOperationException {
+
+		public UnsupportedFileTypeException(String message) {
+			super(message);
 		}
 	}
 }
