@@ -139,7 +139,7 @@ public class IndexUtils {
 			String shotTemplate, Content content, List<BufferedImage> screenshots, Set<IndexResult.NewAttachment> attachments)
 			throws IOException {
 		for (int i = 0; i < screenshots.size(); i++) {
-			String shotName = String.format(shotTemplate, content.name.replaceAll(" ", "_"), i + 1);
+			String shotName = String.format(shotTemplate, content.name.replaceAll(" ", "_"), attachments.size() + 1);
 			Path out = Paths.get(shotName);
 			ImageIO.write(screenshots.get(i), "png", out.toFile());
 			attachments.add(new IndexResult.NewAttachment(Content.AttachmentType.IMAGE, shotName, out));
