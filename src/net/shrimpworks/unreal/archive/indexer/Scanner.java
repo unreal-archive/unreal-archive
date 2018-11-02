@@ -30,7 +30,7 @@ public class Scanner {
 
 		System.err.printf("Found %d files to scan in %s%n", all.size(), inputPath);
 
-		System.err.printf("%-100s %-6s %-12s %-12s %-20s%n",
+		System.err.printf("%-70s %-6s %-12s %-12s %-20s%n",
 						  "File",
 						  "Known",
 						  "Curr Type",
@@ -45,8 +45,8 @@ public class Scanner {
 			Submission sub = new Submission(path);
 			IndexLog log = new IndexLog(sub);
 
-			scanFile(sub, log, r -> {
-				System.err.printf("%-100s %-6s %-12s %-12s %-20s%n",
+			scanFile(inputPath, sub, log, r -> {
+				System.out.printf("%-70s %-6s %-12s %-12s %-20s%n",
 								  r.filePath,
 								  r.known,
 								  r.oldType,
@@ -77,7 +77,7 @@ public class Scanner {
 		return all;
 	}
 
-	private void scanFile(Submission sub, IndexLog log, Consumer<ScanResult> done) {
+	private void scanFile(Path root, Submission sub, IndexLog log, Consumer<ScanResult> done) {
 		Throwable failed = null;
 		Content content = null;
 		ContentType classifiedType = ContentType.UNKNOWN;
@@ -98,7 +98,7 @@ public class Scanner {
 												.findFirst().orElse(null);
 
 			done.accept(new ScanResult(
-					sub.filePath.toString(),
+					root == sub.filePath ? sub.filePath.getFileName().toString() : root.relativize(sub.filePath).toString(),
 					content != null ? "KNOWN" : "NEW",
 					content != null ? content.contentType : "-",
 					classifiedType.name(),
