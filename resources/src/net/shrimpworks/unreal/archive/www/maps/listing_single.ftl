@@ -1,8 +1,10 @@
 <#include "../_header.ftl">
 
-	<section class="header" style='background-image: url("${static}/images/gametypes/${gametype.game.name}/${gametype.name}.png")'>
+	<#assign game=gametype.game>
+
+	<section class="header" style='background-image: url("${static}/images/gametypes/${game.name}/${gametype.name}.png"), url("${static}/images/games/${game.name}.png")'>
 		<h1>
-			Maps / ${gametype.game.name} / ${gametype.name}
+			Maps / ${game.name} / ${gametype.name}
 		</h1>
 	</section>
 	<article class="list">

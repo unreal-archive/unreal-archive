@@ -1,11 +1,13 @@
 <#include "../_header.ftl">
 
-<#list pack.pack.attachments as a>
-	<#if a.type == "IMAGE">
-		<#assign headerbg=urlEncode(a.url)>
-		<#break>
-	</#if>
-</#list>
+	<#assign headerbg>${static}/images/games/${pack.page.game.name}.png</#assign>
+
+	<#list pack.pack.attachments as a>
+		<#if a.type == "IMAGE">
+			<#assign headerbg=urlEncode(a.url)>
+			<#break>
+		</#if>
+	</#list>
 
 	<section class="header" <#if headerbg??>style="background-image: url('${headerbg}')"</#if>>
 		<h1>

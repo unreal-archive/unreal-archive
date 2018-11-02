@@ -107,19 +107,23 @@ public class Indexer {
 
 				@Override
 				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-					if (!Util.extension(file).equalsIgnoreCase("yml")) {
-						Submission sub;
-						// if there's a submission file
-						if (Files.exists(Paths.get(file.toString() + ".yml"))) {
-							sub = YAML.fromFile(Paths.get(file.toString() + ".yml"), Submission.class);
-							sub.filePath = file;
-						} else {
-							sub = new Submission(file);
-						}
+					try {
+						if (!Util.extension(file).equalsIgnoreCase("yml")) {
+							Submission sub;
+							// if there's a submission file
+							if (Files.exists(Paths.get(file.toString() + ".yml"))) {
+								sub = YAML.fromFile(Paths.get(file.toString() + ".yml"), Submission.class);
+								sub.filePath = file;
+							} else {
+								sub = new Submission(file);
+							}
 
-						SubmissionOverride override = this.override.get(file.getParent());
-						if (override != null) sub.override = override;
-						all.add(sub);
+							SubmissionOverride override = this.override.get(file.getParent());
+							if (override != null) sub.override = override;
+							all.add(sub);
+						}
+					} catch (Throwable t) {
+						throw new IOException("Failed to read file " + file, t);
 					}
 					return FileVisitResult.CONTINUE;
 				}

@@ -1,15 +1,18 @@
 <#include "../_header.ftl">
 
-	<section class="header" style='background-image: url("${static}/images/gametypes/${page.letter.gametype.game.name}/${page.letter.gametype.name}.png")'>
+	<#assign game=page.letter.gametype.game>
+	<#assign gametype=page.letter.gametype>
+
+	<section class="header" style='background-image: url("${static}/images/gametypes/${game.name}/${gametype.name}.png"), url("${static}/images/games/${game.name}.png")'>
 		<h1>
-			Maps / ${page.letter.gametype.game.name} / ${page.letter.gametype.name} / ${page.letter.letter} / pg ${page.number}
+			Maps / ${game.name} / ${gametype.name} / ${page.letter.letter} / pg ${page.number}
 		</h1>
 	</section>
 
 	<article class="list">
 
 		<nav class="letters">
-			<#list page.letter.gametype.letters as k, letter><a href="${relUrl(root, letter.path + "/index.html")}"<#if letter.letter == page.letter.letter>class="active"</#if>>${letter.letter}</a></#list>
+			<#list gametype.letters as k, letter><a href="${relUrl(root, letter.path + "/index.html")}"<#if letter.letter == page.letter.letter>class="active"</#if>>${letter.letter}</a></#list>
 		</nav>
 
 		<#if page.letter.pages?size gt 1>
