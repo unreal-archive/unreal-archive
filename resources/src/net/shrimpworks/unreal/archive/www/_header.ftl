@@ -8,6 +8,11 @@
 
 <body>
 
+<header>
+	<div class="page">
+		<img src="${static}/images/logo.png">
+		<h1>Unreal Archive</h1>
+	</div>
+</header>
+
 <div class="page">
-	<header>
-	</header>

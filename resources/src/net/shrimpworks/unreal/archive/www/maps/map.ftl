@@ -11,7 +11,10 @@
 
 	<section class="header" <#if headerbg??>style="background-image: url('${headerbg}')"</#if>>
 		<h1>
-		${map.page.letter.gametype.game.name} / ${map.page.letter.gametype.name} / ${map.map.name}
+			<a href="${siteRoot}/maps/index.html">Maps</a>
+			/ <a href="${relUrl(siteRoot, "maps/" + map.page.letter.gametype.game.path)}/index.html">${map.page.letter.gametype.game.name}</a>
+			/ <a href="${relUrl(siteRoot, "maps/" + map.page.letter.gametype.path)}/index.html">${map.page.letter.gametype.name}</a>
+			/ ${map.map.name}
 		</h1>
 	</section>
 

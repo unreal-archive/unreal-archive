@@ -30,6 +30,7 @@
 						<th>Type</th>
 						<th>Game</th>
 						<th>Name</th>
+						<th>Author</th>
 						<th>Hash</th>
 					</tr>
 					</thead>
@@ -45,6 +46,7 @@
 									${c.name}
 								</#if>
 							</td>
+							<td>${c.author}</td>
 							<td>${c.hash}</td>
 						</tr>
 						</#list>
