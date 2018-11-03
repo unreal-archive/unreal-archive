@@ -30,11 +30,11 @@ public class Scanner {
 
 		System.err.printf("Found %d files to scan in %s%n", all.size(), inputPath);
 
-		System.err.printf("%-70s %-6s %-12s %-12s %-20s%n",
+		System.err.printf("%s;%s;%s;%s;%s%n",
 						  "File",
 						  "Known",
-						  "Curr Type",
-						  "Scan Type",
+						  "Current Type",
+						  "Scanned Type",
 						  "Failure");
 
 		AtomicInteger done = new AtomicInteger();
@@ -46,7 +46,7 @@ public class Scanner {
 			IndexLog log = new IndexLog(sub);
 
 			scanFile(inputPath, sub, log, r -> {
-				System.out.printf("%-70s %-6s %-12s %-12s %-20s%n",
+				System.out.printf("%s;%s;%s;%s;%s%n",
 								  r.filePath,
 								  r.known,
 								  r.oldType,

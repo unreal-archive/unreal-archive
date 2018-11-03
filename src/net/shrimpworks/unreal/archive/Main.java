@@ -168,7 +168,7 @@ public class Main {
 		for (int i = 1; i < cli.commands().length; i++) {
 			Path indexPath = Paths.get(cli.commands()[i]);
 			if (!Files.exists(indexPath)) {
-				System.err.println("Index path does not exist: " + indexPath.toString());
+				System.err.println("Input path does not exist: " + indexPath.toString());
 				System.exit(4);
 			}
 			scanner.scan(indexPath);

@@ -76,7 +76,7 @@ public class ArchiveUtil {
 
 			for (Path path : next) {
 				try {
-					if (!visited.contains(path)) extract(path, result, timeout, recursive, visited);
+					if (!visited.contains(path)) extract(path, result.resolve(Util.plainName(path)), timeout, recursive, visited);
 				} catch (Exception e) {
 					// be lenient with recursive extraction...
 				}
