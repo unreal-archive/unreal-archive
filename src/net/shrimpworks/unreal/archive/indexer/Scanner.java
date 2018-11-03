@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 
 import net.shrimpworks.unreal.archive.CLI;
 import net.shrimpworks.unreal.archive.Util;
@@ -17,18 +18,30 @@ import net.shrimpworks.unreal.archive.Util;
 public class Scanner {
 
 	private final ContentManager contentManager;
-	private final CLI cli;
+
+	private final boolean newOnly;
+	private final Pattern nameMatch;
 
 	public Scanner(ContentManager contentManager, CLI cli) {
 		this.contentManager = contentManager;
-		this.cli = cli;
+
+		this.newOnly = cli.option("new-only", "").equalsIgnoreCase("true") || cli.option("new-only", "").equalsIgnoreCase("1");
+
+		if (cli.option("match", "").isEmpty()) {
+			this.nameMatch = null;
+		} else {
+			this.nameMatch = Pattern.compile(cli.option("match", ""));
+		}
 	}
 
-	public void scan(Path inputPath) throws IOException {
+	public void scan(Path... inputPath) throws IOException {
 		// find all files within the scan path
-		List<Path> all = findFiles(inputPath);
+		List<Path> all = new ArrayList<>();
+		for (Path p : inputPath) {
+			all.addAll(findFiles(p));
+		}
 
-		System.err.printf("Found %d files to scan in %s%n", all.size(), inputPath);
+		System.err.printf("Found %d file(s) to scan %s%n", all.size(), nameMatch != null ? "matching " + nameMatch.pattern() : "");
 
 		System.err.printf("%s;%s;%s;%s;%s%n",
 						  "File",
@@ -45,7 +58,7 @@ public class Scanner {
 			Submission sub = new Submission(path);
 			IndexLog log = new IndexLog(sub);
 
-			scanFile(inputPath, sub, log, r -> {
+			scanFile(sub, log, r -> {
 				System.out.printf("%s;%s;%s;%s;%s%n",
 								  r.filePath,
 								  r.known,
@@ -65,6 +78,9 @@ public class Scanner {
 				@Override
 				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
 					if (!Util.extension(file).equalsIgnoreCase("yml")) {
+						if (nameMatch != null && !nameMatch.matcher(file.getFileName().toString()).matches()) {
+							return FileVisitResult.CONTINUE;
+						}
 						all.add(file);
 					}
 					return FileVisitResult.CONTINUE;
@@ -77,7 +93,7 @@ public class Scanner {
 		return all;
 	}
 
-	private void scanFile(Path root, Submission sub, IndexLog log, Consumer<ScanResult> done) {
+	private void scanFile(Submission sub, IndexLog log, Consumer<ScanResult> done) {
 		Throwable failed = null;
 		Content content = null;
 		ContentType classifiedType = ContentType.UNKNOWN;
@@ -92,18 +108,20 @@ public class Scanner {
 		} catch (Throwable e) {
 			failed = e;
 		} finally {
-			if (failed == null) failed = log.log.stream()
-												.filter(l -> l.type == IndexLog.EntryType.FATAL && l.exception != null)
-												.map(l -> l.exception)
-												.findFirst().orElse(null);
+			if (!newOnly || content == null) {
+				if (failed == null) failed = log.log.stream()
+													.filter(l -> l.type == IndexLog.EntryType.FATAL && l.exception != null)
+													.map(l -> l.exception)
+													.findFirst().orElse(null);
 
-			done.accept(new ScanResult(
-					root == sub.filePath ? sub.filePath.getFileName().toString() : root.relativize(sub.filePath).toString(),
-					content != null ? "KNOWN" : "NEW",
-					content != null ? content.contentType : "-",
-					classifiedType.name(),
-					failed
-			));
+				done.accept(new ScanResult(
+						sub.filePath.toString(),
+						content != null ? "KNOWN" : "NEW",
+						content != null ? content.contentType : "-",
+						classifiedType.name(),
+						failed
+				));
+			}
 		}
 	}
 

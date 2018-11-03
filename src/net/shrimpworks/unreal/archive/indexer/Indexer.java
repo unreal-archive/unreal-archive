@@ -24,11 +24,13 @@ import net.shrimpworks.unreal.archive.YAML;
 public class Indexer {
 
 	private final ContentManager contentManager;
-	private final CLI cli;
+
+	private final boolean verbose;
 
 	public Indexer(ContentManager contentManager, CLI cli) {
 		this.contentManager = contentManager;
-		this.cli = cli;
+
+		this.verbose = cli.option("verbose", "").equalsIgnoreCase("true") || cli.option("verbose", "").equalsIgnoreCase("1");
 	}
 
 	/**
@@ -80,8 +82,7 @@ public class Indexer {
 			indexFile(sub, log, force, forceType, c -> {
 				for (IndexLog.LogEntry l : log.log) {
 					System.out.printf("[%s] %s: %s%n", l.type, Util.fileName(c.filePath.getFileName()), l.message);
-					if (l.exception != null
-						&& (cli.option("verbose", "").equalsIgnoreCase("true") || cli.option("verbose", "").equalsIgnoreCase("1"))) {
+					if (l.exception != null && verbose) {
 						l.exception.printStackTrace(System.out);
 					}
 				}

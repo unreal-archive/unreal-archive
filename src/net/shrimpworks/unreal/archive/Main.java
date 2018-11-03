@@ -165,14 +165,17 @@ public class Main {
 
 		Scanner scanner = new Scanner(contentManager, cli);
 
-		for (int i = 1; i < cli.commands().length; i++) {
-			Path indexPath = Paths.get(cli.commands()[i]);
-			if (!Files.exists(indexPath)) {
-				System.err.println("Input path does not exist: " + indexPath.toString());
-				System.exit(4);
-			}
-			scanner.scan(indexPath);
-		}
+		Path[] paths = Arrays.stream(cli.commands(), 1, cli.commands().length)
+							 .map(s -> Paths.get(s))
+							 .peek(p -> {
+								 if (!Files.exists(p)) {
+									 System.err.println("Input path does not exist: " + p.toString());
+									 System.exit(4);
+								 }
+							 })
+							 .toArray(Path[]::new);
+
+		scanner.scan(paths);
 	}
 
 	private static void edit(ContentManager contentManager, CLI cli) throws IOException, InterruptedException {
