@@ -32,12 +32,12 @@ public class YAMLTest {
 	public void fixThings() throws IOException {
 		ContentManager cm = new ContentManager(Paths.get("unreal-archive-data/archive-content/"),
 											   new DataStore.NopStore(), new DataStore.NopStore(), new DataStore.NopStore());
-		Collection<Content> search = cm.search("Unreal Tournament 2004", "MAP", "OSM-", null);
+		Collection<Content> search = cm.search("Unreal Tournament", "MAP", "AF-", null);
 		for (Content c : search) {
-			if (c instanceof Map && c.name.toLowerCase().startsWith("osm-")) {
+			if (c instanceof Map && c.name.toLowerCase().startsWith("af-")) {
 				Map map = (Map)cm.checkout(c.hash);
 
-				map.gametype = "Single Player";
+				map.gametype = "AirFight";
 				if (cm.checkin(new IndexResult<>(map, Collections.emptySet()), null)) {
 					System.out.println("Stored changes for " + String.join(" / ", map.game, map.gametype, map.name));
 				} else {

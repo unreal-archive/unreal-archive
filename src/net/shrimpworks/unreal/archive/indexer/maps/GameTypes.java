@@ -34,7 +34,9 @@ public class GameTypes {
 			new GameType("XMP", "XMP"),
 			new GameType("FragBall", "FB"),
 			new GameType("Flag Domination", "FD"),
-			new GameType("Soccer Tournament", "SCR")
+			new GameType("Soccer Tournament", "SCR"),
+			new GameType("Killing Floor", "KF"),
+			new GameType("AirFight", "AF")
 	);
 
 	public static GameType forMap(String mapName) {
