@@ -21,6 +21,7 @@ public class Maps {
 
 	private final ContentManager content;
 	private final Path output;
+	private final Path root;
 	private final Path staticRoot;
 
 	private final Games games;
@@ -29,6 +30,7 @@ public class Maps {
 	public Maps(ContentManager content, Path output, Path staticRoot) {
 		this.content = content;
 		this.output = output;
+		this.root = output.resolve("maps");
 		this.staticRoot = staticRoot;
 		this.games = new Games();
 		this.authors = new Authors();
@@ -53,8 +55,6 @@ public class Maps {
 			// page page with gametypes: /maps/game.html
 			// gametype page: /maps/game/gametype/a/1.html
 			// map page: /maps/game/gametype/a/1/name_hash8.html
-
-			Path root = output.resolve("maps");
 
 			Templates.template("maps/games.ftl")
 					 .put("static", root.relativize(staticRoot))
@@ -91,7 +91,7 @@ public class Maps {
 
 						// still generate all map pages
 						for (MapInfo map : all) {
-							mapPage(root, map);
+							mapPage(map);
 							count++;
 						}
 
@@ -111,7 +111,7 @@ public class Maps {
 							count++;
 
 							for (MapInfo map : p.maps) {
-								mapPage(root, map);
+								mapPage(map);
 								count++;
 							}
 						}
@@ -147,7 +147,7 @@ public class Maps {
 		return count;
 	}
 
-	private void mapPage(Path root, MapInfo map) throws IOException {
+	private void mapPage(MapInfo map) throws IOException {
 		Templates.template("maps/map.ftl")
 				 .put("static", root.resolve(map.path).getParent().relativize(staticRoot))
 				 .put("title", String.join(" / ", "Maps", map.page.letter.gametype.game.name, map.page.letter.gametype.name, map.map.title))
