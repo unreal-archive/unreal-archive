@@ -23,7 +23,7 @@ import net.shrimpworks.unreal.packages.entities.objects.Object;
 import net.shrimpworks.unreal.packages.entities.properties.Property;
 import net.shrimpworks.unreal.packages.entities.properties.StringProperty;
 
-public class MapPackIndesHandler implements IndexHandler<MapPack> {
+public class MapPackIndexHandler implements IndexHandler<MapPack> {
 
 	private static final String SHOT_NAME = "%s_shot_%d.png";
 
@@ -31,7 +31,7 @@ public class MapPackIndesHandler implements IndexHandler<MapPack> {
 
 		@Override
 		public IndexHandler<MapPack> get() {
-			return new MapPackIndesHandler();
+			return new MapPackIndexHandler();
 		}
 	}
 
