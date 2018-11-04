@@ -40,9 +40,13 @@ public class MapPackIndexHandler implements IndexHandler<MapPack> {
 		IndexLog log = incoming.log;
 		MapPack m = (MapPack)content;
 
-		m.name = packName(m.name);
-
 		Set<Incoming.IncomingFile> maps = incoming.files(Incoming.FileType.MAP);
+		if (maps.isEmpty()) {
+			log.log(IndexLog.EntryType.FATAL, "Cannot index a map pack with no maps!", new IllegalStateException());
+			return;
+		}
+
+		m.name = packName(m.name);
 
 		boolean gameOverride = false;
 		if (incoming.submission.override.get("game", null) != null) {
