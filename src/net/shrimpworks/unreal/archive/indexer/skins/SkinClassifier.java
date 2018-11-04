@@ -30,6 +30,10 @@ public class SkinClassifier implements Classifier {
 	public boolean classify(Incoming incoming) {
 		Set<Incoming.IncomingFile> intFiles = incoming.files(Incoming.FileType.INT);
 		Set<Incoming.IncomingFile> playerFiles = incoming.files(Incoming.FileType.PLAYER);
+		Set<Incoming.IncomingFile> codeFiles = incoming.files(Incoming.FileType.CODE);
+
+		// presence of a .u package probably indicates a model
+		if (!codeFiles.isEmpty()) return false;
 
 		// more often than not multiple ints probably indicates a model
 		if (intFiles.size() != 1 && playerFiles.size() != 1) return false;
