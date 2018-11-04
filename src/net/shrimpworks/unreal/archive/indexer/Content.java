@@ -15,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import net.shrimpworks.unreal.archive.indexer.mappacks.MapPack;
 import net.shrimpworks.unreal.archive.indexer.maps.Map;
+import net.shrimpworks.unreal.archive.indexer.models.Model;
 import net.shrimpworks.unreal.archive.indexer.skins.Skin;
 
 // there appears to be weird mapping issues when using @JsonTypeInfo with YAML
@@ -23,6 +24,7 @@ import net.shrimpworks.unreal.archive.indexer.skins.Skin;
 		@JsonSubTypes.Type(value = Map.class, name = "MAP"),
 		@JsonSubTypes.Type(value = MapPack.class, name = "MAP_PACK"),
 		@JsonSubTypes.Type(value = Skin.class, name = "SKIN"),
+		@JsonSubTypes.Type(value = Model.class, name = "MODEL"),
 		@JsonSubTypes.Type(value = UnknownContent.class, name = "UNKNOWN")
 })
 public abstract class Content {

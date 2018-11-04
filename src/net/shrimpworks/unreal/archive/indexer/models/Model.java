@@ -12,6 +12,8 @@ public class Model extends Content {
 	// Game/Type/A/
 	private static final String PATH_STRING = "%s/%s/%s/";
 
+	static final String UT_PLAYER_CLASS = "Botpack.TournamentPlayer";
+
 	static final Pattern NAME_MATCH = Pattern.compile(".+?\\..+?\\d");
 	static final Pattern FACE_MATCH = Pattern.compile(".+?\\..+?\\d[a-zA-Z0-9]+");
 
