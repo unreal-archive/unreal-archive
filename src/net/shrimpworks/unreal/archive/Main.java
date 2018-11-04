@@ -147,14 +147,17 @@ public class Main {
 
 		Indexer indexer = new Indexer(contentManager, cli);
 
-		for (int i = 1; i < cli.commands().length; i++) {
-			Path indexPath = Paths.get(cli.commands()[i]);
-			if (!Files.exists(indexPath)) {
-				System.err.println("Index path does not exist: " + indexPath.toString());
-				System.exit(4);
-			}
-			indexer.index(indexPath, force, forceType);
-		}
+		Path[] paths = Arrays.stream(cli.commands(), 1, cli.commands().length)
+							 .map(s -> Paths.get(s))
+							 .peek(p -> {
+								 if (!Files.exists(p)) {
+									 System.err.println("Input path does not exist: " + p.toString());
+									 System.exit(4);
+								 }
+							 })
+							 .toArray(Path[]::new);
+
+		indexer.index(force, forceType, paths);
 	}
 
 	private static void scan(ContentManager contentManager, CLI cli) throws IOException {

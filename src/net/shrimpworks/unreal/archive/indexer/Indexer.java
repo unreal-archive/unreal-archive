@@ -65,13 +65,16 @@ public class Indexer {
 	 *                  attempting to discover it automatically
 	 * @throws IOException file access failure
 	 */
-	public void index(Path inputPath, boolean force, ContentType forceType) throws IOException {
+	public void index(boolean force, ContentType forceType, Path... inputPath) throws IOException {
 		final List<IndexLog> indexLogs = new ArrayList<>();
 
 		// go through all the files in the input path and index them if new
-		List<Submission> all = findFiles(inputPath);
+		List<Submission> all = new ArrayList<>();
+		for (Path p : inputPath) {
+			all.addAll(findFiles(p));
+		}
 
-		System.out.printf("Found %d files to index in %s%n", all.size(), inputPath);
+		System.out.printf("Found %d file(s) to index%n", all.size());
 
 		AtomicInteger done = new AtomicInteger();
 

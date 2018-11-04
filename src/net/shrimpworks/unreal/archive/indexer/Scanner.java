@@ -21,6 +21,7 @@ public class Scanner {
 
 	private final boolean newOnly;
 	private final Pattern nameMatch;
+	private final Pattern nameExclude;
 
 	public Scanner(ContentManager contentManager, CLI cli) {
 		this.contentManager = contentManager;
@@ -32,6 +33,12 @@ public class Scanner {
 		} else {
 			this.nameMatch = Pattern.compile(cli.option("match", ""));
 		}
+
+		if (cli.option("exclude", "").isEmpty()) {
+			this.nameExclude = null;
+		} else {
+			this.nameExclude = Pattern.compile(cli.option("exclude", ""));
+		}
 	}
 
 	public void scan(Path... inputPath) throws IOException {
@@ -41,7 +48,10 @@ public class Scanner {
 			all.addAll(findFiles(p));
 		}
 
-		System.err.printf("Found %d file(s) to scan %s%n", all.size(), nameMatch != null ? "matching " + nameMatch.pattern() : "");
+		System.err.printf("Found %d file(s) to scan %s %s%n", all.size(),
+						  nameMatch != null ? "matching " + nameMatch.pattern() : "",
+						  nameExclude != null ? "excluding " + nameExclude.pattern() : ""
+		);
 
 		System.err.printf("%s;%s;%s;%s;%s%n",
 						  "File",
@@ -78,9 +88,15 @@ public class Scanner {
 				@Override
 				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
 					if (!Util.extension(file).equalsIgnoreCase("yml")) {
+
 						if (nameMatch != null && !nameMatch.matcher(file.getFileName().toString()).matches()) {
 							return FileVisitResult.CONTINUE;
 						}
+
+						if (nameExclude != null && nameExclude.matcher(file.getFileName().toString()).matches()) {
+							return FileVisitResult.CONTINUE;
+						}
+
 						all.add(file);
 					}
 					return FileVisitResult.CONTINUE;
@@ -99,9 +115,11 @@ public class Scanner {
 		ContentType classifiedType = ContentType.UNKNOWN;
 
 		try (Incoming incoming = new Incoming(sub, log)) {
-			incoming.prepare();
-
 			content = contentManager.forHash(incoming.hash);
+
+			if (newOnly && content != null) return;
+
+			incoming.prepare();
 
 			classifiedType = ContentType.classify(incoming);
 
