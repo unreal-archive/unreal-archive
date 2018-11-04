@@ -11,6 +11,7 @@ import net.shrimpworks.unreal.archive.indexer.maps.MapClassifier;
 import net.shrimpworks.unreal.archive.indexer.maps.MapIndexHandler;
 import net.shrimpworks.unreal.archive.indexer.models.Model;
 import net.shrimpworks.unreal.archive.indexer.models.ModelClassifier;
+import net.shrimpworks.unreal.archive.indexer.models.ModelIndexHandler;
 import net.shrimpworks.unreal.archive.indexer.skins.Skin;
 import net.shrimpworks.unreal.archive.indexer.skins.SkinClassifier;
 import net.shrimpworks.unreal.archive.indexer.skins.SkinIndexHandler;
@@ -19,7 +20,7 @@ public enum ContentType {
 	MAP(new MapClassifier(), new MapIndexHandler.MapIndexHandlerFactory(), Map.class),
 	MAP_PACK(new MapPackClassifier(), new MapPackIndexHandler.MapPackIndesHandlerFactory(), MapPack.class),
 	SKIN(new SkinClassifier(), new SkinIndexHandler.SkinIndexHandlerFactory(), Skin.class),
-	MODEL(new ModelClassifier(), new IndexHandler.NoOpIndexHandlerFactory(), Model.class), // FIXME indexer
+	MODEL(new ModelClassifier(), new ModelIndexHandler.ModelIndexHandlerFactory(), Model.class),
 	VOICE(new Classifier.NoOpClassifier(), new IndexHandler.NoOpIndexHandlerFactory(), UnknownContent.class),
 	MUTATOR(new Classifier.NoOpClassifier(), new IndexHandler.NoOpIndexHandlerFactory(), UnknownContent.class),
 	MOD(new Classifier.NoOpClassifier(), new IndexHandler.NoOpIndexHandlerFactory(), UnknownContent.class),
