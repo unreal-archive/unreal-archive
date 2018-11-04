@@ -22,6 +22,7 @@ public class MapPacks {
 
 	private final ContentManager content;
 	private final Path output;
+	private final Path root;
 	private final Path staticRoot;
 
 	private final Games games;
@@ -29,6 +30,7 @@ public class MapPacks {
 	public MapPacks(ContentManager content, Path output, Path staticRoot) {
 		this.content = content;
 		this.output = output;
+		this.root = output.resolve("mappacks");
 		this.staticRoot = staticRoot;
 		this.games = new Games();
 
@@ -44,7 +46,6 @@ public class MapPacks {
 	public int generate() {
 		int count = 0;
 		try {
-			Path root = output.resolve("mappacks");
 
 			Templates.template("mappacks/games.ftl")
 					 .put("static", root.relativize(staticRoot))
@@ -66,12 +67,13 @@ public class MapPacks {
 							 .put("title", String.join(" / ", "Map Packs", g.getKey()))
 							 .put("game", g.getValue())
 							 .put("packs", all)
+							 .put("siteRoot", root.resolve(g.getValue().path).getParent().relativize(root))
 							 .write(root.resolve(g.getValue().path).resolve("index.html"));
 					count++;
 
 					// still generate all map pages
 					for (MapPackInfo pack : all) {
-						packPage(root, pack);
+						packPage(pack);
 						count++;
 					}
 
@@ -84,11 +86,12 @@ public class MapPacks {
 							 .put("title", String.join(" / ", "Map Packs", g.getKey()))
 							 .put("page", p)
 							 .put("root", p.path)
+							 .put("siteRoot", root.resolve(p.path).getParent().relativize(root))
 							 .write(root.resolve(p.path).resolve("index.html"));
 					count++;
 
 					for (MapPackInfo pack : p.packs) {
-						packPage(root, pack);
+						packPage(pack);
 						count++;
 					}
 				}
@@ -99,6 +102,7 @@ public class MapPacks {
 						 .put("title", String.join(" / ", "Map Packs", g.getKey()))
 						 .put("page", g.getValue().pages.get(0))
 						 .put("root", g.getValue().path)
+						 .put("siteRoot", root.resolve(g.getValue().path).getParent().relativize(root))
 						 .write(root.resolve(g.getValue().path).resolve("index.html"));
 				count++;
 
@@ -111,12 +115,12 @@ public class MapPacks {
 		return count;
 	}
 
-	private void packPage(Path root, MapPackInfo pack) throws IOException {
+	private void packPage(MapPackInfo pack) throws IOException {
 		Templates.template("mappacks/mappack.ftl")
 				 .put("static", root.resolve(pack.path).getParent().relativize(staticRoot))
 				 .put("title", String.join(" / ", "Map Packs", pack.page.game.name, pack.pack.name))
 				 .put("pack", pack)
-				 .put("siteRoot", root.resolve(pack.path).getParent().relativize(output))
+				 .put("siteRoot", root.resolve(pack.path).getParent().relativize(root))
 				 .write(root.resolve(pack.path + ".html"));
 	}
 

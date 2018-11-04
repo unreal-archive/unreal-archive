@@ -11,9 +11,9 @@
 
 	<section class="header" <#if headerbg??>style="background-image: url('${headerbg}')"</#if>>
 		<h1>
-			<a href="${siteRoot}/maps/index.html">Maps</a>
-			/ <a href="${relUrl(siteRoot, "maps/" + map.page.letter.gametype.game.path)}/index.html">${map.page.letter.gametype.game.name}</a>
-			/ <a href="${relUrl(siteRoot, "maps/" + map.page.letter.gametype.path)}/index.html">${map.page.letter.gametype.name}</a>
+			<a href="${siteRoot}/index.html">Maps</a>
+			/ <a href="${relUrl(siteRoot, map.page.letter.gametype.game.path)}/index.html">${map.page.letter.gametype.game.name}</a>
+			/ <a href="${relUrl(siteRoot, map.page.letter.gametype.path)}/index.html">${map.page.letter.gametype.name}</a>
 			/ ${map.map.name}
 		</h1>
 	</section>
@@ -40,7 +40,7 @@
 				</div>
 				<div class="label-value">
 					<label>Game Type</label><span>
-						<a href="${relUrl(siteRoot, "maps/" + map.page.letter.gametype.path + "/index.html")}">${map.map.gametype}</a>
+						<a href="${relUrl(siteRoot, map.page.letter.gametype.path + "/index.html")}">${map.map.gametype}</a>
 					</span>
 				</div>
 				<div class="label-value">
@@ -88,7 +88,7 @@
 							<td>${f.hash}</td>
 							<#if map.alsoIn[f.hash]??>
 								<td>
-									<a href="${relUrl(siteRoot, "files/" + f.hash[0..1] + "/" + f.hash + ".html")}">${map.alsoIn[f.hash]}</a>
+									<a href="${relUrl(siteRoot + "/../", "files/" + f.hash[0..1] + "/" + f.hash + ".html")}">${map.alsoIn[f.hash]}</a>
 								</td>
 							<#else>
 								<td>-</td>

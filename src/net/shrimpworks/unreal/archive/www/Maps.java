@@ -85,7 +85,7 @@ public class Maps {
 								 .put("title", String.join(" / ", "Maps", g.getKey(), gt.getKey()))
 								 .put("gametype", gt.getValue())
 								 .put("maps", all)
-								 .put("siteRoot", root.resolve(gt.getValue().path).getParent().relativize(output))
+								 .put("siteRoot", root.resolve(gt.getValue().path).getParent().relativize(root))
 								 .write(root.resolve(gt.getValue().path).resolve("index.html"));
 						count++;
 
@@ -106,7 +106,7 @@ public class Maps {
 									 .put("title", String.join(" / ", "Maps", g.getKey(), gt.getKey()))
 									 .put("page", p)
 									 .put("root", p.path)
-									 .put("siteRoot", root.resolve(p.path).getParent().relativize(output))
+									 .put("siteRoot", root.resolve(p.path).getParent().relativize(root))
 									 .write(root.resolve(p.path).resolve("index.html"));
 							count++;
 
@@ -122,7 +122,7 @@ public class Maps {
 								 .put("title", String.join(" / ", "Maps", g.getKey(), gt.getKey()))
 								 .put("page", l.getValue().pages.get(0))
 								 .put("root", l.getValue().path)
-								 .put("siteRoot", root.resolve(l.getValue().path).getParent().relativize(output))
+								 .put("siteRoot", root.resolve(l.getValue().path).getParent().relativize(root))
 								 .write(root.resolve(l.getValue().path).resolve("index.html"));
 						count++;
 
@@ -134,7 +134,7 @@ public class Maps {
 							 .put("title", String.join(" / ", "Maps", g.getKey(), gt.getKey()))
 							 .put("page", gt.getValue().letters.firstEntry().getValue().pages.get(0))
 							 .put("root", gt.getValue().path)
-							 .put("siteRoot", root.resolve(gt.getValue().path).getParent().relativize(output))
+							 .put("siteRoot", root.resolve(gt.getValue().path).getParent().relativize(root))
 							 .write(root.resolve(gt.getValue().path).resolve("index.html"));
 					count++;
 				}
@@ -152,7 +152,7 @@ public class Maps {
 				 .put("static", root.resolve(map.path).getParent().relativize(staticRoot))
 				 .put("title", String.join(" / ", "Maps", map.page.letter.gametype.game.name, map.page.letter.gametype.name, map.map.title))
 				 .put("map", map)
-				 .put("siteRoot", root.resolve(map.path).getParent().relativize(output))
+				 .put("siteRoot", root.resolve(map.path).getParent().relativize(root))
 				 .write(root.resolve(map.path + ".html"));
 	}
 

@@ -11,7 +11,9 @@
 
 	<section class="header" <#if headerbg??>style="background-image: url('${headerbg}')"</#if>>
 		<h1>
-		${pack.page.game.name} / ${pack.pack.name}
+			<a href="${siteRoot}/index.html">Map Packs</a>
+			/ <a href="${relUrl(siteRoot, pack.page.game.path)}/index.html">${pack.page.game.name}</a>
+			/ ${pack.pack.name}
 		</h1>
 	</section>
 
@@ -97,7 +99,7 @@
 							<td>${f.hash}</td>
 							<#if pack.alsoIn[f.hash]??>
 								<td>
-									<a href="${relUrl(siteRoot, "files/" + f.hash[0..1] + "/" + f.hash + ".html")}">${pack.alsoIn[f.hash]}</a>
+									<a href="${relUrl(siteRoot + "/../", "files/" + f.hash[0..1] + "/" + f.hash + ".html")}">${pack.alsoIn[f.hash]}</a>
 								</td>
 							<#else>
 								<td>-</td>
