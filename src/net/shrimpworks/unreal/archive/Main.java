@@ -1,6 +1,8 @@
 package net.shrimpworks.unreal.archive;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SeekableByteChannel;
@@ -10,9 +12,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.FileTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -147,15 +151,34 @@ public class Main {
 
 		Indexer indexer = new Indexer(contentManager, cli);
 
-		Path[] paths = Arrays.stream(cli.commands(), 1, cli.commands().length)
-							 .map(s -> Paths.get(s))
-							 .peek(p -> {
-								 if (!Files.exists(p)) {
-									 System.err.println("Input path does not exist: " + p.toString());
-									 System.exit(4);
-								 }
-							 })
-							 .toArray(Path[]::new);
+		Path[] paths;
+
+		// read file set from stdin
+		if (cli.commands()[1].equals("-")) {
+			try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
+				String l;
+				List<Path> inPaths = new ArrayList<>();
+				while ((l = br.readLine()) != null) {
+					Path p = Paths.get(l);
+					if (!Files.exists(p)) {
+						System.err.println("Input path does not exist: " + p.toString());
+						System.exit(4);
+					}
+					inPaths.add(p);
+				}
+				paths = inPaths.toArray(new Path[0]);
+			}
+		} else {
+			paths = Arrays.stream(cli.commands(), 1, cli.commands().length)
+						  .map(s -> Paths.get(s))
+						  .peek(p -> {
+							  if (!Files.exists(p)) {
+								  System.err.println("Input path does not exist: " + p.toString());
+								  System.exit(4);
+							  }
+						  })
+						  .toArray(Path[]::new);
+		}
 
 		indexer.index(force, forceType, paths);
 	}
