@@ -1,14 +1,17 @@
 <#include "../_header.ftl">
 
-	<section class="header" style='background-image: url("${static}/images/games/${page.game.name}.png")'>
+	<#assign game=page.gametype.game>
+	<#assign gametype=page.gametype>
+
+	<section class="header" style='background-image: url("${static}/images/gametypes/${game.name}/${gametype.name}.png"), url("${static}/images/games/${game.name}.png")'>
 		<h1>
-			Map Packs / ${page.game.name} / pg ${page.number}
+			Map Packs / ${game.name} / ${gametype.name} / pg ${page.number}
 		</h1>
 	</section>
 	<article class="list">
 
 		<nav class="pages">
-			<#list page.game.pages as pg><a href="${relUrl(root, pg.path + "/index.html")}" <#if pg.number == page.number>class="active"</#if>>${pg.number}</a></#list>
+			<#list gametype.pages as pg><a href="${relUrl(root, pg.path + "/index.html")}" <#if pg.number == page.number>class="active"</#if>>${pg.number}</a></#list>
 		</nav>
 
 		<table class="mappacks">

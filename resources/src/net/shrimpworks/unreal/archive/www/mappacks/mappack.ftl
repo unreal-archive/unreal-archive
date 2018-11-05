@@ -1,6 +1,9 @@
 <#include "../_header.ftl">
 
-	<#assign headerbg>${static}/images/games/${pack.page.game.name}.png</#assign>
+	<#assign game=pack.page.gametype.game>
+	<#assign gametype=pack.page.gametype>
+
+	<#assign headerbg>${static}/images/games/${game.name}.png</#assign>
 
 	<#list pack.pack.attachments as a>
 		<#if a.type == "IMAGE">
@@ -12,7 +15,8 @@
 	<section class="header" <#if headerbg??>style="background-image: url('${headerbg}')"</#if>>
 		<h1>
 			<a href="${siteRoot}/index.html">Map Packs</a>
-			/ <a href="${relUrl(siteRoot, pack.page.game.path)}/index.html">${pack.page.game.name}</a>
+			/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
+			/ <a href="${relUrl(siteRoot, gametype.path)}/index.html">${gametype.name}</a>
 			/ ${pack.pack.name}
 		</h1>
 	</section>
@@ -37,6 +41,11 @@
 				<h2>Map Information</h2>
 				<div class="label-value">
 					<label>Name</label><span>${pack.pack.name}</span>
+				</div>
+				<div class="label-value">
+					<label>Game Type</label><span>
+						<a href="${relUrl(siteRoot, gametype.path + "/index.html")}">${pack.pack.gametype}</a>
+					</span>
 				</div>
 				<div class="label-value">
 					<label>Maps</label><span>${pack.pack.maps?size}</span>

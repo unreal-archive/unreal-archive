@@ -1,8 +1,10 @@
 <#include "../_header.ftl">
 
-	<section class="header" style='background-image: url("${static}/images/games/${game.name}.png")'>
+	<#assign game=gametype.game>
+
+	<section class="header" style='background-image: url("${static}/images/gametypes/${game.name}/${gametype.name}.png"), url("${static}/images/games/${game.name}.png")'>
 		<h1>
-			Map Packs / ${game.name}
+			Map Packs / ${game.name} / ${gametype.name}
 		</h1>
 	</section>
 	<article class="list">
@@ -17,7 +19,7 @@
 			<tbody>
 				<#list packs as p>
 				<tr>
-					<td><a href="${relUrl(game.path, p.path + ".html")}">${p.pack.name}</a></td>
+					<td><a href="${relUrl(gametype.path, p.path + ".html")}">${p.pack.name}</a></td>
 					<td>${p.pack.author}</td>
 					<td>${p.pack.maps?size}</td>
 				</tr>

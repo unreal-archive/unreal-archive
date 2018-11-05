@@ -1,6 +1,9 @@
 <#include "../_header.ftl">
 
-	<#assign headerbg>${static}/images/games/${map.page.letter.gametype.game.name}.png</#assign>
+	<#assign game=map.page.letter.gametype.game>
+	<#assign gametype=map.page.letter.gametype>
+
+	<#assign headerbg>${static}/images/games/${game.name}.png</#assign>
 
 	<#list map.map.attachments as a>
 		<#if a.type == "IMAGE">
@@ -12,8 +15,8 @@
 	<section class="header" <#if headerbg??>style="background-image: url('${headerbg}')"</#if>>
 		<h1>
 			<a href="${siteRoot}/index.html">Maps</a>
-			/ <a href="${relUrl(siteRoot, map.page.letter.gametype.game.path)}/index.html">${map.page.letter.gametype.game.name}</a>
-			/ <a href="${relUrl(siteRoot, map.page.letter.gametype.path)}/index.html">${map.page.letter.gametype.name}</a>
+			/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
+			/ <a href="${relUrl(siteRoot, gametype.path)}/index.html">${gametype.name}</a>
 			/ ${map.map.name}
 		</h1>
 	</section>
@@ -40,7 +43,7 @@
 				</div>
 				<div class="label-value">
 					<label>Game Type</label><span>
-						<a href="${relUrl(siteRoot, map.page.letter.gametype.path + "/index.html")}">${map.map.gametype}</a>
+						<a href="${relUrl(siteRoot, gametype.path + "/index.html")}">${map.map.gametype}</a>
 					</span>
 				</div>
 				<div class="label-value">

@@ -60,6 +60,7 @@ public class Maps {
 					 .put("static", root.relativize(staticRoot))
 					 .put("title", "Maps")
 					 .put("games", games)
+					 .put("siteRoot", root)
 					 .write(root.resolve("index.html"));
 			count++;
 
@@ -68,6 +69,7 @@ public class Maps {
 						 .put("static", root.resolve(g.getValue().path).relativize(staticRoot))
 						 .put("title", String.join(" / ", "Maps", g.getKey()))
 						 .put("game", g.getValue())
+						 .put("siteRoot", root.resolve(g.getValue().path).getParent().relativize(root))
 						 .write(root.resolve(g.getValue().path).resolve("index.html"));
 				count++;
 

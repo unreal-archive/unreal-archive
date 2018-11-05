@@ -20,6 +20,8 @@ import static net.shrimpworks.unreal.archive.www.Templates.slug;
 
 public class MapPacks {
 
+	private static final String SECTION = "Map Packs";
+
 	private final ContentManager content;
 	private final Path output;
 	private final Path root;
@@ -49,63 +51,74 @@ public class MapPacks {
 
 			Templates.template("mappacks/games.ftl")
 					 .put("static", root.relativize(staticRoot))
-					 .put("title", "Map Packs")
+					 .put("title", SECTION)
 					 .put("games", games)
+					 .put("siteRoot", root)
 					 .write(root.resolve("index.html"));
 			count++;
 
-			for (java.util.Map.Entry<String, Game> g : games.games.entrySet()) {
-
-				if (g.getValue().packs < Templates.PAGE_SIZE) {
-					// we can output all maps on a single page
-					List<MapPackInfo> all = g.getValue().pages.stream()
-															  .flatMap(p -> p.packs.stream())
-															  .sorted()
-															  .collect(Collectors.toList());
-					Templates.template("mappacks/listing_single.ftl")
-							 .put("static", root.resolve(g.getValue().path).relativize(staticRoot))
-							 .put("title", String.join(" / ", "Map Packs", g.getKey()))
-							 .put("game", g.getValue())
-							 .put("packs", all)
-							 .put("siteRoot", root.resolve(g.getValue().path).getParent().relativize(root))
-							 .write(root.resolve(g.getValue().path).resolve("index.html"));
-					count++;
-
-					// still generate all map pages
-					for (MapPackInfo pack : all) {
-						packPage(pack);
-						count++;
-					}
-
-					continue;
-				}
-
-				for (Page p : g.getValue().pages) {
-					Templates.template("mappacks/listing.ftl")
-							 .put("static", root.resolve(p.path).relativize(staticRoot))
-							 .put("title", String.join(" / ", "Map Packs", g.getKey()))
-							 .put("page", p)
-							 .put("root", p.path)
-							 .put("siteRoot", root.resolve(p.path).getParent().relativize(root))
-							 .write(root.resolve(p.path).resolve("index.html"));
-					count++;
-
-					for (MapPackInfo pack : p.packs) {
-						packPage(pack);
-						count++;
-					}
-				}
-
-				// output first letter/page combo, with appropriate relative links
-				Templates.template("mappacks/listing.ftl")
+			for (Map.Entry<String, Game> g : games.games.entrySet()) {
+				Templates.template("mappacks/gametypes.ftl")
 						 .put("static", root.resolve(g.getValue().path).relativize(staticRoot))
-						 .put("title", String.join(" / ", "Map Packs", g.getKey()))
-						 .put("page", g.getValue().pages.get(0))
-						 .put("root", g.getValue().path)
+						 .put("title", String.join(" / ", SECTION, g.getKey()))
+						 .put("game", g.getValue())
 						 .put("siteRoot", root.resolve(g.getValue().path).getParent().relativize(root))
 						 .write(root.resolve(g.getValue().path).resolve("index.html"));
 				count++;
 
+				for (Map.Entry<String, Gametype> gt : g.getValue().gametypes.entrySet()) {
+
+					if (gt.getValue().packs < Templates.PAGE_SIZE) {
+						// we can output all maps on a single page
+						List<MapPackInfo> all = gt.getValue().pages.stream()
+																  .flatMap(p -> p.packs.stream())
+																  .sorted()
+																  .collect(Collectors.toList());
+						Templates.template("mappacks/listing_single.ftl")
+								 .put("static", root.resolve(gt.getValue().path).relativize(staticRoot))
+								 .put("title", String.join(" / ", SECTION, g.getKey(), gt.getKey()))
+								 .put("gametype", gt.getValue())
+								 .put("packs", all)
+								 .put("siteRoot", root.resolve(gt.getValue().path).getParent().relativize(root))
+								 .write(root.resolve(gt.getValue().path).resolve("index.html"));
+						count++;
+
+						// still generate all map pages
+						for (MapPackInfo pack : all) {
+							packPage(pack);
+							count++;
+						}
+
+						continue;
+					}
+
+					for (Page p : gt.getValue().pages) {
+						Templates.template("mappacks/listing.ftl")
+								 .put("static", root.resolve(p.path).relativize(staticRoot))
+								 .put("title", String.join(" / ", SECTION, g.getKey(), gt.getKey()))
+								 .put("page", p)
+								 .put("root", p.path)
+								 .put("siteRoot", root.resolve(p.path).getParent().relativize(root))
+								 .write(root.resolve(p.path).resolve("index.html"));
+						count++;
+
+						for (MapPackInfo pack : p.packs) {
+							packPage(pack);
+							count++;
+						}
+					}
+
+					// output first letter/page combo, with appropriate relative links
+					Templates.template("mappacks/listing.ftl")
+							 .put("static", root.resolve(gt.getValue().path).relativize(staticRoot))
+							 .put("title", String.join(" / ", SECTION, g.getKey(), gt.getKey()))
+							 .put("page", gt.getValue().pages.get(0))
+							 .put("root", gt.getValue().path)
+							 .put("siteRoot", root.resolve(gt.getValue().path).getParent().relativize(root))
+							 .write(root.resolve(gt.getValue().path).resolve("index.html"));
+					count++;
+
+				}
 			}
 
 		} catch (IOException e) {
@@ -118,7 +131,7 @@ public class MapPacks {
 	private void packPage(MapPackInfo pack) throws IOException {
 		Templates.template("mappacks/mappack.ftl")
 				 .put("static", root.resolve(pack.path).getParent().relativize(staticRoot))
-				 .put("title", String.join(" / ", "Map Packs", pack.page.game.name, pack.pack.name))
+				 .put("title", String.join(" / ", SECTION, pack.page.gametype.game.name, pack.page.gametype.name, pack.pack.name))
 				 .put("pack", pack)
 				 .put("siteRoot", root.resolve(pack.path).getParent().relativize(root))
 				 .write(root.resolve(pack.path + ".html"));
@@ -134,13 +147,38 @@ public class MapPacks {
 		public final String name;
 		public final String slug;
 		public final String path;
-		public final List<Page> pages = new ArrayList<>();
+		public final TreeMap<String, Gametype> gametypes = new TreeMap<>();
 		public int packs;
 
 		public Game(String name) {
 			this.name = name;
 			this.slug = slug(name);
 			this.path = slug;
+		}
+
+		public void add(MapPack p) {
+			Gametype gametype = gametypes.computeIfAbsent(p.gametype, g -> new Gametype(this, g));
+			gametype.add(p);
+			this.packs++;
+		}
+	}
+
+	public class Gametype {
+
+		public final Game game;
+
+		public final String name;
+		public final String slug;
+		public final String path;
+		public final List<Page> pages = new ArrayList<>();
+		public int packs;
+
+		public Gametype(Game game, String name) {
+			this.game = game;
+			this.name = name;
+			this.slug = slug(name);
+			this.path = String.join("/", game.path, slug);
+			this.packs = 0;
 		}
 
 		public void add(MapPack p) {
@@ -158,15 +196,15 @@ public class MapPacks {
 
 	public class Page {
 
-		public final Game game;
+		public final Gametype gametype;
 		public final int number;
 		public final String path;
 		public final List<MapPackInfo> packs = new ArrayList<>();
 
-		public Page(Game game, int number) {
-			this.game = game;
+		public Page(Gametype gametype, int number) {
+			this.gametype = gametype;
 			this.number = number;
-			this.path = String.join("/", game.path, Integer.toString(number));
+			this.path = String.join("/", gametype.path, Integer.toString(number));
 		}
 
 		public void add(MapPack p) {
