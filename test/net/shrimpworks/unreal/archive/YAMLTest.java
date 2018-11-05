@@ -17,16 +17,23 @@ import net.shrimpworks.unreal.archive.indexer.Content;
 import net.shrimpworks.unreal.archive.indexer.ContentManager;
 import net.shrimpworks.unreal.archive.indexer.ContentType;
 import net.shrimpworks.unreal.archive.indexer.IndexResult;
+import net.shrimpworks.unreal.archive.indexer.mappacks.MapPack;
+import net.shrimpworks.unreal.archive.indexer.maps.GameTypes;
 import net.shrimpworks.unreal.archive.indexer.maps.Map;
 import net.shrimpworks.unreal.archive.storage.DataStore;
 
 import org.junit.Ignore;
 import org.junit.Test;
 
+import static net.shrimpworks.unreal.archive.indexer.IndexHandler.UNKNOWN;
 import static org.junit.Assert.*;
 
 public class YAMLTest {
 
+	/*
+	 * A quick hack "test" (easily runnable in an IDE) to perform various
+	 * transformations to indexed data.
+	 */
 	@Test
 	@Ignore
 	public void fixThings() throws IOException {
@@ -43,6 +50,41 @@ public class YAMLTest {
 				} else {
 					System.out.println("Failed to apply");
 				}
+			}
+		}
+	}
+
+	/**
+	 * Originally, indexed map packs did not contain gametype information,
+	 * so this quick "test" will run through existing ones and apply a
+	 * gametype.
+	 */
+	@Test
+	@Ignore
+	public void setMapPackGametypes() throws IOException {
+		ContentManager cm = new ContentManager(Paths.get("unreal-archive-data/archive-content/"),
+											   new DataStore.NopStore(), new DataStore.NopStore(), new DataStore.NopStore());
+		Collection<MapPack> search = cm.get(MapPack.class);
+		for (MapPack mp : search) {
+			MapPack mapPack = (MapPack)cm.checkout(mp.hash);
+
+			mapPack.gametype = UNKNOWN;
+			for (MapPack.PackMap map : mapPack.maps) {
+				GameTypes.GameType gt = GameTypes.forMap(map.name);
+				if (gt == null) continue;
+
+				if (mapPack.gametype.equals(UNKNOWN)) {
+					mapPack.gametype = gt.name;
+				} else if (!mapPack.gametype.equalsIgnoreCase(gt.name)) {
+					mapPack.gametype = "Mixed";
+					break;
+				}
+			}
+
+			if (cm.checkin(new IndexResult<>(mapPack, Collections.emptySet()), null)) {
+				System.out.printf("Set gametype for %s to %s%n", mapPack.name, mapPack.gametype);
+			} else {
+				System.out.println("Failed to apply");
 			}
 		}
 	}

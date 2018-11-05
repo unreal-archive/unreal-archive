@@ -16,6 +16,7 @@ import net.shrimpworks.unreal.archive.indexer.IndexHandler;
 import net.shrimpworks.unreal.archive.indexer.IndexLog;
 import net.shrimpworks.unreal.archive.indexer.IndexResult;
 import net.shrimpworks.unreal.archive.indexer.IndexUtils;
+import net.shrimpworks.unreal.archive.indexer.maps.GameTypes;
 import net.shrimpworks.unreal.packages.Package;
 import net.shrimpworks.unreal.packages.PackageReader;
 import net.shrimpworks.unreal.packages.entities.ExportedObject;
@@ -91,6 +92,20 @@ public class MapPackIndexHandler implements IndexHandler<MapPack> {
 				m.author = map.author;
 			} else if (!m.author.equalsIgnoreCase(map.author)) {
 				m.author = "Various";
+				break;
+			}
+		}
+
+		// find a common gametype if possible
+		m.gametype = UNKNOWN;
+		for (MapPack.PackMap map : m.maps) {
+			GameTypes.GameType gt = GameTypes.forMap(map.name);
+			if (gt == null) continue;
+
+			if (m.gametype.equals(UNKNOWN)) {
+				m.gametype = gt.name;
+			} else if (!m.gametype.equalsIgnoreCase(gt.name)) {
+				m.gametype = "Mixed";
 				break;
 			}
 		}

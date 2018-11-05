@@ -39,8 +39,6 @@ public class SkinIndexHandler implements IndexHandler<Skin> {
 		Skin s = (Skin)current;
 		IndexLog log = incoming.log;
 
-		// TODO support UT2004 via .upl files
-
 		Set<IndexResult.NewAttachment> attachments = new HashSet<>();
 
 		String origName = s.name;
