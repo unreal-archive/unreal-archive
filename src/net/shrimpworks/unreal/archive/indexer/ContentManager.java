@@ -27,6 +27,7 @@ public class ContentManager {
 	private final Map<String, ContentHolder> content;
 
 	private final Map<String, Collection<Content>> contentFileMap;
+	private final Map<String, Collection<Content>> variationsMap;
 
 	private final DataStore contentStore;
 	private final DataStore imageStore;
@@ -41,6 +42,7 @@ public class ContentManager {
 		this.attachmentStore = attachmentStore;
 		this.content = new HashMap<>();
 		this.contentFileMap = new HashMap<>();
+		this.variationsMap = new HashMap<>();
 
 		this.changes = new HashSet<>();
 
@@ -56,6 +58,11 @@ public class ContentManager {
 					for (Content.ContentFile contentFile : c.files) {
 						Collection<Content> fileSet = contentFileMap.computeIfAbsent(contentFile.hash, h -> new HashSet<>());
 						fileSet.add(c);
+					}
+
+					if (c.variationOf != null) {
+						Collection<Content> variations = variationsMap.computeIfAbsent(c.variationOf, h -> new HashSet<>());
+						variations.add(c);
 					}
 				}
 				return FileVisitResult.CONTINUE;
@@ -120,8 +127,19 @@ public class ContentManager {
 	 * @param hash file hash
 	 * @return content containing the hash
 	 */
-	public Collection<Content> containing(String hash) {
+	public Collection<Content> containingFile(String hash) {
 		return contentFileMap.getOrDefault(hash, Collections.emptySet());
+	}
+
+	/**
+	 * Return all content which is flagged as a variation of the provided
+	 * content hash.
+	 *
+	 * @param hash content hash
+	 * @return content variations for the content specified by the hash
+	 */
+	public Collection<Content> variationsOf(String hash) {
+		return variationsMap.getOrDefault(hash, Collections.emptySet());
 	}
 
 	// intent: when some content is going to be worked on, a clone is checked out.

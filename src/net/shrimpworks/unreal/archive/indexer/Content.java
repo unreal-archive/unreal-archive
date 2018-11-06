@@ -36,6 +36,20 @@ public abstract class Content {
 	public LocalDateTime firstIndex;
 	public LocalDateTime lastIndex;
 
+	/**
+	 * If set to a valid content hash, this content will not be displayed or listed
+	 * on its own in www output, but will only appear as an alternative variation
+	 * on the indicated content's information page.
+	 * <p>
+	 * For example, if this content is an earlier version of a mod, we could, for
+	 * historical purposes, indicate that this is a variation of the latest version
+	 * of that mod.
+	 * <p>
+	 * Additionally, it can be used to group a file released with zip, umod and exe
+	 * versions as the same piece of content.
+	 */
+	public String variationOf = null;
+
 	public String game = "Unknown";                         // Unreal Tournament
 	public String name;                                     // DM-MyMap
 	public String author = "Unknown";                       // Joe Soap
@@ -52,20 +66,6 @@ public abstract class Content {
 	public int otherFiles = 0;                              // count of non-content files (readme, html, etc)
 
 	public List<Download> downloads = new ArrayList<>();
-
-	/**
-	 * If set to a valid content hash, this content will not be displayed or listed
-	 * on its own in www output, but will only appear as an alternative variation
-	 * on the indicated content's information page.
-	 * <p>
-	 * For example, if this content is an earlier version of a mod, we could, for
-	 * historical purposes, indicate that this is a variation of the latest version
-	 * of that mod.
-	 * <p>
-	 * Additionally, it can be used to group a file released with zip, umod and exe
-	 * versions as the same piece of content.
-	 */
-	public String variationOf = null;
 
 	/**
 	 * If true, will not show up in www output, and will be ignored in index passes.
@@ -116,6 +116,7 @@ public abstract class Content {
 			   && otherFiles == content.otherFiles
 			   && deleted == content.deleted
 			   && Objects.equals(contentType, content.contentType)
+			   && Objects.equals(variationOf, content.variationOf)
 			   && Objects.equals(game, content.game)
 			   && Objects.equals(name, content.name)
 			   && Objects.equals(author, content.author)
@@ -130,8 +131,8 @@ public abstract class Content {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(contentType, firstIndex, lastIndex, game, name, author, description, releaseDate, attachments, originalFilename,
-							hash, fileSize, files, otherFiles, downloads, deleted);
+		return Objects.hash(contentType, firstIndex, lastIndex, variationOf, game, name, author, description, releaseDate, attachments,
+							originalFilename, hash, fileSize, files, otherFiles, downloads, deleted);
 	}
 
 	public static class ContentFile {

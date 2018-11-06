@@ -71,9 +71,9 @@ public class MapPacks {
 					if (gt.getValue().packs < Templates.PAGE_SIZE) {
 						// we can output all maps on a single page
 						List<MapPackInfo> all = gt.getValue().pages.stream()
-																  .flatMap(p -> p.packs.stream())
-																  .sorted()
-																  .collect(Collectors.toList());
+																   .flatMap(p -> p.packs.stream())
+																   .sorted()
+																   .collect(Collectors.toList());
 						Templates.template("mappacks/listing_single.ftl")
 								 .put("static", root.resolve(gt.getValue().path).relativize(staticRoot))
 								 .put("title", String.join(" / ", SECTION, g.getKey(), gt.getKey()))
@@ -220,6 +220,7 @@ public class MapPacks {
 		public final String slug;
 		public final String path;
 
+		public final Collection<Content> variations;
 		public final Map<String, Integer> alsoIn;
 
 		public MapPackInfo(Page page, MapPack pack) {
@@ -232,11 +233,13 @@ public class MapPacks {
 
 			this.alsoIn = new HashMap<>();
 			for (Content.ContentFile f : pack.files) {
-				Collection<Content> containing = content.containing(f.hash);
+				Collection<Content> containing = content.containingFile(f.hash);
 				if (containing.size() > 1) {
 					alsoIn.put(f.hash, containing.size() - 1);
 				}
 			}
+
+			this.variations = content.variationsOf(pack.hash);
 
 			this.pack.downloads.sort((a, b) -> a.main ? -1 : 0);
 		}

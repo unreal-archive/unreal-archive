@@ -264,6 +264,7 @@ public class Maps {
 		public final String slug;
 		public final String path;
 
+		public final Collection<Content> variations;
 		public final java.util.Map<String, Integer> alsoIn;
 
 		public MapInfo(Page page, Map map) {
@@ -276,11 +277,13 @@ public class Maps {
 
 			this.alsoIn = new HashMap<>();
 			for (Content.ContentFile f : map.files) {
-				Collection<Content> containing = content.containing(f.hash);
+				Collection<Content> containing = content.containingFile(f.hash);
 				if (containing.size() > 1) {
 					alsoIn.put(f.hash, containing.size() - 1);
 				}
 			}
+
+			this.variations = content.variationsOf(map.hash);
 
 			this.map.downloads.sort((a, b) -> a.main ? -1 : 0);
 		}
