@@ -35,6 +35,7 @@ public class Maps {
 		this.games = new Games();
 		this.authors = new Authors();
 
+		// FIXME exclude variations
 		Collection<Map> maps = content.get(Map.class).stream()
 									  .sorted(Comparator.comparing(a -> a.name.toLowerCase()))
 									  .collect(Collectors.toList());
@@ -156,6 +157,8 @@ public class Maps {
 				 .put("map", map)
 				 .put("siteRoot", root.resolve(map.path).getParent().relativize(root))
 				 .write(root.resolve(map.path + ".html"));
+
+		// FIXME also generate map.variations
 	}
 
 	public class Games {
