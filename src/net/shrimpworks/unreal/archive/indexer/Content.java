@@ -53,25 +53,58 @@ public abstract class Content {
 
 	public List<Download> downloads = new ArrayList<>();
 
+	/**
+	 * If set to a valid content hash, this content will not be displayed or listed
+	 * on its own in www output, but will only appear as an alternative variation
+	 * on the indicated content's information page.
+	 * <p>
+	 * For example, if this content is an earlier version of a mod, we could, for
+	 * historical purposes, indicate that this is a variation of the latest version
+	 * of that mod.
+	 * <p>
+	 * Additionally, it can be used to group a file released with zip, umod and exe
+	 * versions as the same piece of content.
+	 */
+	public String variationOf = null;
+
+	/**
+	 * If true, will not show up in www output, and will be ignored in index passes.
+	 */
 	public boolean deleted = false;
 
+	/**
+	 * Generate a path to where this content should live within a directory tree.
+	 *
+	 * @param root root directory
+	 * @return content directory
+	 */
 	public abstract Path contentPath(Path root);
 
+	/**
+	 * Grouping for pagination and directory partitioning.
+	 * <p>
+	 * Generally the first letter of the content's name.
+	 *
+	 * @return grouping character(s)
+	 */
 	public String subGrouping() {
 		char first = name.toUpperCase().replaceAll("[^A-Z0-9]", "").charAt(0);
 		if (Character.isDigit(first)) first = '0';
 		return Character.toString(first);
 	}
 
+	/**
+	 * Check whether or not the given URL is already known as a download
+	 * location for this content.
+	 *
+	 * @param url url to check
+	 * @return true if the provided url is already known
+	 */
 	public boolean hasDownload(String url) {
 		for (Download download : downloads) {
 			if (download.url.equals(url)) return true;
 		}
 		return false;
-	}
-
-	public boolean containsFile(String hash) {
-		return files.stream().anyMatch(f -> f.hash.equals(hash));
 	}
 
 	@Override
