@@ -62,7 +62,7 @@ public class MapPacks {
 						 .put("static", root.resolve(g.getValue().path).relativize(staticRoot))
 						 .put("title", String.join(" / ", SECTION, g.getKey()))
 						 .put("game", g.getValue())
-						 .put("siteRoot", root.resolve(g.getValue().path).getParent().relativize(root))
+						 .put("siteRoot", root.resolve(g.getValue().path).relativize(root))
 						 .write(root.resolve(g.getValue().path).resolve("index.html"));
 				count++;
 
@@ -79,7 +79,7 @@ public class MapPacks {
 								 .put("title", String.join(" / ", SECTION, g.getKey(), gt.getKey()))
 								 .put("gametype", gt.getValue())
 								 .put("packs", all)
-								 .put("siteRoot", root.resolve(gt.getValue().path).getParent().relativize(root))
+								 .put("siteRoot", root.resolve(gt.getValue().path).relativize(root))
 								 .write(root.resolve(gt.getValue().path).resolve("index.html"));
 						count++;
 
@@ -98,7 +98,7 @@ public class MapPacks {
 								 .put("title", String.join(" / ", SECTION, g.getKey(), gt.getKey()))
 								 .put("page", p)
 								 .put("root", p.path)
-								 .put("siteRoot", root.resolve(p.path).getParent().relativize(root))
+								 .put("siteRoot", root.resolve(p.path).relativize(root))
 								 .write(root.resolve(p.path).resolve("index.html"));
 						count++;
 
@@ -114,7 +114,7 @@ public class MapPacks {
 							 .put("title", String.join(" / ", SECTION, g.getKey(), gt.getKey()))
 							 .put("page", gt.getValue().pages.get(0))
 							 .put("root", gt.getValue().path)
-							 .put("siteRoot", root.resolve(gt.getValue().path).getParent().relativize(root))
+							 .put("siteRoot", root.resolve(gt.getValue().path).relativize(root))
 							 .write(root.resolve(gt.getValue().path).resolve("index.html"));
 					count++;
 

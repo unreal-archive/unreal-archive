@@ -5,9 +5,9 @@
 
 	<section class="header" style='background-image: url("${static}/images/gametypes/${game.name}/${gametype.name}.png"), url("${static}/images/games/${game.name}.png")'>
 		<h1>
-			<a href="${relUrl(game.path, siteRoot)}/index.html">Maps</a>
-			/ <a href="${relUrl(gametype.path, siteRoot)}/index.html">${game.name}</a>
-			/ <a href="${relUrl(page.path, siteRoot)}/index.html">${gametype.name}</a> <!-- FIXME -->
+			<a href="${siteRoot}/index.html">Maps</a>
+			/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
+			/ <a href="${relUrl(siteRoot, gametype.path)}/index.html">${gametype.name}</a>
 			/ ${page.letter.letter}
 			/ pg ${page.number}
 		</h1>

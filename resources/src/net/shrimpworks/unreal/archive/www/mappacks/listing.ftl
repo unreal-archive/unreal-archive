@@ -5,7 +5,10 @@
 
 	<section class="header" style='background-image: url("${static}/images/gametypes/${game.name}/${gametype.name}.png"), url("${static}/images/games/${game.name}.png")'>
 		<h1>
-			Map Packs / ${game.name} / ${gametype.name} / pg ${page.number}
+			<a href="${siteRoot}/index.html">Map Packs</a>
+			/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
+			/ <a href="${relUrl(siteRoot, gametype.path)}/index.html">${gametype.name}</a>
+			/ pg ${page.number}
 		</h1>
 	</section>
 	<article class="list">

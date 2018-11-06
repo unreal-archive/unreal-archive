@@ -6,7 +6,7 @@
 		<h1>
 			<a href="${siteRoot}/index.html">Maps</a>
 			/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
-			/ <a href="${relUrl(siteRoot, gametype.path)}/index.html">${gametype.name}</a>
+			/ ${gametype.name}
 		</h1>
 	</section>
 	<article class="list">

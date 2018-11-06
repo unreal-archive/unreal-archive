@@ -2,7 +2,7 @@
 
 	<section class="header" style='background-image: url("${static}/images/games/${game.name}.png")'>
 		<h1>
-			<a href="${relUrl(game.path, siteRoot)}/index.html">Map Packs</a>
+			<a href="${relUrl(siteRoot, "index.html")}">Map Packs</a>
 			/ ${game.name}
 		</h1>
 	</section>
