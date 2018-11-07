@@ -27,7 +27,7 @@ import net.shrimpworks.unreal.archive.indexer.skins.Skin;
 		@JsonSubTypes.Type(value = Model.class, name = "MODEL"),
 		@JsonSubTypes.Type(value = UnknownContent.class, name = "UNKNOWN")
 })
-public abstract class Content {
+public abstract class Content implements Comparable<Content> {
 
 	public static final DateTimeFormatter RELEASE_DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM").withZone(ZoneId.systemDefault());
 
@@ -108,6 +108,11 @@ public abstract class Content {
 	}
 
 	@Override
+	public int compareTo(Content o) {
+		return name.compareToIgnoreCase(o.name);
+	}
+
+	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
@@ -135,7 +140,7 @@ public abstract class Content {
 							originalFilename, hash, fileSize, files, otherFiles, downloads, deleted);
 	}
 
-	public static class ContentFile {
+	public static class ContentFile implements Comparable<ContentFile> {
 
 		public String name;
 		public int fileSize;
@@ -146,6 +151,11 @@ public abstract class Content {
 			this.name = name;
 			this.fileSize = fileSize;
 			this.hash = hash;
+		}
+
+		@Override
+		public int compareTo(ContentFile o) {
+			return name.compareToIgnoreCase(o.name);
 		}
 
 		@Override
@@ -198,7 +208,7 @@ public abstract class Content {
 		}
 	}
 
-	public static class Download {
+	public static class Download implements Comparable<Download> {
 
 		public final String url;
 		public final boolean main;
@@ -225,6 +235,11 @@ public abstract class Content {
 			this.added = added;
 			this.repack = repack;
 			this.main = false;
+		}
+
+		@Override
+		public int compareTo(Download o) {
+			return main ? -1 : 0;
 		}
 
 		@Override

@@ -40,11 +40,15 @@ public class MapPack extends Content {
 		return Objects.hash(super.hashCode(), maps, gametype);
 	}
 
-	public static class PackMap {
+	public static class PackMap implements Comparable<PackMap> {
 
 		public String name;
 		public String title;
 		public String author = "Unknown";
 
+		@Override
+		public int compareTo(PackMap o) {
+			return name.compareToIgnoreCase(o.name);
+		}
 	}
 }

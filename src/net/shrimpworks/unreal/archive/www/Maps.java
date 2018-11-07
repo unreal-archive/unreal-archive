@@ -5,7 +5,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
@@ -20,7 +19,6 @@ import static net.shrimpworks.unreal.archive.www.Templates.slug;
 public class Maps {
 
 	private final ContentManager content;
-	private final Path output;
 	private final Path root;
 	private final Path staticRoot;
 
@@ -29,23 +27,23 @@ public class Maps {
 
 	public Maps(ContentManager content, Path output, Path staticRoot) {
 		this.content = content;
-		this.output = output;
 		this.root = output.resolve("maps");
 		this.staticRoot = staticRoot;
 		this.games = new Games();
 		this.authors = new Authors();
 
-		// FIXME exclude variations
-		Collection<Map> maps = content.get(Map.class).stream()
-									  .sorted(Comparator.comparing(a -> a.name.toLowerCase()))
-									  .collect(Collectors.toList());
-		for (Map m : maps) {
-			Game g = games.games.computeIfAbsent(m.game, Game::new);
-			g.add(m);
+		content.get(Map.class).stream()
+			   .filter(m -> !m.deleted)
+			   .filter(m -> m.variationOf == null || m.variationOf.isEmpty())
+			   .sorted()
+			   .forEach(m -> {
+				   Game g = games.games.computeIfAbsent(m.game, Game::new);
+				   g.add(m);
 
-//			Author a = authors.authors.computeIfAbsent(m.author, Author::new);
-//			a.maps.add(new MapInfo(null, m)); // FIXME
-		}
+//					Author a = authors.authors.computeIfAbsent(m.author, Author::new);
+//					a.maps.add(new MapInfo(null, m)); // FIXME
+			   });
+
 	}
 
 	public int generate() {
@@ -158,7 +156,9 @@ public class Maps {
 				 .put("siteRoot", root.resolve(map.path).getParent().relativize(root))
 				 .write(root.resolve(map.path + ".html"));
 
-		// FIXME also generate map.variations
+		for (MapInfo variation : map.variations) {
+			this.mapPage(variation);
+		}
 	}
 
 	public class Games {
@@ -267,7 +267,7 @@ public class Maps {
 		public final String slug;
 		public final String path;
 
-		public final Collection<Content> variations;
+		public final Collection<MapInfo> variations;
 		public final java.util.Map<String, Integer> alsoIn;
 
 		public MapInfo(Page page, Map map) {
@@ -286,9 +286,14 @@ public class Maps {
 				}
 			}
 
-			this.variations = content.variationsOf(map.hash);
+			this.variations = content.variationsOf(map.hash).stream()
+									 .filter(p -> p instanceof Map)
+									 .map(p -> new MapInfo(page, (Map)p))
+									 .sorted()
+									 .collect(Collectors.toList());
 
-			this.map.downloads.sort((a, b) -> a.main ? -1 : 0);
+			Collections.sort(this.map.downloads);
+			Collections.sort(this.map.files);
 		}
 
 		@Override

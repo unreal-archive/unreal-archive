@@ -38,7 +38,7 @@
 		<div class="info">
 
 			<section class="meta">
-				<h2>Map Information</h2>
+				<h2>Map Pack Information</h2>
 				<div class="label-value">
 					<label>Name</label><span>${pack.pack.name}</span>
 				</div>
@@ -66,6 +66,32 @@
 					<label>Hash</label><span>${pack.pack.hash}</span>
 				</div>
 			</section>
+
+			<#if pack.variations?size gt 0>
+				<section class="variations">
+					<h2>Variations</h2>
+					<table>
+						<thead>
+						<tr>
+							<th>Name</th>
+							<th>Release Date (est)</th>
+							<th>File Name</th>
+							<th>File Size</th>
+						</tr>
+						</thead>
+						<tbody>
+							<#list pack.variations as v>
+							<tr>
+								<td><a href="${relUrl(siteRoot, v.path + ".html")}">${v.pack.name}</a></td>
+								<td>${v.pack.releaseDate}</td>
+								<td>${v.pack.originalFilename}</td>
+								<td>${fileSize(v.pack.fileSize)}</td>
+							</tr>
+							</#list>
+						</tbody>
+					</table>
+				</section>
+			</#if>
 
 			<section class="maps">
 				<h2>Maps</h2>

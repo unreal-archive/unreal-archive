@@ -5,7 +5,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +22,6 @@ public class MapPacks {
 	private static final String SECTION = "Map Packs";
 
 	private final ContentManager content;
-	private final Path output;
 	private final Path root;
 	private final Path staticRoot;
 
@@ -31,18 +29,18 @@ public class MapPacks {
 
 	public MapPacks(ContentManager content, Path output, Path staticRoot) {
 		this.content = content;
-		this.output = output;
 		this.root = output.resolve("mappacks");
 		this.staticRoot = staticRoot;
 		this.games = new Games();
 
-		Collection<MapPack> packs = content.get(MapPack.class).stream()
-										   .sorted(Comparator.comparing(a -> a.name.toLowerCase()))
-										   .collect(Collectors.toList());
-		for (MapPack p : packs) {
-			Game g = games.games.computeIfAbsent(p.game, Game::new);
-			g.add(p);
-		}
+		content.get(MapPack.class).stream()
+			   .filter(m -> !m.deleted)
+			   .filter(m -> m.variationOf == null || m.variationOf.isEmpty())
+			   .sorted()
+			   .forEach(p -> {
+				   Game g = games.games.computeIfAbsent(p.game, Game::new);
+				   g.add(p);
+			   });
 	}
 
 	public int generate() {
@@ -135,6 +133,10 @@ public class MapPacks {
 				 .put("pack", pack)
 				 .put("siteRoot", root.resolve(pack.path).getParent().relativize(root))
 				 .write(root.resolve(pack.path + ".html"));
+
+		for (MapPackInfo variation : pack.variations) {
+			this.packPage(variation);
+		}
 	}
 
 	public class Games {
@@ -220,7 +222,7 @@ public class MapPacks {
 		public final String slug;
 		public final String path;
 
-		public final Collection<Content> variations;
+		public final Collection<MapPackInfo> variations;
 		public final Map<String, Integer> alsoIn;
 
 		public MapPackInfo(Page page, MapPack pack) {
@@ -239,9 +241,15 @@ public class MapPacks {
 				}
 			}
 
-			this.variations = content.variationsOf(pack.hash);
+			this.variations = content.variationsOf(pack.hash).stream()
+									 .filter(p -> p instanceof MapPack)
+									 .map(p -> new MapPackInfo(page, (MapPack)p))
+									 .sorted()
+									 .collect(Collectors.toList());
 
-			this.pack.downloads.sort((a, b) -> a.main ? -1 : 0);
+			Collections.sort(this.pack.downloads);
+			Collections.sort(this.pack.files);
+			Collections.sort(this.pack.maps);
 		}
 
 		@Override
