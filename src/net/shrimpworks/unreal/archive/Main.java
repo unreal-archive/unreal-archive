@@ -37,6 +37,7 @@ import net.shrimpworks.unreal.archive.scraper.UTTexture;
 import net.shrimpworks.unreal.archive.scraper.UnrealPlayground;
 import net.shrimpworks.unreal.archive.storage.DataStore;
 import net.shrimpworks.unreal.archive.www.FileDetails;
+import net.shrimpworks.unreal.archive.www.Index;
 import net.shrimpworks.unreal.archive.www.MapPacks;
 import net.shrimpworks.unreal.archive.www.Maps;
 import net.shrimpworks.unreal.archive.www.Templates;
@@ -256,6 +257,9 @@ public class Main {
 		Templates.unpackResourceZip("static.zip", Files.createDirectories(outputPath.resolve("static")));
 
 		int pages = 0;
+
+		Index index = new Index(contentManager, outputPath, outputPath.resolve("static"));
+		pages += index.generate();
 
 		Maps maps = new Maps(contentManager, outputPath, outputPath.resolve("static"));
 		pages += maps.generate();

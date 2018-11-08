@@ -1,0 +1,67 @@
+<#include "_header.ftl">
+
+<section class="intro">
+	<h1>
+		About
+	</h1>
+	<p>
+		Welcome to the Unreal Archive, an initiative to preserve and maintain availability
+		of the rich and vast history of user-created content for the Unreal and Unreal
+		Tournament series of games.
+	</p>
+	<p>
+		We've collected and indexed as much content as possible, and will continue to
+		grow the Archive as new content is produced.
+	</p>
+	<p>
+		You're also encouraged to contribute to the indexing, categorisation and
+		refinement of the Archive content via the
+		<a href="contribute.html">contribution guide</a>. The Archive is a completely
+		open source initiative.
+	</p>
+	<p>
+		You're also welcome and encouraged to download entire local mirrors of the
+		Archive content and website, as spreading it around helps to ensure the
+		longevity of the content and reduce the changes of it being permanently lost.
+		See the <a href="mirroring.html">mirroring guide</a> for more information.
+	</p>
+</section>
+
+<article class="biglist">
+	<ul>
+		<li>
+			<span class="meta">coming soon</span>
+			<a href="#">Guides &amp; Articles</a>
+		</li>
+		<li>
+			<span class="meta">${count.Map}</span>
+			<a href="maps/index.html">Maps</a>
+		</li>
+		<li>
+			<span class="meta">${count.MapPack}</span>
+			<a href="mappacks/index.html">Map Packs</a>
+		</li>
+		<li>
+			<span class="meta">coming soon</span>
+			<a href="#">Game Types</a>
+		</li>
+		<li>
+			<span class="meta">coming soon</span>
+			<a href="#">Mutators</a>
+		</li>
+		<li>
+			<span class="meta">coming soon</span>
+			<a href="#">Models</a>
+		</li>
+		<li>
+			<span class="meta">coming soon</span>
+			<a href="#">Skins</a>
+		</li>
+		<li>
+			<span class="meta">coming soon</span>
+			<a href="#">Voices</a>
+		</li>
+	</ul>
+</article>
+
+<#include "_footer.ftl">

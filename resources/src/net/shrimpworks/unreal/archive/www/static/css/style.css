@@ -36,8 +36,22 @@ header h1 {
 	align-self: end;
 }
 
+header h1 a {
+	color: inherit;
+	text-decoration: none;
+}
+
 header img {
 	align-self: start;
+}
+
+section.intro {
+	font-size: 1.2em;
+}
+
+section.intro h1 {
+	font-size: 1.5em;
+	margin: 0;
 }
 
 section.header {

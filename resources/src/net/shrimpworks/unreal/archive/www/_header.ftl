@@ -11,7 +11,7 @@
 <header>
 	<div class="page">
 		<img src="${static}/images/logo.png">
-		<h1>Unreal Archive</h1>
+		<h1><a href="${static}/../index.html">Unreal Archive</a></h1>
 	</div>
 </header>
 

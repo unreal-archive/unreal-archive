@@ -16,14 +16,14 @@ import net.shrimpworks.unreal.archive.indexer.ContentManager;
 public class FileDetails {
 
 	private final ContentManager content;
-	private final Path output;
+	private final Path root;
 	private final Path staticRoot;
 
 	private final Map<Content.ContentFile, List<Content>> contentFiles;
 
 	public FileDetails(ContentManager content, Path output, Path staticRoot) {
 		this.content = content;
-		this.output = output;
+		this.root = output.resolve("files");
 		this.staticRoot = staticRoot;
 
 		this.contentFiles = new HashMap<>();
@@ -39,7 +39,6 @@ public class FileDetails {
 	public int generate() {
 		int count = 0;
 		try {
-			Path root = output.resolve("files");
 
 			for (Map.Entry<Content.ContentFile, List<Content>> e : contentFiles.entrySet()) {
 				// we're only interested in multi-use files
@@ -54,6 +53,7 @@ public class FileDetails {
 						 .put("title", String.join(" / ", "Files", e.getKey().name))
 						 .put("file", e.getKey())
 						 .put("packages", e.getValue())
+						 .put("siteRoot", root.resolve("files").relativize(root))
 						 .write(p.resolve(e.getKey().hash + ".html"));
 				count++;
 			}
