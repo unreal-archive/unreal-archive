@@ -6,20 +6,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.shrimpworks.unreal.archive.indexer.ContentManager;
-import net.shrimpworks.unreal.archive.indexer.ContentType;
 
-public class Index {
-
-	private final ContentManager content;
-	private final Path root;
-	private final Path staticRoot;
+public class Index extends PageGenerator {
 
 	public Index(ContentManager content, Path output, Path staticRoot) {
-		this.content = content;
-		this.root = output;
-		this.staticRoot = staticRoot;
+		super(content, output, staticRoot);
 	}
 
+	@Override
 	public int generate() {
 		Map<String, Long> contentCount = new HashMap<>();
 		content.countByType().forEach((k, v) -> {

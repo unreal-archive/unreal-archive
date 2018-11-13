@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import net.shrimpworks.unreal.archive.indexer.Content;
@@ -252,25 +253,22 @@ public class Main {
 			System.exit(4);
 		}
 
+		Path staticOutput = outputPath.resolve("static");
+
 		long start = System.currentTimeMillis();
 
-		Templates.unpackResourceZip("static.zip", Files.createDirectories(outputPath.resolve("static")));
+		Templates.unpackResourceZip("static.zip", Files.createDirectories(staticOutput));
 
-		int pages = 0;
+		AtomicInteger pageCount = new AtomicInteger();
 
-		Index index = new Index(contentManager, outputPath, outputPath.resolve("static"));
-		pages += index.generate();
+		Arrays.asList(
+				new Index(contentManager, outputPath, staticOutput),
+				new Maps(contentManager, outputPath, staticOutput),
+				new MapPacks(contentManager, outputPath, staticOutput),
+				new FileDetails(contentManager, outputPath, staticOutput)
+		).forEach(g -> pageCount.addAndGet(g.generate()));
 
-		Maps maps = new Maps(contentManager, outputPath, outputPath.resolve("static"));
-		pages += maps.generate();
-
-		MapPacks packs = new MapPacks(contentManager, outputPath, outputPath.resolve("static"));
-		pages += packs.generate();
-
-		FileDetails files = new FileDetails(contentManager, outputPath, outputPath.resolve("static"));
-		pages += files.generate();
-
-		System.err.printf("Output %d pages in %.2fs%n", pages, (System.currentTimeMillis() - start) / 1000f);
+		System.out.printf("Output %d pages in %.2fs%n", pageCount.get(), (System.currentTimeMillis() - start) / 1000f);
 	}
 
 	private static void summary(ContentManager contentManager) {

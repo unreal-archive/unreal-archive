@@ -16,19 +16,14 @@ import net.shrimpworks.unreal.archive.indexer.maps.Map;
 
 import static net.shrimpworks.unreal.archive.www.Templates.slug;
 
-public class Maps {
-
-	private final ContentManager content;
-	private final Path root;
-	private final Path staticRoot;
+public class Maps extends PageGenerator {
 
 	private final Games games;
 	private final Authors authors;
 
 	public Maps(ContentManager content, Path output, Path staticRoot) {
-		this.content = content;
-		this.root = output.resolve("maps");
-		this.staticRoot = staticRoot;
+		super(content, output.resolve("maps"), staticRoot);
+
 		this.games = new Games();
 		this.authors = new Authors();
 
@@ -46,6 +41,7 @@ public class Maps {
 
 	}
 
+	@Override
 	public int generate() {
 		int count = 0;
 		try {

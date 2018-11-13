@@ -6,25 +6,18 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
 import net.shrimpworks.unreal.archive.indexer.Content;
 import net.shrimpworks.unreal.archive.indexer.ContentManager;
 
-public class FileDetails {
-
-	private final ContentManager content;
-	private final Path root;
-	private final Path staticRoot;
+public class FileDetails extends PageGenerator {
 
 	private final Map<Content.ContentFile, List<Content>> contentFiles;
 
 	public FileDetails(ContentManager content, Path output, Path staticRoot) {
-		this.content = content;
-		this.root = output.resolve("files");
-		this.staticRoot = staticRoot;
+		super(content, output.resolve("files"), staticRoot);
 
 		this.contentFiles = new HashMap<>();
 		content.search(null, null, null, null)
@@ -36,6 +29,7 @@ public class FileDetails {
 			   });
 	}
 
+	@Override
 	public int generate() {
 		int count = 0;
 		try {

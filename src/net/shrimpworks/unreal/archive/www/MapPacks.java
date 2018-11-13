@@ -17,20 +17,15 @@ import net.shrimpworks.unreal.archive.indexer.mappacks.MapPack;
 
 import static net.shrimpworks.unreal.archive.www.Templates.slug;
 
-public class MapPacks {
+public class MapPacks extends PageGenerator {
 
 	private static final String SECTION = "Map Packs";
-
-	private final ContentManager content;
-	private final Path root;
-	private final Path staticRoot;
 
 	private final Games games;
 
 	public MapPacks(ContentManager content, Path output, Path staticRoot) {
-		this.content = content;
-		this.root = output.resolve("mappacks");
-		this.staticRoot = staticRoot;
+		super(content, output.resolve("mappacks"), staticRoot);
+
 		this.games = new Games();
 
 		content.get(MapPack.class).stream()
@@ -43,6 +38,7 @@ public class MapPacks {
 			   });
 	}
 
+	@Override
 	public int generate() {
 		int count = 0;
 		try {
