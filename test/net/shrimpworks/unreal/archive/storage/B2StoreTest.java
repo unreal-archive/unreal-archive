@@ -19,6 +19,10 @@ public class B2StoreTest {
 		String appId = System.getenv("B2_KEY");
 		String bucket = System.getenv("B2_BUCKET");
 
+		if (keyId == null || appId == null || bucket == null) {
+			fail("This test requires B2 bucket properties set as environment variables");
+		}
+
 		Path file = Files.write(Files.createTempFile("upload", ".tmp"), Long.toString(System.nanoTime()).getBytes());
 		try (B2Store b2 = new B2Store(keyId, appId, bucket)) {
 			b2.store(file, file.getFileName().toString(), s -> {

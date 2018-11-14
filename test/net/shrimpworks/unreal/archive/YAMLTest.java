@@ -113,8 +113,6 @@ public class YAMLTest {
 		assertNotNull(another);
 		assertEquals(m.title, another.title);
 		assertEquals(m.attachments.get(1), another.attachments.get(1));
-
-		System.out.println(YAML.toString(another));
 	}
 
 	private Map makeMap() {

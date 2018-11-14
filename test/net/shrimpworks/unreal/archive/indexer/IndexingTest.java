@@ -22,7 +22,6 @@ public class IndexingTest {
 		for (String s : lines) {
 			Matcher m = authorPattern.matcher(s);
 			assertTrue(m.matches());
-			System.out.println(m.group(4));
 			assertEquals("Jim Bob", m.group(4).trim());
 		}
 	}
