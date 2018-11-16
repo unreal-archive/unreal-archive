@@ -1,12 +1,16 @@
 package net.shrimpworks.unreal.archive.www;
 
 import java.io.IOException;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+
+import com.github.rjeschke.txtmark.Processor;
 
 import net.shrimpworks.unreal.archive.docs.Document;
 import net.shrimpworks.unreal.archive.docs.DocumentManager;
@@ -15,7 +19,7 @@ import static net.shrimpworks.unreal.archive.www.Templates.slug;
 
 public class Documents {
 
-	private static final String SECTION = "Documents";
+	private static final String SECTION = "Articles";
 
 	private final DocumentManager documents;
 	private final Path root;
@@ -64,6 +68,11 @@ public class Documents {
 	public int generate() {
 		int count = 0;
 		try {
+			// create the root landing page, for reasons
+			DocumentGroup rootGroup = new DocumentGroup(null, "");
+			rootGroup.groups.putAll(groups);
+			count += generateGroup(rootGroup);
+
 			for (DocumentGroup group : groups.values()) {
 				count += generateGroup(group);
 			}
@@ -79,7 +88,7 @@ public class Documents {
 
 		Templates.template("docs/group.ftl")
 				 .put("static", root.resolve(group.path).relativize(staticRoot))
-				 .put("title", String.join(" / ", SECTION, group.name))
+				 .put("title", String.join(" / ", SECTION, String.join(" / ", group.pPath.split("/"))))
 				 .put("group", group)
 				 .put("siteRoot", root.resolve(group.path).relativize(root))
 				 .write(root.resolve(group.path).resolve("index.html"));
@@ -90,7 +99,33 @@ public class Documents {
 			count += generateGroup(g);
 		}
 
+		for (Document d : group.documents) {
+			count += generateDocument(group, d);
+		}
+
 		return count;
+	}
+
+	private int generateDocument(DocumentGroup group, Document doc) throws IOException {
+
+		try (ReadableByteChannel docChan = documents.document(doc)) {
+
+			String slug = slug(doc.title);
+			Path path = root.resolve(String.join("/", group.path, slug));
+
+			String content = Processor.process(Channels.newInputStream(docChan));
+
+			Templates.template("docs/document.ftl")
+					 .put("static", path.relativize(staticRoot))
+					 .put("title", String.join(" / ", SECTION, String.join(" / ", group.pPath.split("/")), doc.title))
+					 .put("group", group)
+					 .put("document", doc)
+					 .put("content", content)
+					 .put("siteRoot", path.relativize(root))
+					 .write(path.resolve("index.html"));
+		}
+
+		return 1;
 	}
 
 	public class DocumentGroup {

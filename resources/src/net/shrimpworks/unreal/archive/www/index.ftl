@@ -31,7 +31,7 @@
 	<ul>
 		<li>
 			<span class="meta">coming soon</span>
-			<a href="#">Guides &amp; Articles</a>
+			<a href="documents/index.html">Guides &amp; Articles</a>
 		</li>
 		<li>
 			<span class="meta">${count.Map}</span>

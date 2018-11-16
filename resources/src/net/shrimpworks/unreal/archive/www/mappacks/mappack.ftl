@@ -12,7 +12,7 @@
 		</#if>
 	</#list>
 
-	<section class="header" <#if headerbg??>style="background-image: url('${headerbg}')"</#if>>
+	<section class="header" style="background-image: url('${headerbg}')">
 		<h1>
 			<a href="${siteRoot}/index.html">Map Packs</a>
 			/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
