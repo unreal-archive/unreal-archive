@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import net.shrimpworks.unreal.archive.docs.DocumentManager;
 import net.shrimpworks.unreal.archive.indexer.Content;
 import net.shrimpworks.unreal.archive.indexer.ContentManager;
 import net.shrimpworks.unreal.archive.indexer.ContentType;
@@ -37,6 +38,7 @@ import net.shrimpworks.unreal.archive.scraper.GameZooMaps;
 import net.shrimpworks.unreal.archive.scraper.UTTexture;
 import net.shrimpworks.unreal.archive.scraper.UnrealPlayground;
 import net.shrimpworks.unreal.archive.storage.DataStore;
+import net.shrimpworks.unreal.archive.www.Documents;
 import net.shrimpworks.unreal.archive.www.FileDetails;
 import net.shrimpworks.unreal.archive.www.Index;
 import net.shrimpworks.unreal.archive.www.MapPacks;
@@ -65,7 +67,7 @@ public class Main {
 				edit(contentManager(cli), cli);
 				break;
 			case "www":
-				www(contentManager(cli), cli);
+				www(contentManager(cli), documentManager(cli), cli);
 				break;
 			case "summary":
 				summary(contentManager(cli));
@@ -125,6 +127,26 @@ public class Main {
 						  contentManager.size(), (System.currentTimeMillis() - start) / 1000f);
 
 		return contentManager;
+	}
+
+	private static DocumentManager documentManager(CLI cli) throws IOException {
+		if (cli.option("doc-path", null) == null) {
+			System.err.println("doc-path must be specified!");
+			System.exit(2);
+		}
+
+		Path docPath = Paths.get(cli.option("doc-path", null));
+		if (!Files.isDirectory(docPath)) {
+			System.err.println("doc-path must be a directory!");
+			System.exit(3);
+		}
+
+		final long start = System.currentTimeMillis();
+		final DocumentManager documentManager = new DocumentManager(docPath);
+		System.err.printf("Loaded document index with %d items in %.2fs%n",
+						  documentManager.size(), (System.currentTimeMillis() - start) / 1000f);
+
+		return documentManager;
 	}
 
 	private static DataStore store(DataStore.StoreContent contentType, CLI cli) {
@@ -238,7 +260,7 @@ public class Main {
 		}
 	}
 
-	private static void www(ContentManager contentManager, CLI cli) throws IOException {
+	private static void www(ContentManager contentManager, DocumentManager documentManager, CLI cli) throws IOException {
 		if (cli.commands().length < 2) {
 			System.err.println("An output path must be specified!");
 			System.exit(2);
@@ -267,6 +289,8 @@ public class Main {
 				new MapPacks(contentManager, outputPath, staticOutput),
 				new FileDetails(contentManager, outputPath, staticOutput)
 		).forEach(g -> pageCount.addAndGet(g.generate()));
+
+		new Documents(documentManager, outputPath, staticOutput).generate();
 
 		System.out.printf("Output %d pages in %.2fs%n", pageCount.get(), (System.currentTimeMillis() - start) / 1000f);
 	}

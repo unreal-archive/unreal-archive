@@ -14,6 +14,7 @@ public class Document {
 	public String title;                    // How to X and Y
 	public String author = "Unknown";       // Joe Soap
 	public String description = "None";     // A cool document that shows you how to X and Y
+	public boolean published = true;		// false will hide it
 
 	@Override
 	public boolean equals(Object o) {

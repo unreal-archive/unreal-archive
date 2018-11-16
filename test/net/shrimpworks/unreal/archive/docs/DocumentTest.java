@@ -14,6 +14,7 @@ import com.github.rjeschke.txtmark.Processor;
 
 import net.shrimpworks.unreal.archive.ArchiveUtil;
 import net.shrimpworks.unreal.archive.YAML;
+import net.shrimpworks.unreal.archive.www.Documents;
 
 import org.junit.Test;
 
@@ -75,6 +76,41 @@ public class DocumentTest {
 		} finally {
 			// cleanup temp files
 			ArchiveUtil.cleanPath(tmpRoot);
+		}
+	}
+
+	@Test
+	public void documentWww() throws IOException {
+		Document doc = new Document();
+		doc.createdDate = LocalDate.now().minusDays(3);
+		doc.updatedDate = LocalDate.now();
+		doc.name = "testdoc.md";
+		doc.game = "General";
+		doc.path = "Tests/Stuff/Whatever";
+		doc.title = "Testing Things";
+		doc.author = "Bob";
+		doc.description = "There is no description";
+
+		// create a simple on-disk structure containing a test document and metadata
+		Path tmpRoot = Files.createTempDirectory("test-docs");
+		Path wwwRoot = Files.createTempDirectory("test-docs-www");
+		try {
+			Path docPath = Files.createDirectories(tmpRoot.resolve("test-doc"));
+			Files.write(docPath.resolve("document.yml"), YAML.toString(doc).getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE);
+
+			try (InputStream is = getClass().getResourceAsStream("test.md")) {
+				Files.copy(is, docPath.resolve(doc.name));
+			}
+
+			DocumentManager dm = new DocumentManager(tmpRoot);
+			assertTrue(dm.all().contains(doc));
+
+			Documents documents = new Documents(dm, wwwRoot, wwwRoot);
+			assertEquals(5, documents.generate());
+		} finally {
+			// cleanup temp files
+			ArchiveUtil.cleanPath(tmpRoot);
+			ArchiveUtil.cleanPath(wwwRoot);
 		}
 	}
 }
