@@ -20,7 +20,7 @@
 				<label>Summary</label><span>${document.description}</span>
 			</div>
 		</div>
-		<div class="content">
+		<div class="content readable">
 			${content}
 		</div>
 	</article>

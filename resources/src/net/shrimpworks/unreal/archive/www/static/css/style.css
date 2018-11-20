@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css?family=Abel|Anton');
+@import url('https://fonts.googleapis.com/css?family=Abel|Anton|Open+Sans');
 
 body {
 	padding: 0;
@@ -45,12 +45,25 @@ header img {
 	align-self: start;
 }
 
-section.intro {
-	font-size: 1.2em;
+.readable {
+	font-family: 'Open Sans', sans-serif;
+	font-size: 1.0em;
+}
+
+.readable h1, .readable h2 {
+	font-family: 'Anton', sans-serif;
+	font-weight: normal;
+}
+
+.readable h1 {
+	font-size: 2em;
+}
+
+.readable h2 {
+	font-size: 1.75em;
 }
 
 section.intro h1 {
-	font-size: 1.5em;
 	margin: 0;
 }
 
@@ -270,3 +283,23 @@ table td, table th {
 	padding: 5px 0;
 }
 
+article.document {
+}
+
+article.document :not(pre) > code {
+	padding: 2px;
+	border: 1px solid #dee3e9;
+	background-color: #eeeeee;
+}
+
+article.document pre {
+	padding: 10px;
+	border: 1px solid #dee3e9;
+	background-color: #eeeeee;
+}
+
+article.document blockquote {
+	border-left: 5px solid #dee3e9;
+	padding-left: 10px;
+	font-style: italic;
+}

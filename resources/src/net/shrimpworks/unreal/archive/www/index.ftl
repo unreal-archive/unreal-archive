@@ -1,6 +1,6 @@
 <#include "_header.ftl">
 
-<section class="intro">
+<section class="intro readable">
 	<h1>
 		About
 	</h1>
