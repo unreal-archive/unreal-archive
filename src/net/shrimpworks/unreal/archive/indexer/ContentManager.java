@@ -75,6 +75,10 @@ public class ContentManager {
 		return content.size();
 	}
 
+	public long fileSize() {
+		return content.values().parallelStream().mapToLong(c -> c.content.fileSize).sum();
+	}
+
 	public Map<Class<? extends Content>, Long> countByType() {
 		return content.values().stream()
 					  .collect(Collectors.groupingBy(v -> v.content.getClass(), Collectors.counting()));

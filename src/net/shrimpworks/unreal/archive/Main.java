@@ -48,6 +48,9 @@ import net.shrimpworks.unreal.packages.Umod;
 
 public class Main {
 
+	private static final String CONTENT_DIR = "content";
+	private static final String DOCUMENTS_DIR = "documents";
+
 	public static void main(String[] args) throws IOException, InterruptedException {
 		final CLI cli = CLI.parse(Collections.emptyMap(), args);
 
@@ -122,27 +125,28 @@ public class Main {
 		}));
 
 		final long start = System.currentTimeMillis();
-		final ContentManager contentManager = new ContentManager(contentPath, contentStore, imageStore, attachmentStore);
-		System.err.printf("Loaded content index with %d items in %.2fs%n",
-						  contentManager.size(), (System.currentTimeMillis() - start) / 1000f);
+		final ContentManager contentManager = new ContentManager(contentPath.resolve(CONTENT_DIR), contentStore, imageStore, attachmentStore);
+		final double gigs = (contentManager.fileSize() / 1024d / 1024d / 1024d);
+		System.err.printf("Loaded content index with %d items (%.2fGB) in %.2fs%n",
+						  contentManager.size(), gigs, (System.currentTimeMillis() - start) / 1000f);
 
 		return contentManager;
 	}
 
 	private static DocumentManager documentManager(CLI cli) throws IOException {
-		if (cli.option("doc-path", null) == null) {
-			System.err.println("doc-path must be specified!");
+		if (cli.option("content-path", null) == null) {
+			System.err.println("content-path must be specified!");
 			System.exit(2);
 		}
 
-		Path docPath = Paths.get(cli.option("doc-path", null));
-		if (!Files.isDirectory(docPath)) {
-			System.err.println("doc-path must be a directory!");
+		Path contentPath = Paths.get(cli.option("content-path", null));
+		if (!Files.isDirectory(contentPath)) {
+			System.err.println("content-path must be a directory!");
 			System.exit(3);
 		}
 
 		final long start = System.currentTimeMillis();
-		final DocumentManager documentManager = new DocumentManager(docPath);
+		final DocumentManager documentManager = new DocumentManager(contentPath.resolve(DOCUMENTS_DIR));
 		System.err.printf("Loaded document index with %d items in %.2fs%n",
 						  documentManager.size(), (System.currentTimeMillis() - start) / 1000f);
 
