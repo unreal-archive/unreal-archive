@@ -1,10 +1,7 @@
 package net.shrimpworks.unreal.archive.storage;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Consumer;
@@ -14,6 +11,7 @@ import org.apache.http.client.fluent.Response;
 import org.apache.http.entity.ContentType;
 
 import net.shrimpworks.unreal.archive.CLI;
+import net.shrimpworks.unreal.archive.Util;
 
 /**
  * A simple HTTP storage solution, useful for testing and validation.
@@ -49,7 +47,7 @@ public class DavStore implements DataStore {
 
 	@Override
 	public void store(Path path, String name, Consumer<String> stored) throws IOException {
-		URI uri = toUri(baseUrl + name);
+		URI uri = Util.toUri(baseUrl + name);
 		Response execute = Request.Put(uri)
 								  .bodyFile(path.toFile(), ContentType.DEFAULT_BINARY)
 								  .execute();
@@ -75,12 +73,4 @@ public class DavStore implements DataStore {
 		downloaded.accept(tempFile);
 	}
 
-	private URI toUri(String s) throws IOException {
-		try {
-			URL url = new URL(s);
-			return new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
-		} catch (URISyntaxException | MalformedURLException e) {
-			throw new IOException("Invalid URL: " + s, e);
-		}
-	}
 }

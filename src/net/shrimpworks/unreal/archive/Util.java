@@ -1,6 +1,10 @@
 package net.shrimpworks.unreal.archive;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Path;
@@ -109,5 +113,14 @@ public final class Util {
 			hexChars[i * 2 + 1] = HEX_ARRAY[v & 0x0F];
 		}
 		return new String(hexChars);
+	}
+
+	public static URI toUri(String s) {
+		try {
+			URL url = new URL(s);
+			return new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
+		} catch (URISyntaxException | MalformedURLException e) {
+			throw new IllegalArgumentException("Invalid URL: " + s, e);
+		}
 	}
 }

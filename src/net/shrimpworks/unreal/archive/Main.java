@@ -29,6 +29,7 @@ import net.shrimpworks.unreal.archive.indexer.ContentType;
 import net.shrimpworks.unreal.archive.indexer.IndexResult;
 import net.shrimpworks.unreal.archive.indexer.Indexer;
 import net.shrimpworks.unreal.archive.indexer.Scanner;
+import net.shrimpworks.unreal.archive.mirror.MirrorClient;
 import net.shrimpworks.unreal.archive.scraper.AutoIndexPHPScraper;
 import net.shrimpworks.unreal.archive.scraper.Downloader;
 import net.shrimpworks.unreal.archive.scraper.FPSNetwork;
@@ -68,6 +69,9 @@ public class Main {
 				break;
 			case "edit":
 				edit(contentManager(cli), cli);
+				break;
+			case "mirror":
+				mirror(contentManager(cli), cli);
 				break;
 			case "www":
 				www(contentManager(cli), documentManager(cli), cli);
@@ -125,7 +129,8 @@ public class Main {
 		}));
 
 		final long start = System.currentTimeMillis();
-		final ContentManager contentManager = new ContentManager(contentPath.resolve(CONTENT_DIR), contentStore, imageStore, attachmentStore);
+		final ContentManager contentManager = new ContentManager(contentPath.resolve(CONTENT_DIR), contentStore, imageStore,
+																 attachmentStore);
 		final double gigs = (contentManager.fileSize() / 1024d / 1024d / 1024d);
 		System.err.printf("Loaded content index with %d items (%.2fGB) in %.2fs%n",
 						  contentManager.size(), gigs, (System.currentTimeMillis() - start) / 1000f);
@@ -262,6 +267,30 @@ public class Main {
 				System.out.println("No changes!");
 			}
 		}
+	}
+
+	private static void mirror(ContentManager contentManager, CLI cli) throws IOException {
+		if (cli.commands().length < 2) {
+			System.err.println("An output path should be provided!");
+			System.exit(2);
+		}
+
+		Path output = Files.createDirectories(Paths.get(cli.commands()[1]));
+
+		System.out.printf("Writing files to %s with concurrency of %s%n",
+						  output.toAbsolutePath().toString(), cli.option("concurrency", "3"));
+
+		MirrorClient mirror = new MirrorClient(
+				contentManager,
+				output,
+				Integer.parseInt(cli.option("concurrency", "3"))
+		);
+		mirror.mirror(((total, remaining, last) -> System.out.printf("\r[ %-6s / %-6s ] Processed %-40s", total - remaining, total, last)));
+
+		System.out.println("Mirror completed");
+
+		// cleanup executor
+		mirror.cancel();
 	}
 
 	private static void www(ContentManager contentManager, DocumentManager documentManager, CLI cli) throws IOException {
@@ -456,12 +485,15 @@ public class Main {
 		System.out.println();
 		System.out.println("Commands:");
 		System.out.println("  index <file ...> --content-path=<path> [--force=<true|false>]");
-		System.out.println("    Index the contents of files, writing the results to <content-path>.");
+		System.out.println("    Index the contents of files or paths, writing the results to <content-path>.");
 		System.out.println("    Optionally force re-indexing of existing content, rather than skipping it.");
 		System.out.println("  scan <file ...> --content-path=<path>");
-		System.out.println("    Dry-run scan the contents of files, comparing to known content where possible.");
+		System.out.println("    Dry-run scan the contents of files or paths, comparing to known content where possible.");
 		System.out.println("  edit <hash> --content-path=<path>");
 		System.out.println("    Edit the metadata for the <hash> provided. Relies on `sensible-editor` on Linux.");
+		System.out.println("  mirror <output-path> --content-path=<path> [--concurrency=<count>]");
+		System.out.println("    Create a local mirror of the content in <content-path> in local directory <output-path>.");
+		System.out.println("    Optionally specify the number of concurrent downloads via <count>, defaults to 3.");
 		System.out.println("  www <output-path> --content-path=<path>");
 		System.out.println("    Generate the HTML website for browsing content.");
 		System.out.println("  summary --content-path=<path>");

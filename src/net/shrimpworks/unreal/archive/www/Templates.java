@@ -9,7 +9,6 @@ import java.io.InputStreamReader;
 import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
@@ -36,6 +35,8 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
+
+import net.shrimpworks.unreal.archive.Util;
 
 public class Templates {
 
@@ -174,10 +175,8 @@ public class Templates {
 			}
 
 			try {
-				URL url = new URL(args.get(0).toString());
-				return new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(),
-							   url.getQuery(), url.getRef()).toString();
-			} catch (URISyntaxException | MalformedURLException e) {
+				return Util.toUri(args.get(0).toString()).toString();
+			} catch (IllegalArgumentException e) {
 				throw new TemplateModelException("Invalid URL: " + args.get(0).toString(), e);
 			}
 		}
