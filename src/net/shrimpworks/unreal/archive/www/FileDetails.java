@@ -16,8 +16,8 @@ public class FileDetails extends PageGenerator {
 
 	private final Map<Content.ContentFile, List<Content>> contentFiles;
 
-	public FileDetails(ContentManager content, Path output, Path staticRoot) {
-		super(content, output.resolve("files"), staticRoot);
+	public FileDetails(ContentManager content, Path output, Path staticRoot, boolean localImages) {
+		super(content, output.resolve("files"), staticRoot, localImages);
 
 		this.contentFiles = new HashMap<>();
 		content.search(null, null, null, null)

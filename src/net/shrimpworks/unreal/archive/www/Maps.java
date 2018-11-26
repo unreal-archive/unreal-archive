@@ -21,8 +21,8 @@ public class Maps extends PageGenerator {
 	private final Games games;
 	private final Authors authors;
 
-	public Maps(ContentManager content, Path output, Path staticRoot) {
-		super(content, output.resolve("maps"), staticRoot);
+	public Maps(ContentManager content, Path output, Path staticRoot, boolean localImages) {
+		super(content, output.resolve("maps"), staticRoot, localImages);
 
 		this.games = new Games();
 		this.authors = new Authors();
@@ -145,6 +145,8 @@ public class Maps extends PageGenerator {
 	}
 
 	private void mapPage(MapInfo map) throws IOException {
+		localImages(map.map, root.resolve(map.path).getParent());
+
 		Templates.template("maps/map.ftl")
 				 .put("static", root.resolve(map.path).getParent().relativize(staticRoot))
 				 .put("title", String.join(" / ", "Maps", map.page.letter.gametype.game.name, map.page.letter.gametype.name, map.map.title))

@@ -23,8 +23,8 @@ public class MapPacks extends PageGenerator {
 
 	private final Games games;
 
-	public MapPacks(ContentManager content, Path output, Path staticRoot) {
-		super(content, output.resolve("mappacks"), staticRoot);
+	public MapPacks(ContentManager content, Path output, Path staticRoot, boolean localImages) {
+		super(content, output.resolve("mappacks"), staticRoot, localImages);
 
 		this.games = new Games();
 
@@ -123,6 +123,8 @@ public class MapPacks extends PageGenerator {
 	}
 
 	private void packPage(MapPackInfo pack) throws IOException {
+		localImages(pack.pack, root.resolve(pack.path).getParent());
+
 		Templates.template("mappacks/mappack.ftl")
 				 .put("static", root.resolve(pack.path).getParent().relativize(staticRoot))
 				 .put("title", String.join(" / ", SECTION, pack.page.gametype.game.name, pack.page.gametype.name, pack.pack.name))

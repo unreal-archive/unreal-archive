@@ -174,6 +174,10 @@ public class Templates {
 				throw new TemplateModelException("Wrong arguments");
 			}
 
+			String url = args.get(0).toString();
+
+			if (!url.startsWith("http")) return url;
+
 			try {
 				return Util.toUri(args.get(0).toString()).toString();
 			} catch (IllegalArgumentException e) {

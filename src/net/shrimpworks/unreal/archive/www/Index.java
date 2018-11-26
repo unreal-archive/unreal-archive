@@ -9,8 +9,8 @@ import net.shrimpworks.unreal.archive.indexer.ContentManager;
 
 public class Index extends PageGenerator {
 
-	public Index(ContentManager content, Path output, Path staticRoot) {
-		super(content, output, staticRoot);
+	public Index(ContentManager content, Path output, Path staticRoot, boolean localImages) {
+		super(content, output, staticRoot, localImages);
 	}
 
 	@Override
