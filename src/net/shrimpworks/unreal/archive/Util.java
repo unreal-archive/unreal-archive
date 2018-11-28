@@ -123,4 +123,10 @@ public final class Util {
 			throw new IllegalArgumentException("Invalid URL: " + s, e);
 		}
 	}
+
+	public static String toUriString(String s) {
+		return toUri(s).toString()
+					   .replaceAll("\\+", "%2B")
+					   .replaceAll("&", "%26");
+	}
 }

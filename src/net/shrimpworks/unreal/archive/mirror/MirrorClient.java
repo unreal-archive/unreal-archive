@@ -107,7 +107,7 @@ public class MirrorClient {
 				if (Files.exists(dest) && Files.size(dest) == content.fileSize) return;
 
 				// download the stuff, hopefully
-				Request.Get(Util.toUri(dl.url)).execute().saveContent(dest.toFile());
+				Request.Get(Util.toUriString(dl.url)).execute().saveContent(dest.toFile());
 
 			} catch (HttpResponseException e) {
 				// note: e.message is always empty, thanks apache :thumbsup:

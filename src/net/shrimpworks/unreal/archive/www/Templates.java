@@ -179,7 +179,7 @@ public class Templates {
 			if (!url.startsWith("http")) return url;
 
 			try {
-				return Util.toUri(args.get(0).toString()).toString();
+				return Util.toUriString(args.get(0).toString());
 			} catch (IllegalArgumentException e) {
 				throw new TemplateModelException("Invalid URL: " + args.get(0).toString(), e);
 			}

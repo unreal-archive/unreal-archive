@@ -3,6 +3,7 @@ package net.shrimpworks.unreal.archive.www;
 import java.io.IOException;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.github.rjeschke.txtmark.Configuration;
 import com.github.rjeschke.txtmark.Processor;
 
 import net.shrimpworks.unreal.archive.docs.Document;
@@ -110,10 +112,15 @@ public class Documents {
 
 		try (ReadableByteChannel docChan = documents.document(doc)) {
 
-			String slug = slug(doc.title);
-			Path path = root.resolve(String.join("/", group.path, slug));
+			final String slug = slug(doc.title);
+			final Path path = root.resolve(String.join("/", group.path, slug));
 
-			String content = Processor.process(Channels.newInputStream(docChan));
+			final Configuration config = Configuration.builder()
+													  .forceExtentedProfile()
+													  .setEncoding(StandardCharsets.UTF_8.name())
+													  .build();
+
+			final String content = Processor.process(Channels.newInputStream(docChan), config);
 
 			Templates.template("docs/document.ftl")
 					 .put("static", path.relativize(staticRoot))

@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.fluent.Request;
 
 import net.shrimpworks.unreal.archive.Util;
@@ -66,16 +67,20 @@ public abstract class PageGenerator {
 
 		for (Content.Attachment img : images) {
 			try {
+				System.out.printf("\rDownloading image %-60s", img.name);
+
 				// prepend filenames with the content hash, to prevent conflicts
 				String hashName = String.join("_", content.hash.substring(0, 8), img.name);
 				Path outPath = imgPath.resolve(hashName);
 
 				// only download if it doesn't already exist locally
-				if (!Files.exists(outPath)) Request.Get(Util.toUri(img.url)).execute().saveContent(outPath.toFile());
+				if (!Files.exists(outPath)) Request.Get(Util.toUriString(img.url)).execute().saveContent(outPath.toFile());
 
 				// replace the actual attachment with the local copy
 				content.attachments.remove(img);
 				content.attachments.add(new Content.Attachment(img.type, img.name, localPath.relativize(outPath).toString()));
+			} catch (HttpResponseException e) {
+				System.err.printf("\rFailed to download image %s: %d %s%n", img.name, e.getStatusCode(), e.getMessage());
 			} catch (Throwable t) {
 				t.printStackTrace(); // FIXME
 			}
