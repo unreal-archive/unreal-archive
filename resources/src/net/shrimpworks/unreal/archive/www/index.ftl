@@ -30,7 +30,7 @@
 <article class="biglist">
 	<ul>
 		<li>
-			<span class="meta">coming soon</span>
+			<span class="meta">${count.Documents}</span>
 			<a href="documents/index.html">Guides &amp; Articles</a>
 		</li>
 		<li>

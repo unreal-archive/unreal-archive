@@ -283,6 +283,14 @@ table td, table th {
 	padding: 5px 0;
 }
 
+article .docs .title-image {
+	width: 180px;
+}
+
+article .docs .title-image img {
+	max-height: 50px;
+}
+
 article.document {
 }
 

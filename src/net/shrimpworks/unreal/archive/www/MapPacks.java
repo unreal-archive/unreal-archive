@@ -17,7 +17,7 @@ import net.shrimpworks.unreal.archive.indexer.mappacks.MapPack;
 
 import static net.shrimpworks.unreal.archive.www.Templates.slug;
 
-public class MapPacks extends PageGenerator {
+public class MapPacks extends ContentPageGenerator {
 
 	private static final String SECTION = "Map Packs";
 

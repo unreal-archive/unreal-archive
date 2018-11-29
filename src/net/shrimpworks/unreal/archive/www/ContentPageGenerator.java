@@ -13,12 +13,13 @@ import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.indexer.Content;
 import net.shrimpworks.unreal.archive.indexer.ContentManager;
 
-public abstract class PageGenerator {
+public abstract class ContentPageGenerator {
 
 	final ContentManager content;
 	final Path root;
 	final Path staticRoot;
-	final boolean localImages;
+
+	private final boolean localImages;
 
 	/**
 	 * Create a new Page Generator instance.
@@ -28,7 +29,7 @@ public abstract class PageGenerator {
 	 * @param staticRoot  path to static content
 	 * @param localImages if true, download and reference local copies of remote images
 	 */
-	public PageGenerator(ContentManager content, Path output, Path staticRoot, boolean localImages) {
+	public ContentPageGenerator(ContentManager content, Path output, Path staticRoot, boolean localImages) {
 		this.content = content;
 		this.root = output;
 		this.staticRoot = staticRoot;

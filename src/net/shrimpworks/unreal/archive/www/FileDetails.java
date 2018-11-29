@@ -12,7 +12,7 @@ import java.util.Map;
 import net.shrimpworks.unreal.archive.indexer.Content;
 import net.shrimpworks.unreal.archive.indexer.ContentManager;
 
-public class FileDetails extends PageGenerator {
+public class FileDetails extends ContentPageGenerator {
 
 	private final Map<Content.ContentFile, List<Content>> contentFiles;
 

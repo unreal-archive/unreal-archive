@@ -320,20 +320,24 @@ public class Main {
 
 		final AtomicInteger pageCount = new AtomicInteger();
 
-		// generate content pages
-		Arrays.asList(
-				new Index(contentManager, outputPath, staticOutput, localImages),
-				new Maps(contentManager, outputPath, staticOutput, localImages),
-				new MapPacks(contentManager, outputPath, staticOutput, localImages),
-				new FileDetails(contentManager, outputPath, staticOutput, localImages)
-		).forEach(g -> {
-			System.out.printf("Generating %s pages%n", g.getClass().getSimpleName());
-			pageCount.addAndGet(g.generate());
-		});
+		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("content"))) {
+			// generate content pages
+			Arrays.asList(
+					new Index(contentManager, documentManager, outputPath, staticOutput, localImages),
+					new Maps(contentManager, outputPath, staticOutput, localImages),
+					new MapPacks(contentManager, outputPath, staticOutput, localImages),
+					new FileDetails(contentManager, outputPath, staticOutput, localImages)
+			).forEach(g -> {
+				System.out.printf("Generating %s pages%n", g.getClass().getSimpleName());
+				pageCount.addAndGet(g.generate());
+			});
+		}
 
-		// generate document pages
-		System.out.printf("Generating Document pages%n");
-		new Documents(documentManager, outputPath, staticOutput).generate();
+		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("docs"))) {
+			// generate document pages
+			System.out.printf("Generating Document pages%n");
+			new Documents(documentManager, outputPath, staticOutput).generate();
+		}
 
 		System.out.printf("Output %d pages in %.2fs%n", pageCount.get(), (System.currentTimeMillis() - start) / 1000f);
 	}
@@ -504,7 +508,7 @@ public class Main {
 		System.out.println("  mirror <output-path> --content-path=<path> [--concurrency=<count>]");
 		System.out.println("    Create a local mirror of the content in <content-path> in local directory <output-path>.");
 		System.out.println("    Optionally specify the number of concurrent downloads via <count>, defaults to 3.");
-		System.out.println("  www <output-path> --content-path=<path>");
+		System.out.println("  www <output-path> [docs|content] --content-path=<path>");
 		System.out.println("    Generate the HTML website for browsing content.");
 		System.out.println("  summary --content-path=<path>");
 		System.out.println("    Show stats and counters for the content index in <content-path>");

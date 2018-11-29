@@ -16,7 +16,7 @@ import net.shrimpworks.unreal.archive.indexer.maps.Map;
 
 import static net.shrimpworks.unreal.archive.www.Templates.slug;
 
-public class Maps extends PageGenerator {
+public class Maps extends ContentPageGenerator {
 
 	private final Games games;
 	private final Authors authors;

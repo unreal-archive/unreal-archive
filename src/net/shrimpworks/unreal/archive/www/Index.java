@@ -5,12 +5,16 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.shrimpworks.unreal.archive.docs.DocumentManager;
 import net.shrimpworks.unreal.archive.indexer.ContentManager;
 
-public class Index extends PageGenerator {
+public class Index extends ContentPageGenerator {
 
-	public Index(ContentManager content, Path output, Path staticRoot, boolean localImages) {
+	private final DocumentManager documents;
+
+	public Index(ContentManager content, DocumentManager documents, Path output, Path staticRoot, boolean localImages) {
 		super(content, output, staticRoot, localImages);
+		this.documents = documents;
 	}
 
 	@Override
@@ -19,6 +23,7 @@ public class Index extends PageGenerator {
 		content.countByType().forEach((k, v) -> {
 			contentCount.put(k.getSimpleName(), v);
 		});
+		contentCount.put("Documents", documents.all().stream().filter(d -> d.published).count());
 
 		try {
 			Templates.template("index.ftl")
