@@ -16,14 +16,15 @@
 	<p>
 		You're also encouraged to contribute to the indexing, categorisation and
 		refinement of the Archive content via the
-		<a href="contribute.html">contribution guide</a>. The Archive is a completely
-		open source initiative.
+		<a href="documents/general/meta/contribution-guide/index.html">contribution guide</a>.
+		The Archive is a completely	open source initiative.
 	</p>
 	<p>
 		You're also welcome and encouraged to download entire local mirrors of the
 		Archive content and website, as spreading it around helps to ensure the
 		longevity of the content and reduce the changes of it being permanently lost.
-		See the <a href="mirroring.html">mirroring guide</a> for more information.
+		See the <a href="documents/general/meta/archive-mirroring-guide/index.html">mirroring guide</a>
+		for more information.
 	</p>
 </section>
 
