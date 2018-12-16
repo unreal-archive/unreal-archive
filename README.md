@@ -20,6 +20,7 @@ and Unreal Tournament 2003/4 content.
   files)~~
 - Support for documents and articles, stored in Markdown format with YAML
   metadata
+- Support for non-content files, like patches, drivers and similar updates
 - Support for generating the HTML output/presentation for the content database
   - ~~Maps~~
   - ~~Map Packs~~
@@ -28,11 +29,11 @@ and Unreal Tournament 2003/4 content.
   - Mutators
   - Mods and Gametypes
   - Documents and Articles
-  - Support for mirroring images so as to make offline use and mirrors feasible
-    and to reduce reliance on continued existence of some hosting.
-- Support to create a local mirror of the archive, complete or by game.
+  - ~~Support for mirroring images so as to make offline use and mirrors feasible
+    and to reduce reliance on continued existence of some hosting.~~
+- ~~Support to create a local mirror of the archive, complete~~ or by game.
 - Publish website
-- Publish code publically
+- Publish code publicly
 
 
 ## Content Submission and Indexing Pipeline
