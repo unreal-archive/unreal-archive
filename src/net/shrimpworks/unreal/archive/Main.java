@@ -70,6 +70,9 @@ public class Main {
 			case "edit":
 				edit(contentManager(cli), cli);
 				break;
+			case "sync":
+				sync(cli);
+				break;
 			case "mirror":
 				mirror(contentManager(cli), cli);
 				break;
@@ -99,6 +102,10 @@ public class Main {
 		}
 
 		System.exit(0);
+	}
+
+	private static void sync(CLI cli) {
+		throw new UnsupportedOperationException("Not implemented");
 	}
 
 	private static ContentManager contentManager(CLI cli) throws IOException {
@@ -501,6 +508,8 @@ public class Main {
 		System.out.println("  index <file ...> --content-path=<path> [--force=<true|false>]");
 		System.out.println("    Index the contents of files or paths, writing the results to <content-path>.");
 		System.out.println("    Optionally force re-indexing of existing content, rather than skipping it.");
+		System.out.println("  sync <kind> --content-path=<path>");
+		System.out.println("    Sync managed files' local files to remote storage.");
 		System.out.println("  scan <file ...> --content-path=<path>");
 		System.out.println("    Dry-run scan the contents of files or paths, comparing to known content where possible.");
 		System.out.println("  edit <hash> --content-path=<path>");
