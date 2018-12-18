@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * Managed files represent content we cannot automatically index and
@@ -40,6 +39,7 @@ public class Managed {
 	public String author = "Unknown";               // Joe Soap
 	public String homepage = "";                    // https://cool-editor-tool.com/
 	public String description = "No description";   // A cool tool to do things in the editor.
+	public LocalDate releaseDate;
 	public String titleImage;                       // "pic.png"
 	public List<String> images = new ArrayList<>(); // [image1.png, screenshot.jpg]
 	public List<ManagedFile> downloads = new ArrayList<>();
@@ -78,7 +78,7 @@ public class Managed {
 		public String version;
 		public String description = "";             // specific description for this file
 		public String localFile;                    // local path to the file to be synced
-		public Set<String> downloads;               // list of download mirrors for this file, sync process will add to this
+		public List<String> downloads = new ArrayList<>(); // list of download mirrors for this file, sync process will add to this
 		public int fileSize = 0;                    // filesize, we'll determine when synced
 		public Platform platform = Platform.ANY;    // platform-specific files
 		public boolean synced = false;              // if false, localFile will be uploaded and turned into a download upon sync

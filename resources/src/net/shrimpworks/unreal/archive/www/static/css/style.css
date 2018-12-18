@@ -294,6 +294,14 @@ article .docs .title-image img {
 article.document {
 }
 
+article.document meta {
+	float: right;
+	max-width: 400px;
+	margin: 0 0 10px 10px;
+	border: 1px solid #dee3e9;
+	background-color: #eeeeee;
+}
+
 article.document :not(pre) > code {
 	padding: 2px;
 	border: 1px solid #dee3e9;
