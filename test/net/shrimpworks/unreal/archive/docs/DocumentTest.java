@@ -106,7 +106,7 @@ public class DocumentTest {
 			assertTrue(dm.all().contains(doc));
 
 			Documents documents = new Documents(dm, wwwRoot, wwwRoot);
-			assertEquals(5, documents.generate());
+			assertEquals(6, documents.generate());
 		} finally {
 			// cleanup temp files
 			ArchiveUtil.cleanPath(tmpRoot);

@@ -59,10 +59,6 @@ public class ManagedContent {
 			ContentGroup rootGroup = new ContentGroup(null, "");
 			rootGroup.groups.putAll(groups);
 			count += generateGroup(rootGroup);
-
-			for (ContentGroup group : groups.values()) {
-				count += generateGroup(group);
-			}
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to render page", e);
 		}
@@ -122,12 +118,12 @@ public class ManagedContent {
 
 			final String page = Processor.process(Channels.newInputStream(docChan), config);
 
-			Templates.template("docs/document.ftl")
+			Templates.template("managed/content.ftl")
 					 .put("static", path.relativize(staticRoot))
 					 .put("title", String.join(" / ", section, content.managed.game, String.join(" / ", content.managed.path.split("/")),
 											   content.managed.title))
-					 .put("managed", content)
-					 .put("content", page)
+					 .put("content", content)
+					 .put("document", page)
 					 .put("siteRoot", path.relativize(root))
 					 .write(path.resolve("index.html"));
 		}
@@ -147,7 +143,7 @@ public class ManagedContent {
 		public final TreeMap<String, ContentGroup> groups = new TreeMap<>();
 		public final List<ContentInfo> content = new ArrayList<>();
 
-		public int docs;
+		public int count;
 
 		public ContentGroup(ContentGroup parent, String name) {
 			this.pPath = parent != null ? parent.pPath.isEmpty() ? name : String.join("/", parent.pPath, name) : "";
@@ -157,7 +153,7 @@ public class ManagedContent {
 			this.name = name;
 			this.slug = slug(name);
 			this.path = parent != null ? String.join("/", parent.path, slug) : slug;
-			this.docs = 0;
+			this.count = 0;
 		}
 
 		public void add(Managed m) {
@@ -170,7 +166,7 @@ public class ManagedContent {
 				ContentGroup group = groups.computeIfAbsent(nextName, g -> new ContentGroup(this, g));
 				group.add(m);
 			}
-			this.docs++;
+			this.count++;
 		}
 	}
 

@@ -59,10 +59,6 @@ public class Documents {
 			DocumentGroup rootGroup = new DocumentGroup(null, "");
 			rootGroup.groups.putAll(groups);
 			count += generateGroup(rootGroup);
-
-			for (DocumentGroup group : groups.values()) {
-				count += generateGroup(group);
-			}
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to render page", e);
 		}
