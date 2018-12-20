@@ -32,11 +32,11 @@
 	<ul>
 		<li>
 			<span class="meta">${count.Documents}</span>
-			<a href="documents/index.html">Guides &amp;amp; Articles</a>
+			<a href="documents/index.html">Guides &amp; Articles</a>
 		</li>
 		<li>
 			<span class="meta">coming soon</span>
-			<a href="managed/updates/index.html">Patches &amp; Updates</a>
+			<a href="patches-updates/index.html">Patches & Updates</a>
 		</li>
 		<li>
 			<span class="meta">${count.Map}</span>

@@ -29,6 +29,8 @@ import net.shrimpworks.unreal.archive.indexer.ContentType;
 import net.shrimpworks.unreal.archive.indexer.IndexResult;
 import net.shrimpworks.unreal.archive.indexer.Indexer;
 import net.shrimpworks.unreal.archive.indexer.Scanner;
+import net.shrimpworks.unreal.archive.managed.Managed;
+import net.shrimpworks.unreal.archive.managed.ManagedContentManager;
 import net.shrimpworks.unreal.archive.mirror.MirrorClient;
 import net.shrimpworks.unreal.archive.scraper.AutoIndexPHPScraper;
 import net.shrimpworks.unreal.archive.scraper.Downloader;
@@ -42,6 +44,7 @@ import net.shrimpworks.unreal.archive.storage.DataStore;
 import net.shrimpworks.unreal.archive.www.Documents;
 import net.shrimpworks.unreal.archive.www.FileDetails;
 import net.shrimpworks.unreal.archive.www.Index;
+import net.shrimpworks.unreal.archive.www.ManagedContent;
 import net.shrimpworks.unreal.archive.www.MapPacks;
 import net.shrimpworks.unreal.archive.www.Maps;
 import net.shrimpworks.unreal.archive.www.Templates;
@@ -77,7 +80,7 @@ public class Main {
 				mirror(contentManager(cli), cli);
 				break;
 			case "www":
-				www(contentManager(cli), documentManager(cli), cli);
+				www(contentManager(cli), documentManager(cli), managedContent(cli, "updates"), cli);
 				break;
 			case "summary":
 				summary(contentManager(cli));
@@ -104,8 +107,39 @@ public class Main {
 		System.exit(0);
 	}
 
-	private static void sync(CLI cli) {
-		throw new UnsupportedOperationException("Not implemented");
+	private static ManagedContentManager managedContent(CLI cli, String group) throws IOException {
+		if (cli.option("content-path", null) == null) {
+			System.err.println("content-path must be specified!");
+			System.exit(2);
+		}
+
+		Path contentPath = Paths.get(cli.option("content-path", null));
+		if (!Files.isDirectory(contentPath)) {
+			System.err.println("content-path must be a directory!");
+			System.exit(3);
+		}
+
+		Path managedPath = contentPath.resolve(group);
+		if (!Files.isDirectory(managedPath)) {
+			System.err.printf("Can't find content path for group %s!%n", group);
+			System.exit(3);
+		}
+
+		return new ManagedContentManager(managedPath, group);
+	}
+
+	private static void sync(CLI cli) throws IOException {
+		ManagedContentManager managedContent = managedContent(cli, cli.commands()[1]);
+
+		final DataStore contentStore = store(DataStore.StoreContent.CONTENT, cli);
+		Set<Managed> synced = managedContent.sync(contentStore);
+
+		if (synced.isEmpty()) {
+			System.out.println("No files were synced.");
+		} else {
+			System.out.printf("Synced %d files:%n", synced.size());
+			synced.forEach(m -> System.out.printf(" - %s%n", m.title));
+		}
 	}
 
 	private static ContentManager contentManager(CLI cli) throws IOException {
@@ -300,7 +334,8 @@ public class Main {
 		mirror.cancel();
 	}
 
-	private static void www(ContentManager contentManager, DocumentManager documentManager, CLI cli) throws IOException {
+	private static void www(ContentManager contentManager, DocumentManager documentManager, ManagedContentManager updates, CLI cli)
+			throws IOException {
 		if (cli.commands().length < 2) {
 			System.err.println("An output path must be specified!");
 			System.exit(2);
@@ -343,7 +378,13 @@ public class Main {
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("docs"))) {
 			// generate document pages
 			System.out.printf("Generating Document pages%n");
-			new Documents(documentManager, outputPath, staticOutput).generate();
+			pageCount.addAndGet(new Documents(documentManager, outputPath, staticOutput).generate());
+		}
+
+		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("updates"))) {
+			// generate updates pages
+			System.out.printf("Generating Updates pages%n");
+			pageCount.addAndGet(new ManagedContent(updates, outputPath, staticOutput, "Patches & Updates").generate());
 		}
 
 		System.out.printf("Output %d pages in %.2fs%n", pageCount.get(), (System.currentTimeMillis() - start) / 1000f);

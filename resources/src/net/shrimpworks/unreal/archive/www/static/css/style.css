@@ -283,18 +283,18 @@ table td, table th {
 	padding: 5px 0;
 }
 
-article .docs .title-image {
+article .docs .title-image, article .content .title-image {
 	width: 180px;
 }
 
-article .docs .title-image img {
+article .docs .title-image img, article .content .title-image img {
 	max-height: 50px;
 }
 
 article.document {
 }
 
-article.document meta {
+article.document .meta {
 	float: right;
 	max-width: 400px;
 	margin: 0 0 10px 10px;

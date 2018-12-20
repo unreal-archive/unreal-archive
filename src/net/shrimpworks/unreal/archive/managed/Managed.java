@@ -79,7 +79,7 @@ public class Managed {
 		public String description = "";             // specific description for this file
 		public String localFile;                    // local path to the file to be synced
 		public List<String> downloads = new ArrayList<>(); // list of download mirrors for this file, sync process will add to this
-		public int fileSize = 0;                    // filesize, we'll determine when synced
+		public long fileSize = 0;                    // filesize, we'll determine when synced
 		public Platform platform = Platform.ANY;    // platform-specific files
 		public boolean synced = false;              // if false, localFile will be uploaded and turned into a download upon sync
 		public boolean deleted = false;             // if deleted, prevents from syncing and will not publish

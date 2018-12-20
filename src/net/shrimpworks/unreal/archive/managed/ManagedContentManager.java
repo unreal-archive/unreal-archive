@@ -2,6 +2,7 @@ package net.shrimpworks.unreal.archive.managed;
 
 import java.io.IOException;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,10 +12,14 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.YAML;
+import net.shrimpworks.unreal.archive.storage.DataStore;
 
 public class ManagedContentManager {
 
@@ -92,6 +97,67 @@ public class ManagedContentManager {
 		if (holder == null) return null;
 
 		return holder.path.getParent();
+	}
+
+	public Set<Managed> sync(DataStore contentStore) {
+		Set<Managed> synced = new HashSet<>();
+
+		// collect items to be synced
+		Set<ManagedContentHolder> toSync = content.values().stream()
+												  .filter(m -> m.managed.downloads.stream().anyMatch(d -> {
+													  Path f = m.path.resolve(d.localFile);
+													  return !d.synced && Files.exists(f);
+												  }))
+												  .collect(Collectors.toSet());
+
+		toSync.forEach(m -> {
+			Managed clone;
+			try {
+				clone = YAML.fromString(YAML.toString(m.managed), Managed.class);
+			} catch (IOException e) {
+				throw new IllegalStateException("Cannot clone managed content " + m.managed);
+			}
+
+			boolean[] success = { false };
+
+			clone.downloads.stream().filter(d -> !d.synced).forEach(d -> {
+				Path f = m.path.resolve(d.localFile);
+				if (!Files.exists(f)) return; // FIXME report this
+
+				try {
+					contentStore.store(f, String.join("/", remotePath(m.managed), f.getFileName().toString()), u -> {
+						try {
+							if (!d.downloads.contains(u)) d.downloads.add(u);
+							d.fileSize = Files.size(f);
+							d.synced = true;
+
+							// replace existing with updated
+							Files.write(m.path, YAML.toString(clone).getBytes(StandardCharsets.UTF_8),
+										StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+
+							success[0] = true;
+						} catch (IOException e) {
+							System.err.printf("Failed to update managed content definition %s: %s%n", m.path, e.toString()); // FIXME logs?
+						}
+
+					});
+				} catch (IOException e) {
+					System.err.printf("Failed to sync file %s: %s%n", d.localFile, e.toString()); // FIXME logs?
+				}
+			});
+
+			if (success[0]) {
+				content.remove(m.managed);
+				content.put(clone, new ManagedContentHolder(m.path, clone));
+				synced.add(clone);
+			}
+		});
+
+		return synced;
+	}
+
+	private String remotePath(Managed managed) {
+		return String.join("/", name, managed.game, managed.path);
 	}
 
 	private static class ManagedContentHolder {

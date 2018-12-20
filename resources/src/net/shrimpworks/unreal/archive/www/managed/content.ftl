@@ -12,7 +12,7 @@
 		</h1>
 	</section>
 
-	<article class="managed">
+	<article class="managed document">
 		<div class="meta">
 			<div class="label-value">
 				<label>Author</label><span>${content.managed.author}</span>
