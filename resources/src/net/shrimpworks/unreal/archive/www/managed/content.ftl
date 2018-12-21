@@ -13,7 +13,7 @@
 	</section>
 
 	<article class="managed document">
-		<div class="meta">
+		<section class="meta">
 			<div class="label-value">
 				<label>Author</label><span>${content.managed.author}</span>
 			</div>
@@ -29,11 +29,27 @@
 			<div class="label-value">
 				<label>Summary</label><span>${content.managed.description}</span>
 			</div>
-		</div>
 
-		<div class="content readable">
+			<section class="downloads">
+				<h2>Downloads</h2>
+				<div class="links">
+					<#list content.managed.downloads as d>
+						<#if !d.deleted && d.downloads?size gt 0>
+							${d.platform} ${d.title} ${d.version}
+							${d.description}
+							${fileSize(d.fileSize)}
+							<#list d.downloads as l>
+								<a href="${urlEncode(l)}">${urlHost(l)}</a>
+							</#list>
+						</#if>
+					</#list>
+				</div>
+			</section>
+		</section>
+
+		<section class="content readable">
 			${document}
-		</div>
+		</section>
 	</article>
 
 <#include "../_footer.ftl">

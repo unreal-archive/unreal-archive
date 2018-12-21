@@ -42,6 +42,8 @@ public class Templates {
 
 	static final int PAGE_SIZE = 150;
 
+	private static final Map<String, String> HOST_REMAP = new HashMap<>();
+
 	private static final Pattern NONLATIN = Pattern.compile("[^\\w-]");
 	private static final Pattern WHITESPACE = Pattern.compile("[\\s]");
 
@@ -53,6 +55,8 @@ public class Templates {
 		ow.setExposeFields(true);
 		TPL_CONFIG.setObjectWrapper(ow);
 		TPL_CONFIG.setOutputEncoding(StandardCharsets.UTF_8.name());
+
+		HOST_REMAP.put("f002.backblazeb2.com", "Unreal Archive");
 	}
 
 	public static Tpl template(String name) throws IOException {
@@ -215,8 +219,8 @@ public class Templates {
 			}
 
 			try {
-				URL url = new URL(args.get(0).toString());
-				return url.getHost().replaceFirst("www\\.", "");
+				String host = new URL(args.get(0).toString()).getHost().replaceFirst("www\\.", "");
+				return HOST_REMAP.getOrDefault(host, host);
 			} catch (MalformedURLException e) {
 				throw new TemplateModelException("Invalid URL: " + args.get(0).toString(), e);
 			}
