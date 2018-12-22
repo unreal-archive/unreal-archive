@@ -17,6 +17,11 @@
 			<div class="label-value">
 				<label>Author</label><span>${content.managed.author}</span>
 			</div>
+			<#if content.managed.homepage??>
+				<div class="label-value">
+					<label> </label><span><a href="${content.managed.homepage}">Homepage</a></span>
+				</div>
+			</#if>
 			<div class="label-value">
 				<label>Release Date</label><span>${content.managed.releaseDate!"-"}</span>
 			</div>
@@ -35,7 +40,8 @@
 				<div class="links">
 					<#list content.managed.downloads as d>
 						<#if !d.deleted && d.downloads?size gt 0>
-							${d.platform} ${d.title} ${d.version}
+							<img src="${static}/images/icons/black/px22/os-${d.platform?lower_case}.png" title="${d.platform}"/>
+							${d.title} ${d.version}
 							${d.description}
 							${fileSize(d.fileSize)}
 							<#list d.downloads as l>
