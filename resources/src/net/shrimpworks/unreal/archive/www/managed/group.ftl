@@ -39,7 +39,7 @@
 						<#if c.managed.titleImage??>
 							<img src="${relUrl(group.path, c.path)}/${c.managed.titleImage}"/>
 						<#else>
-							<img src="${static!"static"}/images/none-document.png"/>
+							<img src="${static!"static"}/images/none-managed.png"/>
 						</#if>
 						</td>
 						<td nowrap="nowrap"><a href="${relUrl(group.path, c.path)}/index.html">${c.managed.title}</a></td>

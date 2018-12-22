@@ -128,6 +128,7 @@ public class Templates {
 			TPL_VARS.put("urlEncode", new UrlEncodeMethod());
 			TPL_VARS.put("urlHost", new UrlHostMethod());
 			TPL_VARS.put("fileSize", new FileSizeMethod());
+			TPL_VARS.put("fileName", new FileNameMethod());
 		}
 
 		private final Template template;
@@ -208,6 +209,17 @@ public class Templates {
 			}
 
 			return String.format("%.1f %s", size, SIZES[cnt]);
+		}
+	}
+
+	private static class FileNameMethod implements TemplateMethodModelEx {
+
+		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
+			if (args.size() != 1) {
+				throw new TemplateModelException("Wrong arguments");
+			}
+
+			return Util.fileName(args.get(0).toString());
 		}
 	}
 

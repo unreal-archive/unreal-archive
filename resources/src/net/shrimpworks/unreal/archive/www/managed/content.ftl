@@ -14,6 +14,7 @@
 
 	<article class="managed document">
 		<section class="meta">
+			<h2>Information</h2>
 			<div class="label-value">
 				<label>Author</label><span>${content.managed.author}</span>
 			</div>
@@ -37,19 +38,29 @@
 
 			<section class="downloads">
 				<h2>Downloads</h2>
-				<div class="links">
-					<#list content.managed.downloads as d>
-						<#if !d.deleted && d.downloads?size gt 0>
-							<img src="${static}/images/icons/black/px22/os-${d.platform?lower_case}.png" title="${d.platform}"/>
-							${d.title} ${d.version}
-							${d.description}
-							${fileSize(d.fileSize)}
-							<#list d.downloads as l>
-								<a href="${urlEncode(l)}">${urlHost(l)}</a>
-							</#list>
-						</#if>
-					</#list>
-				</div>
+				<#list content.managed.downloads as d>
+					<#if !d.deleted && d.downloads?size gt 0>
+						<div class="download">
+							<div class="title">
+								<img src="${static!"static"}/images/icons/black/px22/os-${d.platform?lower_case}.png" title="${d.platform}" align="absmiddle" alt="${d.platform}"/>
+								${d.title} ver ${d.version}
+							</div>
+							<div class="info">
+								<div>${fileName(d.localFile)}</div>
+								<div>${fileSize(d.fileSize)}</div>
+								<div>${d.description}</div>
+							</div>
+							<div class="links">
+								<#list d.downloads as l>
+									<a href="${urlEncode(l)}">
+										<img src="${static!"static"}/images/icons/black/px22/download.png" align="absmiddle" alt="Download"/>
+										${urlHost(l)}
+									</a>
+								</#list>
+							</div>
+						</div>
+					</#if>
+				</#list>
 			</section>
 		</section>
 

@@ -35,7 +35,7 @@
 			<a href="documents/index.html">Guides &amp; Articles</a>
 		</li>
 		<li>
-			<span class="meta">coming soon</span>
+			<span class="meta">${count.Updates}</span>
 			<a href="patches-updates/index.html">Patches & Updates</a>
 		</li>
 		<li>
