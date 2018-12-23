@@ -13,9 +13,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.imageio.ImageIO;
 
+import net.shrimpworks.unreal.packages.IntFile;
 import net.shrimpworks.unreal.packages.Package;
 import net.shrimpworks.unreal.packages.PackageReader;
 import net.shrimpworks.unreal.packages.entities.ExportedObject;
@@ -28,6 +32,14 @@ import net.shrimpworks.unreal.packages.entities.properties.ObjectProperty;
 import net.shrimpworks.unreal.packages.entities.properties.Property;
 
 public class IndexUtils {
+
+	public static final String UNKNOWN = "Unknown";
+	public static final String RELEASE_UT99 = "1999-11";
+
+	private static final Pattern AUTHOR_MATCH = Pattern.compile("(.+)?(author|by)([\\s:]+)?([A-Za-z0-9 _]{2,25})(\\s+)?",
+																Pattern.CASE_INSENSITIVE);
+
+	public static final String SHOT_NAME = "%s_shot_%d.png";
 
 	/**
 	 * Extract preview images/screenshots from a map package.
@@ -209,6 +221,39 @@ public class IndexUtils {
 		}
 
 		return lines;
+	}
+
+	/**
+	 * Attempt to find the author of some content, based on included
+	 * text files.
+	 *
+	 * @param incoming content being indexed
+	 * @return an author if found, or unknown
+	 * @throws IOException failed to read files
+	 */
+	public static String findAuthor(Incoming incoming) throws IOException {
+		List<String> lines = IndexUtils.textContent(incoming);
+
+		for (String s : lines) {
+			Matcher m = AUTHOR_MATCH.matcher(s);
+			if (m.matches() && !m.group(4).trim().isEmpty()) {
+				return m.group(4).trim();
+			}
+		}
+
+		return UNKNOWN;
+	}
+
+	public static Stream<IntFile> readIntFiles(Incoming incoming, Set<Incoming.IncomingFile> intFiles) {
+		return intFiles.stream()
+					   .map(f -> {
+						   try {
+							   return new IntFile(f.asChannel());
+						   } catch (IOException e) {
+							   incoming.log.log(IndexLog.EntryType.CONTINUE, "Couldn't load INT file " + f.fileName(), e);
+							   return null;
+						   }
+					   });
 	}
 
 }

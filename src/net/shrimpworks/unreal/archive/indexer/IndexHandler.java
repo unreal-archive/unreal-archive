@@ -5,10 +5,6 @@ import java.util.function.Consumer;
 
 public interface IndexHandler<T extends Content> {
 
-	static final String UNKNOWN = "Unknown";
-
-	static final String RELEASE_UT99 = "1999-11";
-
 	public interface IndexHandlerFactory<T extends Content> {
 
 		public IndexHandler<T> get();

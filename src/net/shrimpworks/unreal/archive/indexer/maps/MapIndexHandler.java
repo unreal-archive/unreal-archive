@@ -27,8 +27,6 @@ import net.shrimpworks.unreal.packages.entities.properties.StringProperty;
 
 public class MapIndexHandler implements IndexHandler<Map> {
 
-	private static final String SHOT_NAME = "%s_shot_%d.png";
-
 	private static final Pattern SP_MATCH = Pattern.compile("(.+)?(single ?player|cooperative)([\\s:]+)?yes(\\s+)?",
 															Pattern.CASE_INSENSITIVE);
 
@@ -67,7 +65,7 @@ public class MapIndexHandler implements IndexHandler<Map> {
 		try (Package map = map(baseMap)) {
 			if (!gameOverride) {
 				// attempt to detect Unreal maps by possible release date
-				if (map.version < 68 || (m.releaseDate != null && m.releaseDate.compareTo(RELEASE_UT99) < 0)) m.game = "Unreal";
+				if (map.version < 68 || (m.releaseDate != null && m.releaseDate.compareTo(IndexUtils.RELEASE_UT99) < 0)) m.game = "Unreal";
 				// Unreal does not contain a LevelSummary
 				if (map.version == 68 && map.objectsByClassName("LevelSummary").isEmpty()) m.game = "Unreal";
 			}
@@ -123,7 +121,7 @@ public class MapIndexHandler implements IndexHandler<Map> {
 
 			List<BufferedImage> screenshots = IndexUtils.screenshots(incoming, map, screenshot);
 			screenshots.addAll(IndexUtils.findImageFiles(incoming));
-			IndexUtils.saveImages(SHOT_NAME, m, screenshots, attachments);
+			IndexUtils.saveImages(IndexUtils.SHOT_NAME, m, screenshots, attachments);
 
 		} catch (IOException e) {
 			log.log(IndexLog.EntryType.CONTINUE, "Failed to read map package", e);
@@ -163,7 +161,7 @@ public class MapIndexHandler implements IndexHandler<Map> {
 
 		if (gameType != null) return gameType.name;
 
-		return UNKNOWN;
+		return IndexUtils.UNKNOWN;
 	}
 
 	private boolean maybeSingleplayer(Incoming incoming) {
@@ -197,7 +195,7 @@ public class MapIndexHandler implements IndexHandler<Map> {
 			if (f.fileName().toLowerCase().endsWith(".un2")) return "Unreal 2";
 		}
 
-		return UNKNOWN;
+		return IndexUtils.UNKNOWN;
 	}
 
 }

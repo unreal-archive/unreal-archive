@@ -1,13 +1,12 @@
 package net.shrimpworks.unreal.archive.indexer.skins;
 
-import java.io.IOException;
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 
 import net.shrimpworks.unreal.archive.indexer.Classifier;
 import net.shrimpworks.unreal.archive.indexer.Incoming;
-import net.shrimpworks.unreal.archive.indexer.IndexLog;
+import net.shrimpworks.unreal.archive.indexer.IndexUtils;
 import net.shrimpworks.unreal.packages.IntFile;
 
 /**
@@ -50,37 +49,29 @@ public class SkinClassifier implements Classifier {
 		boolean[] seemsToBeASkin = new boolean[] { false };
 
 		// search int files for objects describing a skin
-		intFiles.stream()
-				.map(f -> {
-					try {
-						return new IntFile(f.asChannel());
-					} catch (IOException e) {
-						incoming.log.log(IndexLog.EntryType.CONTINUE, "Couldn't load INT file " + f.fileName(), e);
-						return null;
-					}
-				})
-				.filter(Objects::nonNull)
-				.forEach(intFile -> {
-					IntFile.Section section = intFile.section("public");
-					if (section == null) return;
+		IndexUtils.readIntFiles(incoming, intFiles)
+				  .filter(Objects::nonNull)
+				  .forEach(intFile -> {
+					  IntFile.Section section = intFile.section("public");
+					  if (section == null) return;
 
-					IntFile.ListValue objects = section.asList("Object");
-					for (IntFile.Value value : objects.values) {
-						if (value instanceof IntFile.MapValue
-							&& ((IntFile.MapValue)value).value.containsKey("Name")
-							&& ((IntFile.MapValue)value).value.containsKey("Class")
-							&& ((IntFile.MapValue)value).value.containsKey("Description")
-							&& ((IntFile.MapValue)value).value.get("Class").equalsIgnoreCase("Texture")) {
+					  IntFile.ListValue objects = section.asList("Object");
+					  for (IntFile.Value value : objects.values) {
+						  if (value instanceof IntFile.MapValue
+							  && ((IntFile.MapValue)value).value.containsKey("Name")
+							  && ((IntFile.MapValue)value).value.containsKey("Class")
+							  && ((IntFile.MapValue)value).value.containsKey("Description")
+							  && ((IntFile.MapValue)value).value.get("Class").equalsIgnoreCase("Texture")) {
 
-							Matcher m = Skin.NAME_MATCH.matcher(((IntFile.MapValue)value).value.get("Name"));
-							if (m.matches()) {
-								seemsToBeASkin[0] = true;
-								return;
-							}
-						}
-					}
+							  Matcher m = Skin.NAME_MATCH.matcher(((IntFile.MapValue)value).value.get("Name"));
+							  if (m.matches()) {
+								  seemsToBeASkin[0] = true;
+								  return;
+							  }
+						  }
+					  }
 
-				});
+				  });
 
 		return seemsToBeASkin[0];
 	}

@@ -16,7 +16,7 @@ import net.shrimpworks.unreal.archive.storage.DataStore;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import static net.shrimpworks.unreal.archive.indexer.IndexHandler.UNKNOWN;
+import static net.shrimpworks.unreal.archive.indexer.IndexUtils.UNKNOWN;
 
 public class IndexUtil {
 

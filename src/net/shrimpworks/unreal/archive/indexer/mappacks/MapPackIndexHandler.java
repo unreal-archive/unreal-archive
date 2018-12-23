@@ -26,8 +26,6 @@ import net.shrimpworks.unreal.packages.entities.properties.StringProperty;
 
 public class MapPackIndexHandler implements IndexHandler<MapPack> {
 
-	private static final String SHOT_NAME = "%s_shot_%d.png";
-
 	public static class MapPackIndesHandlerFactory implements IndexHandler.IndexHandlerFactory<MapPack> {
 
 		@Override
@@ -60,7 +58,7 @@ public class MapPackIndexHandler implements IndexHandler<MapPack> {
 		try (Package map = map(maps.iterator().next())) {
 			if (!gameOverride) {
 				// attempt to detect Unreal maps by possible release date
-				if (map.version < 68 || (m.releaseDate != null && m.releaseDate.compareTo(RELEASE_UT99) < 0)) m.game = "Unreal";
+				if (map.version < 68 || (m.releaseDate != null && m.releaseDate.compareTo(IndexUtils.RELEASE_UT99) < 0)) m.game = "Unreal";
 				// Unreal does not contain a LevelSummary
 				if (map.version == 68 && map.objectsByClassName("LevelSummary").isEmpty()) m.game = "Unreal";
 			}
@@ -76,7 +74,7 @@ public class MapPackIndexHandler implements IndexHandler<MapPack> {
 			try {
 				m.maps.add(addMap(incoming, map, images -> {
 					try {
-						IndexUtils.saveImages(SHOT_NAME, m, images, attachments);
+						IndexUtils.saveImages(IndexUtils.SHOT_NAME, m, images, attachments);
 					} catch (IOException e) {
 						log.log(IndexLog.EntryType.CONTINUE, "Failed saving images for map pack map", e);
 					}
@@ -86,9 +84,9 @@ public class MapPackIndexHandler implements IndexHandler<MapPack> {
 			}
 		}
 
-		m.author = UNKNOWN;
+		m.author = IndexUtils.UNKNOWN;
 		for (MapPack.PackMap map : m.maps) {
-			if (m.author.equals(UNKNOWN)) {
+			if (m.author.equals(IndexUtils.UNKNOWN)) {
 				m.author = map.author;
 			} else if (!m.author.equalsIgnoreCase(map.author)) {
 				m.author = "Various";
@@ -97,12 +95,12 @@ public class MapPackIndexHandler implements IndexHandler<MapPack> {
 		}
 
 		// find a common gametype if possible
-		m.gametype = UNKNOWN;
+		m.gametype = IndexUtils.UNKNOWN;
 		for (MapPack.PackMap map : m.maps) {
 			GameTypes.GameType gt = GameTypes.forMap(map.name);
 			if (gt == null) continue;
 
-			if (m.gametype.equals(UNKNOWN)) {
+			if (m.gametype.equals(IndexUtils.UNKNOWN)) {
 				m.gametype = gt.name;
 			} else if (!m.gametype.equalsIgnoreCase(gt.name)) {
 				m.gametype = "Mixed";
@@ -115,7 +113,7 @@ public class MapPackIndexHandler implements IndexHandler<MapPack> {
 
 	private MapPack.PackMap addMap(Incoming incoming, Incoming.IncomingFile map, Consumer<List<BufferedImage>> listConsumer) {
 		MapPack.PackMap p = new MapPack.PackMap();
-		p.author = UNKNOWN;
+		p.author = IndexUtils.UNKNOWN;
 		p.name = Util.fileName(map.fileName());
 		p.name = p.name.substring(0, p.name.lastIndexOf(".")).replaceAll("/", "").trim().replaceAll("[^\\x20-\\x7E]", "").trim();
 		p.title = p.name;
@@ -155,7 +153,7 @@ public class MapPackIndexHandler implements IndexHandler<MapPack> {
 		if (incoming.fileName().toLowerCase().endsWith(".ut3")) return "Unreal Tournament 3";
 		if (incoming.fileName().toLowerCase().endsWith(".un2")) return "Unreal 2";
 
-		return UNKNOWN;
+		return IndexUtils.UNKNOWN;
 	}
 
 	private String packName(String name) {
