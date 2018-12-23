@@ -81,11 +81,13 @@ public class ContentManager {
 
 	public Map<Class<? extends Content>, Long> countByType() {
 		return content.values().stream()
+					  .filter(c -> c.content.variationOf == null && !c.content.deleted)
 					  .collect(Collectors.groupingBy(v -> v.content.getClass(), Collectors.counting()));
 	}
 
 	public Map<String, Long> countByGame() {
 		return content.values().stream()
+					  .filter(c -> c.content.variationOf == null && !c.content.deleted)
 					  .collect(Collectors.groupingBy(v -> v.content.game, Collectors.counting()));
 	}
 
