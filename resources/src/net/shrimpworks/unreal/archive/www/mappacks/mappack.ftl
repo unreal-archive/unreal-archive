@@ -1,4 +1,5 @@
 <#include "../_header.ftl">
+<#include "../content/macros.ftl">
 
 	<#assign game=pack.page.gametype.game>
 	<#assign gametype=pack.page.gametype>
@@ -115,57 +116,9 @@
 				</table>
 			</section>
 
-			<section class="files">
-				<h2>Packaged Files</h2>
-				<table>
-					<thead>
-					<tr>
-						<th>Name</th>
-						<th>Size</th>
-						<th>Hash</th>
-						<th>Also In</th>
-					</tr>
-					</thead>
-					<tbody>
-						<#list pack.pack.files as f>
-						<tr>
-							<td>${f.name}</td>
-							<td>${fileSize(f.fileSize)}</td>
-							<td>${f.hash}</td>
-							<#if pack.alsoIn[f.hash]??>
-								<td>
-									<a href="${relUrl(siteRoot + "/../", "files/" + f.hash[0..1] + "/" + f.hash + ".html")}">${pack.alsoIn[f.hash]}</a>
-								</td>
-							<#else>
-								<td>-</td>
-							</#if>
-						</tr>
-						</#list>
-					</tbody>
-				</table>
-				<#if pack.pack.otherFiles gt 0>
-					<div class="otherFiles">
-						<div class="label-value">
-							<label>Misc Files</label><span>${pack.pack.otherFiles}</span>
-						</div>
-					</div>
-				</#if>
-			</section>
+			<@files files=pack.pack.files alsoIn=pack.alsoIn otherFiles=pack.pack.otherFiles/>
 
-			<section class="downloads">
-				<h2>Downloads</h2>
-				<div class="links">
-					<#list pack.pack.downloads as d>
-						<#if !d.deleted>
-							<#if d.main>
-								<a href="${urlEncode(d.url)}" class="main">Primary</a>
-							<#else>
-								<a href="${urlEncode(d.url)}" class="secondary">${urlHost(d.url)}</a>
-							</#if>
-						</#if>
-					</#list>
-				</div>
-			</section>
+			<@downloads downloads=pack.pack.downloads/>
 
 		</div>
 

@@ -1,4 +1,5 @@
 <#include "../_header.ftl">
+<#include "../content/macros.ftl">
 
 	<#assign game=skin.page.letter.game>
 
@@ -101,57 +102,10 @@
 				</section>
 			</#if>
 
-			<section class="files">
-				<h2>Packaged Files</h2>
-				<table>
-					<thead>
-					<tr>
-						<th>Name</th>
-						<th>Size</th>
-						<th>Hash</th>
-						<th>Also In</th>
-					</tr>
-					</thead>
-					<tbody>
-						<#list skin.skin.files as f>
-						<tr>
-							<td>${f.name}</td>
-							<td>${fileSize(f.fileSize)}</td>
-							<td>${f.hash}</td>
-							<#if skin.alsoIn[f.hash]??>
-								<td>
-									<a href="${relUrl(siteRoot + "/../", "files/" + f.hash[0..1] + "/" + f.hash + ".html")}">${skin.alsoIn[f.hash]}</a>
-								</td>
-							<#else>
-								<td>-</td>
-							</#if>
-						</tr>
-						</#list>
-					</tbody>
-				</table>
-				<#if skin.skin.otherFiles gt 0>
-					<div class="otherFiles">
-						<div class="label-value">
-							<label>Misc Files</label><span>${skin.skin.otherFiles}</span>
-						</div>
-					</div>
-				</#if>
-			</section>
 
-			<section class="downloads">
-				<h2>Downloads</h2>
-				<div class="links">
-					<#list skin.skin.downloads as d>
-						<#if !d.deleted>
-							<#if d.main>
-								<a href="${urlEncode(d.url)}" class="main">Primary</a>
-							<#else>
-								<a href="${urlEncode(d.url)}" class="secondary">${urlHost(d.url)}</a>
-							</#if>
-						</#if>
-					</#list>
-				</div>
-			</section>
+			<@files files=skin.skin.files alsoIn=skin.alsoIn otherFiles=skin.skin.otherFiles/>
+
+			<@downloads downloads=skin.skin.downloads/>
 
 		</div>
 
