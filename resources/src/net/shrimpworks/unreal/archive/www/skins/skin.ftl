@@ -22,15 +22,7 @@
 
 	<article class="info">
 		<div class="screenshots">
-			<#if skin.skin.attachments?size == 0>
-				<img src="${static}/images/none.png" class="thumb"/>
-			<#else>
-				<#list skin.skin.attachments as a>
-					<#if a.type == "IMAGE">
-						<img src="${urlEncode(a.url)}" class="thumb"/>
-					</#if>
-				</#list>
-			</#if>
+			<@screenshots attachments=skin.skin.attachments/>
 		</div>
 
 		<div class="info">

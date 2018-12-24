@@ -25,15 +25,7 @@
 	<article class="info">
 
 		<div class="screenshots">
-			<#if pack.pack.attachments?size == 0>
-				<img src="${static}/images/none.png" class="thumb"/>
-			<#else>
-				<#list pack.pack.attachments as a>
-					<#if a.type == "IMAGE">
-						<img src="${urlEncode(a.url)}" class="thumb"/>
-					</#if>
-				</#list>
-			</#if>
+			<@screenshots attachments=pack.pack.attachments/>
 		</div>
 
 		<div class="info">

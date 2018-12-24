@@ -24,15 +24,7 @@
 
 	<article class="info">
 		<div class="screenshots">
-			<#if map.map.attachments?size == 0>
-				<img src="${static}/images/none.png" class="thumb"/>
-			<#else>
-				<#list map.map.attachments as a>
-					<#if a.type == "IMAGE">
-						<img src="${urlEncode(a.url)}" class="thumb"/>
-					</#if>
-				</#list>
-			</#if>
+			<@screenshots attachments=map.map.attachments/>
 		</div>
 
 		<div class="info">

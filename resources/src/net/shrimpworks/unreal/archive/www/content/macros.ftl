@@ -1,3 +1,15 @@
+<#macro screenshots attachments>
+	<#if attachments?size == 0>
+		<img src="${static}/images/none.png" class="thumb"/>
+	<#else>
+		<#list attachments as a>
+			<#if a.type == "IMAGE">
+				<img src="${urlEncode(a.url)}" class="thumb"/>
+			</#if>
+		</#list>
+	</#if>
+</#macro>
+
 <#macro files files alsoIn otherFiles>
 	<section class="files">
 		<h2>Packaged Files</h2>
