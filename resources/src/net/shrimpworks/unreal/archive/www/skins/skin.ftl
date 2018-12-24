@@ -39,7 +39,7 @@
 					<label>Release (est.)</label><span>${skin.skin.releaseDate}</span>
 				</div>
 				<div class="label-value">
-					<label>Team Skins</label><span>${skin.skin.teamSkins}</span>
+					<label>Team Skins</label><span>${skin.skin.teamSkins?string('Yes', 'No')}</span>
 				</div>
 				<#if skin.skin.skins?size gt 1>
 					<div class="label-value">

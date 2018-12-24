@@ -34,6 +34,9 @@ public class ModelClassifier implements Classifier {
 		// no code package (actually contains a mesh), can't be a model
 		if (codeFiles.isEmpty()) return false;
 
+		// there should be no maps in a skin... otherwise this may be a mod
+		if (!incoming.files(Incoming.FileType.MAP).isEmpty()) return false;
+
 		// if there are other types of files, we can probably assume its something like a mod
 		if (!miscFiles.isEmpty()) return false;
 

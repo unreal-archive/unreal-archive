@@ -59,8 +59,8 @@
 			<a href="#">Models</a>
 		</li>
 		<li>
-			<span class="meta">coming soon</span>
-			<a href="#">Skins</a>
+			<span class="meta">${count.Skin!"0"}</span>
+			<a href="skins/index.html">Skins</a>
 		</li>
 		<li>
 			<span class="meta">coming soon</span>

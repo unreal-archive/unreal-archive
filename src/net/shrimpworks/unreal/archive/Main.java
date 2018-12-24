@@ -47,6 +47,7 @@ import net.shrimpworks.unreal.archive.www.Index;
 import net.shrimpworks.unreal.archive.www.ManagedContent;
 import net.shrimpworks.unreal.archive.www.MapPacks;
 import net.shrimpworks.unreal.archive.www.Maps;
+import net.shrimpworks.unreal.archive.www.Skins;
 import net.shrimpworks.unreal.archive.www.Templates;
 import net.shrimpworks.unreal.packages.Umod;
 
@@ -368,6 +369,7 @@ public class Main {
 					new Index(contentManager, documentManager, updates, outputPath, staticOutput, localImages),
 					new Maps(contentManager, outputPath, staticOutput, localImages),
 					new MapPacks(contentManager, outputPath, staticOutput, localImages),
+					new Skins(contentManager, outputPath, staticOutput, localImages),
 					new FileDetails(contentManager, outputPath, staticOutput, localImages)
 			).forEach(g -> {
 				System.out.printf("Generating %s pages%n", g.getClass().getSimpleName());

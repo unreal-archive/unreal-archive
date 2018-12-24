@@ -1,8 +1,8 @@
 <#include "../_header.ftl">
 
-	<section class="header" style='background-image: url("${static}/images/gametypes/${game.name}/${gametype.name}.png"), url("${static}/images/games/${game.name}.png")'>
+	<section class="header" style='background-image: url("${static}/images/games/${game.name}.png")'>
 		<h1>
-			<a href="${siteRoot}/index.html">Maps</a>
+			<a href="${siteRoot}/index.html">Skins</a>
 			/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
 		</h1>
 	</section>

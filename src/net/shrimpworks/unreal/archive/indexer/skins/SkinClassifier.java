@@ -34,6 +34,9 @@ public class SkinClassifier implements Classifier {
 		// presence of a .u package probably indicates a model
 		if (!codeFiles.isEmpty()) return false;
 
+		// there should be no maps in a skin... otherwise this may be a mod
+		if (!incoming.files(Incoming.FileType.MAP).isEmpty()) return false;
+
 		// more often than not multiple ints probably indicates a model
 		if (intFiles.size() != 1 && playerFiles.size() != 1) return false;
 
