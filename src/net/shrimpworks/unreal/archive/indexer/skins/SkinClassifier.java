@@ -42,8 +42,8 @@ public class SkinClassifier implements Classifier {
 
 		if (incoming.files(Incoming.FileType.TEXTURE).isEmpty()) return false;
 
-		if (!intFiles.isEmpty()) return utSkin(incoming, intFiles);
-		else if (!playerFiles.isEmpty()) return ut2004Skin(incoming, playerFiles);
+		if (!playerFiles.isEmpty()) return ut2004Skin(incoming, playerFiles);
+		else if (!intFiles.isEmpty()) return utSkin(incoming, intFiles);
 
 		return false;
 	}

@@ -28,11 +28,9 @@ public class ModelClassifier implements Classifier {
 	public boolean classify(Incoming incoming) {
 		Set<Incoming.IncomingFile> intFiles = incoming.files(Incoming.FileType.INT);
 		Set<Incoming.IncomingFile> playerFiles = incoming.files(Incoming.FileType.PLAYER);
+		Set<Incoming.IncomingFile> animationFiles = incoming.files(Incoming.FileType.ANIMATION);
 		Set<Incoming.IncomingFile> codeFiles = incoming.files(Incoming.FileType.CODE);
 		Set<Incoming.IncomingFile> miscFiles = incoming.files(Incoming.FileType.MAP, Incoming.FileType.MUSIC, Incoming.FileType.STATICMESH);
-
-		// no code package (actually contains a mesh), can't be a model
-		if (codeFiles.isEmpty()) return false;
 
 		// there should be no maps in a model... otherwise this may be a mod
 		if (!incoming.files(Incoming.FileType.MAP).isEmpty()) return false;
@@ -41,10 +39,14 @@ public class ModelClassifier implements Classifier {
 		if (!miscFiles.isEmpty()) return false;
 
 		// there should be at least one texture file
-		if (incoming.files(Incoming.FileType.TEXTURE).isEmpty()) return false;
+		// hmm, looks like textures might sometimes be built into the mesh or animation files...
+		//if (incoming.files(Incoming.FileType.TEXTURE).isEmpty()) return false;
 
-		if (!intFiles.isEmpty()) return utModel(incoming, intFiles);
-		else if (!playerFiles.isEmpty()) return ut2004Model(incoming, playerFiles);
+		// a UT2003/4 model should contain a player and animation definition
+		if (!playerFiles.isEmpty() && !animationFiles.isEmpty()) return ut2004Model(incoming, playerFiles);
+
+		// a UT model should have a "code" package which contains the mesh
+		if (!intFiles.isEmpty() && !codeFiles.isEmpty()) return utModel(incoming, intFiles);
 
 		return false;
 	}
