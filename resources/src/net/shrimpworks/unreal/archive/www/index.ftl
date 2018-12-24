@@ -55,8 +55,8 @@
 			<a href="#">Mutators</a>
 		</li>
 		<li>
-			<span class="meta">coming soon</span>
-			<a href="#">Models</a>
+			<span class="meta">${count.Model!"0"}</span>
+			<a href="models/index.html">Models</a>
 		</li>
 		<li>
 			<span class="meta">${count.Skin!"0"}</span>

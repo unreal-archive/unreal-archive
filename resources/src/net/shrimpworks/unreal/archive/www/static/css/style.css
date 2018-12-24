@@ -115,6 +115,8 @@ section.header h1 a {
 	font-size: 1.9em;
 	font-weight: bold;
 	color: white;
+
+	border-radius: 5px;
 }
 
 .biglist ul li a {

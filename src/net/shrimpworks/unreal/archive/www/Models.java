@@ -12,26 +12,26 @@ import java.util.stream.Collectors;
 
 import net.shrimpworks.unreal.archive.indexer.Content;
 import net.shrimpworks.unreal.archive.indexer.ContentManager;
-import net.shrimpworks.unreal.archive.indexer.skins.Skin;
+import net.shrimpworks.unreal.archive.indexer.models.Model;
 
 import static net.shrimpworks.unreal.archive.www.Templates.slug;
 
-public class Skins extends ContentPageGenerator {
+public class Models extends ContentPageGenerator {
 
 	private final Games games;
 
-	public Skins(ContentManager content, Path output, Path staticRoot, boolean localImages) {
-		super(content, output.resolve("skins"), staticRoot, localImages);
+	public Models(ContentManager content, Path output, Path staticRoot, boolean localImages) {
+		super(content, output.resolve("models"), staticRoot, localImages);
 
 		this.games = new Games();
 
-		content.get(Skin.class).stream()
-			   .filter(s -> !s.deleted)
-			   .filter(s -> s.variationOf == null || s.variationOf.isEmpty())
+		content.get(Model.class).stream()
+			   .filter(m -> !m.deleted)
+			   .filter(m -> m.variationOf == null || m.variationOf.isEmpty())
 			   .sorted()
-			   .forEach(s -> {
-				   Game g = games.games.computeIfAbsent(s.game, Game::new);
-				   g.add(s);
+			   .forEach(m -> {
+				   Game g = games.games.computeIfAbsent(m.game, Game::new);
+				   g.add(m);
 			   });
 
 	}
@@ -40,47 +40,35 @@ public class Skins extends ContentPageGenerator {
 	public int generate() {
 		int count = 0;
 		try {
-			// url structure:
-			// landing with games: /skins/index.html
-			// game pages: /skins/game/a/1.html
-			// skin page: /skins/game/a/1/name_hash8.html
-
-			Templates.template("skins/games.ftl")
+			Templates.template("models/games.ftl")
 					 .put("static", root.relativize(staticRoot))
-					 .put("title", "Skins")
+					 .put("title", "Models")
 					 .put("games", games)
 					 .put("siteRoot", root)
 					 .write(root.resolve("index.html"));
 			count++;
 
 			for (java.util.Map.Entry<String, Game> g : games.games.entrySet()) {
-//				Templates.template("skins/gametypes.ftl")
-//						 .put("static", root.resolve(g.getValue().path).relativize(staticRoot))
-//						 .put("title", String.join(" / ", "Skins", g.getKey()))
-//						 .put("game", g.getValue())
-//						 .put("siteRoot", root.resolve(g.getValue().path).relativize(root))
-//						 .write(root.resolve(g.getValue().path).resolve("index.html"));
-//				count++;
 
-				if (g.getValue().skins < Templates.PAGE_SIZE) {
+				if (g.getValue().models < Templates.PAGE_SIZE) {
 					// we can output all maps on a single page
-					List<SkinInfo> all = g.getValue().letters.values().stream()
-															 .flatMap(l -> l.pages.stream())
-															 .flatMap(e -> e.skins.stream())
-															 .sorted()
-															 .collect(Collectors.toList());
-					Templates.template("skins/listing_single.ftl")
+					List<ModelInfo> all = g.getValue().letters.values().stream()
+															  .flatMap(l -> l.pages.stream())
+															  .flatMap(e -> e.models.stream())
+															  .sorted()
+															  .collect(Collectors.toList());
+					Templates.template("models/listing_single.ftl")
 							 .put("static", root.resolve(g.getValue().path).relativize(staticRoot))
-							 .put("title", String.join(" / ", "Skins", g.getKey()))
+							 .put("title", String.join(" / ", "Models", g.getKey()))
 							 .put("game", g.getValue())
-							 .put("skins", all)
+							 .put("models", all)
 							 .put("siteRoot", root.resolve(g.getValue().path).relativize(root))
 							 .write(root.resolve(g.getValue().path).resolve("index.html"));
 					count++;
 
 					// still generate all map pages
-					for (SkinInfo skin : all) {
-						count += skinPage(skin);
+					for (ModelInfo skin : all) {
+						count += modelPage(skin);
 					}
 
 					continue;
@@ -89,24 +77,24 @@ public class Skins extends ContentPageGenerator {
 				for (java.util.Map.Entry<String, LetterGroup> l : g.getValue().letters.entrySet()) {
 
 					for (Page p : l.getValue().pages) {
-						Templates.template("skins/listing.ftl")
+						Templates.template("models/listing.ftl")
 								 .put("static", root.resolve(p.path).relativize(staticRoot))
-								 .put("title", String.join(" / ", "Skins", g.getKey()))
+								 .put("title", String.join(" / ", "Models", g.getKey()))
 								 .put("page", p)
 								 .put("root", p.path)
 								 .put("siteRoot", root.resolve(p.path).relativize(root))
 								 .write(root.resolve(p.path).resolve("index.html"));
 						count++;
 
-						for (SkinInfo skin : p.skins) {
-							count += skinPage(skin);
+						for (ModelInfo skin : p.models) {
+							count += modelPage(skin);
 						}
 					}
 
 					// output first letter/page combo, with appropriate relative links
-					Templates.template("skins/listing.ftl")
+					Templates.template("models/listing.ftl")
 							 .put("static", root.resolve(l.getValue().path).relativize(staticRoot))
-							 .put("title", String.join(" / ", "Skins", g.getKey()))
+							 .put("title", String.join(" / ", "Models", g.getKey()))
 							 .put("page", l.getValue().pages.get(0))
 							 .put("root", l.getValue().path)
 							 .put("siteRoot", root.resolve(l.getValue().path).relativize(root))
@@ -115,9 +103,9 @@ public class Skins extends ContentPageGenerator {
 				}
 
 				// output first letter/page combo, with appropriate relative links
-				Templates.template("skins/listing.ftl")
+				Templates.template("models/listing.ftl")
 						 .put("static", root.resolve(g.getValue().path).relativize(staticRoot))
-						 .put("title", String.join(" / ", "Skins", g.getKey()))
+						 .put("title", String.join(" / ", "Models", g.getKey()))
 						 .put("page", g.getValue().letters.firstEntry().getValue().pages.get(0))
 						 .put("root", g.getValue().path)
 						 .put("siteRoot", root.resolve(g.getValue().path).relativize(root))
@@ -132,21 +120,21 @@ public class Skins extends ContentPageGenerator {
 		return count;
 	}
 
-	private int skinPage(SkinInfo skin) throws IOException {
-		localImages(skin.skin, root.resolve(skin.path).getParent());
+	private int modelPage(ModelInfo model) throws IOException {
+		localImages(model.model, root.resolve(model.path).getParent());
 
-		Templates.template("skins/skin.ftl")
-				 .put("static", root.resolve(skin.path).getParent().relativize(staticRoot))
-				 .put("title", String.join(" / ", "Skins", skin.page.letter.game.name, skin.skin.name))
-				 .put("skin", skin)
-				 .put("siteRoot", root.resolve(skin.path).getParent().relativize(root))
-				 .write(root.resolve(skin.path + ".html"));
+		Templates.template("models/model.ftl")
+				 .put("static", root.resolve(model.path).getParent().relativize(staticRoot))
+				 .put("title", String.join(" / ", "Models", model.page.letter.game.name, model.model.name))
+				 .put("model", model)
+				 .put("siteRoot", root.resolve(model.path).getParent().relativize(root))
+				 .write(root.resolve(model.path + ".html"));
 
 		int res = 1;
 
 		// since variations are not top-level things, we need to generate them here
-		for (SkinInfo variation : skin.variations) {
-			res += this.skinPage(variation);
+		for (ModelInfo variation : model.variations) {
+			res += this.modelPage(variation);
 		}
 
 		return res;
@@ -163,19 +151,19 @@ public class Skins extends ContentPageGenerator {
 		public final String slug;
 		public final String path;
 		public final TreeMap<String, LetterGroup> letters = new TreeMap<>();
-		public int skins;
+		public int models;
 
 		public Game(String name) {
 			this.name = name;
 			this.slug = slug(name);
 			this.path = slug;
-			this.skins = 0;
+			this.models = 0;
 		}
 
-		public void add(Skin s) {
-			LetterGroup letter = letters.computeIfAbsent(s.subGrouping(), l -> new LetterGroup(this, l));
-			letter.add(s);
-			this.skins++;
+		public void add(Model model) {
+			LetterGroup letter = letters.computeIfAbsent(model.subGrouping(), l -> new LetterGroup(this, l));
+			letter.add(model);
+			this.models++;
 		}
 	}
 
@@ -185,25 +173,25 @@ public class Skins extends ContentPageGenerator {
 		public final String letter;
 		public final String path;
 		public final List<Page> pages = new ArrayList<>();
-		public int skins;
+		public int models;
 
 		public LetterGroup(Game game, String letter) {
 			this.game = game;
 			this.letter = letter;
 			this.path = String.join("/", game.path, letter);
-			this.skins = 0;
+			this.models = 0;
 		}
 
-		public void add(Skin s) {
+		public void add(Model model) {
 			if (pages.isEmpty()) pages.add(new Page(this, pages.size() + 1));
 			Page page = pages.get(pages.size() - 1);
-			if (page.skins.size() == Templates.PAGE_SIZE) {
+			if (page.models.size() == Templates.PAGE_SIZE) {
 				page = new Page(this, pages.size() + 1);
 				pages.add(page);
 			}
 
-			page.add(s);
-			this.skins++;
+			page.add(model);
+			this.models++;
 		}
 	}
 
@@ -212,7 +200,7 @@ public class Skins extends ContentPageGenerator {
 		public final LetterGroup letter;
 		public final int number;
 		public final String path;
-		public final List<SkinInfo> skins = new ArrayList<>();
+		public final List<ModelInfo> models = new ArrayList<>();
 
 		public Page(LetterGroup letter, int number) {
 			this.letter = letter;
@@ -220,51 +208,51 @@ public class Skins extends ContentPageGenerator {
 			this.path = String.join("/", letter.path, Integer.toString(number));
 		}
 
-		public void add(Skin s) {
-			this.skins.add(new SkinInfo(this, s));
-			Collections.sort(skins);
+		public void add(Model model) {
+			this.models.add(new ModelInfo(this, model));
+			Collections.sort(models);
 		}
 	}
 
-	public class SkinInfo implements Comparable<SkinInfo> {
+	public class ModelInfo implements Comparable<ModelInfo> {
 
 		public final Page page;
-		public final Skin skin;
+		public final Model model;
 		public final String slug;
 		public final String path;
 
-		public final Collection<SkinInfo> variations;
+		public final Collection<ModelInfo> variations;
 		public final java.util.Map<String, Integer> alsoIn;
 
-		public SkinInfo(Page page, Skin s) {
+		public ModelInfo(Page page, Model model) {
 			this.page = page;
-			this.skin = s;
-			this.slug = slug(s.name + "_" + s.hash.substring(0, 8));
+			this.model = model;
+			this.slug = slug(model.name + "_" + model.hash.substring(0, 8));
 
 			if (page != null) this.path = String.join("/", page.path, slug);
 			else this.path = slug;
 
 			this.alsoIn = new HashMap<>();
-			for (Content.ContentFile f : s.files) {
+			for (Content.ContentFile f : model.files) {
 				Collection<Content> containing = content.containingFile(f.hash);
 				if (containing.size() > 1) {
 					alsoIn.put(f.hash, containing.size() - 1);
 				}
 			}
 
-			this.variations = content.variationsOf(s.hash).stream()
-									 .filter(p -> p instanceof Skin)
-									 .map(p -> new SkinInfo(page, (Skin)p))
+			this.variations = content.variationsOf(model.hash).stream()
+									 .filter(p -> p instanceof Model)
+									 .map(p -> new ModelInfo(page, (Model)p))
 									 .sorted()
 									 .collect(Collectors.toList());
 
-			Collections.sort(this.skin.downloads);
-			Collections.sort(this.skin.files);
+			Collections.sort(this.model.downloads);
+			Collections.sort(this.model.files);
 		}
 
 		@Override
-		public int compareTo(SkinInfo o) {
-			return skin.name.toLowerCase().compareTo(o.skin.name.toLowerCase());
+		public int compareTo(ModelInfo o) {
+			return model.name.toLowerCase().compareTo(o.model.name.toLowerCase());
 		}
 	}
 

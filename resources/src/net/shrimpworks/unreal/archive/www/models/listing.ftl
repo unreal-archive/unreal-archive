@@ -4,7 +4,7 @@
 
 	<section class="header" style='background-image: url("${static}/images/games/${game.name}.png")'>
 		<h1>
-			<a href="${siteRoot}/index.html">Skins</a>
+			<a href="${siteRoot}/index.html">Models</a>
 			/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
 			/ ${page.letter.letter}
 			/ pg ${page.number}
@@ -23,18 +23,18 @@
 			</nav>
 		</#if>
 
-		<table class="skins">
+		<table class="models">
 			<thead>
 			<tr>
-				<th>Skin</th>
+				<th>Model</th>
 				<th>Author</th>
 			</tr>
 			</thead>
 			<tbody>
-				<#list page.skins as s>
-				<tr class="${s?item_parity}">
-					<td nowrap="nowrap"><a href="${relUrl(root, s.path + ".html")}">${s.skin.name}</a></td>
-					<td>${s.skin.author}</td>
+				<#list page.models as m>
+				<tr class="${m?item_parity}">
+					<td nowrap="nowrap"><a href="${relUrl(root, m.path + ".html")}">${m.model.name}</a></td>
+					<td>${m.model.author}</td>
 				</tr>
 				</#list>
 			</tbody>
