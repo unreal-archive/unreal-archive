@@ -124,8 +124,7 @@ public class IndexUtils {
 					}
 
 					if (object instanceof Texture) {
-						Texture.MipMap[] mipMaps = ((Texture)object).mipMaps();
-						BufferedImage bufferedImage = mipMaps[0].get();
+						BufferedImage bufferedImage = ((Texture)object).mipMaps()[0].get();
 						images.add(bufferedImage);
 					}
 				}
@@ -174,7 +173,7 @@ public class IndexUtils {
 	 * @param pkg      package to find
 	 * @return a package
 	 */
-	private static Package findPackage(Incoming incoming, String pkg) {
+	public static Package findPackage(Incoming incoming, String pkg) {
 		Set<Incoming.IncomingFile> files = incoming.files(Incoming.FileType.IMPORTANT);
 		for (Incoming.IncomingFile f : files) {
 			String name = f.fileName();

@@ -19,6 +19,11 @@ import net.shrimpworks.unreal.archive.indexer.IndexLog;
 import net.shrimpworks.unreal.archive.indexer.IndexResult;
 import net.shrimpworks.unreal.archive.indexer.IndexUtils;
 import net.shrimpworks.unreal.packages.IntFile;
+import net.shrimpworks.unreal.packages.Package;
+import net.shrimpworks.unreal.packages.entities.ExportedObject;
+import net.shrimpworks.unreal.packages.entities.Name;
+import net.shrimpworks.unreal.packages.entities.objects.Object;
+import net.shrimpworks.unreal.packages.entities.objects.Texture;
 
 public class SkinIndexHandler implements IndexHandler<Skin> {
 
@@ -82,13 +87,45 @@ public class SkinIndexHandler implements IndexHandler<Skin> {
 		}
 
 		try {
+			// see if there are any images the author may have included in the package
 			List<BufferedImage> images = IndexUtils.findImageFiles(incoming);
+
+			// also see if we can at least include chat portrait images
+			findPortraits(incoming, images);
+
 			IndexUtils.saveImages(IndexUtils.SHOT_NAME, s, images, attachments);
 		} catch (IOException e) {
 			log.log(IndexLog.EntryType.CONTINUE, "Failed to save images", e);
 		}
 
 		completed.accept(new IndexResult<>(s, attachments));
+	}
+
+	public static void findPortraits(Incoming incoming, List<BufferedImage> images) {
+		if (!incoming.files(Incoming.FileType.PLAYER).isEmpty()) {
+			// find from UT2003/4 UPL "Portrait" property
+		} else {
+			// look up portraits from skin descriptors
+			skinDescriptors(incoming).forEach(d -> {
+				Matcher faceMatch = Skin.FACE_PORTRAIT_MATCH.matcher(d.value.get("Name"));
+				if (faceMatch.matches()) {
+					try {
+						String pkgName = faceMatch.group(1);
+						String texName = faceMatch.group(2);
+						Package pkg = IndexUtils.findPackage(incoming, pkgName);
+
+						ExportedObject e = pkg.objectByName(new Name(texName, 0));
+						Object o = e.object();
+						if (o instanceof Texture) {
+							Texture.MipMap[] mipMaps = ((Texture)o).mipMaps();
+							images.add(mipMaps[0].get());
+						}
+					} catch (Exception e) {
+						incoming.log.log(IndexLog.EntryType.CONTINUE, "Finding portrait failed", e);
+					}
+				}
+			});
+		}
 	}
 
 	public static List<IntFile.MapValue> skinDescriptors(Incoming incoming) {

@@ -24,5 +24,10 @@ public class IndexResult<T extends Content> {
 			this.name = name;
 			this.path = path;
 		}
+
+		@Override
+		public String toString() {
+			return String.format("NewAttachment [type=%s, name=%s, path=%s]", type, name, path);
+		}
 	}
 }

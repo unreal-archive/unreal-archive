@@ -86,7 +86,12 @@ public class ModelIndexHandler implements IndexHandler<Model> {
 		}
 
 		try {
+			// see if there are any images the author may have included in the package
 			List<BufferedImage> images = IndexUtils.findImageFiles(incoming);
+
+			// also see if we can at least include chat portrait images
+			SkinIndexHandler.findPortraits(incoming, images);
+
 			IndexUtils.saveImages(IndexUtils.SHOT_NAME, m, images, attachments);
 		} catch (IOException e) {
 			log.log(IndexLog.EntryType.CONTINUE, "Failed to save images", e);
