@@ -1,5 +1,7 @@
 package net.shrimpworks.unreal.archive.indexer.models;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -23,6 +25,11 @@ import net.shrimpworks.unreal.packages.IntFile;
  * </pre>
  */
 public class ModelClassifier implements Classifier {
+
+	// if any of these types are present, its probably part of a mod, mutator, or weapon mod, so rather exclude it
+	private static final List<String> INVALID_CLASSES = Arrays.asList(
+			"engine.mutator", "botpack.tournamentweapon", "botpack.tournamentgameinfo"
+	);
 
 	@Override
 	public boolean classify(Incoming incoming) {
@@ -53,21 +60,32 @@ public class ModelClassifier implements Classifier {
 
 	private boolean utModel(Incoming incoming, Set<Incoming.IncomingFile> intFiles) {
 		boolean[] seemsToBeAModel = new boolean[] { false };
+		boolean[] probablyNotAModel = new boolean[] { false };
 
 		// search int files for objects describing a skin
 		IndexUtils.readIntFiles(incoming, intFiles)
 				  .filter(Objects::nonNull)
 				  .forEach(intFile -> {
+					  if (probablyNotAModel[0]) return;
+
 					  IntFile.Section section = intFile.section("public");
 					  if (section == null) return;
 
 					  IntFile.ListValue objects = section.asList("Object");
 					  for (IntFile.Value value : objects.values) {
-						  if (value instanceof IntFile.MapValue
-							  && ((IntFile.MapValue)value).value.containsKey("Name")
-							  && ((IntFile.MapValue)value).value.containsKey("MetaClass")
-							  && ((IntFile.MapValue)value).value.containsKey("Description")
-							  && ((IntFile.MapValue)value).value.get("MetaClass").equalsIgnoreCase(Model.UT_PLAYER_CLASS)) {
+						  if (!(value instanceof IntFile.MapValue)) continue;
+						  IntFile.MapValue mapVal = (IntFile.MapValue)value;
+
+						  // exclude things which may indicate a mod or similar
+						  if (INVALID_CLASSES.contains(mapVal.value.getOrDefault("MetaClass", "").toLowerCase())) {
+							  probablyNotAModel[0] = true;
+							  return;
+						  }
+
+						  if (mapVal.value.containsKey("Name")
+							  && mapVal.value.containsKey("MetaClass")
+							  && mapVal.value.containsKey("Description")
+							  && mapVal.value.get("MetaClass").equalsIgnoreCase(Model.UT_PLAYER_CLASS)) {
 
 							  seemsToBeAModel[0] = true;
 							  return;

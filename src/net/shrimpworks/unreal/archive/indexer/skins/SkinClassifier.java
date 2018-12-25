@@ -38,7 +38,7 @@ public class SkinClassifier implements Classifier {
 		if (!incoming.files(Incoming.FileType.MAP).isEmpty()) return false;
 
 		// more often than not multiple ints probably indicates a model
-		if (intFiles.size() != 1 && playerFiles.size() != 1) return false;
+//		if (intFiles.size() != 1 && playerFiles.size() != 1) return false;
 
 		if (incoming.files(Incoming.FileType.TEXTURE).isEmpty()) return false;
 

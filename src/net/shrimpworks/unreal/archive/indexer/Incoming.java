@@ -77,7 +77,6 @@ public class Incoming implements Closeable {
 			}
 			return false;
 		}
-
 	}
 
 	public final Submission submission;
