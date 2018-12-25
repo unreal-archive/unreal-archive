@@ -11,6 +11,7 @@ public class MapClassifier implements Classifier {
 	@Override
 	public boolean classify(Incoming incoming) {
 		Set<Incoming.IncomingFile> maps = incoming.files(Incoming.FileType.MAP);
+		Set<Incoming.IncomingFile> ints = incoming.files(Incoming.FileType.INT);
 
 		if (maps.isEmpty()) return false;
 
@@ -18,6 +19,9 @@ public class MapClassifier implements Classifier {
 		for (Incoming.IncomingFile map : maps) {
 			if (Util.extension(map.fileName()).equalsIgnoreCase("ut3")) return false;
 		}
+
+		// a map definitely probably won't have any associated .int files
+		if (!ints.isEmpty()) return false;
 
 		// a bit naive, if there's a one-map mod, it would pass here
 		if (maps.size() == 1) return true;
