@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -18,8 +19,6 @@ import net.shrimpworks.unreal.archive.indexer.IndexLog;
 import net.shrimpworks.unreal.archive.indexer.IndexResult;
 import net.shrimpworks.unreal.archive.indexer.IndexUtils;
 import net.shrimpworks.unreal.packages.IntFile;
-import net.shrimpworks.unreal.packages.Package;
-import net.shrimpworks.unreal.packages.PackageReader;
 
 public class SkinIndexHandler implements IndexHandler<Skin> {
 
@@ -40,6 +39,13 @@ public class SkinIndexHandler implements IndexHandler<Skin> {
 
 		String origName = s.name;
 
+		try {
+			if (s.releaseDate != null && s.releaseDate.compareTo(IndexUtils.RELEASE_UT99) < 0) s.game = "Unreal";
+			s.game = game(incoming);
+		} catch (Exception e) {
+			log.log(IndexLog.EntryType.CONTINUE, "Could not determine game for skin", e);
+		}
+
 		if (!incoming.files(Incoming.FileType.PLAYER).isEmpty()) {
 			playerDescriptors(incoming).forEach(p -> {
 				if (p.value.containsKey("DefaultName")) {
@@ -50,22 +56,23 @@ public class SkinIndexHandler implements IndexHandler<Skin> {
 		} else {
 			// find skin via .int files
 			skinDescriptors(incoming).forEach(d -> {
-				if (d.value.containsKey("Description") && Skin.NAME_MATCH.matcher(d.value.get("Name")).matches()) {
-					if (s.name == null || s.name.equals(origName)) s.name = d.value.get("Description");
-					s.skins.add(d.value.get("Description").trim());
-				} else if (Skin.TEAM_MATCH.matcher(d.value.get("Name")).matches()) {
-					s.teamSkins = true;
-				} else if (d.value.containsKey("Description") && Skin.FACE_MATCH.matcher(d.value.get("Name")).matches()) {
-					s.faces.add(d.value.get("Description"));
+				if (s.game.equals("Unreal")) {
+					Matcher nameMatch = Skin.NAME_MATCH_UNREAL.matcher(d.value.get("Name"));
+					if (nameMatch.matches()) {
+						if (s.name == null || s.name.equals(origName)) s.name = nameMatch.group(1).trim();
+						s.skins.add(nameMatch.group(1).trim());
+					}
+				} else {
+					if (d.value.containsKey("Description") && Skin.NAME_MATCH.matcher(d.value.get("Name")).matches()) {
+						if (s.name == null || s.name.equals(origName)) s.name = d.value.get("Description");
+						s.skins.add(d.value.get("Description").trim());
+					} else if (Skin.TEAM_MATCH.matcher(d.value.get("Name")).matches()) {
+						s.teamSkins = true;
+					} else if (d.value.containsKey("Description") && Skin.FACE_MATCH.matcher(d.value.get("Name")).matches()) {
+						s.faces.add(d.value.get("Description"));
+					}
 				}
 			});
-		}
-
-		try {
-			if (s.releaseDate != null && s.releaseDate.compareTo(IndexUtils.RELEASE_UT99) < 0) s.game = "Unreal";
-			s.game = game(incoming);
-		} catch (Exception e) {
-			log.log(IndexLog.EntryType.CONTINUE, "Could not determine game for skin", e);
 		}
 
 		try {
@@ -147,14 +154,7 @@ public class SkinIndexHandler implements IndexHandler<Skin> {
 
 		if (!incoming.files(Incoming.FileType.PLAYER).isEmpty()) return "Unreal Tournament 2004";
 
-		Set<Incoming.IncomingFile> files = incoming.files(Incoming.FileType.TEXTURE);
-		if (files.isEmpty()) return IndexUtils.UNKNOWN;
-
-		try (Package pkg = new Package(new PackageReader(files.iterator().next().asChannel()))) {
-			if (pkg.version < 68) return "Unreal";
-			else if (pkg.version < 117) return "Unreal Tournament";
-			else return "Unreal Tournament 2004";
-		}
+		return IndexUtils.game(incoming.files(Incoming.FileType.TEXTURE));
 	}
 
 }

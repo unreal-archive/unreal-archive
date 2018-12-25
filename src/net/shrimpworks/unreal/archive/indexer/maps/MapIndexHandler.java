@@ -65,7 +65,7 @@ public class MapIndexHandler implements IndexHandler<Map> {
 		try (Package map = map(baseMap)) {
 			if (!gameOverride) {
 				// attempt to detect Unreal maps by possible release date
-				if (map.version < 68 || (m.releaseDate != null && m.releaseDate.compareTo(IndexUtils.RELEASE_UT99) < 0)) m.game = "Unreal";
+				if (map.version < 69 || (m.releaseDate != null && m.releaseDate.compareTo(IndexUtils.RELEASE_UT99) < 0)) m.game = "Unreal";
 				// Unreal does not contain a LevelSummary
 				if (map.version == 68 && map.objectsByClassName("LevelSummary").isEmpty()) m.game = "Unreal";
 			}

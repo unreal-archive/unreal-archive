@@ -43,7 +43,9 @@ public class SkinClassifier implements Classifier {
 		if (incoming.files(Incoming.FileType.TEXTURE).isEmpty()) return false;
 
 		if (!playerFiles.isEmpty()) return ut2004Skin(incoming, playerFiles);
-		else if (!intFiles.isEmpty()) return utSkin(incoming, intFiles);
+		else if (!intFiles.isEmpty()) {
+			return utSkin(incoming, intFiles) || unrealSkin(incoming, intFiles);
+		}
 
 		return false;
 	}
@@ -67,6 +69,37 @@ public class SkinClassifier implements Classifier {
 							  && ((IntFile.MapValue)value).value.get("Class").equalsIgnoreCase("Texture")) {
 
 							  Matcher m = Skin.NAME_MATCH.matcher(((IntFile.MapValue)value).value.get("Name"));
+							  if (m.matches()) {
+								  seemsToBeASkin[0] = true;
+								  return;
+							  }
+						  }
+					  }
+
+				  });
+
+		return seemsToBeASkin[0];
+	}
+
+	private boolean unrealSkin(Incoming incoming, Set<Incoming.IncomingFile> intFiles) {
+		boolean[] seemsToBeASkin = new boolean[] { false };
+
+		// search int files for objects describing a skin
+		IndexUtils.readIntFiles(incoming, intFiles)
+				  .filter(Objects::nonNull)
+				  .forEach(intFile -> {
+					  IntFile.Section section = intFile.section("public");
+					  if (section == null) return;
+
+					  IntFile.ListValue objects = section.asList("Object");
+					  for (IntFile.Value value : objects.values) {
+						  if (value instanceof IntFile.MapValue
+							  && (!((IntFile.MapValue)value).value.containsKey("Description"))
+							  && ((IntFile.MapValue)value).value.containsKey("Name")
+							  && ((IntFile.MapValue)value).value.containsKey("Class")
+							  && ((IntFile.MapValue)value).value.get("Class").equalsIgnoreCase("Texture")) {
+
+							  Matcher m = Skin.NAME_MATCH_UNREAL.matcher(((IntFile.MapValue)value).value.get("Name"));
 							  if (m.matches()) {
 								  seemsToBeASkin[0] = true;
 								  return;

@@ -11,7 +11,6 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import net.shrimpworks.unreal.archive.YAML;
 import net.shrimpworks.unreal.archive.indexer.Content;
 import net.shrimpworks.unreal.archive.indexer.Incoming;
 import net.shrimpworks.unreal.archive.indexer.IndexHandler;
@@ -20,8 +19,6 @@ import net.shrimpworks.unreal.archive.indexer.IndexResult;
 import net.shrimpworks.unreal.archive.indexer.IndexUtils;
 import net.shrimpworks.unreal.archive.indexer.skins.SkinIndexHandler;
 import net.shrimpworks.unreal.packages.IntFile;
-import net.shrimpworks.unreal.packages.Package;
-import net.shrimpworks.unreal.packages.PackageReader;
 
 public class ModelIndexHandler implements IndexHandler<Model> {
 
@@ -95,13 +92,7 @@ public class ModelIndexHandler implements IndexHandler<Model> {
 			log.log(IndexLog.EntryType.CONTINUE, "Failed to save images", e);
 		}
 
-		try {
-			System.out.println(YAML.toString(m));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-//		completed.accept(new IndexResult<>(m, attachments));
+		completed.accept(new IndexResult<>(m, attachments));
 	}
 
 	public static List<IntFile.MapValue> modelDescriptors(Incoming incoming) {
@@ -134,16 +125,9 @@ public class ModelIndexHandler implements IndexHandler<Model> {
 	private String game(Incoming incoming) throws IOException {
 		if (incoming.submission.override.get("game", null) != null) return incoming.submission.override.get("game", "Unreal Tournament");
 
-		if (!incoming.files(Incoming.FileType.PLAYER).isEmpty()) return "Unreal Tournament 2004";
+		if (!incoming.files(Incoming.FileType.PLAYER, Incoming.FileType.ANIMATION).isEmpty()) return "Unreal Tournament 2004";
 
-		Set<Incoming.IncomingFile> files = incoming.files(Incoming.FileType.TEXTURE);
-		if (files.isEmpty()) return IndexUtils.UNKNOWN;
-
-		try (Package pkg = new Package(new PackageReader(files.iterator().next().asChannel()))) {
-			if (pkg.version < 68) return "Unreal";
-			else if (pkg.version < 117) return "Unreal Tournament";
-			else return "Unreal Tournament 2004";
-		}
+		return IndexUtils.game(incoming.files(Incoming.FileType.TEXTURE));
 	}
 
 }
