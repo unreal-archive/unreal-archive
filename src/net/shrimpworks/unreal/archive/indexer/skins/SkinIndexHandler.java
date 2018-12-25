@@ -104,6 +104,23 @@ public class SkinIndexHandler implements IndexHandler<Skin> {
 	public static void findPortraits(Incoming incoming, List<BufferedImage> images) {
 		if (!incoming.files(Incoming.FileType.PLAYER).isEmpty()) {
 			// find from UT2003/4 UPL "Portrait" property
+			playerDescriptors(incoming).forEach(d -> {
+				if (d.value.containsKey("Portrait")) {
+					try {
+						String[] pkgTex = d.value.get("Portrait").split("\\.");
+						Package pkg = IndexUtils.findPackage(incoming, pkgTex[0]);
+
+						ExportedObject e = pkg.objectByName(new Name(pkgTex[1], 0));
+						Object o = e.object();
+						if (o instanceof Texture) {
+							Texture.MipMap[] mipMaps = ((Texture)o).mipMaps();
+							images.add(mipMaps[0].get());
+						}
+					} catch (Exception e) {
+						incoming.log.log(IndexLog.EntryType.CONTINUE, "Finding portrait failed", e);
+					}
+				}
+			});
 		} else {
 			// look up portraits from skin descriptors
 			skinDescriptors(incoming).forEach(d -> {

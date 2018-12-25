@@ -53,6 +53,8 @@ public class Incoming implements Closeable {
 														 .collect(Collectors.toSet())
 														 .toArray(new FileType[0]);
 
+		public static final FileType[] PACKAGES = { CODE, MAP, TEXTURE, SOUNDS, ANIMATION, STATICMESH };
+
 		public static final FileType[] ALL = FileType.values();
 
 		public final boolean important;

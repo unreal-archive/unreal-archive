@@ -174,7 +174,7 @@ public class IndexUtils {
 	 * @return a package
 	 */
 	public static Package findPackage(Incoming incoming, String pkg) {
-		Set<Incoming.IncomingFile> files = incoming.files(Incoming.FileType.IMPORTANT);
+		Set<Incoming.IncomingFile> files = incoming.files(Incoming.FileType.PACKAGES);
 		for (Incoming.IncomingFile f : files) {
 			String name = f.fileName();
 			name = name.substring(0, name.lastIndexOf("."));
