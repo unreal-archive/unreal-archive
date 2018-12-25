@@ -44,7 +44,7 @@ public class IndexUtils {
 	public static String game(Set<Incoming.IncomingFile> files) throws IOException {
 		if (files.isEmpty()) return UNKNOWN;
 		try (Package pkg = new Package(new PackageReader(files.iterator().next().asChannel()))) {
-			if (pkg.version < 69) return "Unreal";
+			if (pkg.version < 68) return "Unreal";
 			else if (pkg.version < 117) return "Unreal Tournament";
 			else return "Unreal Tournament 2004";
 		}

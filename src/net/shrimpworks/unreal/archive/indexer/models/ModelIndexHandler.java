@@ -132,7 +132,7 @@ public class ModelIndexHandler implements IndexHandler<Model> {
 
 		if (!incoming.files(Incoming.FileType.PLAYER, Incoming.FileType.ANIMATION).isEmpty()) return "Unreal Tournament 2004";
 
-		return IndexUtils.game(incoming.files(Incoming.FileType.TEXTURE));
+		return IndexUtils.game(incoming.files(Incoming.FileType.PACKAGES));
 	}
 
 }
