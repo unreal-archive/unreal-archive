@@ -13,16 +13,14 @@
 		</#if>
 	</#list>
 
-	<section class="header" style="background-image: url('${headerbg}')">
-		<h1>
-			<a href="${siteRoot}/index.html">Maps</a>
-			/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
-			/ <a href="${relUrl(siteRoot, gametype.path)}/index.html">${gametype.name}</a>
-			/ ${map.map.name}
-		</h1>
-	</section>
+	<@heading bg=["${headerbg}"]>
+		<a href="${siteRoot}/index.html">Maps</a>
+		/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
+		/ <a href="${relUrl(siteRoot, gametype.path)}/index.html">${gametype.name}</a>
+		/ ${map.map.name}
+	</@heading>
 
-	<article class="info">
+	<@content class="info">
 		<div class="screenshots">
 			<@screenshots attachments=map.map.attachments/>
 		</div>
@@ -97,6 +95,6 @@
 
 		</div>
 
-	</article>
+	</@content>
 
 <#include "../_footer.ftl">

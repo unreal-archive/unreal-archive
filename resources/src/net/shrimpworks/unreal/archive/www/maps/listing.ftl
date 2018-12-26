@@ -1,19 +1,18 @@
 <#include "../_header.ftl">
+<#include "../content/macros.ftl">
 
 	<#assign game=page.letter.gametype.game>
 	<#assign gametype=page.letter.gametype>
 
-	<section class="header" style='background-image: url("${static}/images/gametypes/${game.name}/${gametype.name}.png"), url("${static}/images/games/${game.name}.png")'>
-		<h1>
-			<a href="${siteRoot}/index.html">Maps</a>
-			/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
-			/ <a href="${relUrl(siteRoot, gametype.path)}/index.html">${gametype.name}</a>
-			/ ${page.letter.letter}
-			/ pg ${page.number}
-		</h1>
-	</section>
+	<@heading bg=["${static}/images/gametypes/${game.name}/${gametype.name}.png", "${static}/images/games/${game.name}.png"]>
+		<a href="${siteRoot}/index.html">Maps</a>
+		/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
+		/ <a href="${relUrl(siteRoot, gametype.path)}/index.html">${gametype.name}</a>
+		/ ${page.letter.letter}
+		/ pg ${page.number}
+	</@heading>
 
-	<article class="list">
+	<@content class="list">
 
 		<nav class="letters">
 			<#list gametype.letters as k, letter><a href="${relUrl(root, letter.path + "/index.html")}"<#if letter.letter == page.letter.letter>class="active"</#if>>${letter.letter}</a></#list>
@@ -45,6 +44,6 @@
 				</#list>
 			</tbody>
 		</table>
-	</article>
+	</@content>
 
 <#include "../_footer.ftl">

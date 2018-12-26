@@ -353,7 +353,7 @@ public class Main {
 		}
 
 		final boolean localImages = Boolean.valueOf(cli.option("local-images", "false"));
-		if (localImages) System.out.println("Will download a local copy of images content images, this will take additional time.");
+		if (localImages) System.out.println("Will download a local copy of content images, this will take additional time.");
 
 		final Path staticOutput = outputPath.resolve("static");
 

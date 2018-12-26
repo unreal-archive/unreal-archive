@@ -1,3 +1,27 @@
+<#macro heading bg>
+	<#assign style>
+		<#t/><#if bg?? && bg?size gt 0>
+			<#t/>style='background-image:
+			<#t/><#list bg as b>
+			<#t/>url("${b}")
+			<#t/><#if b?has_next>,</#if>
+			<#t/></#list>
+			<#t/>'
+		<#t/></#if>
+	</#assign>
+	<section class="header" ${style!""}>
+		<h1>
+			<#nested/>
+		</h1>
+	</section>
+</#macro>
+
+<#macro content class>
+	<article class="${class}">
+		<#nested>
+	</article>
+</#macro>
+
 <#macro screenshots attachments>
 	<#if attachments?size == 0>
 		<img src="${static}/images/none.png" class="thumb"/>

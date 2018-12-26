@@ -1,15 +1,15 @@
 <#include "../_header.ftl">
+<#include "../content/macros.ftl">
 
 	<#assign game=gametype.game>
 
-	<section class="header" style='background-image: url("${static}/images/gametypes/${game.name}/${gametype.name}.png"), url("${static}/images/games/${game.name}.png")'>
-		<h1>
-			<a href="${siteRoot}/index.html">Maps</a>
-			/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
-			/ ${gametype.name}
-		</h1>
-	</section>
-	<article class="list">
+	<@heading bg=["${static}/images/gametypes/${game.name}/${gametype.name}.png", "${static}/images/games/${game.name}.png"]>
+		<a href="${siteRoot}/index.html">Maps</a>
+		/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
+		/ ${gametype.name}
+	</@heading>
+
+	<@content class="list">
 		<table class="maps">
 			<thead>
 			<tr>
@@ -30,6 +30,6 @@
 				</#list>
 			</tbody>
 		</table>
-	</article>
+	</@content>
 
 <#include "../_footer.ftl">
