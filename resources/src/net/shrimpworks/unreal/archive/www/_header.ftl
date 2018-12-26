@@ -10,8 +10,8 @@
 
 <header>
 	<div class="page">
-		<img src="${static}/images/logo.png">
-		<h1><a href="${static}/../index.html">Unreal Archive</a></h1>
+		<#--<img src="${static}/images/logo.png">-->
+		<h1><a href="${static}/../index.html"><span class="a">UNREAL</span><span class="b">ARCHIVE</span></a></h1>
 	</div>
 </header>
 

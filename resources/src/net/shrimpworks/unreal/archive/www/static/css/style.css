@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css?family=Abel|Anton|Open+Sans');
+@import url('https://fonts.googleapis.com/css?family=Passion+One|Abel|Alfa+Slab+One|Open+Sans');
 
 body {
 	padding: 0;
@@ -8,6 +8,11 @@ body {
 	font-size: 1em;
 }
 
+h1, h2 {
+	font-family: 'Alfa Slab One', serif;
+	font-weight: normal;
+}
+
 .page {
 	max-width: 1024px;
 	margin-left: auto;
@@ -15,25 +20,33 @@ body {
 }
 
 header {
-	height: 100px;
+	height: 65px;
 	margin-bottom: 10px;
-	background-color: #4D7A97;
+	background-color: black;
 	color: white;
 }
 
 header div.page {
-	display: grid;
-	grid-template-columns: 100px auto;
-	grid-template-areas: 'img h1';
-	height: 100%;
+	/*display: grid;*/
+	/*grid-template-columns: 100px auto;*/
+	/*grid-template-areas: 'img h1';*/
+	/*height: 100%;*/
 }
 
 header h1 {
-	font-family: 'Anton', sans-serif;
-	font-size: 3.2em;
+	font-family: 'Passion One', sans-serif;
+	font-size: 4em;
 	font-weight: normal;
 	margin: 0;
 	align-self: end;
+}
+
+header h1 .a {
+	color: white;
+}
+
+header h1 .b {
+	color: #aaa;
 }
 
 header h1 a {
@@ -51,8 +64,6 @@ header img {
 }
 
 .readable h1, .readable h2 {
-	font-family: 'Anton', sans-serif;
-	font-weight: normal;
 	background: none;
 }
 
@@ -77,9 +88,8 @@ section.header {
 }
 
 section.header h1 {
-	font-family: 'Anton', sans-serif;
 	font-size: 2em;
-	font-weight: normal;
+	word-break: keep-all;
 	position: absolute;
 	bottom: 0;
 	color: white;
@@ -88,10 +98,13 @@ section.header h1 {
 	margin: 10px 20px;
 }
 
-
 section.header h1 a {
 	text-decoration: none;
 	color: white;
+}
+
+section.header h1 a:hover {
+	color: lightyellow;
 }
 
 .biglist ul {
@@ -130,10 +143,13 @@ section.header h1 a {
 	left: 0;
 	right: 0;
 	padding: 10px;
+
+	background-color: rgba(255, 255, 255, 0);
 }
 
 .biglist ul li a:hover {
-	background-color: rgba(255, 255, 255, 0.5);
+	background-color: rgba(255, 255, 200, 0.5);
+	transition: all	0.2s;
 }
 
 .biglist ul li .meta {
@@ -154,7 +170,7 @@ section.header h1 a {
 	margin: 10px 0;
 }
 
-.list nav.letters a {
+.list nav.letters a, .list nav.pages a {
 	background-color: #dee3e9;
 	border: 1px solid #4D7A97;
 	padding: 5px;
@@ -163,13 +179,8 @@ section.header h1 a {
 	text-align: center;
 }
 
-.list nav.pages a {
-	background-color: #dee3e9;
-	border: 1px solid #4D7A97;
-	padding: 5px;
-	margin: 0 2px;
-	text-decoration: none;
-	text-align: center;
+.list nav.letters a:hover, .list nav.pages a:hover {
+	background-color: lightyellow;
 }
 
 .list nav.letters a.active {
@@ -242,9 +253,7 @@ article section {
 }
 
 article section h2 {
-	font-family: 'Anton', sans-serif;
 	font-size: 1.6em;
-	font-weight: normal;
 	background-color: #d0d9e0;
 	margin: 0;
 	padding: 0 10px;
@@ -280,6 +289,10 @@ table thead {
 
 table tr.odd {
 	background-color: #d0d9e0;
+}
+
+table :not(thead) > tr:hover {
+	background-color: lightyellow;
 }
 
 table td, table th {

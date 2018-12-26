@@ -83,7 +83,7 @@ public abstract class ContentPageGenerator {
 			} catch (HttpResponseException e) {
 				System.err.printf("\rFailed to download image %s: %d %s%n", img.name, e.getStatusCode(), e.getMessage());
 			} catch (Throwable t) {
-				t.printStackTrace(); // FIXME
+				System.err.printf("\rFailed to download image %s: %s%n", img.name, t.toString());
 			}
 		}
 	}
