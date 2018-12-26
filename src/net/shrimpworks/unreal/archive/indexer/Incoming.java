@@ -42,7 +42,7 @@ public class Incoming implements Closeable {
 		PLAYER(true, "upl"),
 		INT(false, "int"),
 		INI(false, "ini"),
-		UMOD(true, "umod"),
+		UMOD(true, "umod", "ut2mod"),
 		TEXT(false, "txt"),
 		HTML(false, "html", "htm"),
 		IMAGE(false, "jpg", "jpeg", "bmp", "png", "gif"),
@@ -162,7 +162,7 @@ public class Incoming implements Closeable {
 			Files.walkFileTree(contentRoot, new SimpleFileVisitor<Path>() {
 				@Override
 				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-					if (file.toString().toLowerCase().endsWith(".umod")) {
+					if (file.toString().toLowerCase().endsWith(".umod") || file.toString().toLowerCase().endsWith(".ut2mod")) {
 						files.putAll(umodFiles(file));
 					}
 					files.put(file.toString(), file);
