@@ -1,12 +1,11 @@
 <#include "../_header.ftl">
+<#include "../content/macros.ftl">
 
-	<section class="header">
-		<h1>
-			Skins
-		</h1>
-	</section>
+	<@heading bg=["${static}/images/contents/skins.png"]>
+		Skins
+	</@heading>
 
-	<article class="biglist">
+	<@content class="biglist">
 		<ul>
 		<#list games.games as k, v>
 			<li style='background-image: url("${static}/images/games/${v.name}.png")'>
@@ -15,6 +14,6 @@
 			</li>
 		</#list>
 		</ul>
-	</article>
+	</@content>
 
 <#include "../_footer.ftl">

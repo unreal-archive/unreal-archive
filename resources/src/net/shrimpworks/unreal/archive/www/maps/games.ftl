@@ -1,7 +1,7 @@
 <#include "../_header.ftl">
 <#include "../content/macros.ftl">
 
-	<@heading bg=[]>
+	<@heading bg=["${static}/images/contents/maps.png"]>
 		Maps
 	</@heading>
 

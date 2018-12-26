@@ -38,11 +38,11 @@
 			<span class="meta">${count.Updates}</span>
 			<a href="patches-updates/index.html">Patches & Updates</a>
 		</li>
-		<li>
+		<li style='background-image: url("${static}/images/contents/maps.png")'>
 			<span class="meta">${count.Map}</span>
 			<a href="maps/index.html">Maps</a>
 		</li>
-		<li>
+		<li style='background-image: url("${static}/images/contents/mappacks.png")'>
 			<span class="meta">${count.MapPack}</span>
 			<a href="mappacks/index.html">Map Packs</a>
 		</li>
@@ -54,11 +54,11 @@
 			<span class="meta">coming soon</span>
 			<a href="#">Mutators</a>
 		</li>
-		<li>
+		<li style='background-image: url("${static}/images/contents/models.png")'>
 			<span class="meta">${count.Model!"0"}</span>
 			<a href="models/index.html">Models</a>
 		</li>
-		<li>
+		<li style='background-image: url("${static}/images/contents/skins.png")'>
 			<span class="meta">${count.Skin!"0"}</span>
 			<a href="skins/index.html">Skins</a>
 		</li>
