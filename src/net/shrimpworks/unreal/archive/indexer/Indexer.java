@@ -171,7 +171,7 @@ public class Indexer {
 				// even when not forcing a full re-index of something, we can still update download sources
 				if (!content.deleted && sub.sourceUrls != null) {
 					for (String url : sub.sourceUrls) {
-						if (!content.hasDownload(url)) {
+						if (url != null && !url.isEmpty() && !content.hasDownload(url)) {
 							content.downloads.add(new Content.Download(url, LocalDate.now(), false));
 						}
 					}
@@ -196,7 +196,7 @@ public class Indexer {
 						c.content.lastIndex = LocalDateTime.now();
 						if (sub.sourceUrls != null) {
 							for (String url : sub.sourceUrls) {
-								if (!c.content.hasDownload(url)) {
+								if (url != null && !url.isEmpty() && !c.content.hasDownload(url)) {
 									c.content.downloads.add(new Content.Download(url, LocalDate.now(), false));
 								}
 							}
