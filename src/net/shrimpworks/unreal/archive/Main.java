@@ -109,27 +109,6 @@ public class Main {
 		System.exit(0);
 	}
 
-	private static ManagedContentManager managedContent(CLI cli, String group) throws IOException {
-		if (cli.option("content-path", null) == null) {
-			System.err.println("content-path must be specified!");
-			System.exit(2);
-		}
-
-		Path contentPath = Paths.get(cli.option("content-path", null));
-		if (!Files.isDirectory(contentPath)) {
-			System.err.println("content-path must be a directory!");
-			System.exit(3);
-		}
-
-		Path managedPath = contentPath.resolve(group);
-		if (!Files.isDirectory(managedPath)) {
-			System.err.printf("Can't find content path for group %s!%n", group);
-			System.exit(3);
-		}
-
-		return new ManagedContentManager(managedPath, group);
-	}
-
 	private static void sync(CLI cli) throws IOException {
 		ManagedContentManager managedContent = managedContent(cli, cli.commands()[1]);
 
@@ -199,6 +178,32 @@ public class Main {
 						  documentManager.size(), (System.currentTimeMillis() - start) / 1000f);
 
 		return documentManager;
+	}
+
+	private static ManagedContentManager managedContent(CLI cli, String group) throws IOException {
+		if (cli.option("content-path", null) == null) {
+			System.err.println("content-path must be specified!");
+			System.exit(2);
+		}
+
+		Path contentPath = Paths.get(cli.option("content-path", null));
+		if (!Files.isDirectory(contentPath)) {
+			System.err.println("content-path must be a directory!");
+			System.exit(3);
+		}
+
+		Path managedPath = contentPath.resolve(group);
+		if (!Files.isDirectory(managedPath)) {
+			System.err.printf("Can't find content path for group %s!%n", group);
+			System.exit(3);
+		}
+
+		final long start = System.currentTimeMillis();
+		ManagedContentManager managedContentManager = new ManagedContentManager(managedPath, group);
+		System.err.printf("Loaded managed content [%s] index with %d items in %.2fs%n",
+						  group, managedContentManager.size(), (System.currentTimeMillis() - start) / 1000f);
+
+		return managedContentManager;
 	}
 
 	private static DataStore store(DataStore.StoreContent contentType, CLI cli) {
