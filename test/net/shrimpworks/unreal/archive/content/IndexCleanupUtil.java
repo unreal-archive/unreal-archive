@@ -32,6 +32,7 @@ public class IndexCleanupUtil {
 		for (ContentType contentType : ContentType.values()) {
 			// first, find the dupes
 			java.util.Map<String, List<Content>> collect = cm.search(null, contentType.name(), null, null).stream()
+															 .filter(c -> c.variationOf == null)
 															 .collect(Collectors.groupingBy(s -> String.format("%s_%s",
 																											   s.name.toLowerCase(),
 																											   s.author.toLowerCase())))
@@ -51,7 +52,7 @@ public class IndexCleanupUtil {
 						   dupe.variationOf = first.hash;
 						   try {
 							   if (cm.checkin(new IndexResult<>(dupe, Collections.emptySet()), null)) {
-								   System.out.println("Stored changes for " + String.join(" / ", dupe.game, dupe.name));
+								   System.out.println("Stored changes for " + String.join(" / ", dupe.contentType, dupe.game, dupe.name));
 							   } else {
 								   System.out.println("Failed to apply");
 							   }

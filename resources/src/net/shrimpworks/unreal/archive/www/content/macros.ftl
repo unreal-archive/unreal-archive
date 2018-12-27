@@ -1,4 +1,4 @@
-<#macro heading bg>
+<#macro heading bg=[]>
 	<#assign style>
 		<#t/><#if bg?? && bg?size gt 0>
 			<#t/>style='background-image:

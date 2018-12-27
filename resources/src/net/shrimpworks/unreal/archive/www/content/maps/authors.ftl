@@ -1,7 +1,7 @@
 <#include "../../_header.ftl">
 <#include "../macros.ftl">
 
-	<@heading bg=[]>
+	<@heading>
 		<a href="${siteRoot}/index.html">Maps</a>
 		/ Authors
 	</@heading>

@@ -1,14 +1,13 @@
 <#include "../../_header.ftl">
+<#include "../macros.ftl">
 
-	<section class="header">
-		<h1>
-			File / ${file.name}
-		</h1>
-	</section>
+	<@heading>
+		File / ${file.name}
+	</@heading>
 
-	<article class="file">
+	<@content class="biglist">
+
 		<div class="info">
-
 			<section class="meta">
 				<h2>File</h2>
 				<div class="label-value">
@@ -56,6 +55,6 @@
 
 		</div>
 
-	</article>
+	</@content>
 
 <#include "../../_footer.ftl">
