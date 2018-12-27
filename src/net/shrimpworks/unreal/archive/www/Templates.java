@@ -22,6 +22,7 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.text.Normalizer;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -42,6 +43,8 @@ public class Templates {
 
 	public static final int PAGE_SIZE = 150;
 
+	private static final String SITE_NAME = System.getenv().getOrDefault("SITE_NAME", "Unreal Archive");
+
 	private static final Map<String, String> HOST_REMAP = new HashMap<>();
 
 	private static final Pattern NONLATIN = Pattern.compile("[^\\w-]");
@@ -56,7 +59,7 @@ public class Templates {
 		TPL_CONFIG.setObjectWrapper(ow);
 		TPL_CONFIG.setOutputEncoding(StandardCharsets.UTF_8.name());
 
-		HOST_REMAP.put("f002.backblazeb2.com", "Unreal Archive");
+		HOST_REMAP.put("f002.backblazeb2.com", SITE_NAME);
 	}
 
 	public static Tpl template(String name) throws IOException {
@@ -129,6 +132,7 @@ public class Templates {
 			TPL_VARS.put("urlHost", new UrlHostMethod());
 			TPL_VARS.put("fileSize", new FileSizeMethod());
 			TPL_VARS.put("fileName", new FileNameMethod());
+			TPL_VARS.put("siteName", SITE_NAME);
 		}
 
 		private final Template template;
@@ -137,6 +141,7 @@ public class Templates {
 		public Tpl(Template template) {
 			this.template = template;
 			this.vars = new HashMap<>();
+			this.vars.put("timestamp", new Date());
 			this.vars.putAll(TPL_VARS);
 		}
 

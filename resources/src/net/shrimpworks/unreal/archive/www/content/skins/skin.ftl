@@ -48,13 +48,15 @@
 						</span>
 					</div>
 				</#if>
-				<div class="label-value">
-					<label>Faces</label><span>
-						<#list skin.skin.faces as s>
-							<div>${s}</div>
-						</#list>
-					</span>
-				</div>
+				<#if skin.skin.faces?size gt 1>
+					<div class="label-value">
+						<label>Faces</label><span>
+							<#list skin.skin.faces as s>
+								<div>${s}</div>
+							</#list>
+						</span>
+					</div>
+				</#if>
 				<div class="label-value">
 					<label>File Size</label><span>${fileSize(skin.skin.fileSize)}</span>
 				</div>

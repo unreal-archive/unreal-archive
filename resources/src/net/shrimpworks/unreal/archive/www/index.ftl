@@ -1,6 +1,7 @@
 <#include "_header.ftl">
+<#include "macros.ftl">
 
-<section class="intro readable">
+<@content class="intro readable">
 	<h1>
 		About
 	</h1>
@@ -26,9 +27,9 @@
 		See the <a href="documents/general/meta/archive-mirroring-guide/index.html">mirroring guide</a>
 		for more information.
 	</p>
-</section>
+</@content>
 
-<article class="biglist">
+<@content class="biglist">
 	<ul>
 		<li>
 			<span class="meta">${count.Documents}</span>
@@ -67,6 +68,6 @@
 			<a href="#">Voices</a>
 		</li>
 	</ul>
-</article>
+</@content>
 
 <#include "_footer.ftl">

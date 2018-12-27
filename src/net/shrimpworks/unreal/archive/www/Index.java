@@ -39,7 +39,7 @@ public class Index implements PageGenerator {
 		try {
 			Templates.template("index.ftl")
 					 .put("static", root.relativize(staticRoot))
-					 .put("title", "Unreal Archive")
+					 .put("title", "Home")
 					 .put("count", contentCount)
 					 .put("siteRoot", root)
 					 .write(root.resolve("index.html"));

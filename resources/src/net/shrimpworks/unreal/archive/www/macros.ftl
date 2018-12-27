@@ -1,5 +1,5 @@
 <#macro heading bg=[]>
-	<#assign style>
+	<#t/><#assign style>
 		<#t/><#if bg?? && bg?size gt 0>
 			<#t/>style='background-image:
 			<#t/><#list bg as b>
@@ -8,18 +8,22 @@
 			<#t/></#list>
 			<#t/>'
 		<#t/></#if>
-	</#assign>
+	<#t/></#assign>
 	<section class="header" ${style!""}>
-		<h1>
-			<#nested/>
-		</h1>
+		<div class="page">
+			<h1>
+				<#nested/>
+			</h1>
+		</div>
 	</section>
 </#macro>
 
 <#macro content class="">
-	<article <#if class?length gt 0>class="${class}"</#if>>
-		<#nested>
-	</article>
+	<div class="page">
+		<article <#if class?length gt 0>class="${class}"</#if>>
+			<#nested>
+		</article>
+	</div>
 </#macro>
 
 <#macro screenshots attachments>
