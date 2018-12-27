@@ -1,5 +1,5 @@
 <#include "../../_header.ftl">
-<#include "../macros.ftl">
+<#include "../../macros.ftl">
 
 	<#assign game=map.page.letter.gametype.game>
 	<#assign gametype=map.page.letter.gametype>

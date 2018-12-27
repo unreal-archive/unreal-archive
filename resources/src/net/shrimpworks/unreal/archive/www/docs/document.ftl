@@ -1,5 +1,5 @@
 <#include "../_header.ftl">
-<#include "../content/macros.ftl">
+<#include "../macros.ftl">
 
 	<#assign headerbg>${static!"static"}/images/none-document.png</#assign>
 

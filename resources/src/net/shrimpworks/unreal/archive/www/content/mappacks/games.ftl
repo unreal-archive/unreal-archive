@@ -1,5 +1,5 @@
 <#include "../../_header.ftl">
-<#include "../macros.ftl">
+<#include "../../macros.ftl">
 
 	<@heading bg=["${static}/images/contents/mappacks.png"]>
 		Map Packs

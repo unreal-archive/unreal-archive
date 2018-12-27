@@ -212,7 +212,6 @@ article.info .screenshots {
 
 article.info .screenshots .thumb {
 	width: 300px;
-	max-height: 300px;
 	margin: 2px;
 	vertical-align: middle;
 }

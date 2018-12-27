@@ -1,5 +1,5 @@
 <#include "../../_header.ftl">
-<#include "../macros.ftl">
+<#include "../../macros.ftl">
 
 	<@heading bg=["${static}/images/games/${game.name}.png"]>
 			<a href="${siteRoot}/index.html">Skins</a>

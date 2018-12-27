@@ -1,5 +1,5 @@
 <#include "../_header.ftl">
-<#include "../content/macros.ftl">
+<#include "../macros.ftl">
 
 	<@heading>
 		${title}
