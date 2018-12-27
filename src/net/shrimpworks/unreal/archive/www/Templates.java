@@ -40,7 +40,7 @@ import net.shrimpworks.unreal.archive.Util;
 
 public class Templates {
 
-	static final int PAGE_SIZE = 150;
+	public static final int PAGE_SIZE = 150;
 
 	private static final Map<String, String> HOST_REMAP = new HashMap<>();
 
@@ -50,7 +50,7 @@ public class Templates {
 	private static final Configuration TPL_CONFIG = new Configuration(Configuration.VERSION_2_3_27);
 
 	static {
-		TPL_CONFIG.setClassForTemplateLoading(Maps.class, "");
+		TPL_CONFIG.setClassForTemplateLoading(Templates.class, "");
 		DefaultObjectWrapper ow = new DefaultObjectWrapper(TPL_CONFIG.getIncompatibleImprovements());
 		ow.setExposeFields(true);
 		TPL_CONFIG.setObjectWrapper(ow);

@@ -23,7 +23,7 @@ import org.apache.http.client.fluent.Response;
 
 import net.shrimpworks.unreal.archive.CLI;
 import net.shrimpworks.unreal.archive.YAML;
-import net.shrimpworks.unreal.archive.indexer.Submission;
+import net.shrimpworks.unreal.archive.content.Submission;
 
 public class Downloader {
 

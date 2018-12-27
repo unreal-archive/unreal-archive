@@ -22,13 +22,13 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import net.shrimpworks.unreal.archive.content.Content;
+import net.shrimpworks.unreal.archive.content.ContentManager;
+import net.shrimpworks.unreal.archive.content.ContentType;
+import net.shrimpworks.unreal.archive.content.IndexResult;
+import net.shrimpworks.unreal.archive.content.Indexer;
+import net.shrimpworks.unreal.archive.content.Scanner;
 import net.shrimpworks.unreal.archive.docs.DocumentManager;
-import net.shrimpworks.unreal.archive.indexer.Content;
-import net.shrimpworks.unreal.archive.indexer.ContentManager;
-import net.shrimpworks.unreal.archive.indexer.ContentType;
-import net.shrimpworks.unreal.archive.indexer.IndexResult;
-import net.shrimpworks.unreal.archive.indexer.Indexer;
-import net.shrimpworks.unreal.archive.indexer.Scanner;
 import net.shrimpworks.unreal.archive.managed.Managed;
 import net.shrimpworks.unreal.archive.managed.ManagedContentManager;
 import net.shrimpworks.unreal.archive.mirror.MirrorClient;
@@ -42,13 +42,13 @@ import net.shrimpworks.unreal.archive.scraper.UTTexture;
 import net.shrimpworks.unreal.archive.scraper.UnrealPlayground;
 import net.shrimpworks.unreal.archive.storage.DataStore;
 import net.shrimpworks.unreal.archive.www.Documents;
-import net.shrimpworks.unreal.archive.www.FileDetails;
+import net.shrimpworks.unreal.archive.www.content.FileDetails;
 import net.shrimpworks.unreal.archive.www.Index;
 import net.shrimpworks.unreal.archive.www.ManagedContent;
-import net.shrimpworks.unreal.archive.www.MapPacks;
-import net.shrimpworks.unreal.archive.www.Maps;
-import net.shrimpworks.unreal.archive.www.Models;
-import net.shrimpworks.unreal.archive.www.Skins;
+import net.shrimpworks.unreal.archive.www.content.MapPacks;
+import net.shrimpworks.unreal.archive.www.content.Maps;
+import net.shrimpworks.unreal.archive.www.content.Models;
+import net.shrimpworks.unreal.archive.www.content.Skins;
 import net.shrimpworks.unreal.archive.www.Templates;
 import net.shrimpworks.unreal.packages.Umod;
 
@@ -372,29 +372,32 @@ public class Main {
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("content"))) {
 			// generate content pages
 			Arrays.asList(
-					new Index(contentManager, documentManager, updates, outputPath, staticOutput, localImages),
 					new Maps(contentManager, outputPath, staticOutput, localImages),
 					new MapPacks(contentManager, outputPath, staticOutput, localImages),
 					new Skins(contentManager, outputPath, staticOutput, localImages),
 					new Models(contentManager, outputPath, staticOutput, localImages),
 					new FileDetails(contentManager, outputPath, staticOutput, localImages)
 			).forEach(g -> {
-				System.out.printf("Generating %s pages%n", g.getClass().getSimpleName());
+				System.out.printf("%nGenerating %s pages%n", g.getClass().getSimpleName());
 				pageCount.addAndGet(g.generate());
 			});
 		}
 
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("docs"))) {
 			// generate document pages
-			System.out.printf("Generating Document pages%n");
+			System.out.printf("%nGenerating Document pages%n");
 			pageCount.addAndGet(new Documents(documentManager, outputPath, staticOutput).generate());
 		}
 
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("updates"))) {
 			// generate updates pages
-			System.out.printf("Generating Updates pages%n");
+			System.out.printf("%nGenerating Updates pages%n");
 			pageCount.addAndGet(new ManagedContent(updates, outputPath, staticOutput, "Patches & Updates").generate());
 		}
+
+		// generate index
+		System.out.printf("%nGenerating index page%n");
+		pageCount.addAndGet(new Index(contentManager, documentManager, updates, outputPath, staticOutput).generate());
 
 		System.out.printf("Output %d pages in %.2fs%n", pageCount.get(), (System.currentTimeMillis() - start) / 1000f);
 	}

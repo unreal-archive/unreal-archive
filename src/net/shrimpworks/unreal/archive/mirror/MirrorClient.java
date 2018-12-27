@@ -12,8 +12,8 @@ import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.fluent.Request;
 
 import net.shrimpworks.unreal.archive.Util;
-import net.shrimpworks.unreal.archive.indexer.Content;
-import net.shrimpworks.unreal.archive.indexer.ContentManager;
+import net.shrimpworks.unreal.archive.content.Content;
+import net.shrimpworks.unreal.archive.content.ContentManager;
 
 /**
  * Simple multi-threaded mirror/downloader implementation.

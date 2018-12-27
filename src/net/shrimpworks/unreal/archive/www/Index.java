@@ -5,21 +5,26 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.shrimpworks.unreal.archive.content.ContentManager;
 import net.shrimpworks.unreal.archive.docs.DocumentManager;
-import net.shrimpworks.unreal.archive.indexer.ContentManager;
 import net.shrimpworks.unreal.archive.managed.ManagedContentManager;
 
-public class Index extends ContentPageGenerator {
+public class Index implements PageGenerator {
 
 	private final DocumentManager documents;
 	private final ManagedContentManager updates;
+	private final ContentManager content;
+	private final Path root;
+	private final Path staticRoot;
 
-	public Index(
-			ContentManager content, DocumentManager documents, ManagedContentManager updates,
-			Path output, Path staticRoot, boolean localImages) {
-		super(content, output, staticRoot, localImages);
+	public Index(ContentManager content, DocumentManager documents, ManagedContentManager updates, Path output, Path staticRoot) {
+		this.content = content;
 		this.documents = documents;
 		this.updates = updates;
+
+		this.root = output;
+		this.staticRoot = staticRoot;
+
 	}
 
 	@Override
