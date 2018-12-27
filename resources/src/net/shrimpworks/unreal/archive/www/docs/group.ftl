@@ -1,12 +1,11 @@
 <#include "../_header.ftl">
+<#include "../content/macros.ftl">
 
-	<section class="header">
-		<h1>
-			${title}
-		</h1>
-	</section>
+	<@heading>
+		${title}
+	</@heading>
 
-	<article class="biglist">
+	<@content class="biglist">
 		<ul>
 		<#list group.groups as k, g>
 			<li style='background-image: url("${static}/images/games/${g.name}.png")'>
@@ -19,10 +18,10 @@
 			</li>
 		</#list>
 		</ul>
-	</article>
+	</@content>
 
 	<#if group.documents?size gt 0>
-		<article class="list">
+		<@content class="list">
 			<table class="docs">
 				<thead>
 				<tr>
@@ -54,7 +53,7 @@
 					</#list>
 				</tbody>
 			</table>
-		</article>
+		</@content>
 	</#if>
 
 <#include "../_footer.ftl">

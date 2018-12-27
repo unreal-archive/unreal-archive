@@ -2,8 +2,8 @@
 <#include "../macros.ftl">
 
 	<@heading bg=["${static}/images/games/${game.name}.png"]>
-			<a href="${relUrl(siteRoot, "index.html")}">Map Packs</a>
-			/ ${game.name}
+		<a href="${relUrl(siteRoot, "index.html")}">Map Packs</a>
+		/ ${game.name}
 	</@heading>
 
 	<@content class="biglist">

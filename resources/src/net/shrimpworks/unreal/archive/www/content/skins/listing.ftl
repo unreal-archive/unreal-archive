@@ -4,12 +4,10 @@
 	<#assign game=page.letter.game>
 
 	<@heading bg=["${static}/images/games/${game.name}.png"]>
-		<h1>
 			<a href="${siteRoot}/index.html">Skins</a>
 			/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
 			/ ${page.letter.letter}
 			/ pg ${page.number}
-		</h1>
 	</@heading>
 
 	<@content class="list">

@@ -4,11 +4,9 @@
 	<#assign game=gametype.game>
 
 	<@heading bg=["${static}/images/gametypes/${game.name}/${gametype.name}.png", "${static}/images/games/${game.name}.png"]>
-		<h1>
-			<a href="${siteRoot}/index.html">Map Packs</a>
-			/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
-			/ <a href="${relUrl(siteRoot, gametype.path)}/index.html">${gametype.name}</a>
-		</h1>
+		<a href="${siteRoot}/index.html">Map Packs</a>
+		/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
+		/ <a href="${relUrl(siteRoot, gametype.path)}/index.html">${gametype.name}</a>
 	</@heading>
 
 	<@content class="list">

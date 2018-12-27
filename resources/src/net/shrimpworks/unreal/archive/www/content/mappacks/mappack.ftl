@@ -14,12 +14,10 @@
 	</#list>
 
 	<@heading bg=[headerbg]>
-		<h1>
-			<a href="${siteRoot}/index.html">Map Packs</a>
-			/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
-			/ <a href="${relUrl(siteRoot, gametype.path)}/index.html">${gametype.name}</a>
-			/ ${pack.pack.name}
-		</h1>
+		<a href="${siteRoot}/index.html">Map Packs</a>
+		/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
+		/ <a href="${relUrl(siteRoot, gametype.path)}/index.html">${gametype.name}</a>
+		/ ${pack.pack.name}
 	</@heading>
 
 	<@content class="info">

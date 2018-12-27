@@ -1,4 +1,5 @@
 <#include "../_header.ftl">
+<#include "../content/macros.ftl">
 
 	<#assign headerbg>${static!"static"}/images/none-document.png</#assign>
 
@@ -6,12 +7,11 @@
 		<#assign headerbg>${document.document.titleImage}</#assign>
 	</#if>
 
-	<section class="header" style="background-image: url('${headerbg}')">
-		<h1>
-			${title}
-		</h1>
-	</section>
-	<article class="document">
+	<@heading bg=[headerbg]>
+		${title}
+	</@heading>
+
+	<@content class="document">
 		<div class="meta">
 			<div class="label-value">
 				<label>Author</label><span>${document.document.author}</span>
@@ -27,8 +27,8 @@
 			</div>
 		</div>
 		<div class="content readable">
-			${content}
+			${page}
 		</div>
-	</article>
+	</@content>
 
 <#include "../_footer.ftl">

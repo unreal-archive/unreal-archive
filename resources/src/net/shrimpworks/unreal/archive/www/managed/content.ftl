@@ -1,44 +1,43 @@
 <#include "../_header.ftl">
+<#include "../content/macros.ftl">
 
 <#assign headerbg>${static!"static"}/images/none-managed.png</#assign>
 
-<#if content.managed.titleImage??>
-	<#assign headerbg>${content.managed.titleImage}</#assign>
+<#if managed.managed.titleImage??>
+	<#assign headerbg>${managed.managed.titleImage}</#assign>
 </#if>
 
-	<section class="header" style="background-image: url('${headerbg}')">
-		<h1>
-			${title}
-		</h1>
-	</section>
+	<@heading bg=[headerbg]>
+		${title}
+	</@heading>
 
-	<article class="managed document">
+	<@content class="managed document">
 		<section class="meta">
 			<h2>Information</h2>
 			<div class="label-value">
-				<label>Author</label><span>${content.managed.author}</span>
+				<label>Author</label><span>${managed.managed.author}</span>
 			</div>
-			<#if content.managed.homepage??>
+			<#if managed.managed.homepage??>
 				<div class="label-value">
-					<label> </label><span><a href="${content.managed.homepage}">Homepage</a></span>
+					<label> </label><span><a href="${managed.managed.homepage}">Homepage</a></span>
 				</div>
 			</#if>
 			<div class="label-value">
-				<label>Release Date</label><span>${content.managed.releaseDate!"-"}</span>
+				<label>Release Date</label><span>${managed.managed.releaseDate!"-"}</span>
 			</div>
 			<div class="label-value">
-				<label>Date Added</label><span>${content.managed.createdDate}</span>
+				<label>Date Added</label><span>${managed.managed.createdDate}</span>
 			</div>
 			<div class="label-value">
-				<label>Last Updated</label><span>${content.managed.updatedDate}</span>
+				<label>Last Updated</label><span>${managed.managed.updatedDate}</span>
 			</div>
 			<div class="label-value">
-				<label>Summary</label><span>${content.managed.description}</span>
+				<label>Summary</label><span>${managed.managed.description}</span>
 			</div>
 
 			<section class="downloads">
 				<h2>Downloads</h2>
-				<#list content.managed.downloads as d>
+				<#list managed.managed.downloads as d>
 					<#if !d.deleted && d.downloads?size gt 0>
 						<div class="download">
 							<div class="title">
@@ -65,8 +64,8 @@
 		</section>
 
 		<section class="content readable">
-			${document}
+			${page}
 		</section>
-	</article>
+	</@content>
 
 <#include "../_footer.ftl">

@@ -13,11 +13,9 @@
 	</#list>
 
 	<@heading bg=[headerbg]>
-		<h1>
 			<a href="${siteRoot}/index.html">Skins</a>
 			/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
 			/ ${skin.skin.name}
-		</h1>
 	</@heading>
 
 	<@content class="info">

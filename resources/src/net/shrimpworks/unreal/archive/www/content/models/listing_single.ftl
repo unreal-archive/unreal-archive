@@ -2,10 +2,8 @@
 <#include "../macros.ftl">
 
 	<@heading bg=["${static}/images/games/${game.name}.png"]>
-		<h1>
-			<a href="${siteRoot}/index.html">Models</a>
-			/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
-		</h1>
+		<a href="${siteRoot}/index.html">Models</a>
+		/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
 	</@heading>
 
 	<@content class="list">

@@ -122,8 +122,8 @@ public class ManagedContent {
 					 .put("static", path.relativize(staticRoot))
 					 .put("title", String.join(" / ", section, content.managed.game, String.join(" / ", content.managed.path.split("/")),
 											   content.managed.title))
-					 .put("content", content)
-					 .put("document", page)
+					 .put("managed", content)
+					 .put("page", page)
 					 .put("siteRoot", path.relativize(root))
 					 .write(path.resolve("index.html"));
 		}

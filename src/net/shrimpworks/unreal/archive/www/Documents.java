@@ -123,7 +123,7 @@ public class Documents {
 					 .put("title", String.join(" / ", SECTION, doc.document.game, String.join(" / ", doc.document.path.split("/")),
 											   doc.document.title))
 					 .put("document", doc)
-					 .put("content", content)
+					 .put("page", content)
 					 .put("siteRoot", path.relativize(root))
 					 .write(path.resolve("index.html"));
 		}
