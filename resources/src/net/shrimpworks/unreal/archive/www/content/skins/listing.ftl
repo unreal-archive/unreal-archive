@@ -1,17 +1,18 @@
 <#include "../../_header.ftl">
+<#include "../macros.ftl">
 
 	<#assign game=page.letter.game>
 
-	<section class="header" style='background-image: url("${static}/images/games/${game.name}.png")'>
+	<@heading bg=["${static}/images/games/${game.name}.png"]>
 		<h1>
 			<a href="${siteRoot}/index.html">Skins</a>
 			/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
 			/ ${page.letter.letter}
 			/ pg ${page.number}
 		</h1>
-	</section>
+	</@heading>
 
-	<article class="list">
+	<@content class="list">
 
 		<nav class="letters">
 			<#list game.letters as k, letter><a href="${relUrl(root, letter.path + "/index.html")}"<#if letter.letter == page.letter.letter>class="active"</#if>>${letter.letter}</a></#list>
@@ -39,6 +40,6 @@
 				</#list>
 			</tbody>
 		</table>
-	</article>
+	</@content>
 
 <#include "../../_footer.ftl">

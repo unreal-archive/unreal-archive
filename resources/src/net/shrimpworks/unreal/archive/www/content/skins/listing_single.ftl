@@ -1,12 +1,14 @@
 <#include "../../_header.ftl">
+<#include "../macros.ftl">
 
-	<section class="header" style='background-image: url("${static}/images/games/${game.name}.png")'>
+	<@heading bg=["${static}/images/games/${game.name}.png"]>
 		<h1>
 			<a href="${siteRoot}/index.html">Skins</a>
 			/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
 		</h1>
-	</section>
-	<article class="list">
+	</@heading>
+
+	<@content class="list">
 		<table class="skins">
 			<thead>
 			<tr>
@@ -23,6 +25,6 @@
 				</#list>
 			</tbody>
 		</table>
-	</article>
+	</@content>
 
 <#include "../../_footer.ftl">

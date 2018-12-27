@@ -1,12 +1,12 @@
 <#include "../../_header.ftl">
+<#include "../macros.ftl">
 
-	<section class="header" style='background-image: url("${static}/images/games/${game.name}.png")'>
-		<h1>
+	<@heading bg=["${static}/images/games/${game.name}.png"]>
 			<a href="${relUrl(siteRoot, "index.html")}">Map Packs</a>
 			/ ${game.name}
-		</h1>
-	</section>
-	<article class="biglist">
+	</@heading>
+
+	<@content class="biglist">
 		<ul>
 		<#list game.gametypes as k, v>
 			<li style='background-image: url("${static}/images/gametypes/${game.name}/${v.name}.png")'>
@@ -15,6 +15,6 @@
 			</li>
 		</#list>
 		</ul>
-	</article>
+	</@content>
 
 <#include "../../_footer.ftl">

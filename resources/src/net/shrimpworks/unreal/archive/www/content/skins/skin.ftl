@@ -12,15 +12,15 @@
 		</#if>
 	</#list>
 
-	<section class="header" style="background-image: url('${headerbg}')">
+	<@heading bg=[headerbg]>
 		<h1>
 			<a href="${siteRoot}/index.html">Skins</a>
 			/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
 			/ ${skin.skin.name}
 		</h1>
-	</section>
+	</@heading>
 
-	<article class="info">
+	<@content class="info">
 		<div class="screenshots">
 			<@screenshots attachments=skin.skin.attachments/>
 		</div>
@@ -101,6 +101,6 @@
 
 		</div>
 
-	</article>
+	</@content>
 
 <#include "../../_footer.ftl">

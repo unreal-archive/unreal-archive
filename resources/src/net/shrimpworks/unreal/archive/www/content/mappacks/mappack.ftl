@@ -13,16 +13,16 @@
 		</#if>
 	</#list>
 
-	<section class="header" style="background-image: url('${headerbg}')">
+	<@heading bg=[headerbg]>
 		<h1>
 			<a href="${siteRoot}/index.html">Map Packs</a>
 			/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
 			/ <a href="${relUrl(siteRoot, gametype.path)}/index.html">${gametype.name}</a>
 			/ ${pack.pack.name}
 		</h1>
-	</section>
+	</@heading>
 
-	<article class="info">
+	<@content class="info">
 
 		<div class="screenshots">
 			<@screenshots attachments=pack.pack.attachments/>
@@ -114,6 +114,6 @@
 
 		</div>
 
-	</article>
+	</@content>
 
 <#include "../../_footer.ftl">

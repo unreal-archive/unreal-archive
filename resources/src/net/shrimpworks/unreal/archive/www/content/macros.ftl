@@ -16,8 +16,8 @@
 	</section>
 </#macro>
 
-<#macro content class>
-	<article class="${class}">
+<#macro content class="">
+	<article <#if class?length gt 0>class="${class}"</#if>>
 		<#nested>
 	</article>
 </#macro>
