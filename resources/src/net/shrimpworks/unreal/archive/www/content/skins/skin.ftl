@@ -39,7 +39,7 @@
 				<div class="label-value">
 					<label>Team Skins</label><span>${skin.skin.teamSkins?string('Yes', 'No')}</span>
 				</div>
-				<#if skin.skin.skins?size gt 1>
+				<#if skin.skin.skins?size gt 0>
 					<div class="label-value">
 						<label>Included Skins</label><span>
 							<#list skin.skin.skins as s>
@@ -48,7 +48,7 @@
 						</span>
 					</div>
 				</#if>
-				<#if skin.skin.faces?size gt 1>
+				<#if skin.skin.faces?size gt 0>
 					<div class="label-value">
 						<label>Faces</label><span>
 							<#list skin.skin.faces as s>

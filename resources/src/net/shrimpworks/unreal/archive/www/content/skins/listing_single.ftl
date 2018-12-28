@@ -12,6 +12,7 @@
 			<tr>
 				<th>Skin</th>
 				<th>Author</th>
+				<th>Info</th>
 			</tr>
 			</thead>
 			<tbody>
@@ -19,6 +20,15 @@
 				<tr>
 					<td><a href="${relUrl(game.path, s.path + ".html")}">${s.skin.name}</a></td>
 					<td>${s.skin.author}</td>
+					<td>
+						<#if s.skin.skins?size gt 0>
+							${s.skin.skins?size} skin<#if s.skin.skins?size gt 1>s</#if>
+							<#if s.skin.faces?size gt 0>,</#if>
+						</#if>
+						<#if s.skin.faces?size gt 0>
+							${s.skin.faces?size} face<#if s.skin.faces?size gt 1>s</#if>
+						</#if>
+					</td>
 				</tr>
 				</#list>
 			</tbody>

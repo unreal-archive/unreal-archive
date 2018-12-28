@@ -12,6 +12,7 @@
 			<tr>
 				<th>Model</th>
 				<th>Author</th>
+				<th>Info</th>
 			</tr>
 			</thead>
 			<tbody>
@@ -19,6 +20,14 @@
 				<tr>
 					<td><a href="${relUrl(game.path, m.path + ".html")}">${m.model.name}</a></td>
 					<td>${m.model.author}</td>
+					<#if m.model.models?size gt 0>
+						${m.model.models?size} character<#if m.model.models?size gt 1>s</#if>
+						<#if m.model.skins?size gt 0>,</#if>
+					</#if>
+					<#if m.model.skins?size gt 0>
+						${m.model.skins?size} skin<#if m.model.skins?size gt 1>s</#if>
+					</#if>
+					</td>
 				</tr>
 				</#list>
 			</tbody>

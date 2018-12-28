@@ -36,7 +36,7 @@
 				<div class="label-value">
 					<label>Release (est.)</label><span>${model.model.releaseDate}</span>
 				</div>
-				<#if model.model.models?size gt 1>
+				<#if model.model.models?size gt 0>
 					<div class="label-value">
 						<label>Included Models</label><span>
 							<#list model.model.models as m>
@@ -45,7 +45,7 @@
 						</span>
 					</div>
 				</#if>
-				<#if model.model.skins?size gt 1>
+				<#if model.model.skins?size gt 0>
 					<div class="label-value">
 						<label>Included Skins</label><span>
 							<#list model.model.skins as s>
@@ -90,7 +90,6 @@
 					</table>
 				</section>
 			</#if>
-
 
 			<@files files=model.model.files alsoIn=model.alsoIn otherFiles=model.model.otherFiles/>
 
