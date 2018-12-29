@@ -8,7 +8,11 @@
 	</#if>
 
 	<@heading bg=[headerbg]>
-		${title}
+		<a href="${siteRoot}/index.html">Patches & Updates</a>
+		<#list groupPath as p>
+			/ <a href="${relUrl(siteRoot, p.path)}/index.html">${p.name}</a>
+		</#list>
+		/ ${document.document.title}
 	</@heading>
 
 	<@content class="document">

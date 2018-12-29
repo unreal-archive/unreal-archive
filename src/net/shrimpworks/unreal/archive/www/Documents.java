@@ -1,9 +1,7 @@
 package net.shrimpworks.unreal.archive.www;
 
 import java.io.IOException;
-import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,15 +12,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.github.rjeschke.txtmark.Configuration;
-import com.github.rjeschke.txtmark.Processor;
-
 import net.shrimpworks.unreal.archive.docs.Document;
 import net.shrimpworks.unreal.archive.docs.DocumentManager;
 
 import static net.shrimpworks.unreal.archive.www.Templates.slug;
 
-public class Documents {
+public class Documents implements PageGenerator {
 
 	private static final String SECTION = "Articles";
 
@@ -52,6 +47,7 @@ public class Documents {
 	 *
 	 * @return number of individual pages created
 	 */
+	@Override
 	public int generate() {
 		int count = 0;
 		try {
@@ -69,9 +65,18 @@ public class Documents {
 	private int generateGroup(DocumentGroup group) throws IOException {
 		int count = 0;
 
+		// we have to compute the path here, since a template can't do a while loop up its group tree itself
+		List<DocumentGroup> groupPath = new ArrayList<>();
+		DocumentGroup grp = group;
+		while (grp != null) {
+			groupPath.add(0, grp);
+			grp = grp.parent;
+		}
+
 		Templates.template("docs/group.ftl")
 				 .put("static", root.resolve(group.path).relativize(staticRoot))
 				 .put("title", String.join(" / ", SECTION, String.join(" / ", group.pPath.split("/"))))
+				 .put("groupPath", groupPath)
 				 .put("group", group)
 				 .put("siteRoot", root.resolve(group.path).relativize(root))
 				 .write(root.resolve(group.path).resolve("index.html"));
@@ -93,6 +98,14 @@ public class Documents {
 
 		try (ReadableByteChannel docChan = documents.document(doc.document)) {
 
+			// we have to compute the path here, since a template can't do a while loop up its group tree itself
+			List<DocumentGroup> groupPath = new ArrayList<>();
+			DocumentGroup grp = doc.group;
+			while (grp != null) {
+				groupPath.add(0, grp);
+				grp = grp.parent;
+			}
+
 			final Path path = Files.createDirectories(root.resolve(doc.path));
 
 			final Path docRoot = documents.documentRoot(doc.document);
@@ -111,19 +124,15 @@ public class Documents {
 					 }
 				 });
 
-			final Configuration config = Configuration.builder()
-													  .forceExtentedProfile()
-													  .setEncoding(StandardCharsets.UTF_8.name())
-													  .build();
-
-			final String content = Processor.process(Channels.newInputStream(docChan), config);
+			final String page = Templates.renderMarkdown(docChan);
 
 			Templates.template("docs/document.ftl")
 					 .put("static", path.relativize(staticRoot))
 					 .put("title", String.join(" / ", SECTION, doc.document.game, String.join(" / ", doc.document.path.split("/")),
 											   doc.document.title))
+					 .put("groupPath", groupPath)
 					 .put("document", doc)
-					 .put("page", content)
+					 .put("page", page)
 					 .put("siteRoot", path.relativize(root))
 					 .write(path.resolve("index.html"));
 		}

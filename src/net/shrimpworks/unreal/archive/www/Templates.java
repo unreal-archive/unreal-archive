@@ -10,6 +10,9 @@ import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.nio.channels.ByteChannel;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -29,6 +32,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import com.github.rjeschke.txtmark.Processor;
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.SimpleNumber;
@@ -51,6 +55,12 @@ public class Templates {
 	private static final Pattern WHITESPACE = Pattern.compile("[\\s]");
 
 	private static final Configuration TPL_CONFIG = new Configuration(Configuration.VERSION_2_3_27);
+
+	private static final com.github.rjeschke.txtmark.Configuration MD_CONFIG = com.github.rjeschke.txtmark.Configuration
+			.builder()
+			.forceExtentedProfile()
+			.setEncoding(StandardCharsets.UTF_8.name())
+			.build();
 
 	static {
 		TPL_CONFIG.setClassForTemplateLoading(Templates.class, "");
@@ -120,6 +130,12 @@ public class Templates {
 		String normalized = Normalizer.normalize(nowhitespace, Normalizer.Form.NFD);
 		String slug = NONLATIN.matcher(normalized).replaceAll("");
 		return slug.toLowerCase(Locale.ENGLISH).replaceAll("(-)\\1+", "-");
+	}
+
+	public static String renderMarkdown(ReadableByteChannel document) throws IOException {
+		try (InputStream is = Channels.newInputStream(document)) {
+			return Processor.process(is, MD_CONFIG);
+		}
 	}
 
 	public static class Tpl {

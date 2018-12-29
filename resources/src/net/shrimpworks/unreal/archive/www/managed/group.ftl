@@ -2,7 +2,10 @@
 <#include "../macros.ftl">
 
 	<@heading>
-		${title}
+		<a href="${siteRoot}/index.html">Patches & Updates</a>
+		<#list groupPath as p>
+			/ <a href="${relUrl(siteRoot, p.path)}/index.html">${p.name}</a>
+		</#list>
 	</@heading>
 
 	<@content class="biglist">
@@ -35,11 +38,13 @@
 					<#list group.content as c>
 						<tr class="${c?item_parity}">
 							<td class="title-image" rowspan="2">
-							<#if c.managed.titleImage??>
-								<img src="${relUrl(group.path, c.path)}/${c.managed.titleImage}"/>
-							<#else>
-								<img src="${static!"static"}/images/none-managed.png"/>
-							</#if>
+								<a href="${relUrl(group.path, c.path)}/index.html">
+									<#if c.managed.titleImage??>
+										<img src="${relUrl(group.path, c.path)}/${c.managed.titleImage}"/>
+									<#else>
+										<img src="${static!"static"}/images/none-managed.png"/>
+									</#if>
+								</a>
 							</td>
 							<td nowrap="nowrap"><a href="${relUrl(group.path, c.path)}/index.html">${c.managed.title}</a></td>
 							<td>${c.managed.author}</td>

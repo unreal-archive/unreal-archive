@@ -1,9 +1,7 @@
 package net.shrimpworks.unreal.archive.www;
 
 import java.io.IOException;
-import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,15 +12,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.github.rjeschke.txtmark.Configuration;
-import com.github.rjeschke.txtmark.Processor;
-
 import net.shrimpworks.unreal.archive.managed.Managed;
 import net.shrimpworks.unreal.archive.managed.ManagedContentManager;
 
 import static net.shrimpworks.unreal.archive.www.Templates.slug;
 
-public class ManagedContent {
+public class ManagedContent implements PageGenerator {
 
 	private final ManagedContentManager content;
 	private final Path root;
@@ -52,6 +47,7 @@ public class ManagedContent {
 	 *
 	 * @return number of individual pages created
 	 */
+	@Override
 	public int generate() {
 		int count = 0;
 		try {
@@ -69,9 +65,18 @@ public class ManagedContent {
 	private int generateGroup(ContentGroup group) throws IOException {
 		int count = 0;
 
+		// we have to compute the path here, since a template can't do a while loop up its group tree itself
+		List<ContentGroup> groupPath = new ArrayList<>();
+		ContentGroup grp = group;
+		while (grp != null) {
+			groupPath.add(0, grp);
+			grp = grp.parent;
+		}
+
 		Templates.template("managed/group.ftl")
 				 .put("static", root.resolve(group.path).relativize(staticRoot))
 				 .put("title", String.join(" / ", section, String.join(" / ", group.pPath.split("/"))))
+				 .put("groupPath", groupPath)
 				 .put("group", group)
 				 .put("siteRoot", root.resolve(group.path).relativize(root))
 				 .write(root.resolve(group.path).resolve("index.html"));
@@ -93,6 +98,14 @@ public class ManagedContent {
 
 		try (ReadableByteChannel docChan = this.content.document(content.managed)) {
 
+			// we have to compute the path here, since a template can't do a while loop up its group tree itself
+			List<ContentGroup> groupPath = new ArrayList<>();
+			ContentGroup grp = content.group;
+			while (grp != null) {
+				groupPath.add(0, grp);
+				grp = grp.parent;
+			}
+
 			final Path path = Files.createDirectories(root.resolve(content.path));
 
 			final Path docRoot = this.content.contentRoot(content.managed);
@@ -111,17 +124,13 @@ public class ManagedContent {
 					 }
 				 });
 
-			final Configuration config = Configuration.builder()
-													  .forceExtentedProfile()
-													  .setEncoding(StandardCharsets.UTF_8.name())
-													  .build();
-
-			final String page = Processor.process(Channels.newInputStream(docChan), config);
+			final String page = Templates.renderMarkdown(docChan);
 
 			Templates.template("managed/content.ftl")
 					 .put("static", path.relativize(staticRoot))
 					 .put("title", String.join(" / ", section, content.managed.game, String.join(" / ", content.managed.path.split("/")),
 											   content.managed.title))
+					 .put("groupPath", groupPath)
 					 .put("managed", content)
 					 .put("page", page)
 					 .put("siteRoot", path.relativize(root))

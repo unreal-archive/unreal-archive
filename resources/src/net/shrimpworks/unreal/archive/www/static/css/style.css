@@ -331,11 +331,17 @@ table td, table th {
 }
 
 article .docs .title-image, article .content .title-image {
-	width: 180px;
+	width: 200px;
+}
+
+article .docs .title-image, article .content .title-image {
+	width: 200px;
 }
 
 article .docs .title-image img, article .content .title-image img {
-	max-height: 50px;
+	margin-right: 10px;
+	max-height: 60px;
+	max-width: 190px;
 }
 
 article.document {

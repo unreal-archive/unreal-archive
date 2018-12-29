@@ -8,7 +8,11 @@
 </#if>
 
 	<@heading bg=[headerbg]>
-		${title}
+		<a href="${siteRoot}/index.html">Articles & Guides</a>
+		<#list groupPath as p>
+			/ <a href="${relUrl(siteRoot, p.path)}/index.html">${p.name}</a>
+		</#list>
+		/ ${managed.managed.title}
 	</@heading>
 
 	<@content class="managed document">
