@@ -8,7 +8,7 @@ and Unreal Tournament 2003/4 content.
 - Content categorisation
   1. ~~support Unreal and UT maps and map packs~~
   2. ~~support skins~~
-  3. support models
+  3. ~~support models~~
   4. support mutators
   5. support mods/gametypes
 - ~~Metadata is to be stored in YAML format, with a format and file structure
@@ -18,17 +18,17 @@ and Unreal Tournament 2003/4 content.
 - ~~Generate and store SHA1 hashes for archives, as well as individual content
   (only for packages such as maps, textures, sounds, not readmes and config
   files)~~
-- Support for documents and articles, stored in Markdown format with YAML
-  metadata
-- Support for non-content files, like patches, drivers and similar updates
+- ~~Support for documents and articles, stored in Markdown format with YAML
+  metadata~~
+- ~~Support for non-content files, like patches, drivers and similar updates~~
 - Support for generating the HTML output/presentation for the content database
   - ~~Maps~~
   - ~~Map Packs~~
-  - Skins
-  - Models
+  - ~~Skins~~
+  - ~~Models~~
   - Mutators
   - Mods and Gametypes
-  - Documents and Articles
+  - ~~Documents and Articles~~
   - ~~Support for mirroring images so as to make offline use and mirrors feasible
     and to reduce reliance on continued existence of some hosting.~~
 - ~~Support to create a local mirror of the archive, complete~~ or by game.
