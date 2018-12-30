@@ -92,6 +92,7 @@ header img {
 
 .readable h1, .readable h2 {
 	background: none;
+	padding: 0;
 }
 
 .readable h1 {
