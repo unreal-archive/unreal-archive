@@ -37,10 +37,10 @@ h1, h2 {
 }
 
 header {
-	height: 65px;
+	height: 70px;
 	background-color: black;
 	color: white;
-	border-bottom: 4px solid #f94
+	border-bottom: 4px solid #f73
 }
 
 footer {
@@ -83,6 +83,7 @@ header h1 a {
 
 header img {
 	align-self: start;
+	vertical-align: top;
 }
 
 .readable {

@@ -10,6 +10,11 @@
 
 <header>
 	<div class="page">
-		<h1><a href="${static}/../index.html"><span class="a">UNREAL</span><span class="b">ARCHIVE</span></a></h1>
+		<h1>
+			<a href="${static}/../index.html">
+				<img src="${static!"static"}/images/logo.png"/>
+				<span class="a">UNREAL</span><span class="b">ARCHIVE</span>
+			</a>
+		</h1>
 	</div>
 </header>
