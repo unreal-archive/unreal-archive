@@ -1,0 +1,37 @@
+<ivysettings>
+	<properties environment="env"/>
+
+	<property name="resolve.shrimpworks.host" value="code.shrimpworks.za.net"/>
+	<property name="resolve.shrimpworks.root" value="https://${resolve.shrimpworks.host}/artefacts"/>
+
+	<settings defaultResolver="main"/>
+
+	<credentials host="${resolve.shrimpworks.host}" realm="${env.ARTEFACTS_REALM}"
+				 username="${env.ARTEFACTS_USER}" passwd="${env.ARTEFACTS_PASSWORD}"/>
+
+	<!-- default local settings -->
+	<property name="ivy.local.default.root" value="${ivy.default.ivy.user.dir}/local" override="false"/>
+	<property name="ivy.local.default.ivy.pattern" value="[organisation]/[module]/[revision]/[type]s/[artifact].[ext]" override="false"/>
+	<property name="ivy.local.default.artifact.pattern" value="[organisation]/[module]/[revision]/[type]s/[artifact].[ext]"
+			  override="false"/>
+
+	<resolvers>
+		<ibiblio name="public" m2compatible="true"/>
+
+		<filesystem name="local">
+			<ivy pattern="${ivy.local.default.root}/${ivy.local.default.ivy.pattern}"/>
+			<artifact pattern="${ivy.local.default.root}/${ivy.local.default.artifact.pattern}"/>
+		</filesystem>
+
+		<url name="shrimpworks">
+			<ivy pattern="${resolve.shrimpworks.root}/[organisation]/[module]/([branch].)[revision]/ivy.xml"/>
+			<artifact pattern="${resolve.shrimpworks.root}/[organisation]/[module]/([branch].)[revision]/[artifact].[ext]"/>
+		</url>
+
+		<chain name="main" returnFirst="true">
+			<resolver ref="local"/>
+			<resolver ref="shrimpworks"/>
+			<resolver ref="public"/>
+		</chain>
+	</resolvers>
+</ivysettings>

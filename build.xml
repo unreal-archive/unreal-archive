@@ -75,17 +75,8 @@
 
 	<!-- Ivy dependency resolution -->
 	<target name="ivy-resolve" depends="init-ivy" description="retrieve dependencies with ivy">
+		<ivy:settings file="ivysettings.xml" />
 		<ivy:retrieve pattern="${lib.dir}/[conf]/[artifact]-[revision].[ext]"/>
-	</target>
-
-	<target name="publish-local" depends="dist" description="publish in the local ivy repository">
-		<ivy:publish artifactspattern="${dist.dir}/[artifact].[ext]"
-					 resolver="local"
-					 pubrevision="${module.version}"
-					 forcedeliver="true"
-					 overwrite="true"
-		/>
-		<echo message="project ${ant.project.name} published locally with version ${module.version}"/>
 	</target>
 
 	<!-- Simple source build -->
