@@ -1,0 +1,14 @@
+language: java
+
+jdk:
+  - openjdk8
+
+jobs:
+  include:
+    - stage: test
+      script: ant test
+    - stage: build and publish binaries
+      if: branch = master
+        script:
+          - ant bin
+          - ./resources/publish.sh https://code.shrimpworks.za.net/artefacts/unreal-archive ./dist/unreal-archive ./dist/unreal-archive-exec.jar
