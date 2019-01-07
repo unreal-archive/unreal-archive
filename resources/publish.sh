@@ -34,14 +34,15 @@ else
 	USER="-u ${ARTEFACTS_USER}:${ARTEFACTS_PASSWORD}"
 fi
 
-REMOTE_ROOT=${1}/${BUILD}
-
 for f in "${@:2}"
 do
   FNAME="$(basename ${f})"
-	REMOTE_PATH="${REMOTE_ROOT}/${FNAME}"
+  for v in ${BUILD} "latest"
+  do
+		REMOTE_PATH="${1}/${v}/${FNAME}"
 
-	echo "Publishing ${REMOTE_PATH}"
+		echo "Publishing ${REMOTE_PATH}"
 
-	curl --fail ${USER} --upload-file ${f} "${REMOTE_PATH}"
+		curl --fail ${USER} --upload-file ${f} "${REMOTE_PATH}"
+	done
 done
