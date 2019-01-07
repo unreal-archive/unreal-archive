@@ -18,3 +18,7 @@ jobs:
       script:
         - ant bin
         - ./resources/publish.sh https://code.shrimpworks.za.net/artefacts/unreal-archive ./dist/unreal-archive ./dist/unreal-archive-exec.jar
+    - stage: trigger publish of www content
+      if: branch = master
+      script:
+        - ./resources/rebuild-www.sh
