@@ -17,8 +17,9 @@
 	<p>
 		You're also encouraged to contribute to the indexing, categorisation and
 		refinement of the Archive content via the
-		<a href="documents/general/contribution-guide/index.html">contribution guide</a>.
-		The Archive is a completely	open source initiative.
+		<a href="documents/general/content-contribution-guide/index.html">content</a> or
+		<a href="documents/general/website-and-code-contribution-guide/index.html">website</a>
+		contribution guides. The Archive is a completely	open source initiative.
 	</p>
 	<p>
 		You're also welcome and encouraged to download entire local mirrors of the

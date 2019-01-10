@@ -7,6 +7,12 @@
 			You download and use the content listed and hosted here at your own
 		  risk, <i>${siteName}</i> makes no guarantees as to the functionality,
 			suitability or integrity of the content listed here.</div>
+		<div><i>${siteName}</i> does not use cookies or employ any visitor tracking analytics.</div>
+		<div style="text-align: right">
+			<a href="https://github.com/unreal-archive">
+				<img src="${static!"static"}/images/icons/black/px22/ico-github.png" align="absmiddle"/> Contribute on GitHub
+			</a>
+		</div>
 	</div>
 </footer>
 
