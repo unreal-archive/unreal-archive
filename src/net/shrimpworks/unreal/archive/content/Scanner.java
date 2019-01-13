@@ -87,7 +87,7 @@ public class Scanner {
 			Files.walkFileTree(inputPath, new SimpleFileVisitor<Path>() {
 				@Override
 				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-					if (!Util.extension(file).equalsIgnoreCase("yml")) {
+					if (Indexer.INCLUDE_TYPES.contains(Util.extension(file).toLowerCase())) {
 
 						if (nameMatch != null && !nameMatch.matcher(file.getFileName().toString()).matches()) {
 							return FileVisitResult.CONTINUE;

@@ -10,10 +10,13 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
@@ -23,8 +26,11 @@ import net.shrimpworks.unreal.archive.YAML;
 
 public class Indexer {
 
-	private final ContentManager contentManager;
+	static final Set<String> INCLUDE_TYPES = new HashSet<>(Arrays.asList(
+			"zip", "rar", "ace", "7z", "cab", "tgz", "gz", "tar", "bz2", "exe", "umod", "ut2mod", "ut4mod"
+	));
 
+	private final ContentManager contentManager;
 	private final boolean verbose;
 
 	public Indexer(ContentManager contentManager, CLI cli) {
@@ -112,7 +118,7 @@ public class Indexer {
 				@Override
 				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 					try {
-						if (!Util.extension(file).equalsIgnoreCase("yml")) {
+						if (INCLUDE_TYPES.contains(Util.extension(file).toLowerCase())) {
 							Submission sub;
 							// if there's a submission file
 							if (Files.exists(Paths.get(file.toString() + ".yml"))) {
