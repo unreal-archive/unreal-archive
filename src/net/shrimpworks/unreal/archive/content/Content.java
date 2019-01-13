@@ -17,6 +17,7 @@ import net.shrimpworks.unreal.archive.content.mappacks.MapPack;
 import net.shrimpworks.unreal.archive.content.maps.Map;
 import net.shrimpworks.unreal.archive.content.models.Model;
 import net.shrimpworks.unreal.archive.content.skins.Skin;
+import net.shrimpworks.unreal.archive.content.voices.Voice;
 
 // there appears to be weird mapping issues when using @JsonTypeInfo with YAML
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, visible = true, property = "contentType")
@@ -25,6 +26,7 @@ import net.shrimpworks.unreal.archive.content.skins.Skin;
 		@JsonSubTypes.Type(value = MapPack.class, name = "MAP_PACK"),
 		@JsonSubTypes.Type(value = Skin.class, name = "SKIN"),
 		@JsonSubTypes.Type(value = Model.class, name = "MODEL"),
+		@JsonSubTypes.Type(value = Voice.class, name = "VOICE"),
 		@JsonSubTypes.Type(value = UnknownContent.class, name = "UNKNOWN")
 })
 public abstract class Content implements Comparable<Content> {

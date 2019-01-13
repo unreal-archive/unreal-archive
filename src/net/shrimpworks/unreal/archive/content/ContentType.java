@@ -15,13 +15,16 @@ import net.shrimpworks.unreal.archive.content.models.ModelIndexHandler;
 import net.shrimpworks.unreal.archive.content.skins.Skin;
 import net.shrimpworks.unreal.archive.content.skins.SkinClassifier;
 import net.shrimpworks.unreal.archive.content.skins.SkinIndexHandler;
+import net.shrimpworks.unreal.archive.content.voices.Voice;
+import net.shrimpworks.unreal.archive.content.voices.VoiceClassifier;
+import net.shrimpworks.unreal.archive.content.voices.VoiceIndexHandler;
 
 public enum ContentType {
 	MAP(new MapClassifier(), new MapIndexHandler.MapIndexHandlerFactory(), Map.class),
 	MAP_PACK(new MapPackClassifier(), new MapPackIndexHandler.MapPackIndesHandlerFactory(), MapPack.class),
 	SKIN(new SkinClassifier(), new SkinIndexHandler.SkinIndexHandlerFactory(), Skin.class),
 	MODEL(new ModelClassifier(), new ModelIndexHandler.ModelIndexHandlerFactory(), Model.class),
-	VOICE(new Classifier.NoOpClassifier(), new IndexHandler.NoOpIndexHandlerFactory(), UnknownContent.class),
+	VOICE(new VoiceClassifier(), new VoiceIndexHandler.ModelIndexHandlerFactory(), Voice.class),
 	MUTATOR(new Classifier.NoOpClassifier(), new IndexHandler.NoOpIndexHandlerFactory(), UnknownContent.class),
 	MOD(new Classifier.NoOpClassifier(), new IndexHandler.NoOpIndexHandlerFactory(), UnknownContent.class),
 	UNKNOWN(new Classifier.NoOpClassifier(), new IndexHandler.NoOpIndexHandlerFactory(), UnknownContent.class),
