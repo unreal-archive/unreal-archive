@@ -9,7 +9,7 @@ and Unreal Tournament 2003/4 content.
   1. ~~support Unreal and UT maps and map packs~~
   2. ~~support skins~~
   3. ~~support models~~
-  4. support voice packs
+  4. ~~support voice packs~~
   5. support mutators
   6. support mods/gametypes
 - ~~Metadata is to be stored in YAML format, with a format and file structure
@@ -27,7 +27,7 @@ and Unreal Tournament 2003/4 content.
   - ~~Map Packs~~
   - ~~Skins~~
   - ~~Models~~
-  - Voice Packs
+  - ~~Voice Packs~~
   - Mutators
   - Mods and Gametypes
   - ~~Documents and Articles~~
