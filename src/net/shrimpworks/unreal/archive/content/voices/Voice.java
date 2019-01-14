@@ -15,7 +15,7 @@ public class Voice extends Content {
 	static final Pattern UT_VOICE_MATCH = Pattern.compile("Botpack\\.Voice.+?", Pattern.CASE_INSENSITIVE);
 	static final String UT2_VOICE_CLASS = "XGame.xVoicePack";
 
-	public List<Voice> voices = new ArrayList<>();
+	public List<String> voices = new ArrayList<>();
 
 	@Override
 	public Path contentPath(Path root) {

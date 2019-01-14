@@ -50,6 +50,7 @@ import net.shrimpworks.unreal.archive.www.content.Maps;
 import net.shrimpworks.unreal.archive.www.content.Models;
 import net.shrimpworks.unreal.archive.www.content.Skins;
 import net.shrimpworks.unreal.archive.www.Templates;
+import net.shrimpworks.unreal.archive.www.content.Voices;
 import net.shrimpworks.unreal.packages.Umod;
 
 public class Main {
@@ -376,6 +377,7 @@ public class Main {
 					new MapPacks(contentManager, outputPath, staticOutput, localImages),
 					new Skins(contentManager, outputPath, staticOutput, localImages),
 					new Models(contentManager, outputPath, staticOutput, localImages),
+					new Voices(contentManager, outputPath, staticOutput, localImages),
 					new FileDetails(contentManager, outputPath, staticOutput, localImages)
 			).forEach(g -> {
 				System.out.printf("%nGenerating %s pages%n", g.getClass().getSimpleName());

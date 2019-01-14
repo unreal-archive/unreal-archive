@@ -37,8 +37,10 @@ public class VoiceIndexHandler implements IndexHandler<Voice> {
 
 		String origName = v.name;
 
-		// find model and skin information via .int files
-		voiceNames(incoming).forEach(n -> {
+		// find voice information via .int files
+		v.voices = voiceNames(incoming);
+
+		v.voices.forEach(n -> {
 			if (v.name == null || v.name.equalsIgnoreCase(origName)) {
 				v.name = n.replaceAll("\"", "");
 			}

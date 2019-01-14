@@ -65,8 +65,8 @@
 			<a href="skins/index.html">Skins</a>
 		</li>
 		<li>
-			<span class="meta">coming soon</span>
-			<a href="#">Voices</a>
+			<span class="meta">${count.Voice!"0"}</span>
+			<a href="voices/index.html">Voices</a>
 		</li>
 	</ul>
 </@content>
