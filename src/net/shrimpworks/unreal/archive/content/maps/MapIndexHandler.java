@@ -172,7 +172,7 @@ public class MapIndexHandler implements IndexHandler<Map> {
 		}
 
 		try {
-			List<String> lines = IndexUtils.textContent(incoming);
+			List<String> lines = IndexUtils.textContent(incoming, Incoming.FileType.TEXT, Incoming.FileType.HTML);
 
 			for (String s : lines) {
 				Matcher m = SP_MATCH.matcher(s);

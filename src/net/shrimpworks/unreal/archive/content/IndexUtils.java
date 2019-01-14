@@ -36,8 +36,8 @@ public class IndexUtils {
 	public static final String UNKNOWN = "Unknown";
 	public static final String RELEASE_UT99 = "1999-11";
 
-	private static final Pattern AUTHOR_MATCH = Pattern.compile("(.+)?(author|by)([\\s:]+)?([A-Za-z0-9 _]{2,25})(\\s+)?",
-																Pattern.CASE_INSENSITIVE);
+	public static final Pattern AUTHOR_MATCH = Pattern.compile("(.+)?(author|by)([\\s:]+)?([A-Za-z0-9 _]{2,25})(\\s+)?",
+															   Pattern.CASE_INSENSITIVE);
 
 	public static final String SHOT_NAME = "%s_shot_%d.png";
 
@@ -213,9 +213,9 @@ public class IndexUtils {
 	 * @return all lines from plain text content
 	 * @throws IOException failed to read files
 	 */
-	public static List<String> textContent(Incoming incoming) throws IOException {
+	public static List<String> textContent(Incoming incoming, Incoming.FileType... fileTypes) throws IOException {
 		List<String> lines = new ArrayList<>();
-		for (Incoming.IncomingFile f : incoming.files(Incoming.FileType.TEXT, Incoming.FileType.HTML)) {
+		for (Incoming.IncomingFile f : incoming.files(fileTypes)) {
 			try (BufferedReader br = new BufferedReader(Channels.newReader(f.asChannel(), StandardCharsets.UTF_8.name()))) {
 				lines.addAll(br.lines().collect(Collectors.toList()));
 			} catch (UncheckedIOException e) {
@@ -240,7 +240,24 @@ public class IndexUtils {
 	 * @throws IOException failed to read files
 	 */
 	public static String findAuthor(Incoming incoming) throws IOException {
-		List<String> lines = IndexUtils.textContent(incoming);
+		return findAuthor(incoming, false);
+	}
+
+	/**
+	 * Attempt to find the author of some content, based on included
+	 * text files.
+	 *
+	 * @param incoming       content being indexed
+	 * @param searchIntFiles also search within .int file content
+	 * @return an author if found, or unknown
+	 * @throws IOException failed to read files
+	 */
+	public static String findAuthor(Incoming incoming, boolean searchIntFiles) throws IOException {
+		Incoming.FileType[] types = searchIntFiles
+				? new Incoming.FileType[] { Incoming.FileType.TEXT, Incoming.FileType.HTML, Incoming.FileType.INT }
+				: new Incoming.FileType[] { Incoming.FileType.TEXT, Incoming.FileType.HTML };
+
+		List<String> lines = IndexUtils.textContent(incoming, types);
 
 		for (String s : lines) {
 			Matcher m = AUTHOR_MATCH.matcher(s);

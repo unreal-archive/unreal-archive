@@ -15,8 +15,6 @@ public class Voice extends Content {
 	static final Pattern UT_VOICE_MATCH = Pattern.compile("Botpack\\.Voice.+?", Pattern.CASE_INSENSITIVE);
 	static final String UT2_VOICE_CLASS = "XGame.xVoicePack";
 
-	static final Pattern AUTHOR_MATCH = Pattern.compile("(.+)?(author|by)([\\s:]+)?([A-Za-z0-9 _]{2,25})(\\s+)?", Pattern.CASE_INSENSITIVE);
-
 	public List<Voice> voices = new ArrayList<>();
 
 	@Override

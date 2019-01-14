@@ -9,8 +9,9 @@ and Unreal Tournament 2003/4 content.
   1. ~~support Unreal and UT maps and map packs~~
   2. ~~support skins~~
   3. ~~support models~~
-  4. support mutators
-  5. support mods/gametypes
+  4. support voice packs
+  5. support mutators
+  6. support mods/gametypes
 - ~~Metadata is to be stored in YAML format, with a format and file structure
   appropriate to each content type~~
 - ~~Original release dates (stick to Month and Year) can be gleaned from the
@@ -26,14 +27,15 @@ and Unreal Tournament 2003/4 content.
   - ~~Map Packs~~
   - ~~Skins~~
   - ~~Models~~
+  - Voice Packs
   - Mutators
   - Mods and Gametypes
   - ~~Documents and Articles~~
   - ~~Support for mirroring images so as to make offline use and mirrors feasible
     and to reduce reliance on continued existence of some hosting.~~
 - ~~Support to create a local mirror of the archive, complete~~ or by game.
-- Publish website
-- Publish code publicly
+- ~~Publish website~~
+- ~~Publish code publicly~~
 
 
 ## Content Submission and Indexing Pipeline
