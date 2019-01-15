@@ -81,7 +81,7 @@ public class AutoIndexPHPScraper {
 													  dir = m.group(1);
 												  }
 
-												  return new Found.FoundUrl(e.text(), dir, e.absUrl("href"), url, !url.contains("&file="));
+												  return new Found.FoundUrl(e.text(), dir, e.absUrl("href"), url, !e.absUrl("href").contains("&file="));
 											  })
 											  .sorted(Comparator.comparing(o -> o.name))
 											  .collect(Collectors.toList());
