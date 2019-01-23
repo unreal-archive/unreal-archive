@@ -28,6 +28,7 @@
 				<th>Skin</th>
 				<th>Author</th>
 				<th>Info</th>
+				<th> </th>
 			</tr>
 			</thead>
 			<tbody>
@@ -42,6 +43,11 @@
 						</#if>
 						<#if s.skin.faces?size gt 0>
 							${s.skin.faces?size} face<#if s.skin.faces?size gt 1>s</#if>
+						</#if>
+					</td>
+					<td class="meta">
+						<#if s.skin.attachments?size gt 0>
+							<img src="${static!"static"}/images/icons/black/px22/ico-images-grey.png" alt="Has images"/>
 						</#if>
 					</td>
 				</tr>

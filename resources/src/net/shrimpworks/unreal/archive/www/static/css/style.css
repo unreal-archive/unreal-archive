@@ -332,6 +332,18 @@ table td, table th {
 	padding: 5px 0;
 }
 
+table tr td:first-child {
+	padding-left: 5px;
+}
+
+table tr td:last-child {
+	padding-right: 5px;
+}
+
+table td.meta {
+	text-align: right;
+}
+
 article .docs .title-image, article .content .title-image {
 	width: 200px;
 }

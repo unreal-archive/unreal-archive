@@ -23,14 +23,20 @@
 				<th>Name</th>
 				<th>Author</th>
 				<th>Maps</th>
+				<th> </th>
 			</tr>
 			</thead>
 			<tbody>
 				<#list page.packs as p>
-				<tr>
+				<tr class="${p?item_parity}">
 					<td><a href="${relUrl(root, p.path + ".html")}">${p.pack.name}</a></td>
 					<td>${p.pack.author}</td>
 					<td>${p.pack.maps?size}</td>
+					<td class="meta">
+						<#if p.pack.attachments?size gt 0>
+							<img src="${static!"static"}/images/icons/black/px22/ico-images-grey.png" alt="Has images"/>
+						</#if>
+					</td>
 				</tr>
 				</#list>
 			</tbody>

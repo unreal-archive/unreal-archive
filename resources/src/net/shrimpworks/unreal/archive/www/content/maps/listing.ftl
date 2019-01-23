@@ -31,6 +31,7 @@
 				<th>Title</th>
 				<th>Author</th>
 				<th>Players</th>
+				<th> </th>
 			</tr>
 			</thead>
 			<tbody>
@@ -40,6 +41,11 @@
 					<td>${m.map.title}</td>
 					<td>${m.map.author}</td>
 					<td>${m.map.playerCount}</td>
+					<td class="meta">
+						<#if m.map.attachments?size gt 0>
+							<img src="${static!"static"}/images/icons/black/px22/ico-images-grey.png" alt="Has images"/>
+						</#if>
+					</td>
 				</tr>
 				</#list>
 			</tbody>

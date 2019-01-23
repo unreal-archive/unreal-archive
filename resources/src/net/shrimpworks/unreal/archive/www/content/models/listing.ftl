@@ -28,6 +28,7 @@
 				<th>Model</th>
 				<th>Author</th>
 				<th>Info</th>
+				<th> </th>
 			</tr>
 			</thead>
 			<tbody>
@@ -42,6 +43,11 @@
 						</#if>
 						<#if m.model.skins?size gt 0>
 							${m.model.skins?size} skin<#if m.model.skins?size gt 1>s</#if>
+						</#if>
+					</td>
+					<td class="meta">
+						<#if m.model.attachments?size gt 0>
+							<img src="${static!"static"}/images/icons/black/px22/ico-images-grey.png" alt="Has images"/>
 						</#if>
 					</td>
 				</tr>
