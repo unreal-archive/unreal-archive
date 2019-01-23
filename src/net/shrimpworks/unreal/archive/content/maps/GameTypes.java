@@ -36,7 +36,11 @@ public class GameTypes {
 			new GameType("Flag Domination", "FD"),
 			new GameType("Soccer Tournament", "SCR"),
 			new GameType("Killing Floor", "KF"),
-			new GameType("AirFight", "AF")
+			new GameType("AirFight", "AF"),
+			new GameType("DeathBall", "DB"),
+			new GameType("Unreal Racer", "UNR"),
+			new GameType("Air Buccaneers", "ABU"),
+			new GameType("Clone Bandits", "CLN")
 	);
 
 	public static GameType forMap(String mapName) {
