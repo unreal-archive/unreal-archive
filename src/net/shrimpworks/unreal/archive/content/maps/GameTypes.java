@@ -40,7 +40,8 @@ public class GameTypes {
 			new GameType("DeathBall", "DB"),
 			new GameType("Unreal Racer", "UNR"),
 			new GameType("Air Buccaneers", "ABU"),
-			new GameType("Clone Bandits", "CLN")
+			new GameType("Clone Bandits", "CLN"),
+			new GameType("Red Orchestra", "RO")
 	);
 
 	public static GameType forMap(String mapName) {

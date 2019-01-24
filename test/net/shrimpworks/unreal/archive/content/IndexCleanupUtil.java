@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import net.shrimpworks.unreal.archive.content.mappacks.MapPack;
 import net.shrimpworks.unreal.archive.content.maps.GameTypes;
+import net.shrimpworks.unreal.archive.content.maps.Map;
 import net.shrimpworks.unreal.archive.storage.DataStore;
 
 import org.junit.Ignore;
@@ -127,6 +128,8 @@ public class IndexCleanupUtil {
 											   new DataStore.NopStore(), new DataStore.NopStore(), new DataStore.NopStore());
 		Collection<MapPack> search = cm.get(MapPack.class);
 		for (MapPack mp : search) {
+			if (!mp.gametype.equalsIgnoreCase("unknown")) continue;
+
 			MapPack mapPack = (MapPack)cm.checkout(mp.hash);
 
 			mapPack.gametype = UNKNOWN;
@@ -150,4 +153,22 @@ public class IndexCleanupUtil {
 		}
 	}
 
+	@Test
+	@Ignore
+	public void fixMapGametypes() throws IOException {
+		ContentManager cm = new ContentManager(Paths.get("unreal-archive-data/content/"),
+											   new DataStore.NopStore(), new DataStore.NopStore(), new DataStore.NopStore());
+		Collection<Content> search = cm.search(null, "MAP", "RO-", null);
+		for (Content c : search) {
+			if (c instanceof Map && ((Map)c).gametype.equalsIgnoreCase("unknown")) {
+				Map map = (Map)cm.checkout(c.hash);
+				map.gametype = "Red Orchestra";
+				if (cm.checkin(new IndexResult<>(map, Collections.emptySet()), null)) {
+					System.out.println("Stored changes for " + String.join(" / ", map.game, map.gametype, map.name));
+				} else {
+					System.out.println("Failed to apply");
+				}
+			}
+		}
+	}
 }
