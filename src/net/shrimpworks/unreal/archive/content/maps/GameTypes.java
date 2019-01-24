@@ -28,7 +28,7 @@ public class GameTypes {
 			new GameType("Tactical Ops", "SW"),
 			new GameType("Strike Force", "SF"),
 			new GameType("UnWheel", "UW"),
-			new GameType("Thievery", "TH"),
+			new GameType("Thievery", "TH-"),
 			new GameType("Unreal4Ever", "U4E"),
 			new GameType("Unreal Fortress", "UNF"),
 			new GameType("XMP", "XMP"),
