@@ -127,8 +127,11 @@ section.header h1 {
 	word-break: keep-all;
 	color: white;
 	text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
-	padding: 10px 0;
+	padding: 10px;
 	margin: auto 10px 0 0;
+	background-color: rgba(255, 255, 255, 0.4);
+	box-shadow: -1px -6px 10px -4px rgba(0,0,0,0.55);
+	border-radius: 5px 5px 0 0;
 }
 
 section.header h1 a {
