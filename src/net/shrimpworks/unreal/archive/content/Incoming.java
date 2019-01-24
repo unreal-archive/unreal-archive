@@ -42,6 +42,7 @@ public class Incoming implements Closeable {
 		PLAYER(true, "upl"),
 		INT(false, "int"),
 		INI(false, "ini"),
+		UCL(false, "ucl"),
 		UMOD(true, "umod", "ut2mod", "ut4mod"),
 		TEXT(false, "txt"),
 		HTML(false, "html", "htm"),
