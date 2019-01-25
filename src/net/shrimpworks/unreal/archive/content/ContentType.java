@@ -13,6 +13,7 @@ import net.shrimpworks.unreal.archive.content.models.Model;
 import net.shrimpworks.unreal.archive.content.models.ModelClassifier;
 import net.shrimpworks.unreal.archive.content.models.ModelIndexHandler;
 import net.shrimpworks.unreal.archive.content.mutators.Mutator;
+import net.shrimpworks.unreal.archive.content.mutators.MutatorClassifier;
 import net.shrimpworks.unreal.archive.content.skins.Skin;
 import net.shrimpworks.unreal.archive.content.skins.SkinClassifier;
 import net.shrimpworks.unreal.archive.content.skins.SkinIndexHandler;
@@ -26,7 +27,7 @@ public enum ContentType {
 	SKIN(new SkinClassifier(), new SkinIndexHandler.SkinIndexHandlerFactory(), Skin.class),
 	MODEL(new ModelClassifier(), new ModelIndexHandler.ModelIndexHandlerFactory(), Model.class),
 	VOICE(new VoiceClassifier(), new VoiceIndexHandler.ModelIndexHandlerFactory(), Voice.class),
-	MUTATOR(new Classifier.NoOpClassifier(), new IndexHandler.NoOpIndexHandlerFactory(), Mutator.class),
+	MUTATOR(new MutatorClassifier(), new IndexHandler.NoOpIndexHandlerFactory(), Mutator.class),
 	MOD(new Classifier.NoOpClassifier(), new IndexHandler.NoOpIndexHandlerFactory(), UnknownContent.class),
 	UNKNOWN(new Classifier.NoOpClassifier(), new IndexHandler.NoOpIndexHandlerFactory(), UnknownContent.class),
 	;

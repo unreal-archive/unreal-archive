@@ -270,10 +270,14 @@ public class IndexUtils {
 	}
 
 	public static Stream<IntFile> readIntFiles(Incoming incoming, Set<Incoming.IncomingFile> intFiles) {
+		return readIntFiles(incoming, intFiles, false);
+	}
+
+	public static Stream<IntFile> readIntFiles(Incoming incoming, Set<Incoming.IncomingFile> intFiles, boolean syntheticRoots) {
 		return intFiles.stream()
 					   .map(f -> {
 						   try {
-							   return new IntFile(f.asChannel());
+							   return new IntFile(f.asChannel(), syntheticRoots);
 						   } catch (IOException e) {
 							   incoming.log.log(IndexLog.EntryType.CONTINUE, "Couldn't load INT file " + f.fileName(), e);
 							   return null;

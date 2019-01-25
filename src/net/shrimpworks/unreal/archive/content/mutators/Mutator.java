@@ -31,7 +31,7 @@ public class Mutator extends Content {
 		String namePrefix = subGrouping();
 		return root.resolve(String.format(PATH_STRING,
 										  game,
-										  "Voices",
+										  "Mutators",
 										  namePrefix
 		));
 	}
