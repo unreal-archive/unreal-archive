@@ -78,22 +78,22 @@ public class VoiceClassifier implements Classifier {
 						  if (!(value instanceof IntFile.MapValue)) continue;
 						  IntFile.MapValue mapVal = (IntFile.MapValue)value;
 
-						  if (!mapVal.value.containsKey("MetaClass")) continue;
+						  if (!mapVal.containsKey("MetaClass")) continue;
 
 						  // exclude things which may indicate a mod or similar
-						  if (INVALID_CLASSES.contains(mapVal.value.get("MetaClass").toLowerCase())) {
+						  if (INVALID_CLASSES.contains(mapVal.get("MetaClass").toLowerCase())) {
 							  probablyNotAVoice[0] = true;
 							  return;
 						  }
 
 						  // UT2003/4 check
-						  if (mapVal.value.get("MetaClass").equalsIgnoreCase(Voice.UT2_VOICE_CLASS)) {
+						  if (mapVal.get("MetaClass").equalsIgnoreCase(Voice.UT2_VOICE_CLASS)) {
 							  seemsToBeAVoice[0] = true;
 							  return;
 						  }
 
 						  // UT check
-						  if (Voice.UT_VOICE_MATCH.matcher(mapVal.value.get("MetaClass")).matches()) {
+						  if (Voice.UT_VOICE_MATCH.matcher(mapVal.get("MetaClass")).matches()) {
 							  seemsToBeAVoice[0] = true;
 							  return;
 						  }

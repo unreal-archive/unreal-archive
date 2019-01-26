@@ -77,15 +77,15 @@ public class ModelClassifier implements Classifier {
 						  IntFile.MapValue mapVal = (IntFile.MapValue)value;
 
 						  // exclude things which may indicate a mod or similar
-						  if (INVALID_CLASSES.contains(mapVal.value.getOrDefault("MetaClass", "").toLowerCase())) {
+						  if (INVALID_CLASSES.contains(mapVal.getOrDefault("MetaClass", "").toLowerCase())) {
 							  probablyNotAModel[0] = true;
 							  return;
 						  }
 
-						  if (mapVal.value.containsKey("Name")
-							  && mapVal.value.containsKey("MetaClass")
-							  && mapVal.value.containsKey("Description")
-							  && mapVal.value.get("MetaClass").equalsIgnoreCase(Model.UT_PLAYER_CLASS)) {
+						  if (mapVal.containsKey("Name")
+							  && mapVal.containsKey("MetaClass")
+							  && mapVal.containsKey("Description")
+							  && mapVal.get("MetaClass").equalsIgnoreCase(Model.UT_PLAYER_CLASS)) {
 
 							  seemsToBeAModel[0] = true;
 							  return;

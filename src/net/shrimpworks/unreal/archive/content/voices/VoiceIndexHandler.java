@@ -83,13 +83,13 @@ public class VoiceIndexHandler implements IndexHandler<Voice> {
 							 for (IntFile.Value value : objects.values) {
 								 IntFile.MapValue mapVal = (IntFile.MapValue)value;
 
-								 if (!mapVal.value.containsKey("MetaClass")) return null;
+								 if (!mapVal.containsKey("MetaClass")) return null;
 
-								 String[] voiceClass = mapVal.value.getOrDefault("Name", "Package.Unknown").split("\\.");
+								 String[] voiceClass = mapVal.getOrDefault("Name", "Package.Unknown").split("\\.");
 								 String maybeName = voiceClass[1];
 
 								 // UT2003/4 check
-								 if (mapVal.value.get("MetaClass").equalsIgnoreCase(Voice.UT2_VOICE_CLASS)) {
+								 if (mapVal.get("MetaClass").equalsIgnoreCase(Voice.UT2_VOICE_CLASS)) {
 									 // try to get name from named section in int file
 									 IntFile.Section nameSection = intFile.section(maybeName);
 									 if (nameSection != null) {
@@ -100,8 +100,8 @@ public class VoiceIndexHandler implements IndexHandler<Voice> {
 									 }
 
 									 return maybeName;
-								 } else if (Voice.UT_VOICE_MATCH.matcher(mapVal.value.get("MetaClass")).matches()) {
-									 return mapVal.value.getOrDefault("Description", maybeName);
+								 } else if (Voice.UT_VOICE_MATCH.matcher(mapVal.get("MetaClass")).matches()) {
+									 return mapVal.getOrDefault("Description", maybeName);
 								 }
 							 }
 							 return null;

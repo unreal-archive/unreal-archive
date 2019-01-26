@@ -53,28 +53,28 @@ public class SkinIndexHandler implements IndexHandler<Skin> {
 
 		if (!incoming.files(Incoming.FileType.PLAYER).isEmpty()) {
 			playerDescriptors(incoming).forEach(p -> {
-				if (p.value.containsKey("DefaultName")) {
-					if (s.name == null || s.name.equals(origName)) s.name = p.value.get("DefaultName");
-					s.skins.add(p.value.get("DefaultName").trim());
+				if (p.containsKey("DefaultName")) {
+					if (s.name == null || s.name.equals(origName)) s.name = p.get("DefaultName");
+					s.skins.add(p.get("DefaultName").trim());
 				}
 			});
 		} else {
 			// find skin via .int files
 			skinDescriptors(incoming).forEach(d -> {
 				if (s.game.equals("Unreal")) {
-					Matcher nameMatch = Skin.NAME_MATCH_UNREAL.matcher(d.value.get("Name"));
+					Matcher nameMatch = Skin.NAME_MATCH_UNREAL.matcher(d.get("Name"));
 					if (nameMatch.matches()) {
 						if (s.name == null || s.name.equals(origName)) s.name = nameMatch.group(1).trim();
 						s.skins.add(nameMatch.group(1).trim());
 					}
 				} else {
-					if (d.value.containsKey("Description") && Skin.NAME_MATCH.matcher(d.value.get("Name")).matches()) {
-						if (s.name == null || s.name.equals(origName)) s.name = d.value.get("Description");
-						s.skins.add(d.value.get("Description").trim());
-					} else if (Skin.TEAM_MATCH.matcher(d.value.get("Name")).matches()) {
+					if (d.containsKey("Description") && Skin.NAME_MATCH.matcher(d.get("Name")).matches()) {
+						if (s.name == null || s.name.equals(origName)) s.name = d.get("Description");
+						s.skins.add(d.get("Description").trim());
+					} else if (Skin.TEAM_MATCH.matcher(d.get("Name")).matches()) {
 						s.teamSkins = true;
-					} else if (d.value.containsKey("Description") && Skin.FACE_MATCH.matcher(d.value.get("Name")).matches()) {
-						s.faces.add(d.value.get("Description"));
+					} else if (d.containsKey("Description") && Skin.FACE_MATCH.matcher(d.get("Name")).matches()) {
+						s.faces.add(d.get("Description"));
 					}
 				}
 			});
@@ -105,9 +105,9 @@ public class SkinIndexHandler implements IndexHandler<Skin> {
 		if (!incoming.files(Incoming.FileType.PLAYER).isEmpty()) {
 			// find from UT2003/4 UPL "Portrait" property
 			playerDescriptors(incoming).forEach(d -> {
-				if (d.value.containsKey("Portrait")) {
+				if (d.containsKey("Portrait")) {
 					try {
-						String[] pkgTex = d.value.get("Portrait").split("\\.");
+						String[] pkgTex = d.get("Portrait").split("\\.");
 						Package pkg = IndexUtils.findPackage(incoming, pkgTex[0]);
 
 						ExportedObject e = pkg.objectByName(new Name(pkgTex[1], 0));
@@ -124,7 +124,7 @@ public class SkinIndexHandler implements IndexHandler<Skin> {
 		} else {
 			// look up portraits from skin descriptors
 			skinDescriptors(incoming).forEach(d -> {
-				Matcher faceMatch = Skin.FACE_PORTRAIT_MATCH.matcher(d.value.get("Name"));
+				Matcher faceMatch = Skin.FACE_PORTRAIT_MATCH.matcher(d.get("Name"));
 				if (faceMatch.matches()) {
 					try {
 						String pkgName = faceMatch.group(1);
@@ -157,9 +157,9 @@ public class SkinIndexHandler implements IndexHandler<Skin> {
 							 IntFile.ListValue objects = section.asList("Object");
 							 for (IntFile.Value value : objects.values) {
 								 if (value instanceof IntFile.MapValue
-									 && ((IntFile.MapValue)value).value.containsKey("Name")
-									 && ((IntFile.MapValue)value).value.containsKey("Class")
-									 && ((IntFile.MapValue)value).value.get("Class").equalsIgnoreCase("Texture")) {
+									 && ((IntFile.MapValue)value).containsKey("Name")
+									 && ((IntFile.MapValue)value).containsKey("Class")
+									 && ((IntFile.MapValue)value).get("Class").equalsIgnoreCase("Texture")) {
 
 									 vals.add((IntFile.MapValue)value);
 								 }
@@ -191,7 +191,7 @@ public class SkinIndexHandler implements IndexHandler<Skin> {
 						   IntFile.ListValue objects = section.asList("Player");
 						   for (IntFile.Value value : objects.values) {
 							   if (value instanceof IntFile.MapValue
-								   && ((IntFile.MapValue)value).value.containsKey("DefaultName")) {
+								   && ((IntFile.MapValue)value).containsKey("DefaultName")) {
 
 								   vals.add((IntFile.MapValue)value);
 							   }

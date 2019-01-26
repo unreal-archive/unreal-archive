@@ -285,4 +285,18 @@ public class IndexUtils {
 					   });
 	}
 
+	public static String friendlyName(String name) {
+		// Cool_name_bro -> Cool Name Bro
+		// cool-name-bro -> Cool Name Bro
+
+		String[] words = name.replaceAll("([-_.])", " ").trim().split("\\s");
+		String[] res = new String[words.length];
+
+		for (int i = 0; i < words.length; i++) {
+			if (words[i].length() == 1) res[i] = words[i];
+			else res[i] = Character.toUpperCase(words[i].charAt(0)) + words[i].substring(1);
+		}
+
+		return String.join(" ", res);
+	}
 }

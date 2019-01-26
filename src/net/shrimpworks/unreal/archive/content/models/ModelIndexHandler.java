@@ -45,29 +45,29 @@ public class ModelIndexHandler implements IndexHandler<Model> {
 			Set<String> meshes = new HashSet<>();
 
 			SkinIndexHandler.playerDescriptors(incoming).forEach(p -> {
-				if (p.value.containsKey("DefaultName")) {
-					if (p.value.containsKey("Mesh") && !meshes.contains(p.value.get("Mesh").trim())) {
-						m.models.add(p.value.get("DefaultName").trim());
-						meshes.add(p.value.get("Mesh").trim());
+				if (p.containsKey("DefaultName")) {
+					if (p.containsKey("Mesh") && !meshes.contains(p.get("Mesh").trim())) {
+						m.models.add(p.get("DefaultName").trim());
+						meshes.add(p.get("Mesh").trim());
 					}
 
-					if (m.name == null || m.name.equals(origName)) m.name = p.value.get("DefaultName");
-					m.skins.add(p.value.get("DefaultName").trim());
+					if (m.name == null || m.name.equals(origName)) m.name = p.get("DefaultName");
+					m.skins.add(p.get("DefaultName").trim());
 				}
 			});
 		} else {
 			// find model and skin information via .int files
 			modelDescriptors(incoming).forEach(d -> {
-				if (d.value.containsKey("Description") && Model.NAME_MATCH.matcher(d.value.get("Name")).matches()) {
-					if (m.name == null || m.name.equals(origName)) m.name = d.value.get("Description");
-					m.models.add(d.value.get("Description").trim());
+				if (d.containsKey("Description") && Model.NAME_MATCH.matcher(d.get("Name")).matches()) {
+					if (m.name == null || m.name.equals(origName)) m.name = d.get("Description");
+					m.models.add(d.get("Description").trim());
 				}
 			});
 
 			SkinIndexHandler.skinDescriptors(incoming).forEach(d -> {
-				if (d.value.containsKey("Description") && Model.NAME_MATCH.matcher(d.value.get("Name")).matches()) {
-					if (m.name == null || m.name.equals(origName)) m.name = d.value.get("Description");
-					m.skins.add(d.value.get("Description").trim());
+				if (d.containsKey("Description") && Model.NAME_MATCH.matcher(d.get("Name")).matches()) {
+					if (m.name == null || m.name.equals(origName)) m.name = d.get("Description");
+					m.skins.add(d.get("Description").trim());
 				}
 			});
 		}
@@ -112,10 +112,10 @@ public class ModelIndexHandler implements IndexHandler<Model> {
 							 IntFile.ListValue objects = section.asList("Object");
 							 for (IntFile.Value value : objects.values) {
 								 if (value instanceof IntFile.MapValue
-									 && ((IntFile.MapValue)value).value.containsKey("Name")
-									 && ((IntFile.MapValue)value).value.containsKey("MetaClass")
-									 && ((IntFile.MapValue)value).value.containsKey("Description")
-									 && ((IntFile.MapValue)value).value.get("MetaClass").equalsIgnoreCase(Model.UT_PLAYER_CLASS)) {
+									 && ((IntFile.MapValue)value).containsKey("Name")
+									 && ((IntFile.MapValue)value).containsKey("MetaClass")
+									 && ((IntFile.MapValue)value).containsKey("Description")
+									 && ((IntFile.MapValue)value).get("MetaClass").equalsIgnoreCase(Model.UT_PLAYER_CLASS)) {
 
 									 vals.add((IntFile.MapValue)value);
 								 }

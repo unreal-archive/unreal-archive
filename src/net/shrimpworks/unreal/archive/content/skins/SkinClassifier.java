@@ -63,12 +63,12 @@ public class SkinClassifier implements Classifier {
 					  IntFile.ListValue objects = section.asList("Object");
 					  for (IntFile.Value value : objects.values) {
 						  if (value instanceof IntFile.MapValue
-							  && ((IntFile.MapValue)value).value.containsKey("Name")
-							  && ((IntFile.MapValue)value).value.containsKey("Class")
-							  && ((IntFile.MapValue)value).value.containsKey("Description")
-							  && ((IntFile.MapValue)value).value.get("Class").equalsIgnoreCase("Texture")) {
+							  && ((IntFile.MapValue)value).containsKey("Name")
+							  && ((IntFile.MapValue)value).containsKey("Class")
+							  && ((IntFile.MapValue)value).containsKey("Description")
+							  && ((IntFile.MapValue)value).get("Class").equalsIgnoreCase("Texture")) {
 
-							  Matcher m = Skin.NAME_MATCH.matcher(((IntFile.MapValue)value).value.get("Name"));
+							  Matcher m = Skin.NAME_MATCH.matcher(((IntFile.MapValue)value).get("Name"));
 							  if (m.matches()) {
 								  seemsToBeASkin[0] = true;
 								  return;
@@ -94,12 +94,12 @@ public class SkinClassifier implements Classifier {
 					  IntFile.ListValue objects = section.asList("Object");
 					  for (IntFile.Value value : objects.values) {
 						  if (value instanceof IntFile.MapValue
-							  && (!((IntFile.MapValue)value).value.containsKey("Description"))
-							  && ((IntFile.MapValue)value).value.containsKey("Name")
-							  && ((IntFile.MapValue)value).value.containsKey("Class")
-							  && ((IntFile.MapValue)value).value.get("Class").equalsIgnoreCase("Texture")) {
+							  && (!((IntFile.MapValue)value).containsKey("Description"))
+							  && ((IntFile.MapValue)value).containsKey("Name")
+							  && ((IntFile.MapValue)value).containsKey("Class")
+							  && ((IntFile.MapValue)value).get("Class").equalsIgnoreCase("Texture")) {
 
-							  Matcher m = Skin.NAME_MATCH_UNREAL.matcher(((IntFile.MapValue)value).value.get("Name"));
+							  Matcher m = Skin.NAME_MATCH_UNREAL.matcher(((IntFile.MapValue)value).get("Name"));
 							  if (m.matches()) {
 								  seemsToBeASkin[0] = true;
 								  return;

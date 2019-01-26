@@ -45,7 +45,7 @@ public class MapPackIndexHandler implements IndexHandler<MapPack> {
 			return;
 		}
 
-		m.name = packName(m.name);
+		m.name = IndexUtils.friendlyName(m.name);
 
 		boolean gameOverride = false;
 		if (incoming.submission.override.get("game", null) != null) {
@@ -154,21 +154,6 @@ public class MapPackIndexHandler implements IndexHandler<MapPack> {
 		if (incoming.fileName().toLowerCase().endsWith(".un2")) return "Unreal 2";
 
 		return IndexUtils.UNKNOWN;
-	}
-
-	private String packName(String name) {
-		// Cool_name_bro -> Cool Name Bro
-		// cool-name-bro -> Cool Name Bro
-
-		String[] words = name.replaceAll("([-_.])", " ").trim().split("\\s");
-		String[] res = new String[words.length];
-
-		for (int i = 0; i < words.length; i++) {
-			if (words[i].length() == 1) res[i] = words[i];
-			else res[i] = Character.toUpperCase(words[i].charAt(0)) + words[i].substring(1);
-		}
-
-		return String.join(" ", res);
 	}
 
 	private Package map(Incoming.IncomingFile file) {
