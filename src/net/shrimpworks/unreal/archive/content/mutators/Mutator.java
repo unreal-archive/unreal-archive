@@ -1,5 +1,6 @@
 package net.shrimpworks.unreal.archive.content.mutators;
 
+import java.beans.ConstructorProperties;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,10 +19,10 @@ public class Mutator extends Content {
 
 	static final String UT2_KEYBINDINGS_CLASS = "Xinterface.GUIUserKeyBinding";
 
-	public List<String> mutators = new ArrayList<>(); // mutators contained within the package
+	public List<NameDescription> mutators = new ArrayList<>(); // mutators contained within the package
 
-	public List<String> weapons = new ArrayList<>();  // weapons contained within the package
-	public List<String> vehicles = new ArrayList<>(); // vehicles contained within the package
+	public List<NameDescription> weapons = new ArrayList<>();  // weapons contained within the package
+	public List<NameDescription> vehicles = new ArrayList<>(); // vehicles contained within the package
 
 	public boolean config = false;                    // if the mutator has any custom config menus
 	public boolean keybinds = false;                  // if the mutator has custom key bindings
@@ -34,5 +35,16 @@ public class Mutator extends Content {
 										  "Mutators",
 										  namePrefix
 		));
+	}
+
+	public static class NameDescription {
+		public final String name;
+		public final String description;
+
+		@ConstructorProperties({"name", "description"})
+		public NameDescription(String name, String description) {
+			this.name = name;
+			this.description = description;
+		}
 	}
 }
