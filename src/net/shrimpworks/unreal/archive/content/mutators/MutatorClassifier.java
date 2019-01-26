@@ -76,15 +76,15 @@ public class MutatorClassifier implements Classifier {
 						  if (!(value instanceof IntFile.MapValue)) continue;
 						  IntFile.MapValue mapVal = (IntFile.MapValue)value;
 
-						  if (!mapVal.value.containsKey("MetaClass")) continue;
+						  if (!mapVal.containsKey("MetaClass")) continue;
 
 						  // exclude things which may indicate a mod or similar
-						  if (INVALID_CLASSES.stream().anyMatch(s -> mapVal.value.get("MetaClass").toLowerCase().contains(s))) {
+						  if (INVALID_CLASSES.stream().anyMatch(s -> mapVal.get("MetaClass").toLowerCase().contains(s))) {
 							  probablyNotAMutator[0] = true;
 							  return;
 						  }
 
-						  if (Mutator.UT_MUTATOR_CLASS.equalsIgnoreCase(mapVal.value.get("MetaClass"))) {
+						  if (Mutator.UT_MUTATOR_CLASS.equalsIgnoreCase(mapVal.get("MetaClass"))) {
 							  seemsToBeAMutator[0] = true;
 							  return;
 						  }
