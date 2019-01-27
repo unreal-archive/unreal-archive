@@ -41,14 +41,17 @@ public class MutatorIndexHandler implements IndexHandler<Mutator> {
 
 		if (!uclFiles.isEmpty()) {
 			// find mutator information via .ucl files (mutator names, descriptions, weapons and vehicles)
-
+			readUclFiles(incoming, m, uclFiles, intFiles);
 		} else if (!intFiles.isEmpty()) {
 			// find mutator information via .int files (weapon names, menus, keybindings)
 			readIntFiles(incoming, m, intFiles);
 		}
 
 		// if there's only one mutator, rename package to that
-		if (m.mutators.size() == 1) m.name = m.mutators.get(0).name;
+		if (m.mutators.size() == 1) {
+			m.name = m.mutators.get(0).name;
+			m.description = m.mutators.get(0).description;
+		}
 
 		try {
 			if (m.releaseDate != null && m.releaseDate.compareTo(IndexUtils.RELEASE_UT99) < 0) m.game = "Unreal";
@@ -85,8 +88,70 @@ public class MutatorIndexHandler implements IndexHandler<Mutator> {
 		return IndexUtils.game(incoming.files(Incoming.FileType.PACKAGES));
 	}
 
+	private void readUclFiles(
+			Incoming incoming, Mutator mutator, Set<Incoming.IncomingFile> uclFiles, Set<Incoming.IncomingFile> intFiles) {
+		// search ucl files for objects describing a mutator and related things
+		IndexUtils.readIntFiles(incoming, uclFiles, true)
+				  .filter(Objects::nonNull)
+				  .forEach(intFile -> {
+					  IntFile.Section section = intFile.section("root");
+					  if (section == null) return;
+
+					  // read mutators
+					  IntFile.ListValue mutators = section.asList("Mutator");
+					  for (IntFile.Value value : mutators.values) {
+						  if (!(value instanceof IntFile.MapValue)) continue;
+						  IntFile.MapValue mapVal = (IntFile.MapValue)value;
+						  if (mapVal.containsKey("FallbackName")) {
+							  mutator.mutators.add(new Mutator.NameDescription(mapVal.get("FallbackName"),
+																			   mapVal.getOrDefault("FallbackDesc", "")));
+						  }
+					  }
+
+					  // read weapons
+					  IntFile.ListValue weapons = section.asList("Weapon");
+					  for (IntFile.Value value : weapons.values) {
+						  if (!(value instanceof IntFile.MapValue)) continue;
+						  IntFile.MapValue mapVal = (IntFile.MapValue)value;
+						  if (mapVal.containsKey("FallbackName")) {
+							  mutator.weapons.add(new Mutator.NameDescription(mapVal.get("FallbackName"),
+																			  mapVal.getOrDefault("FallbackDesc", "")));
+						  }
+					  }
+
+					  // read vehicles
+					  IntFile.ListValue vehicles = section.asList("Vehicle");
+					  for (IntFile.Value value : vehicles.values) {
+						  if (!(value instanceof IntFile.MapValue)) continue;
+						  IntFile.MapValue mapVal = (IntFile.MapValue)value;
+						  if (mapVal.containsKey("FallbackName")) {
+							  mutator.vehicles.add(new Mutator.NameDescription(mapVal.get("FallbackName"),
+																			   mapVal.getOrDefault("FallbackDesc", "")));
+						  }
+					  }
+				  });
+
+		// find other information not exposed by ucl files
+		IndexUtils.readIntFiles(incoming, intFiles)
+				  .filter(Objects::nonNull)
+				  .forEach(intFile -> {
+					  IntFile.Section section = intFile.section("public");
+					  if (section == null) return;
+
+					  IntFile.ListValue objects = section.asList("Object");
+					  for (IntFile.Value value : objects.values) {
+						  if (!(value instanceof IntFile.MapValue)) continue;
+						  IntFile.MapValue mapVal = (IntFile.MapValue)value;
+
+						  if (mapVal.containsKey("MetaClass") && Mutator.UT2_KEYBINDINGS_CLASS.equalsIgnoreCase(mapVal.get("MetaClass"))) {
+							  mutator.hasKeybinds = true;
+						  }
+					  }
+				  });
+	}
+
 	private void readIntFiles(Incoming incoming, Mutator mutator, Set<Incoming.IncomingFile> intFiles) {
-		// search int files for objects describing a skin
+		// search int files for objects describing a mutator and related things
 		IndexUtils.readIntFiles(incoming, intFiles)
 				  .filter(Objects::nonNull)
 				  .forEach(intFile -> {
