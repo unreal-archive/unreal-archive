@@ -88,12 +88,11 @@ public class ModelClassifier implements Classifier {
 							  && mapVal.get("MetaClass").equalsIgnoreCase(Model.UT_PLAYER_CLASS)) {
 
 							  seemsToBeAModel[0] = true;
-							  return;
 						  }
 					  }
 				  });
 
-		return seemsToBeAModel[0];
+		return !probablyNotAModel[0] && seemsToBeAModel[0];
 	}
 
 	private boolean ut2004Model(Incoming incoming, Set<Incoming.IncomingFile> playerFiles) {

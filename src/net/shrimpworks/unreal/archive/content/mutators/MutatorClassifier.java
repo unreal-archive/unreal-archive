@@ -86,12 +86,11 @@ public class MutatorClassifier implements Classifier {
 
 						  if (Mutator.UT_MUTATOR_CLASS.equalsIgnoreCase(mapVal.get("MetaClass"))) {
 							  seemsToBeAMutator[0] = true;
-							  return;
 						  }
 					  }
 				  });
 
-		return seemsToBeAMutator[0];
+		return !probablyNotAMutator[0] && seemsToBeAMutator[0];
 	}
 
 	private boolean checkUT2004Mutator(Incoming incoming, Set<Incoming.IncomingFile> uclFiles) {
@@ -118,6 +117,6 @@ public class MutatorClassifier implements Classifier {
 					  }
 				  });
 
-		return seemsToBeAMutator[0];
+		return !probablyNotAMutator[0] && seemsToBeAMutator[0];
 	}
 }

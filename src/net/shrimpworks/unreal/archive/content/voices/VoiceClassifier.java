@@ -95,12 +95,11 @@ public class VoiceClassifier implements Classifier {
 						  // UT check
 						  if (Voice.UT_VOICE_MATCH.matcher(mapVal.get("MetaClass")).matches()) {
 							  seemsToBeAVoice[0] = true;
-							  return;
 						  }
 					  }
 				  });
 
-		return seemsToBeAVoice[0];
+		return !probablyNotAVoice[0] && seemsToBeAVoice[0];
 	}
 
 }
