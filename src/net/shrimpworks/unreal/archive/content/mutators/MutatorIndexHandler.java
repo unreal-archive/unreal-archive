@@ -74,12 +74,7 @@ public class MutatorIndexHandler implements IndexHandler<Mutator> {
 			log.log(IndexLog.EntryType.CONTINUE, "Failed to save images", e);
 		}
 
-		try {
-			System.out.println(YAML.toString(m));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		//completed.accept(new IndexResult<>(m, attachments));
+		completed.accept(new IndexResult<>(m, attachments));
 	}
 
 	private String game(Incoming incoming) throws IOException {

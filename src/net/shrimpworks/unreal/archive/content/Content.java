@@ -16,6 +16,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import net.shrimpworks.unreal.archive.content.mappacks.MapPack;
 import net.shrimpworks.unreal.archive.content.maps.Map;
 import net.shrimpworks.unreal.archive.content.models.Model;
+import net.shrimpworks.unreal.archive.content.mutators.Mutator;
 import net.shrimpworks.unreal.archive.content.skins.Skin;
 import net.shrimpworks.unreal.archive.content.voices.Voice;
 
@@ -27,6 +28,7 @@ import net.shrimpworks.unreal.archive.content.voices.Voice;
 		@JsonSubTypes.Type(value = Skin.class, name = "SKIN"),
 		@JsonSubTypes.Type(value = Model.class, name = "MODEL"),
 		@JsonSubTypes.Type(value = Voice.class, name = "VOICE"),
+		@JsonSubTypes.Type(value = Mutator.class, name = "MUTATOR"),
 		@JsonSubTypes.Type(value = UnknownContent.class, name = "UNKNOWN")
 })
 public abstract class Content implements Comparable<Content> {
