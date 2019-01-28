@@ -8,7 +8,7 @@
 </#if>
 
 	<@heading bg=[headerbg]>
-		<a href="${siteRoot}/index.html">Articles & Guides</a>
+		<a href="${siteRoot}/index.html">Patches & Updates</a>
 		<#list groupPath as p>
 			/ <a href="${relUrl(siteRoot, p.path)}/index.html">${p.name}</a>
 		</#list>

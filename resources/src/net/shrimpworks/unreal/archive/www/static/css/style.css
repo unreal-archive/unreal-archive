@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css?family=Passion+One|Abel|Open+Sans');
+@import url('https://fonts.googleapis.com/css?family=Passion+One|Abel|Sarabun');
 
 html {
 	height: 100%;
@@ -6,9 +6,7 @@ html {
 }
 
 /* footer-bottom hax */
-*,
-*:before,
-*:after {
+body, body:before, body:after {
 	box-sizing: inherit;
 }
 
@@ -28,6 +26,15 @@ body {
 h1, h2 {
 	font-family: 'Passion One', serif;
 	font-weight: normal;
+	margin: 10px auto;
+}
+
+h1 {
+	font-size: 2.5em;
+}
+
+h2 {
+	font-size: 1.75em;
 }
 
 .page {
@@ -51,13 +58,6 @@ footer {
 	bottom: 0;
 	left: 0;
 	right: 0;
-}
-
-header div.page {
-	/*display: grid;*/
-	/*grid-template-columns: 100px auto;*/
-	/*grid-template-areas: 'img h1';*/
-	/*height: 100%;*/
 }
 
 header h1 {
@@ -87,21 +87,13 @@ header img {
 }
 
 .readable {
-	font-family: 'Open Sans', sans-serif;
+	font-family: 'Sarabun', sans-serif;
 	font-size: 1.0em;
 }
 
 .readable h1, .readable h2 {
 	background: none;
 	padding: 0;
-}
-
-.readable h1 {
-	font-size: 2em;
-}
-
-.readable h2 {
-	font-size: 1.75em;
 }
 
 section.intro h1 {
