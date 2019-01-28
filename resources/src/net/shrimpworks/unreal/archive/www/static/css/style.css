@@ -293,7 +293,7 @@ article section h2 {
 
 .label-value label {
 	display: inline-block;
-	width: calc(25% - 10px);
+	width: calc(30% - 10px);
 	padding-right: 10px;
 	text-align: right;
 	vertical-align: top;
@@ -301,7 +301,7 @@ article section h2 {
 
 .label-value span {
 	display: inline-block;
-	width: 75%;
+	width: 70%;
 	font-weight: bold;
 }
 
