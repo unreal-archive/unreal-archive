@@ -358,7 +358,7 @@ article.document {
 
 article.document .meta {
 	float: right;
-	max-width: 420px;
+	width: 400px;
 	margin: 0 0 10px 10px;
 	border: 1px solid #dee3e9;
 	background-color: #eeeeee;
