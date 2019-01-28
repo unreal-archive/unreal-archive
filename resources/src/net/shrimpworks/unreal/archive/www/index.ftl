@@ -53,8 +53,8 @@
 			<a href="#">Game Types</a>
 		</li>
 		<li>
-			<span class="meta">coming soon</span>
-			<a href="#">Mutators</a>
+			<span class="meta">${count.Mutator!"0"}</span>
+			<a href="mutators/index.html">Mutators</a>
 		</li>
 		<li style='background-image: url("${static}/images/contents/models.png")'>
 			<span class="meta">${count.Model!"0"}</span>

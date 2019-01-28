@@ -305,6 +305,11 @@ article section h2 {
 	font-weight: bold;
 }
 
+.mini-detail {
+	font-weight: normal;
+	font-style: italic;
+}
+
 table {
 	width: 100%;
 	border-collapse: collapse;

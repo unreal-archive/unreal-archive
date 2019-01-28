@@ -41,11 +41,6 @@ public class Skins extends ContentPageGenerator {
 	public int generate() {
 		int count = 0;
 		try {
-			// url structure:
-			// landing with games: /skins/index.html
-			// game pages: /skins/game/a/1.html
-			// skin page: /skins/game/a/1/name_hash8.html
-
 			Templates.template("content/skins/games.ftl")
 					 .put("static", root.relativize(staticRoot))
 					 .put("title", "Skins")
@@ -55,16 +50,7 @@ public class Skins extends ContentPageGenerator {
 			count++;
 
 			for (java.util.Map.Entry<String, Game> g : games.games.entrySet()) {
-//				Templates.template("skins/gametypes.ftl")
-//						 .put("static", root.resolve(g.getValue().path).relativize(staticRoot))
-//						 .put("title", String.join(" / ", "Skins", g.getKey()))
-//						 .put("game", g.getValue())
-//						 .put("siteRoot", root.resolve(g.getValue().path).relativize(root))
-//						 .write(root.resolve(g.getValue().path).resolve("index.html"));
-//				count++;
-
 				if (g.getValue().skins < Templates.PAGE_SIZE) {
-					// we can output all maps on a single page
 					List<SkinInfo> all = g.getValue().letters.values().stream()
 															 .flatMap(l -> l.pages.stream())
 															 .flatMap(e -> e.skins.stream())
