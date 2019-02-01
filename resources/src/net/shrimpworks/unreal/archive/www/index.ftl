@@ -36,7 +36,7 @@
 			<span class="meta">${count.Documents}</span>
 			<a href="documents/index.html">Guides &amp; Articles</a>
 		</li>
-		<li>
+		<li style='background-image: url("${static}/images/contents/patches.png")'>
 			<span class="meta">${count.Updates}</span>
 			<a href="patches-updates/index.html">Patches & Updates</a>
 		</li>
