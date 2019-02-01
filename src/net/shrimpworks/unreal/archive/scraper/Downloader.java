@@ -103,7 +103,7 @@ public class Downloader {
 				}
 			}
 
-			Files.copy(httpResponse.getEntity().getContent(), outFile, StandardCopyOption.REPLACE_EXISTING);
+			httpResponse.getEntity().writeTo(Files.newOutputStream(outFile, StandardOpenOption.CREATE, StandardOpenOption.WRITE));
 
 			Submission sub = new Submission(outFile, url.pageUrl);
 			Files.write(ymlFile, YAML.toString(sub).getBytes(StandardCharsets.UTF_8),
