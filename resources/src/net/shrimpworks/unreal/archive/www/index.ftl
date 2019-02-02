@@ -32,7 +32,7 @@
 
 <@content class="biglist">
 	<ul>
-		<li>
+		<li style='background-image: url("${static}/images/contents/documents.png")'>
 			<span class="meta">${count.Documents}</span>
 			<a href="documents/index.html">Guides &amp; Articles</a>
 		</li>
