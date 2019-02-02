@@ -64,7 +64,7 @@
 			<span class="meta">${count.Skin!"0"}</span>
 			<a href="skins/index.html">Skins</a>
 		</li>
-		<li>
+		<li style='background-image: url("${static}/images/contents/voices.png")'>
 			<span class="meta">${count.Voice!"0"}</span>
 			<a href="voices/index.html">Voices</a>
 		</li>
