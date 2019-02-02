@@ -1,7 +1,7 @@
 <#include "../_header.ftl">
 <#include "../macros.ftl">
 
-	<@heading>
+	<@heading bg=["${static}/images/contents/patches.png"]>
 		<a href="${siteRoot}/index.html">Patches & Updates</a>
 		<#list groupPath as p>
 			/ <a href="${relUrl(siteRoot, p.path)}/index.html">${p.name}</a>

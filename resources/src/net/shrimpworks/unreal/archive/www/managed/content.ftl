@@ -1,7 +1,7 @@
 <#include "../_header.ftl">
 <#include "../macros.ftl">
 
-<#assign headerbg>${static!"static"}/images/none-managed.png</#assign>
+<#assign headerbg>${static!"static"}/images/contents/patches.png</#assign>
 
 <#if managed.managed.titleImage??>
 	<#assign headerbg>${managed.managed.titleImage}</#assign>

@@ -1,7 +1,7 @@
 <#include "../_header.ftl">
 <#include "../macros.ftl">
 
-	<#assign headerbg>${static!"static"}/images/none-document.png</#assign>
+	<#assign headerbg>${static!"static"}/images/contents/documents.png</#assign>
 
 	<#if document.document.titleImage??>
 		<#assign headerbg>${document.document.titleImage}</#assign>
