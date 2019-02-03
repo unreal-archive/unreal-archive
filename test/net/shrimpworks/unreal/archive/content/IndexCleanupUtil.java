@@ -1,13 +1,23 @@
 package net.shrimpworks.unreal.archive.content;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import net.shrimpworks.unreal.archive.Util;
+import net.shrimpworks.unreal.archive.YAML;
 import net.shrimpworks.unreal.archive.content.mappacks.MapPack;
 import net.shrimpworks.unreal.archive.content.maps.GameTypes;
 import net.shrimpworks.unreal.archive.content.maps.Map;
@@ -170,5 +180,33 @@ public class IndexCleanupUtil {
 				}
 			}
 		}
+	}
+
+	@Test
+	@Ignore
+	public void addMedorLinks() throws IOException {
+		Path root = Paths.get("/home/shrimp/tmp/files/UnrealTournament/Voices/Scraped/Medor/");
+		String path = "Voices/%s";
+		String url = "http://medor.no-ip.org/index.php?dir=%s&file=%s";
+
+		Files.walkFileTree(root, new SimpleFileVisitor<Path>() {
+
+			@Override
+			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+				if (Indexer.INCLUDE_TYPES.contains(Util.extension(file).toLowerCase())) {
+					Path rel = root.relativize(file.getParent());
+
+					String fullPath = String.format(path, URLEncoder.encode(rel.toString(), StandardCharsets.UTF_8.name()));
+					String fullUrl = String.format(url, fullPath, URLEncoder.encode(Util.fileName(file), StandardCharsets.UTF_8.name()));
+
+					Submission sub = new Submission(file, fullUrl);
+					Files.write(Paths.get(file.toString() + ".yml"), YAML.toString(sub).getBytes(StandardCharsets.UTF_8));
+
+					System.out.println(fullUrl);
+				}
+
+				return FileVisitResult.CONTINUE;
+			}
+		});
 	}
 }
