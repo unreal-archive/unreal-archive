@@ -1,7 +1,6 @@
 package net.shrimpworks.unreal.archive.content;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
