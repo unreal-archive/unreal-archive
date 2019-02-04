@@ -28,12 +28,12 @@ public class Mutators extends ContentPageGenerator {
 		this.games = new Games();
 
 		content.get(Mutator.class).stream()
-			   .filter(s -> !s.deleted)
-			   .filter(s -> s.variationOf == null || s.variationOf.isEmpty())
+			   .filter(m -> !m.deleted)
+			   .filter(m -> m.variationOf == null || m.variationOf.isEmpty())
 			   .sorted()
-			   .forEach(s -> {
-				   Game g = games.games.computeIfAbsent(s.game, Game::new);
-				   g.add(s);
+			   .forEach(m -> {
+				   Game g = games.games.computeIfAbsent(m.game, Game::new);
+				   g.add(m);
 			   });
 
 	}
@@ -105,7 +105,7 @@ public class Mutators extends ContentPageGenerator {
 				// output first letter/page combo, with appropriate relative links
 				Templates.template("content/mutators/listing.ftl")
 						 .put("static", root.resolve(g.getValue().path).relativize(staticRoot))
-						 .put("title", String.join(" / ", "Sutators", g.getKey()))
+						 .put("title", String.join(" / ", "Mutators", g.getKey()))
 						 .put("page", g.getValue().letters.firstEntry().getValue().pages.get(0))
 						 .put("root", g.getValue().path)
 						 .put("siteRoot", root.resolve(g.getValue().path).relativize(root))
@@ -241,7 +241,7 @@ public class Mutators extends ContentPageGenerator {
 			}
 
 			this.variations = content.variationsOf(s.hash).stream()
-									 .filter(p -> p instanceof Skin)
+									 .filter(p -> p instanceof Mutator)
 									 .map(p -> new MutatorInfo(page, (Mutator)p))
 									 .sorted()
 									 .collect(Collectors.toList());

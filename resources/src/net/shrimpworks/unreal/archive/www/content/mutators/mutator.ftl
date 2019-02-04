@@ -13,7 +13,7 @@
 	</#list>
 
 	<@heading bg=[headerbg]>
-			<a href="${siteRoot}/index.html">Skins</a>
+			<a href="${siteRoot}/index.html">Mutators</a>
 			/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
 			/ ${mutator.mutator.name}
 	</@heading>
