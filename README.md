@@ -10,7 +10,7 @@ and Unreal Tournament 2003/4 content.
   2. ~~support skins~~
   3. ~~support models~~
   4. ~~support voice packs~~
-  5. support mutators
+  5. ~~support mutators~~
   6. support mods/gametypes
 - ~~Metadata is to be stored in YAML format, with a format and file structure
   appropriate to each content type~~
@@ -28,7 +28,7 @@ and Unreal Tournament 2003/4 content.
   - ~~Skins~~
   - ~~Models~~
   - ~~Voice Packs~~
-  - Mutators
+  - ~~Mutators~~
   - Mods and Gametypes
   - ~~Documents and Articles~~
   - ~~Support for mirroring images so as to make offline use and mirrors feasible
@@ -90,8 +90,9 @@ parallel behaviour is not quite worth the refactoring time.
 - Archive (zip, 7z, rar, self-extracting, etc), or Umod
 - Multiple `.unr` or `.ut2` files present
 - May contain `.utx`, `.umx`, `.ogg` and other package content
-- No `.u` or `.int` files should be present, as these could indicate the 
-  content of a mod or gametype, which also contain maultiple maps
+- No `.int`, `.ucl` or `.upl` files should be present, as these could 
+  indicate the content of a mod or gametype, which also contain maultiple 
+  maps
 
 ### Skins
 
@@ -114,6 +115,14 @@ parallel behaviour is not quite worth the refactoring time.
   - One or more `.upl` files present
   - One or more `.ukx` (animation) files present
 - No other content
+
+### Voices
+
+- TODO notes
+
+### Mutators
+
+- TODO notes
 
 ### Mods and Gametypes
 
