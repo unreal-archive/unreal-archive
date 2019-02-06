@@ -302,9 +302,11 @@ public class Main {
 		Path yaml = Files.write(Files.createTempFile(content.hash, ".yml"), YAML.toString(content).getBytes(StandardCharsets.UTF_8),
 								StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 
+		String editor = System.getenv().getOrDefault("UA_EDITOR", "sensible-editor");
+
 		FileTime fileTime = Files.getLastModifiedTime(yaml);
-		Process editor = new ProcessBuilder("sensible-editor", yaml.toString()).inheritIO().start();
-		int res = editor.waitFor();
+		Process editorProcess = new ProcessBuilder(editor, yaml.toString()).inheritIO().start();
+		int res = editorProcess.waitFor();
 		if (res == 0) {
 			if (!fileTime.equals(Files.getLastModifiedTime(yaml))) {
 				Content updated = YAML.fromFile(yaml, Content.class);
