@@ -42,15 +42,15 @@ import net.shrimpworks.unreal.archive.scraper.UTTexture;
 import net.shrimpworks.unreal.archive.scraper.UnrealPlayground;
 import net.shrimpworks.unreal.archive.storage.DataStore;
 import net.shrimpworks.unreal.archive.www.Documents;
-import net.shrimpworks.unreal.archive.www.content.FileDetails;
 import net.shrimpworks.unreal.archive.www.Index;
 import net.shrimpworks.unreal.archive.www.ManagedContent;
+import net.shrimpworks.unreal.archive.www.Templates;
+import net.shrimpworks.unreal.archive.www.content.FileDetails;
 import net.shrimpworks.unreal.archive.www.content.MapPacks;
 import net.shrimpworks.unreal.archive.www.content.Maps;
 import net.shrimpworks.unreal.archive.www.content.Models;
 import net.shrimpworks.unreal.archive.www.content.Mutators;
 import net.shrimpworks.unreal.archive.www.content.Skins;
-import net.shrimpworks.unreal.archive.www.Templates;
 import net.shrimpworks.unreal.archive.www.content.Voices;
 import net.shrimpworks.unreal.packages.Umod;
 
@@ -111,21 +111,7 @@ public class Main {
 		System.exit(0);
 	}
 
-	private static void sync(CLI cli) throws IOException {
-		ManagedContentManager managedContent = managedContent(cli, cli.commands()[1]);
-
-		final DataStore contentStore = store(DataStore.StoreContent.CONTENT, cli);
-		Set<Managed> synced = managedContent.sync(contentStore);
-
-		if (synced.isEmpty()) {
-			System.out.println("No files were synced.");
-		} else {
-			System.out.printf("Synced %d files:%n", synced.size());
-			synced.forEach(m -> System.out.printf(" - %s%n", m.title));
-		}
-	}
-
-	private static ContentManager contentManager(CLI cli) throws IOException {
+	private static Path contentPath(CLI cli) {
 		if (cli.option("content-path", null) == null) {
 			System.err.println("content-path must be specified!");
 			System.exit(2);
@@ -136,6 +122,24 @@ public class Main {
 			System.err.println("content-path must be a directory!");
 			System.exit(3);
 		}
+
+		return contentPath;
+	}
+
+	private static Path[] cliPaths(CLI cli, int fromOffset) {
+		return Arrays.stream(cli.commands(), fromOffset, cli.commands().length)
+					 .map(s -> Paths.get(s))
+					 .peek(p -> {
+						 if (!Files.exists(p)) {
+							 System.err.println("Input path does not exist: " + p.toString());
+							 System.exit(4);
+						 }
+					 })
+					 .toArray(Path[]::new);
+	}
+
+	private static ContentManager contentManager(CLI cli) throws IOException {
+		Path contentPath = contentPath(cli);
 
 		final DataStore imageStore = store(DataStore.StoreContent.IMAGES, cli);
 		final DataStore attachmentStore = store(DataStore.StoreContent.ATTACHMENTS, cli);
@@ -163,16 +167,7 @@ public class Main {
 	}
 
 	private static DocumentManager documentManager(CLI cli) throws IOException {
-		if (cli.option("content-path", null) == null) {
-			System.err.println("content-path must be specified!");
-			System.exit(2);
-		}
-
-		Path contentPath = Paths.get(cli.option("content-path", null));
-		if (!Files.isDirectory(contentPath)) {
-			System.err.println("content-path must be a directory!");
-			System.exit(3);
-		}
+		Path contentPath = contentPath(cli);
 
 		final long start = System.currentTimeMillis();
 		final DocumentManager documentManager = new DocumentManager(contentPath.resolve(DOCUMENTS_DIR));
@@ -183,16 +178,7 @@ public class Main {
 	}
 
 	private static ManagedContentManager managedContent(CLI cli, String group) throws IOException {
-		if (cli.option("content-path", null) == null) {
-			System.err.println("content-path must be specified!");
-			System.exit(2);
-		}
-
-		Path contentPath = Paths.get(cli.option("content-path", null));
-		if (!Files.isDirectory(contentPath)) {
-			System.err.println("content-path must be a directory!");
-			System.exit(3);
-		}
+		Path contentPath = contentPath(cli);
 
 		Path managedPath = contentPath.resolve(group);
 		if (!Files.isDirectory(managedPath)) {
@@ -206,6 +192,20 @@ public class Main {
 						  group, managedContentManager.size(), (System.currentTimeMillis() - start) / 1000f);
 
 		return managedContentManager;
+	}
+
+	private static void sync(CLI cli) throws IOException {
+		ManagedContentManager managedContent = managedContent(cli, cli.commands()[1]);
+
+		final DataStore contentStore = store(DataStore.StoreContent.CONTENT, cli);
+		Set<Managed> synced = managedContent.sync(contentStore);
+
+		if (synced.isEmpty()) {
+			System.out.println("No files were synced.");
+		} else {
+			System.out.printf("Synced %d files:%n", synced.size());
+			synced.forEach(m -> System.out.printf(" - %s%n", m.title));
+		}
 	}
 
 	private static DataStore store(DataStore.StoreContent contentType, CLI cli) {
@@ -252,15 +252,7 @@ public class Main {
 				paths = inPaths.toArray(new Path[0]);
 			}
 		} else {
-			paths = Arrays.stream(cli.commands(), 1, cli.commands().length)
-						  .map(s -> Paths.get(s))
-						  .peek(p -> {
-							  if (!Files.exists(p)) {
-								  System.err.println("Input path does not exist: " + p.toString());
-								  System.exit(4);
-							  }
-						  })
-						  .toArray(Path[]::new);
+			paths = cliPaths(cli, 1);
 		}
 
 		indexer.index(force, forceType, paths);
@@ -274,15 +266,7 @@ public class Main {
 
 		Scanner scanner = new Scanner(contentManager, cli);
 
-		Path[] paths = Arrays.stream(cli.commands(), 1, cli.commands().length)
-							 .map(s -> Paths.get(s))
-							 .peek(p -> {
-								 if (!Files.exists(p)) {
-									 System.err.println("Input path does not exist: " + p.toString());
-									 System.exit(4);
-								 }
-							 })
-							 .toArray(Path[]::new);
+		Path[] paths = cliPaths(cli, 1);
 
 		scanner.scan(paths);
 	}
