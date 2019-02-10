@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.FileTime;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -21,6 +22,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+
+import org.apache.http.client.fluent.Request;
 
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.ContentManager;
@@ -58,6 +61,10 @@ public class Main {
 
 	private static final String CONTENT_DIR = "content";
 	private static final String DOCUMENTS_DIR = "documents";
+
+	private static final Path TMP = Paths.get(System.getProperty("java.io.tmpdir"));
+	private static final String CONTENT_URL = System.getenv().getOrDefault("UA_CONTENT_URL",
+																		   "http://localhost/~shrimp/unreal-archive-data.zip");
 
 	public static void main(String[] args) throws IOException, InterruptedException {
 		final CLI cli = CLI.parse(Collections.emptyMap(), args);
@@ -111,10 +118,45 @@ public class Main {
 		System.exit(0);
 	}
 
-	private static Path contentPath(CLI cli) {
+	private static String userPrompt(String prompt, String defaultValue) {
+		System.out.println(prompt);
+		System.out.print("> ");
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
+			String in = reader.readLine().trim();
+			if (in.isEmpty()) return defaultValue;
+			else return in;
+		} catch (IOException e) {
+			System.err.println("Failed to read user input: " + e.toString());
+			System.exit(254);
+		}
+		return defaultValue;
+	}
+
+	private static Path contentPath(CLI cli) throws IOException {
 		if (cli.option("content-path", null) == null) {
-			System.err.println("content-path must be specified!");
-			System.exit(2);
+			String opt = userPrompt(
+					"content-path not specified. download and use read-only content data? [Y/n]",
+					"y"
+			).toLowerCase();
+			if (opt.equalsIgnoreCase("y")) {
+				Path tmpPath = TMP.resolve("ua-tmp");
+				if (!Files.exists(tmpPath) || !Files.isDirectory(tmpPath)) {
+					Files.createDirectories(tmpPath);
+					Path tmpFile = tmpPath.resolve("archive.zip");
+					System.out.printf("Downloading archive from %s%n...", CONTENT_URL);
+					Request.Get(Util.toUriString(CONTENT_URL)).execute().saveContent(tmpFile.toFile());
+					try {
+						ArchiveUtil.extract(tmpFile, tmpPath, Duration.ofMinutes(1));
+					} catch (Throwable e) {
+						throw new IOException("Failed to extract downloaded content archive", e);
+					}
+				}
+
+				cli.putOption("content-path", tmpPath.toString());
+			} else {
+				System.err.println("content-path must be specified!");
+				System.exit(2);
+			}
 		}
 
 		Path contentPath = Paths.get(cli.option("content-path", null));

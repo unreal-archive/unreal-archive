@@ -60,11 +60,16 @@ public class CLI {
 			}
 		}
 
-		return new CLI(commands.toArray(new String[0]), Collections.unmodifiableMap(props));
+		return new CLI(commands.toArray(new String[0]), props);
 	}
 
 	public String option(String key, String defaultValue) {
 		return options.getOrDefault(key, defaultValue);
+	}
+
+	public void putOption(String key, String value) {
+
+		options.put(key, value);
 	}
 
 	public String[] commands() {
