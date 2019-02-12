@@ -23,7 +23,7 @@
 	<div class="page">
 		<h1>
 			<a href="${static}/../index.html">
-				<img src="${static!"static"}/images/logo.png"/>
+				<img src="${static!"static"}/images/logo.png" alt="Unreal Archive"/>
 				<span class="a">UNREAL</span><span class="b">ARCHIVE</span>
 			</a>
 		</h1>
