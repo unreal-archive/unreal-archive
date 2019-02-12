@@ -7,6 +7,8 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 
+import net.shrimpworks.unreal.archive.Util;
+
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
@@ -29,5 +31,11 @@ public class TemplatesTest {
 		});
 
 		assertTrue(foundCss[0]);
+	}
+
+	@Test
+	public void urlHax() {
+		String url = "https://f002.backblazeb2.com/file/unreal-archive-images/Unreal Tournament/Skins/M/Marine+_shot_37.png";
+		System.out.println(Util.toUriString(url));
 	}
 }

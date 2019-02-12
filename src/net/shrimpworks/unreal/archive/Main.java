@@ -7,6 +7,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -19,11 +20,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-
-import org.apache.http.client.fluent.Request;
 
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.ContentManager;
@@ -64,7 +64,7 @@ public class Main {
 
 	private static final Path TMP = Paths.get(System.getProperty("java.io.tmpdir"));
 	private static final String CONTENT_URL = System.getenv().getOrDefault("UA_CONTENT_URL",
-																		   "http://localhost/~shrimp/unreal-archive-data.zip");
+																		   "https://github.com/unreal-archive/unreal-archive-data/archive/master.zip");
 
 	public static void main(String[] args) throws IOException, InterruptedException {
 		final CLI cli = CLI.parse(Collections.emptyMap(), args);
@@ -134,17 +134,15 @@ public class Main {
 
 	private static Path contentPath(CLI cli) throws IOException {
 		if (cli.option("content-path", null) == null) {
-			String opt = userPrompt(
-					"content-path not specified. download and use read-only content data? [Y/n]",
-					"y"
-			).toLowerCase();
+			final String opt = userPrompt("content-path not specified. Download and use read-only content data? [Y/n]", "y").toLowerCase();
 			if (opt.equalsIgnoreCase("y")) {
 				Path tmpPath = TMP.resolve("ua-tmp");
 				if (!Files.exists(tmpPath) || !Files.isDirectory(tmpPath)) {
 					Files.createDirectories(tmpPath);
 					Path tmpFile = tmpPath.resolve("archive.zip");
-					System.out.printf("Downloading archive from %s%n...", CONTENT_URL);
-					Request.Get(Util.toUriString(CONTENT_URL)).execute().saveContent(tmpFile.toFile());
+					System.out.printf("Downloading archive from %s... ", CONTENT_URL);
+					Util.downloadTo(Util.toUriString(CONTENT_URL), tmpFile);
+					System.out.println("Done");
 					try {
 						ArchiveUtil.extract(tmpFile, tmpPath, Duration.ofMinutes(1));
 					} catch (Throwable e) {
@@ -152,7 +150,13 @@ public class Main {
 					}
 				}
 
-				cli.putOption("content-path", tmpPath.toString());
+				// find the content directory within the extracted stuff
+				Optional<Path> contentParent = Files.walk(tmpPath, 3, FileVisitOption.FOLLOW_LINKS)
+													.filter(p -> Files.isDirectory(p) && p.getFileName().toString().equals(CONTENT_DIR))
+													.map(Path::getParent)
+													.findFirst();
+
+				cli.putOption("content-path", contentParent.orElseThrow(IllegalArgumentException::new).toString());
 			} else {
 				System.err.println("content-path must be specified!");
 				System.exit(2);

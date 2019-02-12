@@ -77,13 +77,13 @@ public abstract class ContentPageGenerator implements PageGenerator {
 				Path outPath = imgPath.resolve(hashName);
 
 				// only download if it doesn't already exist locally
-				if (!Files.exists(outPath)) Request.Get(Util.toUriString(img.url)).execute().saveContent(outPath.toFile());
+				if (!Files.exists(outPath)) Util.downloadTo(Util.toUriString(img.url), outPath);
 
 				// replace the actual attachment with the local copy
 				content.attachments.remove(img);
 				content.attachments.add(new Content.Attachment(img.type, img.name, localPath.relativize(outPath).toString()));
-			} catch (HttpResponseException e) {
-				System.err.printf("\rFailed to download image %s: %d %s%n", img.name, e.getStatusCode(), e.getMessage());
+//			} catch (HttpResponseException e) {
+//				System.err.printf("\rFailed to download image %s: %d %s%n", img.name, e.getStatusCode(), e.getMessage());
 			} catch (Throwable t) {
 				System.err.printf("\rFailed to download image %s: %s%n", img.name, t.toString());
 			}

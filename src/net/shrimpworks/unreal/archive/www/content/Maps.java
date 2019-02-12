@@ -55,6 +55,7 @@ public class Maps extends ContentPageGenerator {
 			Templates.template("content/maps/games.ftl")
 					 .put("static", root.relativize(staticRoot))
 					 .put("title", "Maps")
+					 .put("description", String.format("Custom maps for %s", String.join(", ", games.games.keySet())))
 					 .put("games", games)
 					 .put("siteRoot", root)
 					 .write(root.resolve("index.html"));
@@ -64,6 +65,7 @@ public class Maps extends ContentPageGenerator {
 				Templates.template("content/maps/gametypes.ftl")
 						 .put("static", root.resolve(g.getValue().path).relativize(staticRoot))
 						 .put("title", String.join(" / ", "Maps", g.getKey()))
+						 .put("description", String.format("Custom %s maps grouped by game types and mods", g.getKey()))
 						 .put("game", g.getValue())
 						 .put("siteRoot", root.resolve(g.getValue().path).relativize(root))
 						 .write(root.resolve(g.getValue().path).resolve("index.html"));
@@ -81,6 +83,7 @@ public class Maps extends ContentPageGenerator {
 						Templates.template("content/maps/listing_single.ftl")
 								 .put("static", root.resolve(gt.getValue().path).relativize(staticRoot))
 								 .put("title", String.join(" / ", "Maps", g.getKey(), gt.getKey()))
+								 .put("description", String.format("%s maps for %s", gt.getKey(), g.getKey()))
 								 .put("gametype", gt.getValue())
 								 .put("maps", all)
 								 .put("siteRoot", root.resolve(gt.getValue().path).relativize(root))
@@ -102,6 +105,7 @@ public class Maps extends ContentPageGenerator {
 							Templates.template("content/maps/listing.ftl")
 									 .put("static", root.resolve(p.path).relativize(staticRoot))
 									 .put("title", String.join(" / ", "Maps", g.getKey(), gt.getKey()))
+									 .put("description", String.format("%s maps for %s", gt.getKey(), g.getKey()))
 									 .put("page", p)
 									 .put("root", p.path)
 									 .put("siteRoot", root.resolve(p.path).relativize(root))
@@ -118,6 +122,7 @@ public class Maps extends ContentPageGenerator {
 						Templates.template("content/maps/listing.ftl")
 								 .put("static", root.resolve(l.getValue().path).relativize(staticRoot))
 								 .put("title", String.join(" / ", "Maps", g.getKey(), gt.getKey()))
+								 .put("description", String.format("%s maps for %s", gt.getKey(), g.getKey()))
 								 .put("page", l.getValue().pages.get(0))
 								 .put("root", l.getValue().path)
 								 .put("siteRoot", root.resolve(l.getValue().path).relativize(root))
@@ -130,6 +135,7 @@ public class Maps extends ContentPageGenerator {
 					Templates.template("content/maps/listing.ftl")
 							 .put("static", root.resolve(gt.getValue().path).relativize(staticRoot))
 							 .put("title", String.join(" / ", "Maps", g.getKey(), gt.getKey()))
+							 .put("description", String.format("%s maps for %s", gt.getKey(), g.getKey()))
 							 .put("page", gt.getValue().letters.firstEntry().getValue().pages.get(0))
 							 .put("root", gt.getValue().path)
 							 .put("siteRoot", root.resolve(gt.getValue().path).relativize(root))
@@ -151,6 +157,9 @@ public class Maps extends ContentPageGenerator {
 		Templates.template("content/maps/map.ftl")
 				 .put("static", root.resolve(map.path).getParent().relativize(staticRoot))
 				 .put("title", String.join(" / ", "Maps", map.page.letter.gametype.game.name, map.page.letter.gametype.name, map.map.title))
+				 .put("description", String.format("%s map for %s, for %s players, by author %s",
+												   map.page.letter.gametype.name, map.page.letter.gametype.game.name,
+												   map.map.playerCount, map.map.author))
 				 .put("map", map)
 				 .put("siteRoot", root.resolve(map.path).getParent().relativize(root))
 				 .write(root.resolve(map.path + ".html"));

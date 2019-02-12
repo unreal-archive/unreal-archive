@@ -47,6 +47,7 @@ public class MapPacks extends ContentPageGenerator {
 			Templates.template("content/mappacks/games.ftl")
 					 .put("static", root.relativize(staticRoot))
 					 .put("title", SECTION)
+					 .put("description", String.format("Custom map packs for %s", String.join(", ", games.games.keySet())))
 					 .put("games", games)
 					 .put("siteRoot", root)
 					 .write(root.resolve("index.html"));
@@ -56,6 +57,7 @@ public class MapPacks extends ContentPageGenerator {
 				Templates.template("content/mappacks/gametypes.ftl")
 						 .put("static", root.resolve(g.getValue().path).relativize(staticRoot))
 						 .put("title", String.join(" / ", SECTION, g.getKey()))
+						 .put("description", String.format("Custom %s map packs grouped by game types and mods", g.getKey()))
 						 .put("game", g.getValue())
 						 .put("siteRoot", root.resolve(g.getValue().path).relativize(root))
 						 .write(root.resolve(g.getValue().path).resolve("index.html"));
@@ -72,6 +74,7 @@ public class MapPacks extends ContentPageGenerator {
 						Templates.template("content/mappacks/listing_single.ftl")
 								 .put("static", root.resolve(gt.getValue().path).relativize(staticRoot))
 								 .put("title", String.join(" / ", SECTION, g.getKey(), gt.getKey()))
+								 .put("description", String.format("%s map packs for %s", gt.getKey(), g.getKey()))
 								 .put("gametype", gt.getValue())
 								 .put("packs", all)
 								 .put("siteRoot", root.resolve(gt.getValue().path).relativize(root))
@@ -91,6 +94,7 @@ public class MapPacks extends ContentPageGenerator {
 						Templates.template("content/mappacks/listing.ftl")
 								 .put("static", root.resolve(p.path).relativize(staticRoot))
 								 .put("title", String.join(" / ", SECTION, g.getKey(), gt.getKey()))
+								 .put("description", String.format("%s map packs for %s", gt.getKey(), g.getKey()))
 								 .put("page", p)
 								 .put("root", p.path)
 								 .put("siteRoot", root.resolve(p.path).relativize(root))
@@ -107,6 +111,7 @@ public class MapPacks extends ContentPageGenerator {
 					Templates.template("content/mappacks/listing.ftl")
 							 .put("static", root.resolve(gt.getValue().path).relativize(staticRoot))
 							 .put("title", String.join(" / ", SECTION, g.getKey(), gt.getKey()))
+							 .put("description", String.format("%s map packs for %s", gt.getKey(), g.getKey()))
 							 .put("page", gt.getValue().pages.get(0))
 							 .put("root", gt.getValue().path)
 							 .put("siteRoot", root.resolve(gt.getValue().path).relativize(root))
@@ -129,6 +134,9 @@ public class MapPacks extends ContentPageGenerator {
 		Templates.template("content/mappacks/mappack.ftl")
 				 .put("static", root.resolve(pack.path).getParent().relativize(staticRoot))
 				 .put("title", String.join(" / ", SECTION, pack.page.gametype.game.name, pack.page.gametype.name, pack.pack.name))
+				 .put("description", String.format("%s map pack for %s, with %s maps by author %s",
+												   pack.page.gametype.name, pack.page.gametype.game.name, pack.pack.maps.size(),
+												   pack.pack.author))
 				 .put("pack", pack)
 				 .put("siteRoot", root.resolve(pack.path).getParent().relativize(root))
 				 .write(root.resolve(pack.path + ".html"));

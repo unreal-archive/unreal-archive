@@ -1,12 +1,14 @@
 package net.shrimpworks.unreal.archive;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
@@ -127,6 +129,25 @@ public final class Util {
 	public static String toUriString(String s) {
 		return toUri(s).toString()
 					   .replaceAll("\\+", "%2B")
+					   .replaceAll("#", "%23")
+					   .replaceAll(",", "%2C")
 					   .replaceAll("&", "%26");
+	}
+
+	public static Path downloadTo(String url, Path output) throws IOException {
+		URL urlConnection = new URL(url);
+		HttpURLConnection httpConn = (HttpURLConnection)urlConnection.openConnection();
+		int responseCode = httpConn.getResponseCode();
+
+		// always check HTTP response code first
+		if (responseCode == HttpURLConnection.HTTP_OK) {
+			// opens input stream from the HTTP connection
+			Files.copy(httpConn.getInputStream(), output);
+		} else {
+			throw new IOException(responseCode + " Failed to download url " + url);
+		}
+		httpConn.disconnect();
+
+		return output;
 	}
 }

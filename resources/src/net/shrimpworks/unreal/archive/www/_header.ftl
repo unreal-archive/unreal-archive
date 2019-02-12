@@ -11,6 +11,10 @@
 	<link rel="icon" type="image/png" sizes="16x16" href="${static!"static"}/images/logo-16.png">
 
 	<link rel="favicon" type="image/png" href="${static!"static"}/images/logo-32.png">
+
+	<#if description??>
+		<meta name="description" content="${description?replace("\"", "&quot;")}">
+	</#if>
 </head>
 
 <body>
