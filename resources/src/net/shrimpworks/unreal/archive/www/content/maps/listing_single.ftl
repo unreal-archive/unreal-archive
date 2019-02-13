@@ -1,6 +1,6 @@
 <#assign game=gametype.game>
 
-<#assign ogDescription="${gametype.name} maps for ${game.name}, created by ${map.map.author}">
+<#assign ogDescription="${gametype.name} maps for ${game.name}">
 <#assign ogImage="${static}/images/gametypes/${game.name}/${gametype.name}.png">
 
 <#include "../../_header.ftl">
