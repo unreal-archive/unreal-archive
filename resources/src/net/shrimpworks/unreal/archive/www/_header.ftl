@@ -18,11 +18,17 @@
 	<#if ogDescription??>
 		<meta name="description" content="${ogDescription?replace("\"", "&quot;")}">
 		<meta property="og:description" content="${ogDescription?replace("\"", "&quot;")}">
+	<#else>
+		<meta name="description" content="Downloads and guides for maps, mutators, skins, voices, models and mods, for Unreal, Unreal Tournament, and Unreal Tournament 2004">
+		<meta property="og:description" content="Downloads and guides for maps, mutators, skins, voices, models and mods, for Unreal, Unreal Tournament, and Unreal Tournament 2004">
 	</#if>
 
 	<#if ogImage??>
 		<meta property="og:image" content="${ogImage}">
+	<#else>
+		<meta property="og:image" content="${static!"static"}/images/logo-32.png">
 	</#if>
+
 	<meta property="og:type" content="website">
 </head>
 
