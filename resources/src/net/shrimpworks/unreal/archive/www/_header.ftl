@@ -12,9 +12,19 @@
 
 	<link rel="favicon" type="image/png" href="${static!"static"}/images/logo-32.png">
 
-	<#if description??>
-		<meta name="description" content="${description?replace("\"", "&quot;")}">
+	<meta property="og:title" content="${title}">
+	<meta property="og:ste_name" content="${siteName}">
+
+	<#if ogDescription??>
+		<meta name="description" content="${ogDescription?replace("\"", "&quot;")}">
+		<meta property="og:description" content="${ogDescription?replace("\"", "&quot;")}">
 	</#if>
+
+	<#if ogImage??>
+		<meta property="og:image" content="${ogImage}">
+	</#if>
+	<#--<meta property="og:url" content="">-->
+	<meta property="og:type" content="website">
 </head>
 
 <body>

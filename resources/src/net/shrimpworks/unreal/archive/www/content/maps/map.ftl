@@ -1,3 +1,18 @@
+<#assign game=map.page.letter.gametype.game>
+<#assign gametype=map.page.letter.gametype>
+
+<#assign headerbg>${static}/images/games/${game.name}.png</#assign>
+
+<#list map.map.attachments as a>
+	<#if a.type == "IMAGE">
+		<#assign headerbg=urlEncode(a.url)>
+		<#break>
+	</#if>
+</#list>
+
+<#assign ogDescription="${map.map.name}, a ${map.map.playerCount} player ${gametype.name} map for ${game.name}, created by ${map.map.author}">
+<#assign ogImage=headerbg>
+
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
 

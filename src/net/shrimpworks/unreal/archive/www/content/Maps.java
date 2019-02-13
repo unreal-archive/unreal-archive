@@ -157,9 +157,6 @@ public class Maps extends ContentPageGenerator {
 		Templates.template("content/maps/map.ftl")
 				 .put("static", root.resolve(map.path).getParent().relativize(staticRoot))
 				 .put("title", String.join(" / ", "Maps", map.page.letter.gametype.game.name, map.page.letter.gametype.name, map.map.title))
-				 .put("description", String.format("%s map for %s, for %s players, by author %s",
-												   map.page.letter.gametype.name, map.page.letter.gametype.game.name,
-												   map.map.playerCount, map.map.author))
 				 .put("map", map)
 				 .put("siteRoot", root.resolve(map.path).getParent().relativize(root))
 				 .write(root.resolve(map.path + ".html"));
