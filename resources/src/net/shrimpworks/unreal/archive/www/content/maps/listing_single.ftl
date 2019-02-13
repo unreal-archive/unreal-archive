@@ -1,7 +1,10 @@
+<#assign game=gametype.game>
+
+<#assign ogDescription="${gametype.name} maps for ${game.name}, created by ${map.map.author}">
+<#assign ogImage="${static}/images/gametypes/${game.name}/${gametype.name}.png">
+
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
-
-	<#assign game=gametype.game>
 
 	<@heading bg=["${static}/images/gametypes/${game.name}/${gametype.name}.png", "${static}/images/games/${game.name}.png"]>
 		<a href="${siteRoot}/index.html">Maps</a>

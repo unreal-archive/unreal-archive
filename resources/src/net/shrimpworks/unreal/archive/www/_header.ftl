@@ -23,7 +23,6 @@
 	<#if ogImage??>
 		<meta property="og:image" content="${ogImage}">
 	</#if>
-	<#--<meta property="og:url" content="">-->
 	<meta property="og:type" content="website">
 </head>
 
