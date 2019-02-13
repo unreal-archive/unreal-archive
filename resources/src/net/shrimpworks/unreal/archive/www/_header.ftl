@@ -13,7 +13,7 @@
 	<link rel="favicon" type="image/png" href="${static!"static"}/images/logo-32.png">
 
 	<meta property="og:title" content="${title}">
-	<meta property="og:ste_name" content="${siteName}">
+	<meta property="og:ste_name" content="${siteName} / ${title}">
 
 	<#if ogDescription??>
 		<meta name="description" content="${ogDescription?replace("\"", "&quot;")}">
