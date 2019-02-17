@@ -16,18 +16,6 @@
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
 
-	<#assign game=map.page.letter.gametype.game>
-	<#assign gametype=map.page.letter.gametype>
-
-	<#assign headerbg>${staticPath(static)}/images/games/${game.name}.png</#assign>
-
-	<#list map.map.attachments as a>
-		<#if a.type == "IMAGE">
-			<#assign headerbg=urlEncode(a.url)>
-			<#break>
-		</#if>
-	</#list>
-
 	<@heading bg=[headerbg]>
 		<a href="${siteRoot}/index.html">Maps</a>
 		/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>

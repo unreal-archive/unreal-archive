@@ -1,3 +1,6 @@
+<#assign ogDescription="Custom map packs for Unreal, Unreal Tournament, and Unreal Tournament 2004 and their mods">
+<#assign ogImage="${staticPath(static)}/images/contents/maps.png">
+
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
 

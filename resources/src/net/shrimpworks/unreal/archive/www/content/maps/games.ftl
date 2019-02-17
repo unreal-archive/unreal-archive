@@ -1,4 +1,4 @@
-<#assign ogDescription="Custom maps for Unreal, Unreal Tournament, and Unreal Tournament 2004 and mods">
+<#assign ogDescription="Custom maps for Unreal, Unreal Tournament, and Unreal Tournament 2004 and their mods">
 <#assign ogImage="${staticPath(static)}/images/contents/maps.png">
 
 <#include "../../_header.ftl">

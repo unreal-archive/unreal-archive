@@ -1,17 +1,20 @@
+<#assign game=pack.page.gametype.game>
+<#assign gametype=pack.page.gametype>
+
+<#assign headerbg>${staticPath(static)}/images/games/${game.name}.png</#assign>
+
+<#list pack.pack.attachments as a>
+	<#if a.type == "IMAGE">
+		<#assign headerbg=urlEncode(a.url)>
+		<#break>
+	</#if>
+</#list>
+
+<#assign ogDescription="${pack.pack.name}, a ${gametype.name} map pack for ${game.name} containing ${pack.pack.maps?size} maps, created by ${pack.pack.author}">
+<#assign ogImage=headerbg>
+
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
-
-	<#assign game=pack.page.gametype.game>
-	<#assign gametype=pack.page.gametype>
-
-	<#assign headerbg>${staticPath(static)}/images/games/${game.name}.png</#assign>
-
-	<#list pack.pack.attachments as a>
-		<#if a.type == "IMAGE">
-			<#assign headerbg=urlEncode(a.url)>
-			<#break>
-		</#if>
-	</#list>
 
 	<@heading bg=[headerbg]>
 		<a href="${siteRoot}/index.html">Map Packs</a>
