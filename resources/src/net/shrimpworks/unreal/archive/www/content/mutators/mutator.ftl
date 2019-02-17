@@ -1,16 +1,25 @@
+<#assign game=mutator.page.letter.game>
+
+<#assign headerbg>${staticPath(static)}/images/games/${game.name}.png</#assign>
+
+<#list mutator.mutator.attachments as a>
+	<#if a.type == "IMAGE">
+		<#assign headerbg=urlEncode(a.url)>
+		<#break>
+	</#if>
+</#list>
+
+<#if mutator.mutator.weapons?size gt 0>
+	<#assign weaponString="weapon">
+<#else>
+	<#assign weaponString="">
+</#if>
+
+<#assign ogDescription="${mutator.mutator.name}, a custom ${weaponString} mutator for ${game.name}, created by ${mutator.mutator.author}">
+<#assign ogImage=headerbg>
+
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
-
-	<#assign game=mutator.page.letter.game>
-
-	<#assign headerbg>${staticPath(static)}/images/games/${game.name}.png</#assign>
-
-	<#list mutator.mutator.attachments as a>
-		<#if a.type == "IMAGE">
-			<#assign headerbg=urlEncode(a.url)>
-			<#break>
-		</#if>
-	</#list>
 
 	<@heading bg=[headerbg]>
 			<a href="${siteRoot}/index.html">Mutators</a>

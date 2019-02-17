@@ -1,16 +1,19 @@
+<#assign game=voice.page.letter.game>
+
+<#assign headerbg>${staticPath(static)}/images/games/${game.name}.png</#assign>
+
+<#list voice.voice.attachments as a>
+	<#if a.type == "IMAGE">
+		<#assign headerbg=urlEncode(a.url)>
+		<#break>
+	</#if>
+</#list>
+
+<#assign ogDescription="${voice.voice.name}, a custom player voice packs for ${game.name}, created by ${voice.voice.author}">
+<#assign ogImage=headerbg>
+
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
-
-	<#assign game=voice.page.letter.game>
-
-	<#assign headerbg>${staticPath(static)}/images/games/${game.name}.png</#assign>
-
-	<#list voice.voice.attachments as a>
-		<#if a.type == "IMAGE">
-			<#assign headerbg=urlEncode(a.url)>
-			<#break>
-		</#if>
-	</#list>
 
 	<@heading bg=[headerbg]>
 		<a href="${siteRoot}/index.html">Voices</a>

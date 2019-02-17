@@ -1,13 +1,16 @@
+<#assign game=page.letter.game>
+
+<#assign ogDescription="Custom gameplay mutators for ${game.name}">
+<#assign ogImage="${staticPath(static)}/images/games/${game.name}.png">
+
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
 
-	<#assign game=page.letter.game>
-
 	<@heading bg=["${staticPath(static)}/images/games/${game.name}.png"]>
-			<a href="${siteRoot}/index.html">Mutators</a>
-			/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
-			/ ${page.letter.letter}
-			/ pg ${page.number}
+		<a href="${siteRoot}/index.html">Mutators</a>
+		/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
+		/ ${page.letter.letter}
+		/ pg ${page.number}
 	</@heading>
 
 	<@content class="list">
