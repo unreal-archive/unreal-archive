@@ -15,13 +15,12 @@
 	<meta property="og:title" content="${title}">
 	<meta property="og:ste_name" content="${siteName} / ${title}">
 
-	<#if ogDescription??>
-		<meta name="description" content="${ogDescription?replace("\"", "&quot;")}">
-		<meta property="og:description" content="${ogDescription?replace("\"", "&quot;")}">
-	<#else>
-		<meta name="description" content="Downloads and guides for maps, mutators, skins, voices, models and mods, for Unreal, Unreal Tournament, and Unreal Tournament 2004">
-		<meta property="og:description" content="Downloads and guides for maps, mutators, skins, voices, models and mods, for Unreal, Unreal Tournament, and Unreal Tournament 2004">
+	<#if !(ogDescription??)>
+		<#assign ogDescription="Downloads and guides for maps, mutators, skins, voices, models and mods, for the classic Unreal, Unreal Tournament, and Unreal Tournament 2004 games">
 	</#if>
+
+	<meta name="description" content="${ogDescription?replace("\"", "&quot;")}">
+	<meta property="og:description" content="${ogDescription?replace("\"", "&quot;")}">
 
 	<#if ogImage??>
 		<meta property="og:image" content="${ogImage}">
