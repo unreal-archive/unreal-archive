@@ -1,11 +1,14 @@
+<#if document.document.titleImage??>
+	<#assign headerbg>${document.document.titleImage}</#assign>
+<#else>
+	<#assign headerbg>${staticPath(static)}/images/contents/documents.png</#assign>
+</#if>
+
+<#assign ogDescription=document.document.description>
+<#assign ogImage=headerbg>
+
 <#include "../_header.ftl">
 <#include "../macros.ftl">
-
-	<#assign headerbg>${staticPath(static)}/images/contents/documents.png</#assign>
-
-	<#if document.document.titleImage??>
-		<#assign headerbg>${document.document.titleImage}</#assign>
-	</#if>
 
 	<@heading bg=[headerbg]>
 		<a href="${siteRoot}/index.html">Articles & Guides</a>

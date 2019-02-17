@@ -1,11 +1,14 @@
-<#include "../_header.ftl">
-<#include "../macros.ftl">
-
-<#assign headerbg>${staticPath(static)}/images/contents/patches.png</#assign>
-
 <#if managed.managed.titleImage??>
 	<#assign headerbg>${managed.managed.titleImage}</#assign>
+<#else>
+	<#assign headerbg>${staticPath(static)}/images/contents/patches.png</#assign>
 </#if>
+
+<#assign ogDescription=managed.managed.description>
+<#assign ogImage=headerbg>
+
+<#include "../_header.ftl">
+<#include "../macros.ftl">
 
 	<@heading bg=[headerbg]>
 		<a href="${siteRoot}/index.html">Patches & Updates</a>
