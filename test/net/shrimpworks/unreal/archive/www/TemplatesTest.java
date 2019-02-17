@@ -9,6 +9,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 
 import net.shrimpworks.unreal.archive.Util;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
@@ -18,7 +19,7 @@ public class TemplatesTest {
 	@Test
 	public void staticResources() throws IOException {
 		Path tempDirectory = Files.createTempDirectory("www-static");
-		Templates.unpackResources("static", tempDirectory);
+		Templates.unpackResources("static.list", tempDirectory);
 		boolean[] foundCss = { false };
 		Files.walkFileTree(tempDirectory, new SimpleFileVisitor<Path>() {
 			@Override
@@ -34,6 +35,7 @@ public class TemplatesTest {
 	}
 
 	@Test
+	@Ignore
 	public void urlHax() {
 		String url = "https://f002.backblazeb2.com/file/unreal-archive-images/Unreal Tournament/Skins/M/Marine+_shot_37.png";
 		System.out.println(Util.toUriString(url));
