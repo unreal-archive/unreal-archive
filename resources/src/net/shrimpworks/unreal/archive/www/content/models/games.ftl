@@ -1,3 +1,6 @@
+<#assign ogDescription="Custom player models for Unreal, Unreal Tournament, and Unreal Tournament 2004">
+<#assign ogImage="${staticPath(static)}/images/contents/models.png">
+
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
 

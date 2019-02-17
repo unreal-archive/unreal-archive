@@ -1,16 +1,19 @@
+<#assign game=model.page.letter.game>
+
+<#assign headerbg>${staticPath(static)}/images/games/${game.name}.png</#assign>
+
+<#list model.model.attachments as a>
+	<#if a.type == "IMAGE">
+		<#assign headerbg=urlEncode(a.url)>
+		<#break>
+	</#if>
+</#list>
+
+<#assign ogDescription="${model.model.name}, a custom player model for ${game.name}, created by ${model.model.author}">
+<#assign ogImage=headerbg>
+
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
-
-	<#assign game=model.page.letter.game>
-
-	<#assign headerbg>${staticPath(static)}/images/games/${game.name}.png</#assign>
-
-	<#list model.model.attachments as a>
-		<#if a.type == "IMAGE">
-			<#assign headerbg=urlEncode(a.url)>
-			<#break>
-		</#if>
-	</#list>
 
 	<@heading bg=[headerbg]>
 		<a href="${siteRoot}/index.html">Models</a>

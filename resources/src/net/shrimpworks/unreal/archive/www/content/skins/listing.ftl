@@ -1,7 +1,10 @@
+<#assign game=page.letter.game>
+
+<#assign ogDescription="Custom character skins for ${game.name}">
+<#assign ogImage="${staticPath(static)}/images/games/${game.name}.png">
+
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
-
-	<#assign game=page.letter.game>
 
 	<@heading bg=["${staticPath(static)}/images/games/${game.name}.png"]>
 			<a href="${siteRoot}/index.html">Skins</a>

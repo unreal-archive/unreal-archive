@@ -1,16 +1,19 @@
+<#assign game=skin.page.letter.game>
+
+<#assign headerbg>${staticPath(static)}/images/games/${game.name}.png</#assign>
+
+<#list skin.skin.attachments as a>
+	<#if a.type == "IMAGE">
+		<#assign headerbg=urlEncode(a.url)>
+		<#break>
+	</#if>
+</#list>
+
+<#assign ogDescription="${skin.skin.name}, a custom character skin for ${game.name}, created by ${skin.skin.author}">
+<#assign ogImage=headerbg>
+
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
-
-	<#assign game=skin.page.letter.game>
-
-	<#assign headerbg>${staticPath(static)}/images/games/${game.name}.png</#assign>
-
-	<#list skin.skin.attachments as a>
-		<#if a.type == "IMAGE">
-			<#assign headerbg=urlEncode(a.url)>
-			<#break>
-		</#if>
-	</#list>
 
 	<@heading bg=[headerbg]>
 			<a href="${siteRoot}/index.html">Skins</a>
