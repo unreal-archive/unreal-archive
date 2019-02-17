@@ -26,7 +26,7 @@
 	<#if ogImage??>
 		<meta property="og:image" content="${ogImage}">
 	<#else>
-		<meta property="og:image" content="${staticPath(static)}/images/logo-32.png">
+		<meta property="og:image" content="${staticPath(static)}/images/logo-96.png">
 	</#if>
 
 	<meta property="og:type" content="website">
