@@ -2,12 +2,12 @@
 <#assign gametype=page.letter.gametype>
 
 <#assign ogDescription="${gametype.name} maps for ${game.name}">
-<#assign ogImage="${static}/images/gametypes/${game.name}/${gametype.name}.png">
+<#assign ogImage="${staticPath(static)}/images/gametypes/${game.name}/${gametype.name}.png">
 
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
 
-	<@heading bg=["${static}/images/gametypes/${game.name}/${gametype.name}.png", "${static}/images/games/${game.name}.png"]>
+	<@heading bg=["${staticPath(static)}/images/gametypes/${game.name}/${gametype.name}.png", "${staticPath(static)}/images/games/${game.name}.png"]>
 		<a href="${siteRoot}/index.html">Maps</a>
 		/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
 		/ <a href="${relUrl(siteRoot, gametype.path)}/index.html">${gametype.name}</a>
@@ -46,7 +46,7 @@
 					<td>${m.map.playerCount}</td>
 					<td class="meta">
 						<#if m.map.attachments?size gt 0>
-							<img src="${static!"static"}/images/icons/black/px22/ico-images-grey.png" alt="Has images"/>
+							<img src="${staticPath(static)}/images/icons/black/px22/ico-images-grey.png" alt="Has images"/>
 						</#if>
 					</td>
 				</tr>

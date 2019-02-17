@@ -89,9 +89,11 @@
 			<fileset dir="resources/src"/>
 		</copy>
 
-		<!-- package the static resources, to make them easier to unpack later -->
-		<zip destfile="${build.src.dir}/net/shrimpworks/unreal/archive/www/static.zip"
-			 baseDir="resources/src/net/shrimpworks/unreal/archive/www/static"/>
+		<fileset id="res.static" dir="resources/src/net/shrimpworks/unreal/archive/www/static" includes="**" excludes="*.list"/>
+		<pathconvert pathsep="${line.separator}" property="res.static.lines" refid="res.static">
+			<map from="${basedir}/resources/src/net/shrimpworks/unreal/archive/www/" to=""/>
+		</pathconvert>
+		<echo file="${build.src.dir}/net/shrimpworks/unreal/archive/www/static.list">${res.static.lines}</echo>
 	</target>
 
 	<!-- Generate Javadocs -->

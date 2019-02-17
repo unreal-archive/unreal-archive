@@ -1,7 +1,7 @@
 <#include "../_header.ftl">
 <#include "../macros.ftl">
 
-<#assign headerbg>${static!"static"}/images/contents/patches.png</#assign>
+<#assign headerbg>${staticPath(static)}/images/contents/patches.png</#assign>
 
 <#if managed.managed.titleImage??>
 	<#assign headerbg>${managed.managed.titleImage}</#assign>
@@ -45,7 +45,7 @@
 					<#if !d.deleted && d.downloads?size gt 0>
 						<div class="download">
 							<div class="title">
-								<img src="${static!"static"}/images/icons/black/px22/os-${d.platform?lower_case}.png" title="${d.platform}" align="absmiddle" alt="${d.platform}"/>
+								<img src="${staticPath(static)}/images/icons/black/px22/os-${d.platform?lower_case}.png" title="${d.platform}" align="absmiddle" alt="${d.platform}"/>
 								${d.title} ver ${d.version}
 							</div>
 							<div class="info">
@@ -56,7 +56,7 @@
 							<div class="links">
 								<#list d.downloads as l>
 									<a href="${urlEncode(l)}">
-										<img src="${static!"static"}/images/icons/black/px22/download.png" align="absmiddle" alt="Download"/>
+										<img src="${staticPath(static)}/images/icons/black/px22/download.png" align="absmiddle" alt="Download"/>
 										${urlHost(l)}
 									</a>
 								</#list>

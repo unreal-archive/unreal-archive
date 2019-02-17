@@ -1,7 +1,7 @@
 <#include "../_header.ftl">
 <#include "../macros.ftl">
 
-	<@heading bg=["${static}/images/contents/patches.png"]>
+	<@heading bg=["${staticPath(static)}/images/contents/patches.png"]>
 		<a href="${siteRoot}/index.html">Patches & Updates</a>
 		<#list groupPath as p>
 			/ <a href="${relUrl(siteRoot, p.path)}/index.html">${p.name}</a>
@@ -11,7 +11,7 @@
 	<@content class="biglist">
 		<ul>
 		<#list group.groups as k, g>
-			<li style='background-image: url("${static}/images/games/${g.name}.png")'>
+			<li style='background-image: url("${staticPath(static)}/images/games/${g.name}.png")'>
 				<span class="meta">${g.count}</span>
 				<#if g.parent??>
 					<a href="${relUrl(g.parent.path, g.path + "/index.html")}">${g.name}</a>
@@ -42,7 +42,7 @@
 									<#if c.managed.titleImage??>
 										<img src="${relUrl(group.path, c.path)}/${c.managed.titleImage}"/>
 									<#else>
-										<img src="${static!"static"}/images/none-managed.png"/>
+										<img src="${staticPath(static)}/images/none-managed.png"/>
 									</#if>
 								</a>
 							</td>

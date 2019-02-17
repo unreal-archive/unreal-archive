@@ -4,7 +4,7 @@
 	<#assign game=page.gametype.game>
 	<#assign gametype=page.gametype>
 
-	<@heading bg=["${static}/images/gametypes/${game.name}/${gametype.name}.png", "${static}/images/games/${game.name}.png"]>
+	<@heading bg=["${staticPath(static)}/images/gametypes/${game.name}/${gametype.name}.png", "${staticPath(static)}/images/games/${game.name}.png"]>
 		<a href="${siteRoot}/index.html">Map Packs</a>
 		/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
 		/ <a href="${relUrl(siteRoot, gametype.path)}/index.html">${gametype.name}</a>
@@ -34,7 +34,7 @@
 					<td>${p.pack.maps?size}</td>
 					<td class="meta">
 						<#if p.pack.attachments?size gt 0>
-							<img src="${static!"static"}/images/icons/black/px22/ico-images-grey.png" alt="Has images"/>
+							<img src="${staticPath(static)}/images/icons/black/px22/ico-images-grey.png" alt="Has images"/>
 						</#if>
 					</td>
 				</tr>

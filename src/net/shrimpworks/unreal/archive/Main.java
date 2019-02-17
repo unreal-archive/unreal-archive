@@ -399,7 +399,7 @@ public class Main {
 		final long start = System.currentTimeMillis();
 
 		// unpack static content
-		Templates.unpackResourceZip("static.zip", Files.createDirectories(staticOutput));
+		Templates.unpackResources("static.list", Files.createDirectories(staticOutput).getParent());
 
 		final AtomicInteger pageCount = new AtomicInteger();
 

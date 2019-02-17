@@ -1,7 +1,7 @@
 <#assign game=map.page.letter.gametype.game>
 <#assign gametype=map.page.letter.gametype>
 
-<#assign headerbg>${static}/images/games/${game.name}.png</#assign>
+<#assign headerbg>${staticPath(static)}/images/games/${game.name}.png</#assign>
 
 <#list map.map.attachments as a>
 	<#if a.type == "IMAGE">
@@ -19,7 +19,7 @@
 	<#assign game=map.page.letter.gametype.game>
 	<#assign gametype=map.page.letter.gametype>
 
-	<#assign headerbg>${static}/images/games/${game.name}.png</#assign>
+	<#assign headerbg>${staticPath(static)}/images/games/${game.name}.png</#assign>
 
 	<#list map.map.attachments as a>
 		<#if a.type == "IMAGE">

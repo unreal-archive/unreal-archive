@@ -1,7 +1,7 @@
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
 
-	<@heading bg=["${static}/images/games/${game.name}.png"]>
+	<@heading bg=["${staticPath(static)}/images/games/${game.name}.png"]>
 			<a href="${siteRoot}/index.html">Mutators</a>
 			/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
 	</@heading>
@@ -36,7 +36,7 @@
 					</td>
 					<td class="meta">
 						<#if m.mutator.attachments?size gt 0>
-							<img src="${static!"static"}/images/icons/black/px22/ico-images-grey.png" alt="Has images"/>
+							<img src="${staticPath(static)}/images/icons/black/px22/ico-images-grey.png" alt="Has images"/>
 						</#if>
 					</td>
 				</tr>

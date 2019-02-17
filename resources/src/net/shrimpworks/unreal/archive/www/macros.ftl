@@ -28,7 +28,7 @@
 
 <#macro screenshots attachments>
 	<#if attachments?size == 0>
-		<img src="${static}/images/none.png" class="thumb"/>
+		<img src="${staticPath(static)}/images/none.png" class="thumb"/>
 	<#else>
 		<#list attachments as a>
 			<#if a.type == "IMAGE">

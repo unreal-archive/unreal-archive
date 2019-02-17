@@ -3,14 +3,14 @@
 <head>
 	<meta charset="UTF-8">
 	<title>${siteName} / ${title}</title>
-	<link rel="stylesheet" href="${static!"static"}/css/style.css">
+	<link rel="stylesheet" href="${staticPath(static)}/css/style.css">
 
-	<link rel="icon" type="image/png" sizes="192x192" href="${static!"static"}/images/logo-192.png">
-	<link rel="icon" type="image/png" sizes="96x96" href="${static!"static"}/images/logo-96.png">
-	<link rel="icon" type="image/png" sizes="32x32" href="${static!"static"}/images/logo-32.png">
-	<link rel="icon" type="image/png" sizes="16x16" href="${static!"static"}/images/logo-16.png">
+	<link rel="icon" type="image/png" sizes="192x192" href="${staticPath(static)}/images/logo-192.png">
+	<link rel="icon" type="image/png" sizes="96x96" href="${staticPath(static)}/images/logo-96.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="${staticPath(static)}/images/logo-32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="${staticPath(static)}/images/logo-16.png">
 
-	<link rel="favicon" type="image/png" href="${static!"static"}/images/logo-32.png">
+	<link rel="favicon" type="image/png" href="${staticPath(static)}/images/logo-32.png">
 
 	<meta property="og:title" content="${title}">
 	<meta property="og:ste_name" content="${siteName} / ${title}">
@@ -26,7 +26,7 @@
 	<#if ogImage??>
 		<meta property="og:image" content="${ogImage}">
 	<#else>
-		<meta property="og:image" content="${static!"static"}/images/logo-32.png">
+		<meta property="og:image" content="${staticPath(static)}/images/logo-32.png">
 	</#if>
 
 	<meta property="og:type" content="website">
@@ -37,8 +37,8 @@
 <header>
 	<div class="page">
 		<h1>
-			<a href="${static}/../index.html">
-				<img src="${static!"static"}/images/logo.png" alt="Unreal Archive"/>
+			<a href="${staticPath(static)}/../index.html">
+				<img src="${staticPath(static)}/images/logo.png" alt="Unreal Archive"/>
 				<span class="a">UNREAL</span><span class="b">ARCHIVE</span>
 			</a>
 		</h1>

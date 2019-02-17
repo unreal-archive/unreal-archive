@@ -8,23 +8,15 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Writer;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
-import java.nio.channels.ByteChannel;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.text.Normalizer;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -48,11 +40,13 @@ public class Templates {
 	public static final int PAGE_SIZE = 150;
 
 	private static final String SITE_NAME = System.getenv().getOrDefault("SITE_NAME", "Unreal Archive");
+	private static final String STATIC_ROOT = System.getenv().getOrDefault("STATIC_ROOT", "");
 
 	private static final Map<String, String> HOST_REMAP = new HashMap<>();
 
 	private static final Pattern NONLATIN = Pattern.compile("[^\\w-]");
 	private static final Pattern WHITESPACE = Pattern.compile("[\\s]");
+	private static final Pattern LINK_PREFIX = Pattern.compile("https?://.*");
 
 	private static final Configuration TPL_CONFIG = new Configuration(Configuration.VERSION_2_3_27);
 
@@ -76,50 +70,16 @@ public class Templates {
 		return new Tpl(TPL_CONFIG.getTemplate(name));
 	}
 
-	public static boolean unpackResources(String resourceBase, Path destination) throws IOException {
-		try (InputStream in = Templates.class.getResourceAsStream(resourceBase);
+	public static boolean unpackResources(String resourceList, Path destination) throws IOException {
+		try (InputStream in = Templates.class.getResourceAsStream(resourceList);
 			 BufferedReader br = new BufferedReader(new InputStreamReader(in))) {
 
 			String resource;
 			while ((resource = br.readLine()) != null) {
 				Path destPath = destination.resolve(resource);
-				if (!resource.contains(".")) {
-					// we naively assume this to be a directory... we can't support directories with dots in their names
-					Files.createDirectories(destPath);
-					unpackResources(resourceBase + "/" + resource, destPath);
-				} else {
-					Files.copy(Templates.class.getResourceAsStream(resourceBase + "/" + resource), destPath,
-							   StandardCopyOption.REPLACE_EXISTING);
-				}
+				Files.createDirectories(destPath.getParent());
+				Files.copy(Templates.class.getResourceAsStream(resource), destPath, StandardCopyOption.REPLACE_EXISTING);
 			}
-		}
-
-		return true;
-	}
-
-	public static boolean unpackResourceZip(String zipFile, Path destination) throws IOException {
-		Path tmpZip = Files.createTempFile("resource-" + zipFile, ".zip");
-		try {
-			Files.copy(Templates.class.getResourceAsStream(zipFile), tmpZip, StandardCopyOption.REPLACE_EXISTING);
-			URI zipUri = URI.create("jar:file:" + tmpZip.toUri().getPath());
-			FileSystem fs = FileSystems.newFileSystem(zipUri, Collections.emptyMap());
-			Files.walkFileTree(fs.getPath("/"), new SimpleFileVisitor<Path>() {
-				@Override
-				public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-					String relDir = fs.getPath("/").relativize(dir).toString();
-					if (!Files.exists(destination.resolve(relDir))) Files.createDirectories(destination.resolve(relDir));
-					return super.preVisitDirectory(dir, attrs);
-				}
-
-				@Override
-				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-					String relFile = fs.getPath("/").relativize(file).toString();
-					Files.copy(Files.newInputStream(file), destination.resolve(relFile), StandardCopyOption.REPLACE_EXISTING);
-					return super.visitFile(file, attrs);
-				}
-			});
-		} finally {
-			Files.deleteIfExists(tmpZip);
 		}
 
 		return true;
@@ -148,6 +108,7 @@ public class Templates {
 			TPL_VARS.put("urlHost", new UrlHostMethod());
 			TPL_VARS.put("fileSize", new FileSizeMethod());
 			TPL_VARS.put("fileName", new FileNameMethod());
+			TPL_VARS.put("staticPath", new StaticPathMethod());
 			TPL_VARS.put("siteName", SITE_NAME);
 		}
 
@@ -189,7 +150,14 @@ public class Templates {
 			if (args.size() != 2) {
 				throw new TemplateModelException("Wrong arguments");
 			}
-			return Paths.get(args.get(0).toString()).relativize(Paths.get(args.get(1).toString()));
+
+			String one = args.get(0).toString();
+			String two = args.get(1).toString();
+
+			if (LINK_PREFIX.matcher(one).matches()) return one;
+			if (LINK_PREFIX.matcher(two).matches()) return two;
+
+			return Paths.get(one).relativize(Paths.get(two));
 		}
 	}
 
@@ -257,6 +225,19 @@ public class Templates {
 			} catch (MalformedURLException e) {
 				throw new TemplateModelException("Invalid URL: " + args.get(0).toString(), e);
 			}
+		}
+	}
+
+	private static class StaticPathMethod implements TemplateMethodModelEx {
+
+		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
+			if (args.size() != 1) {
+				throw new TemplateModelException("Wrong arguments");
+			}
+
+			if (!STATIC_ROOT.isEmpty()) return STATIC_ROOT;
+			else if (args.get(0) == null || args.get(0).toString().isEmpty()) return "static";
+			else return args.get(0).toString();
 		}
 	}
 

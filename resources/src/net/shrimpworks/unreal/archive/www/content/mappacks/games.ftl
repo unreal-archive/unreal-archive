@@ -1,14 +1,14 @@
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
 
-	<@heading bg=["${static}/images/contents/mappacks.png"]>
+	<@heading bg=["${staticPath(static)}/images/contents/mappacks.png"]>
 		Map Packs
 	</@heading>
 
 	<@content class="biglist">
 		<ul>
 		<#list games.games as k, v>
-			<li style='background-image: url("${static}/images/games/${v.name}.png")'>
+			<li style='background-image: url("${staticPath(static)}/images/games/${v.name}.png")'>
 				<span class="meta">${v.packs}</span>
 				<a href="${v.path}/index.html">${v.name}</a>
 			</li>

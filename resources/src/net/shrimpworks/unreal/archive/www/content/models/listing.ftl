@@ -3,7 +3,7 @@
 
 	<#assign game=page.letter.game>
 
-	<@heading bg=["${static}/images/games/${game.name}.png"]>
+	<@heading bg=["${staticPath(static)}/images/games/${game.name}.png"]>
 		<a href="${siteRoot}/index.html">Models</a>
 		/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
 		/ ${page.letter.letter}
@@ -47,7 +47,7 @@
 					</td>
 					<td class="meta">
 						<#if m.model.attachments?size gt 0>
-							<img src="${static!"static"}/images/icons/black/px22/ico-images-grey.png" alt="Has images"/>
+							<img src="${staticPath(static)}/images/icons/black/px22/ico-images-grey.png" alt="Has images"/>
 						</#if>
 					</td>
 				</tr>

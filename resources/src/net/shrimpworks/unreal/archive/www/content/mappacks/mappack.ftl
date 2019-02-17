@@ -4,7 +4,7 @@
 	<#assign game=pack.page.gametype.game>
 	<#assign gametype=pack.page.gametype>
 
-	<#assign headerbg>${static}/images/games/${game.name}.png</#assign>
+	<#assign headerbg>${staticPath(static)}/images/games/${game.name}.png</#assign>
 
 	<#list pack.pack.attachments as a>
 		<#if a.type == "IMAGE">

@@ -3,7 +3,7 @@
 
 	<#assign game=mutator.page.letter.game>
 
-	<#assign headerbg>${static}/images/games/${game.name}.png</#assign>
+	<#assign headerbg>${staticPath(static)}/images/games/${game.name}.png</#assign>
 
 	<#list mutator.mutator.attachments as a>
 		<#if a.type == "IMAGE">

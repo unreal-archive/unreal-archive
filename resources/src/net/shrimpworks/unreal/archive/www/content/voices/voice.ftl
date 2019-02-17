@@ -3,7 +3,7 @@
 
 	<#assign game=voice.page.letter.game>
 
-	<#assign headerbg>${static}/images/games/${game.name}.png</#assign>
+	<#assign headerbg>${staticPath(static)}/images/games/${game.name}.png</#assign>
 
 	<#list voice.voice.attachments as a>
 		<#if a.type == "IMAGE">
