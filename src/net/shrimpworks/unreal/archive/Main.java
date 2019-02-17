@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.ContentManager;
@@ -172,16 +173,34 @@ public class Main {
 		return contentPath;
 	}
 
-	private static Path[] cliPaths(CLI cli, int fromOffset) {
-		return Arrays.stream(cli.commands(), fromOffset, cli.commands().length)
-					 .map(s -> Paths.get(s))
-					 .peek(p -> {
-						 if (!Files.exists(p)) {
-							 System.err.println("Input path does not exist: " + p.toString());
-							 System.exit(4);
-						 }
-					 })
-					 .toArray(Path[]::new);
+	private static Path[] cliPaths(CLI cli, int fromOffset) throws IOException {
+		// let's see if there are cli paths which are actually URLs, and download them to local paths
+		String[] urls = Arrays.stream(cli.commands(), fromOffset, cli.commands().length)
+							  .filter(s -> s.matches("^https?://.*"))
+							  .toArray(String[]::new);
+
+		List<Path> dlPaths = new ArrayList<>();
+		if (urls.length > 0) {
+			Path dlTemp = Files.createTempDirectory("ua-download");
+			for (String url : urls) {
+				System.out.printf("Fetching %s ... ", url);
+				dlPaths.add(Util.downloadTo(url, dlTemp));
+				System.out.println("Done");
+			}
+		}
+
+		List<Path> diskPaths = Arrays.stream(cli.commands(), fromOffset, cli.commands().length)
+									 .filter(s -> !s.matches("^https?://.*"))
+									 .map(s -> Paths.get(s))
+									 .peek(p -> {
+										 if (!Files.exists(p)) {
+											 System.err.println("Input path does not exist: " + p.toString());
+											 System.exit(4);
+										 }
+									 })
+									 .collect(Collectors.toList());
+
+		return Stream.concat(dlPaths.stream(), diskPaths.stream()).toArray(Path[]::new);
 	}
 
 	private static ContentManager contentManager(CLI cli) throws IOException {

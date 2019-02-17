@@ -15,6 +15,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class Util {
 
@@ -51,6 +53,8 @@ public final class Util {
 		put("zip", "application/zip");
 		put("7z", "application/x-7z-compressed");
 	}};
+
+	private static final Pattern DISPOSITION_FILENAME = Pattern.compile(".*filename=\"?([^\"]*)\"?;?.*?");
 
 	private Util() { }
 
@@ -139,15 +143,32 @@ public final class Util {
 		HttpURLConnection httpConn = (HttpURLConnection)urlConnection.openConnection();
 		int responseCode = httpConn.getResponseCode();
 
+		Path saveTo = output;
+
 		// always check HTTP response code first
 		if (responseCode == HttpURLConnection.HTTP_OK) {
+
+			// if we're saving to a directory and not a specific file, try to determine the filename to save to
+			if (Files.isDirectory(saveTo)) {
+				String disposition = httpConn.getHeaderField("Content-Disposition");
+				if (disposition != null && !disposition.trim().isEmpty()) {
+					Matcher matcher = DISPOSITION_FILENAME.matcher(disposition);
+					if (matcher.find()) {
+						saveTo = saveTo.resolve(fileName(matcher.group(1)));
+					}
+				}
+
+				// fallback, just use the filename from the url
+				if (Files.isDirectory(saveTo)) saveTo = saveTo.resolve(fileName(httpConn.getURL().getPath()));
+			}
+
 			// opens input stream from the HTTP connection
-			Files.copy(httpConn.getInputStream(), output);
+			Files.copy(httpConn.getInputStream(), saveTo);
 		} else {
 			throw new IOException(responseCode + " Failed to download url " + url);
 		}
 		httpConn.disconnect();
 
-		return output;
+		return saveTo;
 	}
 }
