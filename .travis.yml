@@ -5,6 +5,10 @@ jdk:
 git:
   submodules: false
 
+cache:
+  directories:
+    - /home/travis/.ant/
+
 before_install:
   - sudo apt-get update
   - sudo apt-get install -y p7zip-full unrar
