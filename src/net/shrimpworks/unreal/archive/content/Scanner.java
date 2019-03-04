@@ -141,6 +141,12 @@ public class Scanner {
 			this.newType = newType;
 			this.failed = failed;
 		}
+
+		@Override
+		public String toString() {
+			return String.format("ScanResult [filePath=%s, known=%s, oldType=%s, newType=%s, failed=%s]",
+								 filePath, known, oldType, newType,failed);
+		}
 	}
 
 
