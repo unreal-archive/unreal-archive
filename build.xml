@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="unreal-archive" default="bin" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
 
-	<property name="module.version" value="1.0"/>
+	<property name="module.version" value="1.1"/>
 
 	<property name="main.class" value="net.shrimpworks.unreal.archive.Main"/>
 
@@ -42,7 +42,15 @@
 		<fileset dir="${dist.dir}" includes="lib/*.jar"/>
 	</path>
 
-	<target name="init">
+	<!-- build information -->
+	<target name="module-version" description="setup module vision information">
+		<condition property="module.build" value="${module.version}.${env.TRAVIS_BUILD_NUMBER}" else="${module.version}">
+			<isset property="env.TRAVIS_BUILD_NUMBER"/>
+		</condition>
+		<echo message="Building version ${module.build}"/>
+	</target>
+
+	<target name="init" depends="module-version">
 		<mkdir dir="${build.src.dir}"/>
 		<mkdir dir="${build.test.dir}"/>
 	</target>
@@ -77,6 +85,28 @@
 	<target name="ivy-resolve" depends="init-ivy" description="retrieve dependencies with ivy">
 		<ivy:settings file="ivysettings.xml" />
 		<ivy:retrieve pattern="${lib.dir}/[conf]/[artifact]-[revision].[ext]"/>
+	</target>
+
+	<target name="publish" depends="dist" description="publish to public ivy repository">
+		<ivy:settings file="ivysettings.xml" />
+		<ivy:publish artifactspattern="${dist.dir}/[artifact].[ext]"
+					 resolver="shrimpworks"
+					 pubrevision="${module.build}"
+					 forcedeliver="true"
+					 overwrite="true"
+		/>
+		<echo message="project ${ant.project.name} published publicly with version ${module.build}"/>
+	</target>
+
+	<target name="publish-local" depends="dist" description="publish in the local ivy repository">
+		<ivy:settings file="ivysettings.xml" />
+		<ivy:publish artifactspattern="${dist.dir}/[artifact].[ext]"
+					 resolver="local"
+					 pubrevision="${module.build}"
+					 forcedeliver="true"
+					 overwrite="true"
+		/>
+		<echo message="project ${ant.project.name} published locally with version ${module.build}"/>
 	</target>
 
 	<!-- Simple source build -->

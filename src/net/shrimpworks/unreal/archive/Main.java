@@ -333,7 +333,7 @@ public class Main {
 
 		Path[] paths = cliPaths(cli, 1);
 
-		scanner.scan(paths);
+		scanner.scan(new Scanner.CLIEventPrinter(), paths);
 	}
 
 	private static void edit(ContentManager contentManager, CLI cli) throws IOException, InterruptedException {

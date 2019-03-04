@@ -41,44 +41,27 @@ public class Scanner {
 		}
 	}
 
-	public void scan(Path... inputPath) throws IOException {
+	public void scan(ScannerEvents events, Path... inputPath) throws IOException {
 		// find all files within the scan path
 		List<Path> all = new ArrayList<>();
 		for (Path p : inputPath) {
 			all.addAll(findFiles(p));
 		}
 
-		System.err.printf("Found %d file(s) to scan %s %s%n", all.size(),
-						  nameMatch != null ? "matching " + nameMatch.pattern() : "",
-						  nameExclude != null ? "excluding " + nameExclude.pattern() : ""
-		);
-
-		System.err.printf("%s;%s;%s;%s;%s%n",
-						  "File",
-						  "Known",
-						  "Current Type",
-						  "Scanned Type",
-						  "Failure");
+		events.starting(all.size(), nameMatch, nameExclude);
 
 		AtomicInteger done = new AtomicInteger();
 
 		all.stream().sorted().forEach(path -> {
-			System.err.printf("[%d/%d] : %s \r", done.incrementAndGet(), all.size(), Util.fileName(path));
+			events.progress(done.incrementAndGet(), all.size(), path);
 
 			Submission sub = new Submission(path);
 			IndexLog log = new IndexLog(sub);
 
-			scanFile(sub, log, r -> {
-				System.out.printf("%s;%s;%s;%s;%s%n",
-								  r.filePath,
-								  r.known,
-								  r.oldType,
-								  r.newType,
-								  r.failed != null ? r.failed.getClass().getSimpleName() : "-");
-			});
+			scanFile(sub, log, events::scanned);
 		});
 
-		System.err.printf("%nCompleted scanning %d files%n", done.get());
+		events.completed(done.get());
 	}
 
 	private List<Path> findFiles(Path inputPath) throws IOException {
@@ -133,30 +116,79 @@ public class Scanner {
 													.findFirst().orElse(null);
 
 				done.accept(new ScanResult(
-						sub.filePath.toString(),
-						content != null ? "KNOWN" : "NEW",
-						content != null ? content.contentType : "-",
-						classifiedType.name(),
+						sub.filePath,
+						content != null,
+						content != null ? ContentType.valueOf(content.contentType) : null,
+						classifiedType,
 						failed
 				));
 			}
 		}
 	}
 
-	private static class ScanResult {
+	public static class ScanResult {
 
-		private final String filePath;
-		private final String known;
-		private final String oldType;
-		private final String newType;
-		private final Throwable failed;
+		public final Path filePath;
+		public final boolean known;
+		public final ContentType oldType;
+		public final ContentType newType;
+		public final Throwable failed;
 
-		public ScanResult(String filePath, String known, String oldType, String newType, Throwable failed) {
+		public ScanResult(Path filePath, boolean known, ContentType oldType, ContentType newType, Throwable failed) {
 			this.filePath = filePath;
 			this.known = known;
 			this.oldType = oldType;
 			this.newType = newType;
 			this.failed = failed;
+		}
+	}
+
+
+	public interface ScannerEvents {
+		public void starting(int foundFiles, Pattern included, Pattern excluded);
+
+		public void progress(int scanned, int total, Path currentFile);
+
+		public void scanned(ScanResult scanned);
+
+		public void completed(int scannedFiles);
+	}
+
+	public static class CLIEventPrinter implements ScannerEvents {
+
+		@Override
+		public void starting(int foundFiles, Pattern included, Pattern excluded) {
+			System.err.printf("Found %d file(s) to scan %s %s%n", foundFiles,
+							  included != null ? "matching " + included.pattern() : "",
+							  excluded != null ? "excluding " + excluded.pattern() : ""
+			);
+
+			System.err.printf("%s;%s;%s;%s;%s%n",
+							  "File",
+							  "Known",
+							  "Current Type",
+							  "Scanned Type",
+							  "Failure");
+		}
+
+		@Override
+		public void progress(int scanned, int total, Path currentFile) {
+			System.err.printf("[%d/%d] : %s \r", scanned, total, Util.fileName(currentFile));
+		}
+
+		@Override
+		public void scanned(ScanResult scanned) {
+			System.out.printf("%s;%s;%s;%s;%s%n",
+							  scanned.filePath,
+							  scanned.known ? "KNOWN" : "NEW",
+							  scanned.oldType != null ? scanned.oldType.name() : "-",
+							  scanned.newType.name(),
+							  scanned.failed != null ? scanned.failed.getClass().getSimpleName() : "-");
+		}
+
+		@Override
+		public void completed(int scannedFiles) {
+			System.err.printf("%nCompleted scanning %d files%n", scannedFiles);
 		}
 	}
 }
