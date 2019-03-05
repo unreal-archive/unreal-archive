@@ -98,15 +98,15 @@ public interface SiteMap extends PageGenerator {
 		}
 
 		public static Page monthly(float priority) {
-			return new Page(null, priority, DEFAULT_LAST_MOD, ChangeFrequency.weekly);
+			return new Page(null, priority, DEFAULT_LAST_MOD, ChangeFrequency.monthly);
 		}
 
 		public static Page monthly(float priority, LocalDate lastMod) {
-			return new Page(null, priority, lastMod, ChangeFrequency.weekly);
+			return new Page(null, priority, lastMod, ChangeFrequency.monthly);
 		}
 
 		public static Page monthly(float priority, LocalDateTime lastMod) {
-			return new Page(null, priority, lastMod.toLocalDate(), ChangeFrequency.weekly);
+			return new Page(null, priority, lastMod.toLocalDate(), ChangeFrequency.monthly);
 		}
 
 		private Page(Path path, float priority, LocalDate lastMod, ChangeFrequency changeFreq) {
