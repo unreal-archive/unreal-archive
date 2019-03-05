@@ -6,13 +6,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.ContentManager;
 import net.shrimpworks.unreal.archive.content.skins.Skin;
+import net.shrimpworks.unreal.archive.www.SiteMap;
 import net.shrimpworks.unreal.archive.www.Templates;
 
 import static net.shrimpworks.unreal.archive.www.Templates.slug;
@@ -38,16 +41,15 @@ public class Skins extends ContentPageGenerator {
 	}
 
 	@Override
-	public int generate() {
-		int count = 0;
+	public Set<SiteMap.Page> generate() {
+		Set<SiteMap.Page> pages = new HashSet<>();
 		try {
-			Templates.template("content/skins/games.ftl")
-					 .put("static", root.relativize(staticRoot))
-					 .put("title", "Skins")
-					 .put("games", games)
-					 .put("siteRoot", root)
-					 .write(root.resolve("index.html"));
-			count++;
+			pages.add(Templates.template("content/skins/games.ftl", SiteMap.Page.monthly(0.8f))
+							   .put("static", root.relativize(staticRoot))
+							   .put("title", "Skins")
+							   .put("games", games)
+							   .put("siteRoot", root)
+							   .write(root.resolve("index.html")));
 
 			for (java.util.Map.Entry<String, Game> g : games.games.entrySet()) {
 				if (g.getValue().skins < Templates.PAGE_SIZE) {
@@ -56,18 +58,17 @@ public class Skins extends ContentPageGenerator {
 															 .flatMap(e -> e.skins.stream())
 															 .sorted()
 															 .collect(Collectors.toList());
-					Templates.template("content/skins/listing_single.ftl")
-							 .put("static", root.resolve(g.getValue().path).relativize(staticRoot))
-							 .put("title", String.join(" / ", "Skins", g.getKey()))
-							 .put("game", g.getValue())
-							 .put("skins", all)
-							 .put("siteRoot", root.resolve(g.getValue().path).relativize(root))
-							 .write(root.resolve(g.getValue().path).resolve("index.html"));
-					count++;
+					pages.add(Templates.template("content/skins/listing_single.ftl", SiteMap.Page.weekly(0.65f))
+									   .put("static", root.resolve(g.getValue().path).relativize(staticRoot))
+									   .put("title", String.join(" / ", "Skins", g.getKey()))
+									   .put("game", g.getValue())
+									   .put("skins", all)
+									   .put("siteRoot", root.resolve(g.getValue().path).relativize(root))
+									   .write(root.resolve(g.getValue().path).resolve("index.html")));
 
 					// still generate all map pages
 					for (SkinInfo skin : all) {
-						count += skinPage(skin);
+						pages.addAll(skinPage(skin));
 					}
 
 					continue;
@@ -76,67 +77,63 @@ public class Skins extends ContentPageGenerator {
 				for (java.util.Map.Entry<String, LetterGroup> l : g.getValue().letters.entrySet()) {
 
 					for (Page p : l.getValue().pages) {
-						Templates.template("content/skins/listing.ftl")
-								 .put("static", root.resolve(p.path).relativize(staticRoot))
-								 .put("title", String.join(" / ", "Skins", g.getKey()))
-								 .put("page", p)
-								 .put("root", p.path)
-								 .put("siteRoot", root.resolve(p.path).relativize(root))
-								 .write(root.resolve(p.path).resolve("index.html"));
-						count++;
+						pages.add(Templates.template("content/skins/listing.ftl", SiteMap.Page.weekly(0.65f))
+										   .put("static", root.resolve(p.path).relativize(staticRoot))
+										   .put("title", String.join(" / ", "Skins", g.getKey()))
+										   .put("page", p)
+										   .put("root", p.path)
+										   .put("siteRoot", root.resolve(p.path).relativize(root))
+										   .write(root.resolve(p.path).resolve("index.html")));
 
 						for (SkinInfo skin : p.skins) {
-							count += skinPage(skin);
+							pages.addAll(skinPage(skin));
 						}
 					}
 
 					// output first letter/page combo, with appropriate relative links
-					Templates.template("content/skins/listing.ftl")
-							 .put("static", root.resolve(l.getValue().path).relativize(staticRoot))
-							 .put("title", String.join(" / ", "Skins", g.getKey()))
-							 .put("page", l.getValue().pages.get(0))
-							 .put("root", l.getValue().path)
-							 .put("siteRoot", root.resolve(l.getValue().path).relativize(root))
-							 .write(root.resolve(l.getValue().path).resolve("index.html"));
-					count++;
+					pages.add(Templates.template("content/skins/listing.ftl", SiteMap.Page.weekly(0.65f))
+									   .put("static", root.resolve(l.getValue().path).relativize(staticRoot))
+									   .put("title", String.join(" / ", "Skins", g.getKey()))
+									   .put("page", l.getValue().pages.get(0))
+									   .put("root", l.getValue().path)
+									   .put("siteRoot", root.resolve(l.getValue().path).relativize(root))
+									   .write(root.resolve(l.getValue().path).resolve("index.html")));
 				}
 
 				// output first letter/page combo, with appropriate relative links
-				Templates.template("content/skins/listing.ftl")
-						 .put("static", root.resolve(g.getValue().path).relativize(staticRoot))
-						 .put("title", String.join(" / ", "Skins", g.getKey()))
-						 .put("page", g.getValue().letters.firstEntry().getValue().pages.get(0))
-						 .put("root", g.getValue().path)
-						 .put("siteRoot", root.resolve(g.getValue().path).relativize(root))
-						 .write(root.resolve(g.getValue().path).resolve("index.html"));
-				count++;
+				pages.add(Templates.template("content/skins/listing.ftl", SiteMap.Page.weekly(0.65f))
+								   .put("static", root.resolve(g.getValue().path).relativize(staticRoot))
+								   .put("title", String.join(" / ", "Skins", g.getKey()))
+								   .put("page", g.getValue().letters.firstEntry().getValue().pages.get(0))
+								   .put("root", g.getValue().path)
+								   .put("siteRoot", root.resolve(g.getValue().path).relativize(root))
+								   .write(root.resolve(g.getValue().path).resolve("index.html")));
 			}
 
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to render page", e);
 		}
 
-		return count;
+		return pages;
 	}
 
-	private int skinPage(SkinInfo skin) throws IOException {
+	private Set<SiteMap.Page> skinPage(SkinInfo skin) throws IOException {
+		Set<SiteMap.Page> pages = new HashSet<>();
 		localImages(skin.skin, root.resolve(skin.path).getParent());
 
-		Templates.template("content/skins/skin.ftl")
-				 .put("static", root.resolve(skin.path).getParent().relativize(staticRoot))
-				 .put("title", String.join(" / ", "Skins", skin.page.letter.game.name, skin.skin.name))
-				 .put("skin", skin)
-				 .put("siteRoot", root.resolve(skin.path).getParent().relativize(root))
-				 .write(root.resolve(skin.path + ".html"));
-
-		int res = 1;
+		pages.add(Templates.template("content/skins/skin.ftl", SiteMap.Page.monthly(0.9f, skin.skin.lastIndex))
+						   .put("static", root.resolve(skin.path).getParent().relativize(staticRoot))
+						   .put("title", String.join(" / ", "Skins", skin.page.letter.game.name, skin.skin.name))
+						   .put("skin", skin)
+						   .put("siteRoot", root.resolve(skin.path).getParent().relativize(root))
+						   .write(root.resolve(skin.path + ".html")));
 
 		// since variations are not top-level things, we need to generate them here
 		for (SkinInfo variation : skin.variations) {
-			res += this.skinPage(variation);
+			pages.addAll(this.skinPage(variation));
 		}
 
-		return res;
+		return pages;
 	}
 
 	public class Games {

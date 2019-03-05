@@ -6,13 +6,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.ContentManager;
 import net.shrimpworks.unreal.archive.content.voices.Voice;
+import net.shrimpworks.unreal.archive.www.SiteMap;
 import net.shrimpworks.unreal.archive.www.Templates;
 
 import static net.shrimpworks.unreal.archive.www.Templates.slug;
@@ -38,38 +41,35 @@ public class Voices extends ContentPageGenerator {
 	}
 
 	@Override
-	public int generate() {
-		int count = 0;
+	public Set<SiteMap.Page> generate() {
+		Set<SiteMap.Page> pages = new HashSet<>();
 		try {
-			Templates.template("content/voices/games.ftl")
-					 .put("static", root.relativize(staticRoot))
-					 .put("title", "Voices")
-					 .put("games", games)
-					 .put("siteRoot", root)
-					 .write(root.resolve("index.html"));
-			count++;
+			pages.add(Templates.template("content/voices/games.ftl", SiteMap.Page.monthly(0.6f))
+							   .put("static", root.relativize(staticRoot))
+							   .put("title", "Voices")
+							   .put("games", games)
+							   .put("siteRoot", root)
+							   .write(root.resolve("index.html")));
 
 			for (java.util.Map.Entry<String, Game> g : games.games.entrySet()) {
 
 				if (g.getValue().voices < Templates.PAGE_SIZE) {
-					// we can output all maps on a single page
 					List<VoiceInfo> all = g.getValue().letters.values().stream()
 															  .flatMap(l -> l.pages.stream())
 															  .flatMap(e -> e.voices.stream())
 															  .sorted()
 															  .collect(Collectors.toList());
-					Templates.template("content/voices/listing_single.ftl")
-							 .put("static", root.resolve(g.getValue().path).relativize(staticRoot))
-							 .put("title", String.join(" / ", "Voices", g.getKey()))
-							 .put("game", g.getValue())
-							 .put("voices", all)
-							 .put("siteRoot", root.resolve(g.getValue().path).relativize(root))
-							 .write(root.resolve(g.getValue().path).resolve("index.html"));
-					count++;
+					pages.add(Templates.template("content/voices/listing_single.ftl", SiteMap.Page.weekly(0.65f))
+									   .put("static", root.resolve(g.getValue().path).relativize(staticRoot))
+									   .put("title", String.join(" / ", "Voices", g.getKey()))
+									   .put("game", g.getValue())
+									   .put("voices", all)
+									   .put("siteRoot", root.resolve(g.getValue().path).relativize(root))
+									   .write(root.resolve(g.getValue().path).resolve("index.html")));
 
 					// still generate all map pages
 					for (VoiceInfo skin : all) {
-						count += voicePage(skin);
+						pages.addAll(voicePage(skin));
 					}
 
 					continue;
@@ -78,67 +78,63 @@ public class Voices extends ContentPageGenerator {
 				for (java.util.Map.Entry<String, LetterGroup> l : g.getValue().letters.entrySet()) {
 
 					for (Page p : l.getValue().pages) {
-						Templates.template("content/voices/listing.ftl")
-								 .put("static", root.resolve(p.path).relativize(staticRoot))
-								 .put("title", String.join(" / ", "Voices", g.getKey()))
-								 .put("page", p)
-								 .put("root", p.path)
-								 .put("siteRoot", root.resolve(p.path).relativize(root))
-								 .write(root.resolve(p.path).resolve("index.html"));
-						count++;
+						pages.add(Templates.template("content/voices/listing.ftl", SiteMap.Page.weekly(0.65f))
+										   .put("static", root.resolve(p.path).relativize(staticRoot))
+										   .put("title", String.join(" / ", "Voices", g.getKey()))
+										   .put("page", p)
+										   .put("root", p.path)
+										   .put("siteRoot", root.resolve(p.path).relativize(root))
+										   .write(root.resolve(p.path).resolve("index.html")));
 
 						for (VoiceInfo skin : p.voices) {
-							count += voicePage(skin);
+							pages.addAll(voicePage(skin));
 						}
 					}
 
 					// output first letter/page combo, with appropriate relative links
-					Templates.template("content/voices/listing.ftl")
-							 .put("static", root.resolve(l.getValue().path).relativize(staticRoot))
-							 .put("title", String.join(" / ", "Voices", g.getKey()))
-							 .put("page", l.getValue().pages.get(0))
-							 .put("root", l.getValue().path)
-							 .put("siteRoot", root.resolve(l.getValue().path).relativize(root))
-							 .write(root.resolve(l.getValue().path).resolve("index.html"));
-					count++;
+					pages.add(Templates.template("content/voices/listing.ftl", SiteMap.Page.weekly(0.65f))
+									   .put("static", root.resolve(l.getValue().path).relativize(staticRoot))
+									   .put("title", String.join(" / ", "Voices", g.getKey()))
+									   .put("page", l.getValue().pages.get(0))
+									   .put("root", l.getValue().path)
+									   .put("siteRoot", root.resolve(l.getValue().path).relativize(root))
+									   .write(root.resolve(l.getValue().path).resolve("index.html")));
 				}
 
 				// output first letter/page combo, with appropriate relative links
-				Templates.template("content/voices/listing.ftl")
-						 .put("static", root.resolve(g.getValue().path).relativize(staticRoot))
-						 .put("title", String.join(" / ", "Voices", g.getKey()))
-						 .put("page", g.getValue().letters.firstEntry().getValue().pages.get(0))
-						 .put("root", g.getValue().path)
-						 .put("siteRoot", root.resolve(g.getValue().path).relativize(root))
-						 .write(root.resolve(g.getValue().path).resolve("index.html"));
-				count++;
+				pages.add(Templates.template("content/voices/listing.ftl", SiteMap.Page.weekly(0.65f))
+								   .put("static", root.resolve(g.getValue().path).relativize(staticRoot))
+								   .put("title", String.join(" / ", "Voices", g.getKey()))
+								   .put("page", g.getValue().letters.firstEntry().getValue().pages.get(0))
+								   .put("root", g.getValue().path)
+								   .put("siteRoot", root.resolve(g.getValue().path).relativize(root))
+								   .write(root.resolve(g.getValue().path).resolve("index.html")));
 			}
 
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to render page", e);
 		}
 
-		return count;
+		return pages;
 	}
 
-	private int voicePage(VoiceInfo voice) throws IOException {
+	private Set<SiteMap.Page> voicePage(VoiceInfo voice) throws IOException {
+		Set<SiteMap.Page> pages = new HashSet<>();
 		localImages(voice.voice, root.resolve(voice.path).getParent());
 
-		Templates.template("content/voices/voice.ftl")
-				 .put("static", root.resolve(voice.path).getParent().relativize(staticRoot))
-				 .put("title", String.join(" / ", "Voices", voice.page.letter.game.name, voice.voice.name))
-				 .put("voice", voice)
-				 .put("siteRoot", root.resolve(voice.path).getParent().relativize(root))
-				 .write(root.resolve(voice.path + ".html"));
-
-		int res = 1;
+		pages.add(Templates.template("content/voices/voice.ftl", SiteMap.Page.monthly(0.9f, voice.voice.lastIndex))
+						   .put("static", root.resolve(voice.path).getParent().relativize(staticRoot))
+						   .put("title", String.join(" / ", "Voices", voice.page.letter.game.name, voice.voice.name))
+						   .put("voice", voice)
+						   .put("siteRoot", root.resolve(voice.path).getParent().relativize(root))
+						   .write(root.resolve(voice.path + ".html")));
 
 		// since variations are not top-level things, we need to generate them here
 		for (VoiceInfo variation : voice.variations) {
-			res += this.voicePage(variation);
+			pages.addAll(voicePage(variation));
 		}
 
-		return res;
+		return pages;
 	}
 
 	public class Games {

@@ -35,14 +35,6 @@ public abstract class ContentPageGenerator implements PageGenerator {
 	}
 
 	/**
-	 * Generate one or more HTML pages of output.
-	 *
-	 * @return number of individual pages created
-	 */
-	@Override
-	public abstract int generate();
-
-	/**
 	 * Download and store image files locally.
 	 * <p>
 	 * This works by replacing in-memory image attachment URLs

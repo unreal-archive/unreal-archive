@@ -8,8 +8,10 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import net.shrimpworks.unreal.archive.docs.Document;
@@ -48,22 +50,22 @@ public class Documents implements PageGenerator {
 	 * @return number of individual pages created
 	 */
 	@Override
-	public int generate() {
-		int count = 0;
+	public Set<SiteMap.Page> generate() {
+		Set<SiteMap.Page> pages = new HashSet<>();
 		try {
 			// create the root landing page, for reasons
 			DocumentGroup rootGroup = new DocumentGroup(null, "");
 			rootGroup.groups.putAll(groups);
-			count += generateGroup(rootGroup);
+			pages.addAll(generateGroup(rootGroup));
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to render page", e);
 		}
 
-		return count;
+		return pages;
 	}
 
-	private int generateGroup(DocumentGroup group) throws IOException {
-		int count = 0;
+	private Set<SiteMap.Page> generateGroup(DocumentGroup group) throws IOException {
+		Set<SiteMap.Page> pages = new HashSet<>();
 
 		// we have to compute the path here, since a template can't do a while loop up its group tree itself
 		List<DocumentGroup> groupPath = new ArrayList<>();
@@ -73,29 +75,26 @@ public class Documents implements PageGenerator {
 			grp = grp.parent;
 		}
 
-		Templates.template("docs/group.ftl")
-				 .put("static", root.resolve(group.path).relativize(staticRoot))
-				 .put("title", String.join(" / ", SECTION, String.join(" / ", group.pPath.split("/"))))
-				 .put("groupPath", groupPath)
-				 .put("group", group)
-				 .put("siteRoot", root.resolve(group.path).relativize(root))
-				 .write(root.resolve(group.path).resolve("index.html"));
-
-		count++;
+		pages.add(Templates.template("docs/group.ftl", SiteMap.Page.weekly(0.6f))
+						   .put("static", root.resolve(group.path).relativize(staticRoot))
+						   .put("title", String.join(" / ", SECTION, String.join(" / ", group.pPath.split("/"))))
+						   .put("groupPath", groupPath)
+						   .put("group", group)
+						   .put("siteRoot", root.resolve(group.path).relativize(root))
+						   .write(root.resolve(group.path).resolve("index.html")));
 
 		for (DocumentGroup g : group.groups.values()) {
-			count += generateGroup(g);
+			pages.addAll(generateGroup(g));
 		}
 
 		for (DocumentInfo d : group.documents) {
-			count += generateDocument(d);
+			pages.add(generateDocument(d));
 		}
 
-		return count;
+		return pages;
 	}
 
-	private int generateDocument(DocumentInfo doc) throws IOException {
-
+	private SiteMap.Page generateDocument(DocumentInfo doc) throws IOException {
 		try (ReadableByteChannel docChan = documents.document(doc.document)) {
 
 			// we have to compute the path here, since a template can't do a while loop up its group tree itself
@@ -126,18 +125,16 @@ public class Documents implements PageGenerator {
 
 			final String page = Templates.renderMarkdown(docChan);
 
-			Templates.template("docs/document.ftl")
-					 .put("static", path.relativize(staticRoot))
-					 .put("title", String.join(" / ", SECTION, doc.document.game, String.join(" / ", doc.document.path.split("/")),
-											   doc.document.title))
-					 .put("groupPath", groupPath)
-					 .put("document", doc)
-					 .put("page", page)
-					 .put("siteRoot", path.relativize(root))
-					 .write(path.resolve("index.html"));
+			return Templates.template("docs/document.ftl", SiteMap.Page.monthly(0.8f, doc.document.updatedDate))
+							.put("static", path.relativize(staticRoot))
+							.put("title", String.join(" / ", SECTION, doc.document.game, String.join(" / ", doc.document.path.split("/")),
+													  doc.document.title))
+							.put("groupPath", groupPath)
+							.put("document", doc)
+							.put("page", page)
+							.put("siteRoot", path.relativize(root))
+							.write(path.resolve("index.html"));
 		}
-
-		return 1;
 	}
 
 	public class DocumentGroup {

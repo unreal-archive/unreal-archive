@@ -6,7 +6,7 @@
 
 	<settings defaultResolver="main"/>
 
-	<credentials host="${resolve.shrimpworks.host}"
+	<credentials host="${resolve.shrimpworks.host}" realm="${env.ARTEFACTS_REALM}"
 				 username="${env.ARTEFACTS_USER}" passwd="${env.ARTEFACTS_PASSWORD}"/>
 
 	<!-- default local settings -->

@@ -67,7 +67,11 @@ public class Templates {
 	}
 
 	public static Tpl template(String name) throws IOException {
-		return new Tpl(TPL_CONFIG.getTemplate(name));
+		return new Tpl(TPL_CONFIG.getTemplate(name), SiteMap.DEFAULT_PAGE);
+	}
+
+	public static Tpl template(String name, SiteMap.Page page) throws IOException {
+		return new Tpl(TPL_CONFIG.getTemplate(name), page);
 	}
 
 	public static boolean unpackResources(String resourceList, Path destination) throws IOException {
@@ -115,11 +119,14 @@ public class Templates {
 		private final Template template;
 		private final Map<String, Object> vars;
 
-		public Tpl(Template template) {
+		private final SiteMap.Page page;
+
+		public Tpl(Template template, SiteMap.Page page) {
 			this.template = template;
 			this.vars = new HashMap<>();
 			this.vars.put("timestamp", new Date());
 			this.vars.putAll(TPL_VARS);
+			this.page = page;
 		}
 
 		public Tpl put(String var, Object val) {
@@ -127,14 +134,14 @@ public class Templates {
 			return this;
 		}
 
-		public Tpl write(Path output) throws IOException {
+		public SiteMap.Page write(Path output) throws IOException {
 			try (Writer writer = templateOut(output)) {
 				template.process(vars, writer);
 			} catch (TemplateException e) {
 				throw new IOException("Template output failed", e);
 			}
 
-			return this;
+			return page.withPath(output);
 		}
 
 		private Writer templateOut(Path target) throws IOException {

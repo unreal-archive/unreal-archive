@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -48,6 +47,7 @@ import net.shrimpworks.unreal.archive.storage.DataStore;
 import net.shrimpworks.unreal.archive.www.Documents;
 import net.shrimpworks.unreal.archive.www.Index;
 import net.shrimpworks.unreal.archive.www.ManagedContent;
+import net.shrimpworks.unreal.archive.www.SiteMap;
 import net.shrimpworks.unreal.archive.www.Templates;
 import net.shrimpworks.unreal.archive.www.content.FileDetails;
 import net.shrimpworks.unreal.archive.www.content.MapPacks;
@@ -420,7 +420,7 @@ public class Main {
 		// unpack static content
 		Templates.unpackResources("static.list", Files.createDirectories(staticOutput).getParent());
 
-		final AtomicInteger pageCount = new AtomicInteger();
+		final Set<SiteMap.Page> allPages = new HashSet<>();
 
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("content"))) {
 			// generate content pages
@@ -434,27 +434,30 @@ public class Main {
 					new FileDetails(contentManager, outputPath, staticOutput, localImages)
 			).forEach(g -> {
 				System.out.printf("%nGenerating %s pages%n", g.getClass().getSimpleName());
-				pageCount.addAndGet(g.generate());
+				allPages.addAll(g.generate());
 			});
 		}
 
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("docs"))) {
 			// generate document pages
 			System.out.printf("%nGenerating Document pages%n");
-			pageCount.addAndGet(new Documents(documentManager, outputPath, staticOutput).generate());
+			allPages.addAll(new Documents(documentManager, outputPath, staticOutput).generate());
 		}
 
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("updates"))) {
 			// generate updates pages
 			System.out.printf("%nGenerating Updates pages%n");
-			pageCount.addAndGet(new ManagedContent(updates, outputPath, staticOutput, "Patches & Updates").generate());
+			allPages.addAll(new ManagedContent(updates, outputPath, staticOutput, "Patches & Updates").generate());
 		}
 
 		// generate index
 		System.out.printf("%nGenerating index page%n");
-		pageCount.addAndGet(new Index(contentManager, documentManager, updates, outputPath, staticOutput).generate());
+		allPages.addAll(new Index(contentManager, documentManager, updates, outputPath, staticOutput).generate());
 
-		System.out.printf("Output %d pages in %.2fs%n", pageCount.get(), (System.currentTimeMillis() - start) / 1000f);
+		System.out.printf("%nGenerating sitemap%n");
+		allPages.addAll(SiteMap.siteMap("https://unrealarchive.org", outputPath, allPages, 1000000).generate());
+
+		System.out.printf("Output %d pages in %.2fs%n", allPages.size(), (System.currentTimeMillis() - start) / 1000f);
 	}
 
 	private static void summary(ContentManager contentManager) {

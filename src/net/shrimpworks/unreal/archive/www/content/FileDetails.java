@@ -6,11 +6,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.ContentManager;
+import net.shrimpworks.unreal.archive.www.SiteMap;
 import net.shrimpworks.unreal.archive.www.Templates;
 
 public class FileDetails extends ContentPageGenerator {
@@ -31,10 +34,9 @@ public class FileDetails extends ContentPageGenerator {
 	}
 
 	@Override
-	public int generate() {
-		int count = 0;
+	public Set<SiteMap.Page> generate() {
+		Set<SiteMap.Page> pages = new HashSet<>();
 		try {
-
 			for (Map.Entry<Content.ContentFile, List<Content>> e : contentFiles.entrySet()) {
 				// we're only interested in multi-use files
 				if (e.getValue().size() < 2) continue;
@@ -43,22 +45,20 @@ public class FileDetails extends ContentPageGenerator {
 
 				e.getValue().sort(Comparator.comparing(a -> a.name));
 
-				Templates.template("content/files/file.ftl")
-						 .put("static", p.relativize(staticRoot))
-						 .put("title", String.join(" / ", "Files", e.getKey().name))
-						 .put("file", e.getKey())
-						 .put("packages", e.getValue())
-						 .put("siteRoot", root.resolve("files").relativize(root))
-						 .write(p.resolve(e.getKey().hash + ".html"));
-				count++;
+				pages.add(Templates.template("content/files/file.ftl", SiteMap.Page.monthly(0.25f))
+								   .put("static", p.relativize(staticRoot))
+								   .put("title", String.join(" / ", "Files", e.getKey().name))
+								   .put("file", e.getKey())
+								   .put("packages", e.getValue())
+								   .put("siteRoot", root.resolve("files").relativize(root))
+								   .write(p.resolve(e.getKey().hash + ".html")));
 			}
 
-		} catch (
-				IOException e) {
+		} catch (IOException e) {
 			throw new RuntimeException("Failed to render page", e);
 		}
 
-		return count;
+		return pages;
 	}
 
 }

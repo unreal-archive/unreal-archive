@@ -3,7 +3,9 @@ package net.shrimpworks.unreal.archive.www;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import net.shrimpworks.unreal.archive.content.ContentManager;
 import net.shrimpworks.unreal.archive.docs.DocumentManager;
@@ -24,29 +26,27 @@ public class Index implements PageGenerator {
 
 		this.root = output;
 		this.staticRoot = staticRoot;
-
 	}
 
 	@Override
-	public int generate() {
+	public Set<SiteMap.Page> generate() {
+		Set<SiteMap.Page> pages = new HashSet<>();
 		Map<String, Long> contentCount = new HashMap<>();
-		content.countByType().forEach((k, v) -> {
-			contentCount.put(k.getSimpleName(), v);
-		});
+		content.countByType().forEach((k, v) -> contentCount.put(k.getSimpleName(), v));
 		contentCount.put("Documents", documents.all().stream().filter(d -> d.published).count());
 		contentCount.put("Updates", updates.all().stream().filter(d -> d.published).count());
 
 		try {
-			Templates.template("index.ftl")
-					 .put("static", root.relativize(staticRoot))
-					 .put("title", "Home")
-					 .put("count", contentCount)
-					 .put("siteRoot", root)
-					 .write(root.resolve("index.html"));
+			pages.add(Templates.template("index.ftl", SiteMap.Page.of(1f, SiteMap.ChangeFrequency.weekly))
+							   .put("static", root.relativize(staticRoot))
+							   .put("title", "Home")
+							   .put("count", contentCount)
+							   .put("siteRoot", root)
+							   .write(root.resolve("index.html")));
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to render page", e);
 		}
 
-		return 1;
+		return pages;
 	}
 }

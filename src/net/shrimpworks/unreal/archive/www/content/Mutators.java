@@ -6,14 +6,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.ContentManager;
 import net.shrimpworks.unreal.archive.content.mutators.Mutator;
-import net.shrimpworks.unreal.archive.content.skins.Skin;
+import net.shrimpworks.unreal.archive.www.SiteMap;
 import net.shrimpworks.unreal.archive.www.Templates;
 
 import static net.shrimpworks.unreal.archive.www.Templates.slug;
@@ -39,36 +41,34 @@ public class Mutators extends ContentPageGenerator {
 	}
 
 	@Override
-	public int generate() {
-		int count = 0;
+	public Set<SiteMap.Page> generate() {
+		Set<SiteMap.Page> pages = new HashSet<>();
 		try {
-			Templates.template("content/mutators/games.ftl")
-					 .put("static", root.relativize(staticRoot))
-					 .put("title", "Mutators")
-					 .put("games", games)
-					 .put("siteRoot", root)
-					 .write(root.resolve("index.html"));
-			count++;
+			pages.add(Templates.template("content/mutators/games.ftl", SiteMap.Page.monthly(0.6f))
+							   .put("static", root.relativize(staticRoot))
+							   .put("title", "Mutators")
+							   .put("games", games)
+							   .put("siteRoot", root)
+							   .write(root.resolve("index.html")));
 
 			for (java.util.Map.Entry<String, Game> g : games.games.entrySet()) {
 				if (g.getValue().mutators < Templates.PAGE_SIZE) {
 					List<MutatorInfo> all = g.getValue().letters.values().stream()
-															 .flatMap(l -> l.pages.stream())
-															 .flatMap(e -> e.mutators.stream())
-															 .sorted()
-															 .collect(Collectors.toList());
-					Templates.template("content/mutators/listing_single.ftl")
-							 .put("static", root.resolve(g.getValue().path).relativize(staticRoot))
-							 .put("title", String.join(" / ", "Mutators", g.getKey()))
-							 .put("game", g.getValue())
-							 .put("mutators", all)
-							 .put("siteRoot", root.resolve(g.getValue().path).relativize(root))
-							 .write(root.resolve(g.getValue().path).resolve("index.html"));
-					count++;
+																.flatMap(l -> l.pages.stream())
+																.flatMap(e -> e.mutators.stream())
+																.sorted()
+																.collect(Collectors.toList());
+					pages.add(Templates.template("content/mutators/listing_single.ftl", SiteMap.Page.weekly(0.65f))
+									   .put("static", root.resolve(g.getValue().path).relativize(staticRoot))
+									   .put("title", String.join(" / ", "Mutators", g.getKey()))
+									   .put("game", g.getValue())
+									   .put("mutators", all)
+									   .put("siteRoot", root.resolve(g.getValue().path).relativize(root))
+									   .write(root.resolve(g.getValue().path).resolve("index.html")));
 
-					// still generate all map pages
+					// still generate all mutator pages
 					for (MutatorInfo skin : all) {
-						count += skinPage(skin);
+						pages.addAll(skinPage(skin));
 					}
 
 					continue;
@@ -77,67 +77,63 @@ public class Mutators extends ContentPageGenerator {
 				for (java.util.Map.Entry<String, LetterGroup> l : g.getValue().letters.entrySet()) {
 
 					for (Page p : l.getValue().pages) {
-						Templates.template("content/mutators/listing.ftl")
-								 .put("static", root.resolve(p.path).relativize(staticRoot))
-								 .put("title", String.join(" / ", "Mutators", g.getKey()))
-								 .put("page", p)
-								 .put("root", p.path)
-								 .put("siteRoot", root.resolve(p.path).relativize(root))
-								 .write(root.resolve(p.path).resolve("index.html"));
-						count++;
+						pages.add(Templates.template("content/mutators/listing.ftl", SiteMap.Page.weekly(0.65f))
+										   .put("static", root.resolve(p.path).relativize(staticRoot))
+										   .put("title", String.join(" / ", "Mutators", g.getKey()))
+										   .put("page", p)
+										   .put("root", p.path)
+										   .put("siteRoot", root.resolve(p.path).relativize(root))
+										   .write(root.resolve(p.path).resolve("index.html")));
 
 						for (MutatorInfo skin : p.mutators) {
-							count += skinPage(skin);
+							pages.addAll(skinPage(skin));
 						}
 					}
 
 					// output first letter/page combo, with appropriate relative links
-					Templates.template("content/mutators/listing.ftl")
-							 .put("static", root.resolve(l.getValue().path).relativize(staticRoot))
-							 .put("title", String.join(" / ", "Mutators", g.getKey()))
-							 .put("page", l.getValue().pages.get(0))
-							 .put("root", l.getValue().path)
-							 .put("siteRoot", root.resolve(l.getValue().path).relativize(root))
-							 .write(root.resolve(l.getValue().path).resolve("index.html"));
-					count++;
+					pages.add(Templates.template("content/mutators/listing.ftl", SiteMap.Page.weekly(0.65f))
+									   .put("static", root.resolve(l.getValue().path).relativize(staticRoot))
+									   .put("title", String.join(" / ", "Mutators", g.getKey()))
+									   .put("page", l.getValue().pages.get(0))
+									   .put("root", l.getValue().path)
+									   .put("siteRoot", root.resolve(l.getValue().path).relativize(root))
+									   .write(root.resolve(l.getValue().path).resolve("index.html")));
 				}
 
 				// output first letter/page combo, with appropriate relative links
-				Templates.template("content/mutators/listing.ftl")
-						 .put("static", root.resolve(g.getValue().path).relativize(staticRoot))
-						 .put("title", String.join(" / ", "Mutators", g.getKey()))
-						 .put("page", g.getValue().letters.firstEntry().getValue().pages.get(0))
-						 .put("root", g.getValue().path)
-						 .put("siteRoot", root.resolve(g.getValue().path).relativize(root))
-						 .write(root.resolve(g.getValue().path).resolve("index.html"));
-				count++;
+				pages.add(Templates.template("content/mutators/listing.ftl", SiteMap.Page.weekly(0.65f))
+								   .put("static", root.resolve(g.getValue().path).relativize(staticRoot))
+								   .put("title", String.join(" / ", "Mutators", g.getKey()))
+								   .put("page", g.getValue().letters.firstEntry().getValue().pages.get(0))
+								   .put("root", g.getValue().path)
+								   .put("siteRoot", root.resolve(g.getValue().path).relativize(root))
+								   .write(root.resolve(g.getValue().path).resolve("index.html")));
 			}
 
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to render page", e);
 		}
 
-		return count;
+		return pages;
 	}
 
-	private int skinPage(MutatorInfo mutator) throws IOException {
+	private Set<SiteMap.Page> skinPage(MutatorInfo mutator) throws IOException {
+		Set<SiteMap.Page> pages = new HashSet<>();
 		localImages(mutator.mutator, root.resolve(mutator.path).getParent());
 
-		Templates.template("content/mutators/mutator.ftl")
-				 .put("static", root.resolve(mutator.path).getParent().relativize(staticRoot))
-				 .put("title", String.join(" / ", "Mutator", mutator.page.letter.game.name, mutator.mutator.name))
-				 .put("mutator", mutator)
-				 .put("siteRoot", root.resolve(mutator.path).getParent().relativize(root))
-				 .write(root.resolve(mutator.path + ".html"));
-
-		int res = 1;
+		pages.add(Templates.template("content/mutators/mutator.ftl", SiteMap.Page.monthly(0.9f, mutator.mutator.lastIndex))
+						   .put("static", root.resolve(mutator.path).getParent().relativize(staticRoot))
+						   .put("title", String.join(" / ", "Mutator", mutator.page.letter.game.name, mutator.mutator.name))
+						   .put("mutator", mutator)
+						   .put("siteRoot", root.resolve(mutator.path).getParent().relativize(root))
+						   .write(root.resolve(mutator.path + ".html")));
 
 		// since variations are not top-level things, we need to generate them here
 		for (MutatorInfo variation : mutator.variations) {
-			res += this.skinPage(variation);
+			pages.addAll(skinPage(variation));
 		}
 
-		return res;
+		return pages;
 	}
 
 	public class Games {

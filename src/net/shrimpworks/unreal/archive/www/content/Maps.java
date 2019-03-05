@@ -6,13 +6,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.ContentManager;
 import net.shrimpworks.unreal.archive.content.maps.Map;
+import net.shrimpworks.unreal.archive.www.SiteMap;
 import net.shrimpworks.unreal.archive.www.Templates;
 
 import static net.shrimpworks.unreal.archive.www.Templates.slug;
@@ -43,8 +46,8 @@ public class Maps extends ContentPageGenerator {
 	}
 
 	@Override
-	public int generate() {
-		int count = 0;
+	public Set<SiteMap.Page> generate() {
+		Set<SiteMap.Page> pages = new HashSet<>();
 		try {
 			// url structure:
 			// landing with games: /maps/index.html
@@ -52,22 +55,20 @@ public class Maps extends ContentPageGenerator {
 			// gametype page: /maps/game/gametype/a/1.html
 			// map page: /maps/game/gametype/a/1/name_hash8.html
 
-			Templates.template("content/maps/games.ftl")
-					 .put("static", root.relativize(staticRoot))
-					 .put("title", "Maps")
-					 .put("games", games)
-					 .put("siteRoot", root)
-					 .write(root.resolve("index.html"));
-			count++;
+			pages.add(Templates.template("content/maps/games.ftl", SiteMap.Page.monthly(0.6f))
+							   .put("static", root.relativize(staticRoot))
+							   .put("title", "Maps")
+							   .put("games", games)
+							   .put("siteRoot", root)
+							   .write(root.resolve("index.html")));
 
 			for (java.util.Map.Entry<String, Game> g : games.games.entrySet()) {
-				Templates.template("content/maps/gametypes.ftl")
-						 .put("static", root.resolve(g.getValue().path).relativize(staticRoot))
-						 .put("title", String.join(" / ", "Maps", g.getKey()))
-						 .put("game", g.getValue())
-						 .put("siteRoot", root.resolve(g.getValue().path).relativize(root))
-						 .write(root.resolve(g.getValue().path).resolve("index.html"));
-				count++;
+				pages.add(Templates.template("content/maps/gametypes.ftl", SiteMap.Page.monthly(0.62f))
+								   .put("static", root.resolve(g.getValue().path).relativize(staticRoot))
+								   .put("title", String.join(" / ", "Maps", g.getKey()))
+								   .put("game", g.getValue())
+								   .put("siteRoot", root.resolve(g.getValue().path).relativize(root))
+								   .write(root.resolve(g.getValue().path).resolve("index.html")));
 
 				for (java.util.Map.Entry<String, Gametype> gt : g.getValue().gametypes.entrySet()) {
 
@@ -78,19 +79,17 @@ public class Maps extends ContentPageGenerator {
 																 .flatMap(e -> e.maps.stream())
 																 .sorted()
 																 .collect(Collectors.toList());
-						Templates.template("content/maps/listing_single.ftl")
-								 .put("static", root.resolve(gt.getValue().path).relativize(staticRoot))
-								 .put("title", String.join(" / ", "Maps", g.getKey(), gt.getKey()))
-								 .put("gametype", gt.getValue())
-								 .put("maps", all)
-								 .put("siteRoot", root.resolve(gt.getValue().path).relativize(root))
-								 .write(root.resolve(gt.getValue().path).resolve("index.html"));
-						count++;
+						pages.add(Templates.template("content/maps/listing_single.ftl", SiteMap.Page.weekly(0.65f))
+										   .put("static", root.resolve(gt.getValue().path).relativize(staticRoot))
+										   .put("title", String.join(" / ", "Maps", g.getKey(), gt.getKey()))
+										   .put("gametype", gt.getValue())
+										   .put("maps", all)
+										   .put("siteRoot", root.resolve(gt.getValue().path).relativize(root))
+										   .write(root.resolve(gt.getValue().path).resolve("index.html")));
 
 						// still generate all map pages
 						for (MapInfo map : all) {
-							mapPage(map);
-							count++;
+							pages.addAll(mapPage(map));
 						}
 
 						continue;
@@ -99,42 +98,37 @@ public class Maps extends ContentPageGenerator {
 					for (java.util.Map.Entry<String, LetterGroup> l : gt.getValue().letters.entrySet()) {
 
 						for (Page p : l.getValue().pages) {
-							Templates.template("content/maps/listing.ftl")
-									 .put("static", root.resolve(p.path).relativize(staticRoot))
-									 .put("title", String.join(" / ", "Maps", g.getKey(), gt.getKey()))
-									 .put("page", p)
-									 .put("root", p.path)
-									 .put("siteRoot", root.resolve(p.path).relativize(root))
-									 .write(root.resolve(p.path).resolve("index.html"));
-							count++;
+							pages.add(Templates.template("content/maps/listing.ftl", SiteMap.Page.weekly(0.65f))
+											   .put("static", root.resolve(p.path).relativize(staticRoot))
+											   .put("title", String.join(" / ", "Maps", g.getKey(), gt.getKey()))
+											   .put("page", p)
+											   .put("root", p.path)
+											   .put("siteRoot", root.resolve(p.path).relativize(root))
+											   .write(root.resolve(p.path).resolve("index.html")));
 
 							for (MapInfo map : p.maps) {
-								mapPage(map);
-								count++;
+								pages.addAll(mapPage(map));
 							}
 						}
 
 						// output first letter/page combo, with appropriate relative links
-						Templates.template("content/maps/listing.ftl")
-								 .put("static", root.resolve(l.getValue().path).relativize(staticRoot))
-								 .put("title", String.join(" / ", "Maps", g.getKey(), gt.getKey()))
-								 .put("page", l.getValue().pages.get(0))
-								 .put("root", l.getValue().path)
-								 .put("siteRoot", root.resolve(l.getValue().path).relativize(root))
-								 .write(root.resolve(l.getValue().path).resolve("index.html"));
-						count++;
-
+						pages.add(Templates.template("content/maps/listing.ftl", SiteMap.Page.weekly(0.65f))
+										   .put("static", root.resolve(l.getValue().path).relativize(staticRoot))
+										   .put("title", String.join(" / ", "Maps", g.getKey(), gt.getKey()))
+										   .put("page", l.getValue().pages.get(0))
+										   .put("root", l.getValue().path)
+										   .put("siteRoot", root.resolve(l.getValue().path).relativize(root))
+										   .write(root.resolve(l.getValue().path).resolve("index.html")));
 					}
 
 					// output first letter/page combo, with appropriate relative links
-					Templates.template("content/maps/listing.ftl")
-							 .put("static", root.resolve(gt.getValue().path).relativize(staticRoot))
-							 .put("title", String.join(" / ", "Maps", g.getKey(), gt.getKey()))
-							 .put("page", gt.getValue().letters.firstEntry().getValue().pages.get(0))
-							 .put("root", gt.getValue().path)
-							 .put("siteRoot", root.resolve(gt.getValue().path).relativize(root))
-							 .write(root.resolve(gt.getValue().path).resolve("index.html"));
-					count++;
+					pages.add(Templates.template("content/maps/listing.ftl", SiteMap.Page.weekly(0.65f))
+									   .put("static", root.resolve(gt.getValue().path).relativize(staticRoot))
+									   .put("title", String.join(" / ", "Maps", g.getKey(), gt.getKey()))
+									   .put("page", gt.getValue().letters.firstEntry().getValue().pages.get(0))
+									   .put("root", gt.getValue().path)
+									   .put("siteRoot", root.resolve(gt.getValue().path).relativize(root))
+									   .write(root.resolve(gt.getValue().path).resolve("index.html")));
 				}
 			}
 
@@ -142,22 +136,26 @@ public class Maps extends ContentPageGenerator {
 			throw new RuntimeException("Failed to render page", e);
 		}
 
-		return count;
+		return pages;
 	}
 
-	private void mapPage(MapInfo map) throws IOException {
+	private Set<SiteMap.Page> mapPage(MapInfo map) throws IOException {
+		Set<SiteMap.Page> paths = new HashSet<>();
 		localImages(map.map, root.resolve(map.path).getParent());
 
-		Templates.template("content/maps/map.ftl")
-				 .put("static", root.resolve(map.path).getParent().relativize(staticRoot))
-				 .put("title", String.join(" / ", "Maps", map.page.letter.gametype.game.name, map.page.letter.gametype.name, map.map.title))
-				 .put("map", map)
-				 .put("siteRoot", root.resolve(map.path).getParent().relativize(root))
-				 .write(root.resolve(map.path + ".html"));
+		paths.add(Templates.template("content/maps/map.ftl", SiteMap.Page.monthly(0.9f, map.map.lastIndex))
+						   .put("static", root.resolve(map.path).getParent().relativize(staticRoot))
+						   .put("title", String.join(" / ", "Maps", map.page.letter.gametype.game.name,
+													 map.page.letter.gametype.name, map.map.title))
+						   .put("map", map)
+						   .put("siteRoot", root.resolve(map.path).getParent().relativize(root))
+						   .write(root.resolve(map.path + ".html")));
 
 		for (MapInfo variation : map.variations) {
-			this.mapPage(variation);
+			paths.addAll(this.mapPage(variation));
 		}
+
+		return paths;
 	}
 
 	public class Games {
