@@ -28,6 +28,8 @@
 	<property name="checkstyle.report.style" location="etc/checkstyle-noframes.xsl"/>
 	<property name="checkstyle.report.html" location="${build.reports.dir}/checkstyle.html"/>
 
+	<property environment="env"/>
+
 	<path id="default.classpath">
 		<fileset dir="${lib.dir}" includes="default/*.jar"/>
 		<pathelement path="${build.src.dir}"/>
