@@ -12,7 +12,8 @@ import java.util.stream.Collectors;
 
 public interface SiteMap extends PageGenerator {
 
-	public Page DEFAULT_PAGE = Page.of(Page.DEFAULT_PRIORITY, Page.DEFAULT_LAST_MOD, Page.DEFAULT_FREQ);
+	final Page DEFAULT_PAGE = Page.of(Page.DEFAULT_PRIORITY, Page.DEFAULT_LAST_MOD, Page.DEFAULT_FREQ);
+	final String SITE_ROOT = System.getenv().getOrDefault("SITE_URL", "");
 
 	enum ChangeFrequency {
 		always,
