@@ -455,7 +455,7 @@ public class Main {
 		allPages.addAll(new Index(contentManager, documentManager, updates, outputPath, staticOutput).generate());
 
 		System.out.printf("%nGenerating sitemap%n");
-		allPages.addAll(SiteMap.siteMap(SiteMap.SITE_ROOT, outputPath, allPages, 1000000).generate());
+		allPages.addAll(SiteMap.siteMap(SiteMap.SITE_ROOT, outputPath, allPages, 50000).generate());
 
 		System.out.printf("Output %d pages in %.2fs%n", allPages.size(), (System.currentTimeMillis() - start) / 1000f);
 	}
