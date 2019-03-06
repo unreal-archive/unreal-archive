@@ -4,13 +4,14 @@
 
 	<configurations>
 		<conf name="default"/>
+		<conf name="modules"/>
 		<conf name="test" extends="default"/>
 		<conf name="checkstyle" extends="default"/>
 	</configurations>
 
 	<dependencies>
 		<!-- internal dependencies -->
-		<dependency org="net.shrimpworks" name="unreal-package-lib" rev="1.+" conf="default"/>
+		<dependency org="net.shrimpworks" name="unreal-package-lib" rev="1.+" conf="modules->default"/>
 
 		<!-- project dependencies -->
 		<dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.9.6" conf="default"/>
