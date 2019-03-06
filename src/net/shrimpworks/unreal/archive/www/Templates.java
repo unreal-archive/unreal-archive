@@ -164,6 +164,9 @@ public class Templates {
 			if (LINK_PREFIX.matcher(one).matches()) return one;
 			if (LINK_PREFIX.matcher(two).matches()) return two;
 
+			// simply join already relative paths
+			if (one.startsWith(".")) return String.join("/", one, two);
+
 			return Paths.get(one).relativize(Paths.get(two));
 		}
 	}
