@@ -199,6 +199,7 @@
 		<javac srcdir="${test.dir}" destdir="${build.test.dir}" includeantruntime="false" debug="on"
 			   target="${target.version}" source="${src.version}">
 			<classpath refid="default.classpath"/>
+			<modulepath refid="default.modulepath"/>
 			<classpath refid="test.classpath"/>
 		</javac>
 		<copy todir="${build.test.dir}">
@@ -212,6 +213,7 @@
 		<junit printsummary="yes" fork="yes" haltonfailure="no"
 			   errorproperty="tests.errors" failureproperty="tests.failures">
 			<classpath refid="default.classpath"/>
+			<modulepath refid="default.modulepath"/>
 			<classpath refid="test.classpath"/>
 
 			<formatter type="plain" usefile="false"/>

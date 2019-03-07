@@ -12,5 +12,5 @@ if [ ! -d "${ANT_HOME}/bin" ]; then
   curl "$ANT_URL" --output /tmp/ant-bin.zip
   (cd /tmp && unzip ant-bin.zip && rm ant-bin)
   mv "/tmp/apache-ant-${ANT_VERSION}" $ANT_HOME
-  (cd $ANT_HOME && ./bin/ant -f fetch.xml -Ddest=system)
+  (cd $ANT_HOME && ./bin/ant -f fetch.xml -Ddest=system junit)
 fi
