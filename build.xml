@@ -199,8 +199,8 @@
 		<javac srcdir="${test.dir}" destdir="${build.test.dir}" includeantruntime="false" debug="on"
 			   target="${target.version}" source="${src.version}">
 			<classpath refid="default.classpath"/>
-			<modulepath refid="default.modulepath"/>
 			<classpath refid="test.classpath"/>
+			<modulepath refid="default.modulepath"/>
 		</javac>
 		<copy todir="${build.test.dir}">
 			<fileset dir="resources/test"/>
@@ -210,11 +210,11 @@
 
 	<!-- Run tests -->
 	<target name="run-tests" depends="build-tests" description="run junit tests">
-		<junit printsummary="yes" fork="yes" haltonfailure="no"
+		<junit printsummary="true" fork="true" haltonfailure="false"
 			   errorproperty="tests.errors" failureproperty="tests.failures">
 			<classpath refid="default.classpath"/>
-			<modulepath refid="default.modulepath"/>
 			<classpath refid="test.classpath"/>
+			<modulepath refid="default.modulepath"/>
 
 			<formatter type="plain" usefile="false"/>
 			<batchtest>

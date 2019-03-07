@@ -1,5 +1,6 @@
 package net.shrimpworks.unreal.archive.content;
 
+import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDateTime;
 
 import net.shrimpworks.unreal.archive.Util;
@@ -64,7 +65,7 @@ public enum ContentType {
 	@SuppressWarnings("unchecked")
 	public <T extends Content> T newContent(Incoming incoming) {
 		try {
-			T newInstance = (T)contentClass.newInstance();
+			T newInstance = (T)contentClass.getDeclaredConstructor().newInstance();
 
 			newInstance.contentType = this.name();
 
@@ -100,7 +101,7 @@ public enum ContentType {
 			newInstance.firstIndex = LocalDateTime.now();
 
 			return newInstance;
-		} catch (InstantiationException | IllegalAccessException e) {
+		} catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
 			throw new RuntimeException("Failed to create content instance of type " + contentClass.getSimpleName(), e);
 		}
 	}
