@@ -13,16 +13,17 @@ cache:
 before_install:
   - sudo apt-get update
   - sudo apt-get install -y p7zip-full unrar
+  - ./resources/install-ant.sh
 
 jobs:
   include:
     - stage: test
-      script: ant test
+      script: ~/.ant/ant/ant test
     - stage: build and publish binaries
       if: branch = master
       script:
-        - ant publish
-        - ant bin
+        - ~/.ant/ant/ant publish
+        - ~/.ant/ant/ant bin
         - ./resources/publish.sh https://code.shrimpworks.za.net/artefacts/unreal-archive ./dist/unreal-archive ./dist/unreal-archive-exec.jar
     - stage: trigger publish of www content
       if: branch = master
