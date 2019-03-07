@@ -8,6 +8,12 @@ module net.shrimpworks.unreal.archive {
 	requires jackson.annotations;
 	requires txtmark;
 	requires freemarker;
+	requires org.apache.httpcomponents.httpclient;
+	requires org.apache.httpcomponents.httpclient.fluent;
+	requires jsoup;
+	requires org.apache.httpcomponents.httpcore;
+	requires b2.sdk.core;
+	requires b2.sdk.httpclient;
 
 	exports net.shrimpworks.unreal.archive;
 	exports net.shrimpworks.unreal.archive.content;
