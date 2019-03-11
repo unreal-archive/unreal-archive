@@ -8,9 +8,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.apache.http.client.HttpResponseException;
-import org.apache.http.client.fluent.Request;
-
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.ContentManager;
@@ -107,11 +104,8 @@ public class MirrorClient {
 				if (Files.exists(dest) && Files.size(dest) == content.fileSize) return;
 
 				// download the stuff, hopefully
-				Request.Get(Util.toUriString(dl.url)).execute().saveContent(dest.toFile());
+				Util.downloadTo(Util.toUriString(dl.url), dest);
 
-			} catch (HttpResponseException e) {
-				// note: e.message is always empty, thanks apache :thumbsup:
-				System.err.printf("%nFailed to download content %s: HTTP %s%n", content.contentPath(output), e.getStatusCode());
 			} catch (Throwable t) {
 				System.err.printf("%nFailed to download content %s: %s%n", content.contentPath(output), t.toString());
 			} finally {

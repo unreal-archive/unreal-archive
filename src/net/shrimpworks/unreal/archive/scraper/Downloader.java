@@ -15,12 +15,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.fluent.Request;
-import org.apache.http.client.fluent.Response;
 
 import net.shrimpworks.unreal.archive.CLI;
+import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.YAML;
 import net.shrimpworks.unreal.archive.content.Submission;
 
@@ -73,8 +70,7 @@ public class Downloader {
 			Path dir = output.resolve(url.path);
 			if (!Files.isDirectory(dir)) Files.createDirectories(dir);
 
-			Path ymlFile = dir.resolve(url.name + ".yml");
-			Path outFile = dir.resolve(url.name);
+			final Path ymlFile = dir.resolve(url.name + ".yml");
 
 			if (Files.exists(ymlFile)) return false;
 
@@ -86,29 +82,50 @@ public class Downloader {
 
 			System.out.println("Downloading from " + dl);
 
-			Response response = Request.Get(toUri(dl)).userAgent(USER_AGENT).addHeader("Connection", "close").execute();
-			HttpResponse httpResponse = response.returnResponse();
-			if (httpResponse.getStatusLine().getStatusCode() >= 400) {
-				System.out.println("HTTP Failure: " + httpResponse.getStatusLine().getReasonPhrase());
-				return false;
-			}
+			Util.urlRequest(Util.toUriString(dl), http -> {
+				try {
+					Path ymlOutFile = dir.resolve(url.name);
+					Path outFile = dir.resolve(url.name);
 
-			Header disposition = httpResponse.getFirstHeader("Content-Disposition");
-			if (disposition != null) {
-				Matcher matcher = CONTENT_DISPOSITION_FILENAME.matcher(disposition.getValue());
-				if (matcher.matches()) {
-					outFile = dir.resolve(matcher.group(1));
-					ymlFile = dir.resolve(matcher.group(1) + ".yml");
+					String disposition = http.getHeaderField("Content-Disposition");
+					if (disposition != null) {
+						Matcher matcher = CONTENT_DISPOSITION_FILENAME.matcher(disposition);
+						if (matcher.matches()) {
+							outFile = dir.resolve(matcher.group(1));
+							ymlOutFile = dir.resolve(matcher.group(1) + ".yml");
+						}
+					}
+
+					Files.createDirectories(outFile.getParent());
+					Files.copy(http.getInputStream(), outFile);
+
+					Submission sub = new Submission(outFile, url.pageUrl);
+					Files.write(ymlOutFile, YAML.toString(sub).getBytes(StandardCharsets.UTF_8),
+								StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+
+					System.out.println("Wrote file to " + outFile.toString());
+				} catch (IOException e) {
+					System.out.println("HTTP Failure: " + e.toString());
 				}
-			}
+			});
 
-			httpResponse.getEntity().writeTo(Files.newOutputStream(outFile, StandardOpenOption.CREATE, StandardOpenOption.WRITE));
-
-			Submission sub = new Submission(outFile, url.pageUrl);
-			Files.write(ymlFile, YAML.toString(sub).getBytes(StandardCharsets.UTF_8),
-						StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-
-			System.out.println("Wrote file to " + outFile.toString());
+//			Response response = Request.Get(toUri(dl)).userAgent(USER_AGENT).addHeader("Connection", "close").execute();
+//			HttpResponse httpResponse = response.returnResponse();
+//			if (httpResponse.getStatusLine().getStatusCode() >= 400) {
+//				System.out.println("HTTP Failure: " + httpResponse.getStatusLine().getReasonPhrase());
+//				return false;
+//			}
+//
+//			Header disposition = httpResponse.getFirstHeader("Content-Disposition");
+//			if (disposition != null) {
+//				Matcher matcher = CONTENT_DISPOSITION_FILENAME.matcher(disposition.getValue());
+//				if (matcher.matches()) {
+//					outFile = dir.resolve(matcher.group(1));
+//					ymlFile = dir.resolve(matcher.group(1) + ".yml");
+//				}
+//			}
+//
+//			httpResponse.getEntity().writeTo(Files.newOutputStream(outFile, StandardOpenOption.CREATE, StandardOpenOption.WRITE));
 		} catch (Exception e) {
 			System.err.printf("Failed to download %s: %s%n", url.name, e.toString());
 		}

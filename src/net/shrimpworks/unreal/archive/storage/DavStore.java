@@ -1,17 +1,16 @@
 package net.shrimpworks.unreal.archive.storage;
 
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
-import org.apache.http.client.fluent.Request;
-import org.apache.http.client.fluent.Response;
-import org.apache.http.entity.ContentType;
-
 import net.shrimpworks.unreal.archive.CLI;
 import net.shrimpworks.unreal.archive.Util;
+
+//import org.apache.http.client.fluent.Request;
+//import org.apache.http.client.fluent.Response;
+//import org.apache.http.entity.ContentType;
 
 /**
  * A simple HTTP storage solution, useful for testing and validation.
@@ -47,28 +46,21 @@ public class DavStore implements DataStore {
 
 	@Override
 	public void store(Path path, String name, Consumer<String> stored) throws IOException {
-		URI uri = Util.toUri(baseUrl + name);
-		Response execute = Request.Put(uri)
-								  .bodyFile(path.toFile(), ContentType.DEFAULT_BINARY)
-								  .execute();
-		if (execute.returnResponse().getStatusLine().getStatusCode() < 400) {
-			stored.accept(uri.toString());
-		}
+		String url = Util.toUriString(baseUrl + name);
+		Util.uploadTo(path, url);
+
+		stored.accept(url);
 	}
 
 	@Override
 	public void delete(String url, Consumer<Boolean> deleted) throws IOException {
-		Response execute = Request.Delete(url).execute();
-		deleted.accept(execute.returnResponse().getStatusLine().getStatusCode() < 400);
+		deleted.accept(Util.deleteRemote(Util.toUriString(url)));
 	}
 
 	@Override
 	public void download(String url, Consumer<Path> downloaded) throws IOException {
-		Response execute = Request.Get(url).execute();
-
 		Path tempFile = Files.createTempFile("dl_", url.substring(0, url.lastIndexOf("/") + 1));
-
-		execute.saveContent(tempFile.toFile());
+		Util.downloadTo(Util.toUriString(url), tempFile);
 
 		downloaded.accept(tempFile);
 	}

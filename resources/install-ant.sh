@@ -2,7 +2,7 @@
 
 ANT_VERSION=1.10.5
 
-ANT_URL="http://apache.saix.net/ant/binaries/apache-ant-${ANT_VERSION}-bin.zip"
+ANT_URL="https://www-eu.apache.org/dist/ant/binaries/apache-ant-${ANT_VERSION}-bin.zip"
 
 ANT_HOME=~/.ant/ant
 

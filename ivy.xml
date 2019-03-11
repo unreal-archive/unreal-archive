@@ -11,14 +11,14 @@
 
 	<dependencies>
 		<!-- internal dependencies -->
-		<dependency org="net.shrimpworks" name="unreal-package-lib" rev="1.+" conf="modules->default"/>
+		<dependency org="net.shrimpworks" name="unreal-package-lib" rev="1.+" conf="default"/>
 
 		<!-- project dependencies -->
 		<dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.9.6" conf="default"/>
 		<dependency org="com.fasterxml.jackson.dataformat" name="jackson-dataformat-yaml" rev="2.9.6" conf="default"/>
 
 		<dependency org="org.jsoup" name="jsoup" rev="1.9.+" conf="default"/>
-		<dependency org="org.apache.httpcomponents" name="fluent-hc" rev="4.+" conf="default"/>
+		<!--<dependency org="org.apache.httpcomponents" name="fluent-hc" rev="4.+" conf="default"/>-->
 
 		<dependency org="org.freemarker" name="freemarker" rev="2.+" conf="default"/>
 

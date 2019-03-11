@@ -1,6 +1,8 @@
 package net.shrimpworks.unreal.archive;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -15,6 +17,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -170,5 +173,48 @@ public final class Util {
 		httpConn.disconnect();
 
 		return saveTo;
+	}
+
+	public static void urlRequest(String url, Consumer<HttpURLConnection> onOK) throws IOException {
+		URL urlConnection = new URL(url);
+		HttpURLConnection httpConn = (HttpURLConnection)urlConnection.openConnection();
+		int responseCode = httpConn.getResponseCode();
+
+		if (responseCode == HttpURLConnection.HTTP_OK) {
+			onOK.accept(httpConn);
+		}
+
+		httpConn.disconnect();
+	}
+
+
+
+	public static boolean uploadTo(Path localFile, String url) throws IOException {
+		URL urlConnection = new URL(url);
+		HttpURLConnection httpConn = (HttpURLConnection)urlConnection.openConnection();
+		httpConn.setDoOutput(true);
+		httpConn.setRequestMethod("PUT");
+		httpConn.setRequestProperty("Content-Length", Long.toString(Files.size(localFile)));
+		httpConn.connect();
+
+		try (OutputStream output = httpConn.getOutputStream();
+			 InputStream input = Files.newInputStream(localFile, StandardOpenOption.READ)) {
+			byte[] buffer = new byte[4096];
+			int length;
+			while ((length = input.read(buffer)) > 0) {
+				output.write(buffer, 0, length);
+			}
+			output.flush();
+
+			return httpConn.getResponseCode() < 400;
+		}
+	}
+
+	public static boolean deleteRemote(String url) throws IOException {
+		URL urlConnection = new URL(url);
+		HttpURLConnection httpConn = (HttpURLConnection)urlConnection.openConnection();
+		httpConn.setRequestMethod("DELETE");
+		httpConn.connect();
+		return httpConn.getResponseCode() < 400;
 	}
 }
