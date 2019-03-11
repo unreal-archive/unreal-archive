@@ -54,6 +54,11 @@ public interface SiteMap extends PageGenerator {
 									  .put("pages", pages)
 									  .put("siteRoot", root)
 									  .write(root.resolve("sitemap.xml")));
+
+				genPages.add(Templates.template("robots.ftl", Page.monthly(0))
+									  .put("rootUrl", rootUrl)
+									  .put("siteRoot", root)
+									  .write(root.resolve("robots.txt")));
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
