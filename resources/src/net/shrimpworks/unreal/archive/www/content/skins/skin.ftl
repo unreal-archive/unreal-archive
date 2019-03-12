@@ -66,7 +66,7 @@
 				<div class="label-value">
 					<label>File Name</label><span>${skin.skin.originalFilename}</span>
 				</div>
-				<div class="label-value">
+				<div class="label-value nomobile">
 					<label>Hash</label><span>${skin.skin.hash}</span>
 				</div>
 			</section>

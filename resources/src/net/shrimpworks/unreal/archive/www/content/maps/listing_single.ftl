@@ -17,20 +17,20 @@
 			<thead>
 			<tr>
 				<th>Map</th>
-				<th>Title</th>
+				<th class="nomobile">Title</th>
 				<th>Author</th>
 				<th>Players</th>
-				<th> </th>
+				<th class="nomobile"> </th>
 			</tr>
 			</thead>
 			<tbody>
 				<#list maps as m>
 				<tr>
 					<td><a href="${relUrl(gametype.path, m.path + ".html")}">${m.map.name}</a></td>
-					<td>${m.map.title}</td>
+					<td class="nomobile">${m.map.title}</td>
 					<td>${m.map.author}</td>
 					<td>${m.map.playerCount}</td>
-					<td class="meta">
+					<td class="meta nomobile">
 						<#if m.map.attachments?size gt 0>
 							<img src="${staticPath(static)}/images/icons/black/px22/ico-images-grey.png" alt="Has images"/>
 						</#if>

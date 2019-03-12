@@ -61,7 +61,7 @@
 				<div class="label-value">
 					<label>File Name</label><span>${map.map.originalFilename}</span>
 				</div>
-				<div class="label-value">
+				<div class="label-value nomobile">
 					<label>Hash</label><span>${map.map.hash}</span>
 				</div>
 			</section>

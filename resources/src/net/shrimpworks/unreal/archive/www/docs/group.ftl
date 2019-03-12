@@ -28,17 +28,17 @@
 			<table class="docs">
 				<thead>
 				<tr>
-					<th>&nbsp;</th>
+					<th class="nomobile">&nbsp;</th>
 					<th>Title</th>
 					<th>Author</th>
-					<th>Created</th>
+					<th class="nomobile">Created</th>
 					<th>Last Updated</th>
 				</tr>
 				</thead>
 				<tbody>
 					<#list group.documents as d>
 						<tr class="${d?item_parity}">
-							<td class="title-image" rowspan="2">
+							<td class="title-image nomobile" rowspan="2">
 								<a href="${relUrl(group.path, d.path)}/index.html">
 									<#if d.document.titleImage??>
 										<img src="${relUrl(group.path, d.path)}/${d.document.titleImage}"/>
@@ -49,7 +49,7 @@
 							</td>
 							<td nowrap="nowrap"><a href="${relUrl(group.path, d.path)}/index.html">${d.document.title}</a></td>
 							<td>${d.document.author}</td>
-							<td>${d.document.createdDate}</td>
+							<td class="nomobile">${d.document.createdDate}</td>
 							<td>${d.document.updatedDate}</td>
 						</tr>
 						<tr class="${d?item_parity}">

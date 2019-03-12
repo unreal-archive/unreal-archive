@@ -16,7 +16,7 @@
 				<th>Model</th>
 				<th>Author</th>
 				<th>Info</th>
-				<th> </th>
+				<th class="nomobile"> </th>
 			</tr>
 			</thead>
 			<tbody>
@@ -33,7 +33,7 @@
 							${m.model.skins?size} skin<#if m.model.skins?size gt 1>s</#if>
 						</#if>
 					</td>
-					<td class="meta">
+					<td class="meta nomobile">
 						<#if m.model.attachments?size gt 0>
 							<img src="${staticPath(static)}/images/icons/black/px22/ico-images-grey.png" alt="Has images"/>
 						</#if>

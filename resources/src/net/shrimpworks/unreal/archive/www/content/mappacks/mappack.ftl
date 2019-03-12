@@ -56,7 +56,7 @@
 				<div class="label-value">
 					<label>File Name</label><span>${pack.pack.originalFilename}</span>
 				</div>
-				<div class="label-value">
+				<div class="label-value nomobile">
 					<label>Hash</label><span>${pack.pack.hash}</span>
 				</div>
 			</section>
@@ -93,7 +93,7 @@
 					<thead>
 					<tr>
 						<th>Name</th>
-						<th>Title</th>
+						<th class="nomobile">Title</th>
 						<th>Author</th>
 					</tr>
 					</thead>
@@ -101,7 +101,7 @@
 						<#list pack.pack.maps as m>
 						<tr>
 							<td>${m.name}</td>
-							<td>${m.title}</td>
+							<td class="nomobile">${m.title}</td>
 							<td>${m.author}</td>
 						</tr>
 						</#list>

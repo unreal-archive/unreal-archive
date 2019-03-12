@@ -31,7 +31,7 @@
 				<th>Voice</th>
 				<th>Author</th>
 				<th>Info</th>
-				<th> </th>
+				<th class="nomobile"> </th>
 			</tr>
 			</thead>
 			<tbody>
@@ -44,7 +44,7 @@
 							${v.voice.voices?size} voice<#if v.voice.voices?size gt 1>s</#if>
 						</#if>
 					</td>
-					<td class="meta">
+					<td class="meta nomobile">
 						<#if v.voice.attachments?size gt 0>
 							<img src="${staticPath(static)}/images/icons/black/px22/ico-images-grey.png" alt="Has images"/>
 						</#if>

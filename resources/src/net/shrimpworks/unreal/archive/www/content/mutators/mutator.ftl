@@ -90,7 +90,7 @@
 				<div class="label-value">
 					<label>File Name</label><span>${mutator.mutator.originalFilename}</span>
 				</div>
-				<div class="label-value">
+				<div class="label-value nomobile">
 					<label>Hash</label><span>${mutator.mutator.hash}</span>
 				</div>
 			</section>

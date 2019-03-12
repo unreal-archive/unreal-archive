@@ -19,7 +19,7 @@
 				<th>Name</th>
 				<th>Author</th>
 				<th>Maps</th>
-				<th> </th>
+				<th class="nomobile"> </th>
 			</tr>
 			</thead>
 			<tbody>
@@ -28,7 +28,7 @@
 					<td><a href="${relUrl(gametype.path, p.path + ".html")}">${p.pack.name}</a></td>
 					<td>${p.pack.author}</td>
 					<td>${p.pack.maps?size}</td>
-					<td class="meta">
+					<td class="meta nomobile">
 						<#if p.pack.attachments?size gt 0>
 							<img src="${staticPath(static)}/images/icons/black/px22/ico-images-grey.png" alt="Has images"/>
 						</#if>

@@ -63,7 +63,7 @@
 				<div class="label-value">
 					<label>File Name</label><span>${model.model.originalFilename}</span>
 				</div>
-				<div class="label-value">
+				<div class="label-value nomobile">
 					<label>Hash</label><span>${model.model.hash}</span>
 				</div>
 			</section>

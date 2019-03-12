@@ -28,7 +28,7 @@
 			<table class="content">
 				<thead>
 				<tr>
-					<th>&nbsp;</th>
+					<th class="nomobile">&nbsp;</th>
 					<th>Title</th>
 					<th>Author</th>
 					<th>Release Date</th>
@@ -37,7 +37,7 @@
 				<tbody>
 					<#list group.content as c>
 						<tr class="${c?item_parity}">
-							<td class="title-image" rowspan="2">
+							<td class="title-image nomobile" rowspan="2">
 								<a href="${relUrl(group.path, c.path)}/index.html">
 									<#if c.managed.titleImage??>
 										<img src="${relUrl(group.path, c.path)}/${c.managed.titleImage}"/>

@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
 	<title>${siteName} / ${title}</title>
 	<link rel="stylesheet" href="${staticPath(static)}/css/style.css">
 
@@ -35,11 +37,11 @@
 
 <header>
 	<div class="page">
-		<h1>
+		<div class="heading">
 			<a href="${staticPath(static)}/../index.html">
 				<img src="${staticPath(static)}/images/logo.png" alt="Unreal Archive"/>
 				<span class="a">UNREAL</span><span class="b">ARCHIVE</span>
 			</a>
-		</h1>
+		</div>
 	</div>
 </header>

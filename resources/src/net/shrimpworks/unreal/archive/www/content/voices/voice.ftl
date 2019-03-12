@@ -54,7 +54,7 @@
 				<div class="label-value">
 					<label>File Name</label><span>${voice.voice.originalFilename}</span>
 				</div>
-				<div class="label-value">
+				<div class="label-value nomobile">
 					<label>Hash</label><span>${voice.voice.hash}</span>
 				</div>
 			</section>

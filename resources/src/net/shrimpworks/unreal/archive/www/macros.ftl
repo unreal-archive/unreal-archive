@@ -28,11 +28,11 @@
 
 <#macro screenshots attachments>
 	<#if attachments?size == 0>
-		<img src="${staticPath(static)}/images/none.png" class="thumb"/>
+		<img src="${staticPath(static)}/images/none.png" class="thumb" alt="no image"/>
 	<#else>
 		<#list attachments as a>
 			<#if a.type == "IMAGE">
-				<img src="${urlEncode(a.url)}" class="thumb"/>
+				<img src="${urlEncode(a.url)}" class="thumb" alt="screenshot"/>
 			</#if>
 		</#list>
 	</#if>
@@ -46,7 +46,7 @@
 			<tr>
 				<th>Name</th>
 				<th>Size</th>
-				<th>Hash</th>
+				<th class="nomobile">Hash</th>
 				<th>Also In</th>
 			</tr>
 			</thead>
@@ -55,7 +55,7 @@
 				<tr>
 					<td>${f.name}</td>
 					<td>${fileSize(f.fileSize)}</td>
-					<td>${f.hash}</td>
+					<td class="nomobile">${f.hash}</td>
 					<#if alsoIn[f.hash]??>
 						<td>
 							<a href="${relUrl(siteRoot + "/../", "files/" + f.hash[0..1] + "/" + f.hash + ".html")}">${alsoIn[f.hash]}</a>

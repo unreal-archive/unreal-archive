@@ -31,7 +31,7 @@
 				<th>Mutator</th>
 				<th>Author</th>
 				<th>Info</th>
-				<th> </th>
+				<th class="nomobile"> </th>
 			</tr>
 			</thead>
 			<tbody>
@@ -52,7 +52,7 @@
 							${m.mutator.vehicles?size} vehicle<#if m.mutator.vehicles?size gt 1>s</#if>
 						</#if>
 					</td>
-					<td class="meta">
+					<td class="meta nomobile">
 						<#if m.mutator.attachments?size gt 0>
 							<img src="${staticPath(static)}/images/icons/black/px22/ico-images-grey.png" alt="Has images"/>
 						</#if>
