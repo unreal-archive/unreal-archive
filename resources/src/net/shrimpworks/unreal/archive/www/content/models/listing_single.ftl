@@ -1,4 +1,4 @@
-<#assign ogDescription="Custom player models for ${game.name}">
+<#assign ogDescription="Custom player models for ${game.game.bigName}">
 <#assign ogImage="${staticPath(static)}/images/games/${game.name}.png">
 
 <#include "../../_header.ftl">

@@ -71,8 +71,6 @@ public abstract class ContentPageGenerator implements PageGenerator {
 				// replace the actual attachment with the local copy
 				content.attachments.remove(img);
 				content.attachments.add(new Content.Attachment(img.type, img.name, localPath.relativize(outPath).toString()));
-//			} catch (HttpResponseException e) {
-//				System.err.printf("\rFailed to download image %s: %d %s%n", img.name, e.getStatusCode(), e.getMessage());
 			} catch (Throwable t) {
 				System.err.printf("\rFailed to download image %s: %s%n", img.name, t.toString());
 			}

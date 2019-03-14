@@ -55,9 +55,12 @@ public class MapPacks extends ContentPageGenerator {
 							   .write(root.resolve("index.html")));
 
 			for (Map.Entry<String, Game> g : games.games.entrySet()) {
+
+				var game = net.shrimpworks.unreal.archive.content.Games.byName(g.getKey());
+
 				pages.add(Templates.template("content/mappacks/gametypes.ftl", SiteMap.Page.monthly(0.62f))
 								   .put("static", root.resolve(g.getValue().path).relativize(staticRoot))
-								   .put("title", String.join(" / ", SECTION, g.getKey()))
+								   .put("title", String.join(" / ", SECTION, game.bigName))
 								   .put("game", g.getValue())
 								   .put("siteRoot", root.resolve(g.getValue().path).relativize(root))
 								   .write(root.resolve(g.getValue().path).resolve("index.html")));
@@ -72,7 +75,7 @@ public class MapPacks extends ContentPageGenerator {
 																   .collect(Collectors.toList());
 						pages.add(Templates.template("content/mappacks/listing_single.ftl", SiteMap.Page.weekly(0.65f))
 										   .put("static", root.resolve(gt.getValue().path).relativize(staticRoot))
-										   .put("title", String.join(" / ", SECTION, g.getKey(), gt.getKey()))
+										   .put("title", String.join(" / ", SECTION, game.bigName, gt.getKey()))
 										   .put("gametype", gt.getValue())
 										   .put("packs", all)
 										   .put("siteRoot", root.resolve(gt.getValue().path).relativize(root))
@@ -89,7 +92,7 @@ public class MapPacks extends ContentPageGenerator {
 					for (Page p : gt.getValue().pages) {
 						pages.add(Templates.template("content/mappacks/listing.ftl", SiteMap.Page.weekly(0.65f))
 										   .put("static", root.resolve(p.path).relativize(staticRoot))
-										   .put("title", String.join(" / ", SECTION, g.getKey(), gt.getKey()))
+										   .put("title", String.join(" / ", SECTION, game.bigName, gt.getKey()))
 										   .put("page", p)
 										   .put("root", p.path)
 										   .put("siteRoot", root.resolve(p.path).relativize(root))
@@ -103,7 +106,7 @@ public class MapPacks extends ContentPageGenerator {
 					// output first letter/page combo, with appropriate relative links
 					pages.add(Templates.template("content/mappacks/listing.ftl", SiteMap.Page.weekly(0.65f))
 									   .put("static", root.resolve(gt.getValue().path).relativize(staticRoot))
-									   .put("title", String.join(" / ", SECTION, g.getKey(), gt.getKey()))
+									   .put("title", String.join(" / ", SECTION, game.bigName, gt.getKey()))
 									   .put("page", gt.getValue().pages.get(0))
 									   .put("root", gt.getValue().path)
 									   .put("siteRoot", root.resolve(gt.getValue().path).relativize(root))
@@ -123,7 +126,8 @@ public class MapPacks extends ContentPageGenerator {
 
 		pages.add(Templates.template("content/mappacks/mappack.ftl", SiteMap.Page.monthly(0.9f, pack.pack.lastIndex))
 						   .put("static", root.resolve(pack.path).getParent().relativize(staticRoot))
-						   .put("title", String.join(" / ", SECTION, pack.page.gametype.game.name, pack.page.gametype.name, pack.pack.name))
+						   .put("title", String.join(" / ", SECTION,
+													 pack.page.gametype.game.game.bigName, pack.page.gametype.name, pack.pack.name))
 						   .put("pack", pack)
 						   .put("siteRoot", root.resolve(pack.path).getParent().relativize(root))
 						   .write(root.resolve(pack.path + ".html")));
@@ -142,6 +146,7 @@ public class MapPacks extends ContentPageGenerator {
 
 	public class Game {
 
+		public final net.shrimpworks.unreal.archive.content.Games game;
 		public final String name;
 		public final String slug;
 		public final String path;
@@ -149,6 +154,7 @@ public class MapPacks extends ContentPageGenerator {
 		public int packs;
 
 		public Game(String name) {
+			this.game = net.shrimpworks.unreal.archive.content.Games.byName(name);
 			this.name = name;
 			this.slug = slug(name);
 			this.path = slug;

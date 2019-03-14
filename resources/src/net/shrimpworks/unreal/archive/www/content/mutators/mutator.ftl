@@ -15,7 +15,7 @@
 	<#assign weaponString="">
 </#if>
 
-<#assign ogDescription="${mutator.mutator.name}, a custom ${weaponString} mutator for ${game.name}, created by ${mutator.mutator.author}">
+<#assign ogDescription="${mutator.mutator.name}, a custom ${weaponString} mutator for ${game.game.bigName}, created by ${mutator.mutator.author}">
 <#assign ogImage=headerbg>
 
 <#include "../../_header.ftl">

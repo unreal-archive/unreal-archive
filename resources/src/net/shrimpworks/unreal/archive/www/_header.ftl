@@ -18,7 +18,7 @@
 	<meta property="og:ste_name" content="${siteName} / ${title}">
 
 	<#if !(ogDescription??)>
-		<#assign ogDescription="Downloads and guides for maps, mutators, skins, voices, models and mods, for the classic Unreal, Unreal Tournament, and Unreal Tournament 2004 games">
+		<#assign ogDescription="Downloads and guides for maps, mutators, skins, voices, models and mods, for the original classic Unreal, Unreal Tournament (UT99), and Unreal Tournament 2004 (UT2004) games">
 	</#if>
 
 	<meta name="description" content="${ogDescription?replace("\"", "&quot;")}">

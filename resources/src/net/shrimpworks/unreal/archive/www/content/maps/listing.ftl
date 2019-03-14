@@ -1,7 +1,7 @@
 <#assign game=page.letter.gametype.game>
 <#assign gametype=page.letter.gametype>
 
-<#assign ogDescription="${gametype.name} maps for ${game.name}">
+<#assign ogDescription="${gametype.name} maps for ${game.game.bigName}">
 <#assign ogImage="${staticPath(static)}/images/gametypes/${game.name}/${gametype.name}.png">
 
 <#include "../../_header.ftl">

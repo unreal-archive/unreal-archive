@@ -52,6 +52,9 @@ public class Skins extends ContentPageGenerator {
 							   .write(root.resolve("index.html")));
 
 			for (java.util.Map.Entry<String, Game> g : games.games.entrySet()) {
+
+				var game = net.shrimpworks.unreal.archive.content.Games.byName(g.getKey());
+
 				if (g.getValue().skins < Templates.PAGE_SIZE) {
 					List<SkinInfo> all = g.getValue().letters.values().stream()
 															 .flatMap(l -> l.pages.stream())
@@ -60,7 +63,7 @@ public class Skins extends ContentPageGenerator {
 															 .collect(Collectors.toList());
 					pages.add(Templates.template("content/skins/listing_single.ftl", SiteMap.Page.weekly(0.65f))
 									   .put("static", root.resolve(g.getValue().path).relativize(staticRoot))
-									   .put("title", String.join(" / ", "Skins", g.getKey()))
+									   .put("title", String.join(" / ", "Skins", game.bigName))
 									   .put("game", g.getValue())
 									   .put("skins", all)
 									   .put("siteRoot", root.resolve(g.getValue().path).relativize(root))
@@ -79,7 +82,7 @@ public class Skins extends ContentPageGenerator {
 					for (Page p : l.getValue().pages) {
 						pages.add(Templates.template("content/skins/listing.ftl", SiteMap.Page.weekly(0.65f))
 										   .put("static", root.resolve(p.path).relativize(staticRoot))
-										   .put("title", String.join(" / ", "Skins", g.getKey()))
+										   .put("title", String.join(" / ", "Skins", game.bigName))
 										   .put("page", p)
 										   .put("root", p.path)
 										   .put("siteRoot", root.resolve(p.path).relativize(root))
@@ -93,7 +96,7 @@ public class Skins extends ContentPageGenerator {
 					// output first letter/page combo, with appropriate relative links
 					pages.add(Templates.template("content/skins/listing.ftl", SiteMap.Page.weekly(0.65f))
 									   .put("static", root.resolve(l.getValue().path).relativize(staticRoot))
-									   .put("title", String.join(" / ", "Skins", g.getKey()))
+									   .put("title", String.join(" / ", "Skins", game.bigName))
 									   .put("page", l.getValue().pages.get(0))
 									   .put("root", l.getValue().path)
 									   .put("siteRoot", root.resolve(l.getValue().path).relativize(root))
@@ -103,7 +106,7 @@ public class Skins extends ContentPageGenerator {
 				// output first letter/page combo, with appropriate relative links
 				pages.add(Templates.template("content/skins/listing.ftl", SiteMap.Page.weekly(0.65f))
 								   .put("static", root.resolve(g.getValue().path).relativize(staticRoot))
-								   .put("title", String.join(" / ", "Skins", g.getKey()))
+								   .put("title", String.join(" / ", "Skins", game.bigName))
 								   .put("page", g.getValue().letters.firstEntry().getValue().pages.get(0))
 								   .put("root", g.getValue().path)
 								   .put("siteRoot", root.resolve(g.getValue().path).relativize(root))
@@ -123,7 +126,7 @@ public class Skins extends ContentPageGenerator {
 
 		pages.add(Templates.template("content/skins/skin.ftl", SiteMap.Page.monthly(0.9f, skin.skin.lastIndex))
 						   .put("static", root.resolve(skin.path).getParent().relativize(staticRoot))
-						   .put("title", String.join(" / ", "Skins", skin.page.letter.game.name, skin.skin.name))
+						   .put("title", String.join(" / ", "Skins", skin.page.letter.game.game.name, skin.skin.name))
 						   .put("skin", skin)
 						   .put("siteRoot", root.resolve(skin.path).getParent().relativize(root))
 						   .write(root.resolve(skin.path + ".html")));
@@ -143,6 +146,7 @@ public class Skins extends ContentPageGenerator {
 
 	public class Game {
 
+		public final net.shrimpworks.unreal.archive.content.Games game;
 		public final String name;
 		public final String slug;
 		public final String path;
@@ -150,6 +154,7 @@ public class Skins extends ContentPageGenerator {
 		public int skins;
 
 		public Game(String name) {
+			this.game = net.shrimpworks.unreal.archive.content.Games.byName(name);
 			this.name = name;
 			this.slug = slug(name);
 			this.path = slug;

@@ -1,4 +1,4 @@
-<#assign ogDescription="Custom maps for ${game.name}">
+<#assign ogDescription="Custom maps for ${game.game.bigName}">
 <#assign ogImage="${staticPath(static)}/images/games/${game.name}.png">
 
 <#include "../../_header.ftl">

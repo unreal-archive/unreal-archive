@@ -1,6 +1,6 @@
 <#assign game=page.letter.game>
 
-<#assign ogDescription="Custom player voice packs for ${game.name}">
+<#assign ogDescription="Custom player voice packs for ${game.game.bigName}">
 <#assign ogImage="${staticPath(static)}/images/games/${game.name}.png">
 
 <#include "../../_header.ftl">
