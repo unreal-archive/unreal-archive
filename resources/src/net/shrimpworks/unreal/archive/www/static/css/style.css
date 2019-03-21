@@ -436,8 +436,7 @@ article.managed section.downloads .download .links a:hover {
 @media screen and (max-width: 1024px) {
 
 	body {
-		font-family: 'Abel', sans-serif;
-		font-size: 1.1em;
+		font-size: 1.2em;
 		padding-bottom: 280px;
 	}
 
