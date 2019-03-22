@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -84,8 +85,8 @@ public class Indexer {
 			IndexLog log = new IndexLog(sub);
 			indexLogs.add(log);
 
-			indexFile(sub, log, force, forceType, c -> {
-				events.indexed(c, log);
+			indexFile(sub, log, force, forceType, result -> {
+				events.indexed(sub, result, log);
 
 				events.progress(done.incrementAndGet(), all.size(), sub.filePath);
 			});
@@ -161,7 +162,8 @@ public class Indexer {
 		return all;
 	}
 
-	private void indexFile(Submission sub, IndexLog log, boolean force, ContentType forceType, Consumer<Submission> done) {
+	private void indexFile(
+			Submission sub, IndexLog log, boolean force, ContentType forceType, Consumer<Optional<IndexResult<? extends Content>>> done) {
 		try (Incoming incoming = new Incoming(sub, log)) {
 			Content content = contentManager.checkout(incoming.hash);
 
@@ -189,34 +191,34 @@ public class Indexer {
 
 			if (type != ContentType.UNKNOWN) { // TODO later support a generic dumping ground for unknown content
 
-				type.indexer.get().index(incoming, content, c -> {
+				type.indexer.get().index(incoming, content, result -> {
 					try {
-						c.content.lastIndex = LocalDateTime.now();
+						result.content.lastIndex = LocalDateTime.now();
 						if (sub.sourceUrls != null) {
 							for (String url : sub.sourceUrls) {
-								if (url != null && !url.isEmpty() && !c.content.hasDownload(url)) {
-									c.content.downloads.add(new Content.Download(url, LocalDate.now(), false));
+								if (url != null && !url.isEmpty() && !result.content.hasDownload(url)) {
+									result.content.downloads.add(new Content.Download(url, LocalDate.now(), false));
 								}
 							}
 						}
 
 //						Path repack = incoming.getRepack(c.name);
 
-						if (c.content.name.isEmpty()) {
+						if (result.content.name.isEmpty()) {
 							throw new IllegalStateException("Name cannot be blank for " + incoming.submission.filePath);
 						}
 
-						contentManager.checkin(c, incoming.submission);
+						contentManager.checkin(result, incoming.submission);
 					} catch (IOException e) {
 						log.log(IndexLog.EntryType.FATAL, "Failed to store content file data for " + sub.filePath.toString(), e);
 					}
-				});
 
+					done.accept(Optional.of(result));
+				});
 			}
 		} catch (Throwable e) {
 			log.log(IndexLog.EntryType.FATAL, e.getMessage(), e);
-		} finally {
-			done.accept(sub);
+			done.accept(Optional.empty());
 		}
 	}
 
@@ -226,7 +228,7 @@ public class Indexer {
 
 		public void progress(int indexed, int total, Path currentFile);
 
-		public void indexed(Submission submission, IndexLog log);
+		public void indexed(Submission submission, Optional<IndexResult<? extends Content>> indexed, IndexLog log);
 
 		public void completed(int indexedFiles, int errorCount);
 	}
@@ -250,7 +252,7 @@ public class Indexer {
 		}
 
 		@Override
-		public void indexed(Submission submission, IndexLog log) {
+		public void indexed(Submission submission, Optional<IndexResult<? extends Content>> indexed, IndexLog log) {
 			for (IndexLog.LogEntry l : log.log) {
 				System.out.printf("[%s] %s: %s%n", l.type, Util.fileName(submission.filePath.getFileName()), l.message);
 				if (l.exception != null && verbose) {
