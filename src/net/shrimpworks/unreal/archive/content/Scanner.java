@@ -149,7 +149,6 @@ public class Scanner {
 		}
 	}
 
-
 	public interface ScannerEvents {
 		public void starting(int foundFiles, Pattern included, Pattern excluded);
 

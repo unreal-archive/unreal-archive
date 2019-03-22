@@ -294,10 +294,11 @@ public class Main {
 			System.exit(2);
 		}
 
+		boolean verbose = Boolean.valueOf(cli.option("verbose", "true"));
 		boolean force = Boolean.valueOf(cli.option("force", "false"));
 		ContentType forceType = (!cli.option("type", "").isEmpty()) ? ContentType.valueOf(cli.option("type", "").toUpperCase()) : null;
 
-		Indexer indexer = new Indexer(contentManager, cli);
+		Indexer indexer = new Indexer(contentManager);
 
 		Path[] paths;
 
@@ -320,7 +321,7 @@ public class Main {
 			paths = cliPaths(cli, 1);
 		}
 
-		indexer.index(force, forceType, paths);
+		indexer.index(force, forceType, new Indexer.CLIEventPrinter(verbose), paths);
 	}
 
 	private static void scan(ContentManager contentManager, CLI cli) throws IOException {

@@ -20,7 +20,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
-import net.shrimpworks.unreal.archive.CLI;
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.YAML;
 
@@ -31,12 +30,9 @@ public class Indexer {
 	));
 
 	private final ContentManager contentManager;
-	private final boolean verbose;
 
-	public Indexer(ContentManager contentManager, CLI cli) {
+	public Indexer(ContentManager contentManager) {
 		this.contentManager = contentManager;
-
-		this.verbose = cli.option("verbose", "").equalsIgnoreCase("true") || cli.option("verbose", "").equalsIgnoreCase("1");
 	}
 
 	/**
@@ -71,7 +67,7 @@ public class Indexer {
 	 *                  attempting to discover it automatically
 	 * @throws IOException file access failure
 	 */
-	public void index(boolean force, ContentType forceType, Path... inputPath) throws IOException {
+	public void index(boolean force, ContentType forceType, IndexerEvents events, Path... inputPath) throws IOException {
 		final List<IndexLog> indexLogs = new ArrayList<>();
 
 		// go through all the files in the input path and index them if new
@@ -80,7 +76,7 @@ public class Indexer {
 			all.addAll(findFiles(p));
 		}
 
-		System.out.printf("Found %d file(s) to index%n", all.size());
+		events.starting(all.size());
 
 		AtomicInteger done = new AtomicInteger();
 
@@ -89,23 +85,19 @@ public class Indexer {
 			indexLogs.add(log);
 
 			indexFile(sub, log, force, forceType, c -> {
-				for (IndexLog.LogEntry l : log.log) {
-					System.out.printf("[%s] %s: %s%n", l.type, Util.fileName(c.filePath.getFileName()), l.message);
-					if (l.exception != null && verbose) {
-						l.exception.printStackTrace(System.out);
-					}
-				}
-				System.out.printf("Completed %d of %d\r", done.incrementAndGet(), all.size());
+				events.indexed(c, log);
+
+				events.progress(done.incrementAndGet(), all.size(), sub.filePath);
 			});
 		});
 
-		int err = 0;
+		int errorCount = 0;
 
 		for (IndexLog l : indexLogs) {
-			if (!l.ok()) err++;
+			if (!l.ok()) errorCount++;
 		}
 
-		System.out.printf("%nCompleted indexing %d files, with %d errors%n", indexLogs.size(), err);
+		events.completed(indexLogs.size(), errorCount);
 	}
 
 	private List<Submission> findFiles(Path inputPath) throws IOException {
@@ -227,4 +219,50 @@ public class Indexer {
 			done.accept(sub);
 		}
 	}
+
+	public interface IndexerEvents {
+
+		public void starting(int foundFiles);
+
+		public void progress(int indexed, int total, Path currentFile);
+
+		public void indexed(Submission submission, IndexLog log);
+
+		public void completed(int indexedFiles, int errorCount);
+	}
+
+	public static class CLIEventPrinter implements IndexerEvents {
+
+		private final boolean verbose;
+
+		public CLIEventPrinter(boolean verbose) {
+			this.verbose = verbose;
+		}
+
+		@Override
+		public void starting(int foundFiles) {
+			System.out.printf("Found %d file(s) to index%n", foundFiles);
+		}
+
+		@Override
+		public void progress(int indexed, int total, Path currentFile) {
+			System.out.printf("Completed %d of %d\r", indexed, total);
+		}
+
+		@Override
+		public void indexed(Submission submission, IndexLog log) {
+			for (IndexLog.LogEntry l : log.log) {
+				System.out.printf("[%s] %s: %s%n", l.type, Util.fileName(submission.filePath.getFileName()), l.message);
+				if (l.exception != null && verbose) {
+					l.exception.printStackTrace(System.out);
+				}
+			}
+		}
+
+		@Override
+		public void completed(int indexedFiles, int errorCount) {
+			System.out.printf("%nCompleted indexing %d files, with %d errors%n", indexedFiles, errorCount);
+		}
+	}
+
 }
