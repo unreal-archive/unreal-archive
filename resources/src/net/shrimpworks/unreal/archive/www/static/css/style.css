@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css?family=Passion+One|Abel|Sarabun');
+@import url('../fonts/fonts.css');
 
 html {
 	height: 100%;
@@ -27,7 +27,7 @@ body {
 }
 
 h1, h2 {
-	font-family: 'Passion One', serif;
+	font-family: 'PassionOne', serif;
 	font-weight: normal;
 	margin: 10px auto;
 }
@@ -64,7 +64,7 @@ footer {
 }
 
 header .heading {
-	font-family: 'Passion One', sans-serif;
+	font-family: 'PassionOne', sans-serif;
 	font-size: 4em;
 	font-weight: normal;
 	margin: 0;
@@ -90,7 +90,7 @@ header img {
 }
 
 .readable {
-	font-family: 'Sarabun', sans-serif;
+	font-family: 'Nobile', sans-serif;
 	font-size: 1.0em;
 }
 

@@ -1,0 +1,23 @@
+@font-face {
+	font-family: 'PassionOne';
+	src: url('passionone-regular-webfont.woff2') format('woff2'),
+			 url('passionone-regular-webfont.woff') format('woff');
+	font-weight: normal;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'Abel';
+	src: url('abel-regular-webfont.woff2') format('woff2'),
+			 url('abel-regular-webfont.woff') format('woff');
+	font-weight: normal;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'Nobile';
+	src: url('nobile-regular-webfont.woff2') format('woff2'),
+	url('nobile-regular-webfont.woff') format('woff');
+	font-weight: normal;
+	font-style: normal;
+}
