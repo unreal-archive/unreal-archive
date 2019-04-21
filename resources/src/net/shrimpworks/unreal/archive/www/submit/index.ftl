@@ -81,7 +81,7 @@
 </@content>
 
 <script type="application/javascript">
-	let url = "http://localhost:8081/";
+	let url = "../incoming/";
 
 	document.addEventListener("DOMContentLoaded", function() {
 
@@ -97,8 +97,8 @@
 		let uploadControls = document.querySelector('#upload-controls');
 		let progressControls = document.querySelector('#progress-controls')
 
-		let uploadFiles = document.querySelector('#upload');
-		let uploadUrl = document.querySelector('#url');
+		// let uploadFiles = document.querySelector('#upload');
+		// let uploadUrl = document.querySelector('#url');
 
 		let currentRequest = null;
 
@@ -137,7 +137,6 @@
 		// 	  uploadUrl.classList.add("display-block");
 		//   }
 		// }));
-
 
 		function resetFilesList() {
 			while (filesList.childNodes.length > 0) filesList.removeChild(filesList.childNodes[0]);

@@ -40,6 +40,10 @@
 			<span class="meta">${count.Updates}</span>
 			<a href="patches-updates/index.html">Patches & Updates</a>
 		</li>
+		<li>
+			<span class="meta">coming soon</span>
+			<a href="#">Game Types</a>
+		</li>
 		<li style='background-image: url("${staticPath(static)}/images/contents/maps.png")'>
 			<span class="meta">${count.Map}</span>
 			<a href="maps/index.html">Maps</a>
@@ -47,10 +51,6 @@
 		<li style='background-image: url("${staticPath(static)}/images/contents/mappacks.png")'>
 			<span class="meta">${count.MapPack}</span>
 			<a href="mappacks/index.html">Map Packs</a>
-		</li>
-		<li>
-			<span class="meta">coming soon</span>
-			<a href="#">Game Types</a>
 		</li>
 		<li style='background-image: url("${staticPath(static)}/images/contents/mutators.png")'>
 			<span class="meta">${count.Mutator!"0"}</span>

@@ -64,11 +64,26 @@ footer {
 }
 
 header .heading {
+	margin: 0;
+	align-self: end;
+
+	display: grid;
+	grid-template-columns: auto 50%;
+	grid-template-areas: 'header menu';
+	grid-gap: 10px;
+}
+
+header .heading .header {
 	font-family: 'PassionOne', sans-serif;
 	font-size: 4em;
 	font-weight: normal;
-	margin: 0;
-	align-self: end;
+}
+
+header .heading .menu {
+	font-family: 'Nobile', sans-serif;
+	align-self: center;
+	text-align: right;
+	padding-bottom: 10px;
 }
 
 header .heading .a {
@@ -449,11 +464,20 @@ article.managed section.downloads .download .links a:hover {
 	}
 
 	header .heading {
+		grid-template-columns: auto;
+		grid-template-areas: 'header';
+	}
+
+	header .heading .header {
 		font-size: 2em;
 	}
 
-	header .heading img {
+	header .heading .header img {
 		max-height: 45px;
+	}
+
+	header .heading .menu {
+		display: none;
 	}
 
 	.biglist ul {

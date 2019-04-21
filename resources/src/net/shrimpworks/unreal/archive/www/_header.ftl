@@ -41,10 +41,13 @@
 <header>
 	<div class="page">
 		<div class="heading">
-			<a href="${staticPath(static)}/../index.html">
+			<a href="${staticPath(static)}/../index.html" class="header">
 				<img src="${staticPath(static)}/images/logo.png" alt="Unreal Archive"/>
 				<span class="a">UNREAL</span><span class="b">ARCHIVE</span>
 			</a>
+			<div class="menu">
+				<a href="${staticPath(static)}/../submit/index.html">Submit Content</a>
+			</div>
 		</div>
 	</div>
 </header>
