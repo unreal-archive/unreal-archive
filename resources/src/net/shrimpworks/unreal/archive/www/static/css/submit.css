@@ -48,6 +48,7 @@
 #log .log {
 	border-bottom: 1px dotted #999999;
 	padding: 0 5px;
+	font-family: monospace;
 }
 
 #log .log .time {
