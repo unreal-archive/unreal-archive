@@ -6,6 +6,9 @@
 
 	<title>${siteName} / ${title}</title>
 	<link rel="stylesheet" href="${staticPath(static)}/css/style.css">
+	<#if extraCss??>
+		<link rel="stylesheet" href="${staticPath(static)}/css/${extraCss}">
+	</#if>
 
 	<link rel="icon" type="image/png" sizes="192x192" href="${staticPath(static)}/images/logo-192.png">
 	<link rel="icon" type="image/png" sizes="96x96" href="${staticPath(static)}/images/logo-96.png">

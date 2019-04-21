@@ -1,11 +1,11 @@
-<#assign ogDescription="Custom map packs for Unreal, Unreal Tournament, and Unreal Tournament 2004 and their mods">
-<#assign ogImage="${staticPath(static)}/images/contents/mappacks.png">
+<#assign ogDescription="Files for Unreal, Unreal Tournament, and Unreal Tournament 2004">
+<#assign ogImage="${staticPath(static)}/images/contents/files.png">
 
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
 
-	<@heading bg=["${staticPath(static)}/images/contents/mappacks.png"]>
-		Map Packs
+	<@heading bg=["${staticPath(static)}/images/contents/files.png"]>
+		Files
 	</@heading>
 
 	<@content class="biglist">
