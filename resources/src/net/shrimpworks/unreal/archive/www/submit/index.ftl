@@ -64,6 +64,10 @@
 					included in the uploaded archive, this includes textures, sounds,
 					music, etc.
 				</p>
+				<p>
+					<b>Tip:</b> Only submit completed work, rather than work-in-progress
+					builds.
+				</p>
 			</div>
 
 		</div>
