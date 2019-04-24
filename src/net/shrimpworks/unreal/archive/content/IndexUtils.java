@@ -88,45 +88,8 @@ public class IndexUtils {
 				}
 
 				if (object != null) {
-					// get a texture form a UT2003/4 material sequence (they cycle several images in the map preview)
-					if (object.className().equals("MaterialSequence")) {
-						Property fallbackMaterial = object.property("FallbackMaterial");
-						if (fallbackMaterial != null) {
-							ExportedObject fallback = shotPackage.objectByRef(((ObjectProperty)fallbackMaterial).value);
-							Object fallbackObj = fallback.object();
-							if (fallbackObj instanceof Texture) {
-								object = fallbackObj;
-							}
-						} else {
-							// just find some textures that look like screenshots
-							Collection<ExportedObject> textures = shotPackage.objectsByClassName("Texture");
-							for (ExportedObject texture : textures) {
-								if (texture.name.name.toLowerCase().contains("shot")
-									|| texture.name.name.toLowerCase().contains("screen")
-									|| texture.name.name.toLowerCase().contains("preview")) {
-									object = texture.object();
-									break;
-								}
-							}
-
-							// still not found anything... look for a texture with typical preview dimensions (512x256)
-							if (!(object instanceof Texture)) {
-								for (ExportedObject texture : textures) {
-									Texture tex = (Texture)texture.object();
-									Texture.MipMap mip = tex.mipMaps()[0];
-									if (mip.width == 512 && mip.height == 256) {
-										object = texture.object();
-										break;
-									}
-								}
-							}
-						}
-					}
-
-					if (object instanceof Texture) {
-						BufferedImage bufferedImage = ((Texture)object).mipMaps()[0].get();
-						images.add(bufferedImage);
-					}
+					BufferedImage image = screenshotFromObject(shotPackage, object);
+					if (image != null) images.add(image);
 				}
 			} catch (Exception e) {
 				incoming.log.log(IndexLog.EntryType.CONTINUE, "Failed to read screenshot from packages", e);
@@ -140,9 +103,69 @@ public class IndexUtils {
 					}
 				}
 			}
+		} else {
+			// there's no Screenshot property, lets hunt through the package for possible screenshots
+			images.addAll(scrapeScreenshots(incoming, map));
 		}
 
 		return images;
+	}
+
+	public static List<BufferedImage> scrapeScreenshots(Incoming incoming, Package map) {
+		List<BufferedImage> images = new ArrayList<>();
+
+		map.exportsByClassName("Texture").stream()
+		   .filter(t -> t.name.name.toLowerCase().startsWith("screen") || t.name.name.toLowerCase().startsWith("shot"))
+		   .map(t -> map.objectByName(t.name))
+		   .filter(Objects::nonNull)
+		   .map(ExportedObject::object)
+		   .filter(Objects::nonNull)
+		   .map(o -> screenshotFromObject(map, o))
+		   .forEach(images::add);
+
+		return images;
+	}
+
+	private static BufferedImage screenshotFromObject(Package shotPackage, Object object) {
+		// get a texture form a UT2003/4 material sequence (they cycle several images in the map preview)
+		if (object.className().equals("MaterialSequence")) {
+			Property fallbackMaterial = object.property("FallbackMaterial");
+			if (fallbackMaterial != null) {
+				ExportedObject fallback = shotPackage.objectByRef(((ObjectProperty)fallbackMaterial).value);
+				Object fallbackObj = fallback.object();
+				if (fallbackObj instanceof Texture) {
+					object = fallbackObj;
+				}
+			} else {
+				// just find some textures that look like screenshots
+				Collection<ExportedObject> textures = shotPackage.objectsByClassName("Texture");
+				for (ExportedObject texture : textures) {
+					if (texture.name.name.toLowerCase().contains("shot")
+						|| texture.name.name.toLowerCase().contains("screen")
+						|| texture.name.name.toLowerCase().contains("preview")) {
+						object = texture.object();
+						break;
+					}
+				}
+
+				// still not found anything... look for a texture with typical preview dimensions (512x256)
+				if (!(object instanceof Texture)) {
+					for (ExportedObject texture : textures) {
+						Texture tex = (Texture)texture.object();
+						Texture.MipMap mip = tex.mipMaps()[0];
+						if (mip.width == 512 && mip.height == 256) {
+							object = texture.object();
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		if (object instanceof Texture) {
+			return ((Texture)object).mipMaps()[0].get();
+		}
+		return null;
 	}
 
 	/**
