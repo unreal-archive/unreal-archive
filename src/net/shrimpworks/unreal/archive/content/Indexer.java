@@ -193,6 +193,8 @@ public class Indexer {
 
 				type.indexer.get().index(incoming, content, result -> {
 					try {
+						// FIXME maybe implement IndexerPostProcessor or something which gets called for each file with before/after content
+						//       to allow overrides of some things
 						result.content.lastIndex = LocalDateTime.now();
 						if (sub.sourceUrls != null) {
 							for (String url : sub.sourceUrls) {
@@ -201,8 +203,6 @@ public class Indexer {
 								}
 							}
 						}
-
-//						Path repack = incoming.getRepack(c.name);
 
 						if (result.content.name.isEmpty()) {
 							throw new IllegalStateException("Name cannot be blank for " + incoming.submission.filePath);

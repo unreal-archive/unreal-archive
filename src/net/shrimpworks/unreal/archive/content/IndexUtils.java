@@ -111,7 +111,7 @@ public class IndexUtils {
 		return images;
 	}
 
-	public static List<BufferedImage> scrapeScreenshots(Incoming incoming, Package map) {
+	private static List<BufferedImage> scrapeScreenshots(Incoming incoming, Package map) {
 		List<BufferedImage> images = new ArrayList<>();
 
 		map.exportsByClassName("Texture").stream()

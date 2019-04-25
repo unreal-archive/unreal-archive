@@ -75,16 +75,20 @@ public class MapIndexHandler implements IndexHandler<Map> {
 			if (maybeLevelInfo == null || maybeLevelInfo.isEmpty()) {
 				throw new IllegalArgumentException("Could not find LevelInfo in map");
 			}
-			ExportedObject levelInfo = maybeLevelInfo.iterator().next();
 
-			if (levelInfo == null) throw new IllegalStateException("No LevelInfo in the map?!");
-
-			Object level = levelInfo.object();
+			// if there are multiple LevelInfos in a map, try to find the right one...
+			Object level = maybeLevelInfo.stream()
+										 .map(ExportedObject::object)
+										 .filter(l -> l.property("Title") != null || l.property("Author") != null)
+										 .findFirst()
+										 .orElse(maybeLevelInfo.iterator().next().object());
 
 			// read some basic level info
 			Property author = level.property("Author");
 			Property title = level.property("Title");
-			Property description = level.property("Description");
+			Property description = level.property("Description") != null
+					? level.property("Description")
+					: level.property("LevelEnterText"); // fallback for Unreal, some maps have fun text here
 
 			if (author != null) m.author = ((StringProperty)author).value.trim();
 			if (title != null) m.title = ((StringProperty)title).value.trim();

@@ -208,4 +208,35 @@ public class IndexCleanupUtil {
 			}
 		});
 	}
+
+	@Test
+	@Ignore
+	public void reindexContent() throws IOException {
+		ContentManager cm = new ContentManager(Paths.get("unreal-archive-data/content/"),
+											   new DataStore.NopStore(), new DataStore.NopStore(), new DataStore.NopStore());
+
+		Indexer indexer = new Indexer(cm);
+
+		Path root = Paths.get("/home/shrimp/tmp/files/Unreal/");
+
+		Files.walkFileTree(root, new SimpleFileVisitor<>() {
+			@Override
+			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+				if (Indexer.INCLUDE_TYPES.contains(Util.extension(file).toLowerCase())) {
+					String hash = Util.hash(file);
+					Content content = cm.forHash(hash);
+					if (content instanceof Map
+						&& content.game.equals("Unreal") // for safety, restrict to a single game
+						&& (content.attachments.isEmpty() // look for missing screenshots
+							|| content.author.contains("�") // fix broken ascii names
+							|| content.author.toLowerCase().equals("unknown"))) { // look for new authors
+						System.out.printf("Map without screenshots: %s%n", content.name);
+						indexer.index(true, null, new Indexer.CLIEventPrinter(false), file);
+					}
+				}
+
+				return FileVisitResult.CONTINUE;
+			}
+		});
+	}
 }
