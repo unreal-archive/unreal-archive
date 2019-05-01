@@ -221,7 +221,7 @@ public class IndexCleanupUtil {
 		final DataStore contentStore = store(DataStore.StoreContent.CONTENT, cli);
 
 		final ContentManager cm = new ContentManager(Paths.get("unreal-archive-data/content/"),
-											   contentStore, imageStore, attachmentStore);
+													 contentStore, imageStore, attachmentStore);
 
 		final Indexer indexer = new Indexer(cm, new Indexer.IndexerEvents() {
 			@Override
@@ -263,7 +263,10 @@ public class IndexCleanupUtil {
 						&& (content.attachments.isEmpty() // look for missing screenshots
 							|| content.author.contains("�") // fix broken ascii names
 							|| content.author.toLowerCase().equals("unknown") // look for new authors
-							|| content.description.isEmpty())) { // maps with no description
+							|| (content.description == null // maps with no description
+								|| content.description.isEmpty()
+								|| content.description.equalsIgnoreCase("none"))
+						)) {
 						System.out.printf("Map missing things: %s (%s)%n", file.getFileName(), content.name);
 						indexer.index(true, null, file);
 					}

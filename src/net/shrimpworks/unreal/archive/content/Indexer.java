@@ -201,10 +201,26 @@ public class Indexer {
 
 				type.indexer.get().index(incoming, content, result -> {
 					try {
-						postProcessor.indexed(sub, contentManager.forHash(incoming.hash), result);
+						Content current = contentManager.forHash(incoming.hash);
+						postProcessor.indexed(sub, current, result);
 
 						if (result.content.name.isEmpty()) {
 							throw new IllegalStateException("Name cannot be blank for " + incoming.submission.filePath);
+						}
+
+						// before checkin, remove any "new" attachments which already exist... this is a bit of a hack
+						if (current != null) {
+							result.files.removeIf(f -> {
+								if (current.attachments.stream().anyMatch(a -> a.name.equals(f.name))) {
+									try {
+										Files.deleteIfExists(f.path);
+									} catch (IOException e) {
+										log.log(IndexLog.EntryType.CONTINUE, "Failed to delete duplicate attachment" + f, e);
+									}
+									return true;
+								}
+								return false;
+							});
 						}
 
 						contentManager.checkin(result, incoming.submission);
