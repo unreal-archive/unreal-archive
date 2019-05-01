@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import net.shrimpworks.unreal.archive.CLI;
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.YAML;
 import net.shrimpworks.unreal.archive.content.mappacks.MapPack;
@@ -26,6 +27,7 @@ import net.shrimpworks.unreal.archive.storage.DataStore;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import static net.shrimpworks.unreal.archive.Main.store;
 import static net.shrimpworks.unreal.archive.content.IndexUtils.UNKNOWN;
 
 public class IndexCleanupUtil {
@@ -213,10 +215,15 @@ public class IndexCleanupUtil {
 	@Test
 	@Ignore
 	public void reindexContent() throws IOException {
-		ContentManager cm = new ContentManager(Paths.get("unreal-archive-data/content/"),
-											   new DataStore.NopStore(), new DataStore.NopStore(), new DataStore.NopStore());
+		final CLI cli = net.shrimpworks.unreal.archive.CLI.parse(Collections.emptyMap());
+		final DataStore imageStore = store(DataStore.StoreContent.IMAGES, cli);
+		final DataStore attachmentStore = store(DataStore.StoreContent.ATTACHMENTS, cli);
+		final DataStore contentStore = store(DataStore.StoreContent.CONTENT, cli);
 
-		Indexer indexer = new Indexer(cm, new Indexer.IndexerEvents() {
+		final ContentManager cm = new ContentManager(Paths.get("unreal-archive-data/content/"),
+											   contentStore, imageStore, attachmentStore);
+
+		final Indexer indexer = new Indexer(cm, new Indexer.IndexerEvents() {
 			@Override
 			public void starting(int foundFiles) {}
 
@@ -243,14 +250,14 @@ public class IndexCleanupUtil {
 			}
 		});
 
-		Path root = Paths.get("/home/shrimp/tmp/files/Unreal/");
+		final Path root = Paths.get("/home/shrimp/tmp/files/Unreal/");
 
 		Files.walkFileTree(root, new SimpleFileVisitor<>() {
 			@Override
 			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 				if (Indexer.INCLUDE_TYPES.contains(Util.extension(file).toLowerCase())) {
-					String hash = Util.hash(file);
-					Content content = cm.forHash(hash);
+					final String hash = Util.hash(file);
+					final Content content = cm.forHash(hash);
 					if (content instanceof Map
 						&& content.game.equals("Unreal") // for safety, restrict to a single game
 						&& (content.attachments.isEmpty() // look for missing screenshots

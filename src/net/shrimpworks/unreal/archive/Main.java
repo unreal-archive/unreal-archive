@@ -114,7 +114,8 @@ public class Main {
 				unpack(cli);
 				break;
 			default:
-				System.out.printf("Command \"%s\" has not been implemented!", cli.commands()[0]);
+				System.out.printf("Command \"%s\" has not been implemented!%n%n", cli.commands()[0]);
+				usage();
 		}
 
 		System.exit(0);
@@ -274,7 +275,7 @@ public class Main {
 		}
 	}
 
-	private static DataStore store(DataStore.StoreContent contentType, CLI cli) {
+	public static DataStore store(DataStore.StoreContent contentType, CLI cli) {
 		String stringType = cli.option(contentType.name().toLowerCase() + "-store", cli.option("store", null));
 		if (stringType == null) {
 			System.err.println(contentType.name().toLowerCase() + "-store or store must be specified!");
