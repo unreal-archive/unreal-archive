@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import net.shrimpworks.unreal.archive.Util;
@@ -215,7 +216,32 @@ public class IndexCleanupUtil {
 		ContentManager cm = new ContentManager(Paths.get("unreal-archive-data/content/"),
 											   new DataStore.NopStore(), new DataStore.NopStore(), new DataStore.NopStore());
 
-		Indexer indexer = new Indexer(cm);
+		Indexer indexer = new Indexer(cm, new Indexer.IndexerEvents() {
+			@Override
+			public void starting(int foundFiles) {}
+
+			@Override
+			public void progress(int indexed, int total, Path currentFile) {}
+
+			@Override
+			public void indexed(Submission submission, Optional<IndexResult<? extends Content>> indexed, IndexLog log) {}
+
+			@Override
+			public void completed(int indexedFiles, int errorCount) {}
+		}, new Indexer.IndexerPostProcessor() {
+			@Override
+			public void indexed(Submission sub, Content before, IndexResult<? extends Content> result) {
+				// do not let game get reassigned during this process
+				if (before != null) {
+					result.content.game = before.game;
+				}
+
+				// do not let gametype get reassigned during this process
+				if (before instanceof Map && result.content instanceof Map) {
+					((Map)result.content).gametype = ((Map)before).gametype;
+				}
+			}
+		});
 
 		Path root = Paths.get("/home/shrimp/tmp/files/Unreal/");
 
@@ -229,9 +255,10 @@ public class IndexCleanupUtil {
 						&& content.game.equals("Unreal") // for safety, restrict to a single game
 						&& (content.attachments.isEmpty() // look for missing screenshots
 							|| content.author.contains("�") // fix broken ascii names
-							|| content.author.toLowerCase().equals("unknown"))) { // look for new authors
-						System.out.printf("Map without screenshots: %s%n", content.name);
-						indexer.index(true, null, new Indexer.CLIEventPrinter(false), file);
+							|| content.author.toLowerCase().equals("unknown") // look for new authors
+							|| content.description.isEmpty())) { // maps with no description
+						System.out.printf("Map missing things: %s (%s)%n", file.getFileName(), content.name);
+						indexer.index(true, null, file);
 					}
 				}
 

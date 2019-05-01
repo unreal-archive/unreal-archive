@@ -31,9 +31,17 @@ public class Indexer {
 	));
 
 	private final ContentManager contentManager;
+	private final IndexerEvents events;
+	private final IndexerPostProcessor postProcessor;
 
-	public Indexer(ContentManager contentManager) {
+	public Indexer(ContentManager contentManager, IndexerEvents events) {
+		this(contentManager, events, new IndexerPostProcessor(){});
+	}
+
+	public Indexer(ContentManager contentManager, IndexerEvents events, IndexerPostProcessor postProcessor) {
 		this.contentManager = contentManager;
+		this.events = events;
+		this.postProcessor = postProcessor;
 	}
 
 	/**
@@ -62,13 +70,13 @@ public class Indexer {
 	 * implementation, which further enriches it, and finally returns it via a
 	 * {@link Consumer}.
 	 *
-	 * @param inputPath directory or path to index
 	 * @param force     if content has already been indexed, index it again
 	 * @param forceType if not null, use the specified content type, rather than
 	 *                  attempting to discover it automatically
+	 * @param inputPath directories or file paths to index
 	 * @throws IOException file access failure
 	 */
-	public void index(boolean force, ContentType forceType, IndexerEvents events, Path... inputPath) throws IOException {
+	public void index(boolean force, ContentType forceType, Path... inputPath) throws IOException {
 		final List<IndexLog> indexLogs = new ArrayList<>();
 
 		// go through all the files in the input path and index them if new
@@ -193,16 +201,7 @@ public class Indexer {
 
 				type.indexer.get().index(incoming, content, result -> {
 					try {
-						// FIXME maybe implement IndexerPostProcessor or something which gets called for each file with before/after content
-						//       to allow overrides of some things
-						result.content.lastIndex = LocalDateTime.now();
-						if (sub.sourceUrls != null) {
-							for (String url : sub.sourceUrls) {
-								if (url != null && !url.isEmpty() && !result.content.hasDownload(url)) {
-									result.content.downloads.add(new Content.Download(url, LocalDate.now(), false));
-								}
-							}
-						}
+						postProcessor.indexed(sub, contentManager.forHash(incoming.hash), result);
 
 						if (result.content.name.isEmpty()) {
 							throw new IllegalStateException("Name cannot be blank for " + incoming.submission.filePath);
@@ -219,6 +218,19 @@ public class Indexer {
 		} catch (Throwable e) {
 			log.log(IndexLog.EntryType.FATAL, e.getMessage(), e);
 			done.accept(Optional.empty());
+		}
+	}
+
+	public interface IndexerPostProcessor {
+		public default void indexed(Submission sub, Content before, IndexResult<? extends Content> result) {
+			result.content.lastIndex = LocalDateTime.now();
+			if (sub.sourceUrls != null) {
+				for (String url : sub.sourceUrls) {
+					if (url != null && !url.isEmpty() && !result.content.hasDownload(url)) {
+						result.content.downloads.add(new Content.Download(url, LocalDate.now(), false));
+					}
+				}
+			}
 		}
 	}
 
