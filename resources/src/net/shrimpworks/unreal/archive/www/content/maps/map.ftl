@@ -53,7 +53,7 @@
 					<label>Release (est.)</label><span>${map.map.releaseDate}</span>
 				</div>
 				<div class="label-value">
-					<label>Description</label><span>${map.map.description}</span>
+					<label>Description</label><span>${map.map.description?replace("||", "<br/><br/>")}</span>
 				</div>
 				<div class="label-value">
 					<label>File Size</label><span>${fileSize(map.map.fileSize)}</span>
