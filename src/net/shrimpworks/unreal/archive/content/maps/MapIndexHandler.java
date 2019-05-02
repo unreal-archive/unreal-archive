@@ -94,6 +94,10 @@ public class MapIndexHandler implements IndexHandler<Map> {
 			if (title != null) m.title = ((StringProperty)title).value.trim();
 			if (description != null) m.description = ((StringProperty)description).value.trim();
 
+			// just in case, some maps seem to have blank values occasionally
+			if (m.author.isBlank()) m.author = "Unknown";
+			if (m.title.isBlank()) m.title = m.name;
+
 			if (map.version < 117) {
 				Property idealPlayerCount = level.property("IdealPlayerCount");
 				if (idealPlayerCount != null) m.playerCount = ((StringProperty)idealPlayerCount).value.trim();
