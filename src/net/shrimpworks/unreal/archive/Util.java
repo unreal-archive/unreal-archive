@@ -92,6 +92,14 @@ public final class Util {
 		return tmp.substring(0, tmp.lastIndexOf(".")).replaceAll("/", "").trim().replaceAll("[^\\x20-\\x7E]", "");
 	}
 
+	public static String safeFileName(String name) {
+		return name.trim().replaceAll("[\\/:*?\"<>|]", "_");
+	}
+
+	public static Path safeFileName(Path path) {
+		return path.getParent().resolve(safeFileName(path.getFileName().toString()));
+	}
+
 	public static String hash(Path path) throws IOException {
 		try (FileChannel channel = FileChannel.open(path, StandardOpenOption.READ)) {
 			MessageDigest md = MessageDigest.getInstance("SHA-1");
@@ -186,8 +194,6 @@ public final class Util {
 
 		httpConn.disconnect();
 	}
-
-
 
 	public static boolean uploadTo(Path localFile, String url) throws IOException {
 		URL urlConnection = new URL(url);

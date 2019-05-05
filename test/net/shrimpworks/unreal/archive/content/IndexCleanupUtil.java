@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
 import java.util.Collections;
@@ -16,7 +17,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import net.shrimpworks.unreal.archive.CLI;
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.YAML;
 import net.shrimpworks.unreal.archive.content.mappacks.MapPack;
@@ -27,10 +27,30 @@ import net.shrimpworks.unreal.archive.storage.DataStore;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import static net.shrimpworks.unreal.archive.Main.store;
 import static net.shrimpworks.unreal.archive.content.IndexUtils.UNKNOWN;
 
 public class IndexCleanupUtil {
+
+	@Test
+	@Ignore
+	public void sanitiseFilenames() throws IOException {
+		Path root = Paths.get("unreal-archive-data/content/");
+		Files.walkFileTree(root, new SimpleFileVisitor<>() {
+
+			@Override
+			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+				if (Util.extension(file).toLowerCase().equals("yml")) {
+					Path newName = Util.safeFileName(file);
+					if (!newName.equals(file)) {
+						Files.move(file, newName, StandardCopyOption.REPLACE_EXISTING);
+						System.out.printf("Renamed %s to %s%n", file.getFileName(), newName.getFileName());
+					}
+				}
+
+				return FileVisitResult.CONTINUE;
+			}
+		});
+	}
 
 	/*
 	 * Find duplicated content - items with the same name, but
@@ -215,10 +235,13 @@ public class IndexCleanupUtil {
 	@Test
 	@Ignore
 	public void reindexContent() throws IOException {
-		final CLI cli = net.shrimpworks.unreal.archive.CLI.parse(Collections.emptyMap());
-		final DataStore imageStore = store(DataStore.StoreContent.IMAGES, cli);
-		final DataStore attachmentStore = store(DataStore.StoreContent.ATTACHMENTS, cli);
-		final DataStore contentStore = store(DataStore.StoreContent.CONTENT, cli);
+//		final CLI cli = net.shrimpworks.unreal.archive.CLI.parse(Collections.emptyMap());
+//		final DataStore imageStore = store(DataStore.StoreContent.IMAGES, cli);
+//		final DataStore attachmentStore = store(DataStore.StoreContent.ATTACHMENTS, cli);
+//		final DataStore contentStore = store(DataStore.StoreContent.CONTENT, cli);
+		final DataStore imageStore = new DataStore.NopStore();
+		final DataStore attachmentStore = new DataStore.NopStore();
+		final DataStore contentStore = new DataStore.NopStore();
 
 		final ContentManager cm = new ContentManager(Paths.get("unreal-archive-data/content/"),
 													 contentStore, imageStore, attachmentStore);
@@ -250,7 +273,7 @@ public class IndexCleanupUtil {
 			}
 		});
 
-		final Path root = Paths.get("/home/shrimp/tmp/files/Unreal/");
+		final Path root = Paths.get("/home/shrimp/tmp/files/UnrealTournament2004/");
 
 		Files.walkFileTree(root, new SimpleFileVisitor<>() {
 			@Override
@@ -259,13 +282,13 @@ public class IndexCleanupUtil {
 					final String hash = Util.hash(file);
 					final Content content = cm.forHash(hash);
 					if (content instanceof Map
-						&& content.game.equals("Unreal") // for safety, restrict to a single game
+						&& content.game.equals("Unreal Tournament 2004") // for safety, restrict to a single game
 						&& (content.attachments.isEmpty() // look for missing screenshots
 							|| content.author.contains("�") // fix broken ascii names
 							|| content.author.toLowerCase().equals("unknown") // look for new authors
 							|| (content.description == null // maps with no description
 								|| content.description.isEmpty()
-								|| content.description.equalsIgnoreCase("none"))
+								|| content.description.length() < 50)
 						)) {
 						System.out.printf("Map missing things: %s (%s)%n", file.getFileName(), content.name);
 						indexer.index(true, null, file);

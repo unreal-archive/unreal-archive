@@ -180,14 +180,12 @@ public class ContentManager {
 				// use same path structure as per contentPath
 				try {
 					String uploadPath = path.relativize(next.resolve(file.name)).toString();
-					switch (file.type) {
-						case IMAGE:
-							imageStore.store(file.path, uploadPath,
-											 s -> indexed.content.attachments.add(new Content.Attachment(file.type, file.name, s)));
-							break;
-						default:
-							attachmentStore.store(file.path, uploadPath,
-												  s -> indexed.content.attachments.add(new Content.Attachment(file.type, file.name, s)));
+					if (file.type == Content.AttachmentType.IMAGE) {
+						imageStore.store(file.path, uploadPath,
+										 s -> indexed.content.attachments.add(new Content.Attachment(file.type, file.name, s)));
+					} else {
+						attachmentStore.store(file.path, uploadPath,
+											  s -> indexed.content.attachments.add(new Content.Attachment(file.type, file.name, s)));
 					}
 				} finally {
 					// cleanup file once uploaded
@@ -222,7 +220,7 @@ public class ContentManager {
 			}
 
 			Path newYml = next.resolve(String.format("%s_[%s].yml", indexed.content.name, indexed.content.hash.substring(0, 8)));
-			Files.write(newYml, YAML.toString(indexed.content).getBytes(StandardCharsets.UTF_8),
+			Files.write(Util.safeFileName(newYml), YAML.toString(indexed.content).getBytes(StandardCharsets.UTF_8),
 						StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 
 			if (current != null && !current.path.equals(newYml)) {
