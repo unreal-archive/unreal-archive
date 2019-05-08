@@ -83,7 +83,9 @@ public class B2Store implements DataStore {
 			// first, check if file exists; if it does, just return existing file
 			try {
 				B2FileVersion fileInfo = client.getFileInfoByName(bucketInfo.getBucketName(), name);
-				stored.accept(String.format(DOWNLOAD_URL, account.getDownloadUrl(), bucketInfo.getBucketName(), fileInfo.getFileName()));
+				stored.accept(Util.toUriString(
+						String.format(DOWNLOAD_URL, account.getDownloadUrl(), bucketInfo.getBucketName(), fileInfo.getFileName())
+				));
 				return;
 			} catch (B2Exception ex) {
 				if (ex.getStatus() != 404) {
@@ -96,7 +98,9 @@ public class B2Store implements DataStore {
 												B2FileContentSource.build(path.toFile())).build()
 			);
 
-			stored.accept(String.format(DOWNLOAD_URL, account.getDownloadUrl(), bucketInfo.getBucketName(), upload.getFileName()));
+			stored.accept(Util.toUriString(
+					String.format(DOWNLOAD_URL, account.getDownloadUrl(), bucketInfo.getBucketName(), upload.getFileName())
+			));
 		} catch (B2Exception e) {
 			throw new IOException("Failed to process Backblaze upload", e);
 		}

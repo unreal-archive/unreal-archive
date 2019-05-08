@@ -178,15 +178,16 @@ public class Templates {
 				throw new TemplateModelException("Wrong arguments");
 			}
 
-			String url = args.get(0).toString();
+			return args.get(0).toString();
 
-			if (!url.startsWith("http")) return url;
+//			String url = args.get(0).toString();
+//			if (!url.startsWith("http")) return url;
 
-			try {
-				return Util.toUriString(args.get(0).toString());
-			} catch (IllegalArgumentException e) {
-				throw new TemplateModelException("Invalid URL: " + args.get(0).toString(), e);
-			}
+//			try {
+//				return Util.toUriString(url);
+//			} catch (IllegalArgumentException e) {
+//				throw new TemplateModelException("Invalid URL: " + args.get(0).toString(), e);
+//			}
 		}
 	}
 
