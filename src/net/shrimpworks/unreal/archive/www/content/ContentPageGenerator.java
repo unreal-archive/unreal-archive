@@ -66,7 +66,7 @@ public abstract class ContentPageGenerator implements PageGenerator {
 				Path outPath = imgPath.resolve(hashName);
 
 				// only download if it doesn't already exist locally
-				if (!Files.exists(outPath)) Util.downloadTo(Util.toUriString(img.url), outPath);
+				if (!Files.exists(outPath)) Util.downloadTo(img.url, outPath);
 
 				// replace the actual attachment with the local copy
 				content.attachments.remove(img);

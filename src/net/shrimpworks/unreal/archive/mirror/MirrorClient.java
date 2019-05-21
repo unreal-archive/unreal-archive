@@ -104,8 +104,7 @@ public class MirrorClient {
 				if (Files.exists(dest) && Files.size(dest) == content.fileSize) return;
 
 				// download the stuff, hopefully
-				Util.downloadTo(Util.toUriString(dl.url), dest);
-
+				Util.downloadTo(dl.url, dest);
 			} catch (Throwable t) {
 				System.err.printf("%nFailed to download content %s: %s%n", content.contentPath(output), t.toString());
 			} finally {
