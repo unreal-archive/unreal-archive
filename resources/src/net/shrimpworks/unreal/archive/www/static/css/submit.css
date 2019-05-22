@@ -60,8 +60,15 @@
 	padding-left: 10px;
 }
 
+#log .info {
+}
+
+#log .warn {
+	background-color: #ffff88;
+}
+
 #log .error {
-	background-color: #ff9999;
+	background-color: #ff8888;
 }
 
 

@@ -1,4 +1,4 @@
-<#assign extraCss="submit.css"/>
+<#assign extraCss="submit.css?v=2"/>
 <#include "../_header.ftl">
 <#include "../macros.ftl">
 
@@ -85,7 +85,7 @@
 </@content>
 
 <script type="application/javascript">
-	let url = "../incoming/";
+	let url = "http://localhost:8081/";
 
 	document.addEventListener("DOMContentLoaded", function() {
 
@@ -255,7 +255,7 @@
 			} else {
 				dateStamp = new Date(event.time);
 				log.innerHTML = linkify(event.message);
-				if (event.error) logRow.classList.add("error")
+			  logRow.classList.add(event.type.toLowerCase())
 			}
 
 			time.innerText = '[' + dateStamp.toLocaleTimeString() + ']';
