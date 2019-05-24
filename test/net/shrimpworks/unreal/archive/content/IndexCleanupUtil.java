@@ -31,6 +31,38 @@ import static net.shrimpworks.unreal.archive.content.IndexUtils.UNKNOWN;
 
 public class IndexCleanupUtil {
 
+	/*
+	 * URL encode URLs.
+	 */
+	@Test
+	@Ignore
+	public void fixUrlEncoding() throws IOException {
+		ContentManager cm = new ContentManager(Paths.get("unreal-archive-data/content/"),
+											   new DataStore.NopStore(), new DataStore.NopStore(), new DataStore.NopStore());
+
+		Collection<Content> all = cm.search(null, null, null, null);
+
+		// for all the dupes, sort by release date desc, then mark others as variations of the first and store
+		for (Content e : all) {
+			Content content = cm.checkout(e.hash);
+			content.downloads.forEach(d -> {
+				if (d.url.startsWith("https://f002.backblazeb2.com/file/unreal-archive") && d.url.contains(" ")) {
+//					d.url = Util.toUriString(d.url);
+				}
+			});
+			content.attachments.forEach(a -> {
+				if (a.url.startsWith("https://f002.backblazeb2.com/file/unreal-archive") && a.url.contains(" ")) {
+//					a.url = Util.toUriString(a.url);
+				}
+			});
+			if (cm.checkin(new IndexResult<>(content, Collections.emptySet()), null)) {
+				System.out.println("Stored changes for " + String.join(" / ", content.contentType, content.game, content.name));
+			} else {
+				System.out.println("Failed to apply " + String.join(" / ", content.contentType, content.game, content.name));
+			}
+		}
+	}
+
 	@Test
 	@Ignore
 	public void sanitiseFilenames() throws IOException {
