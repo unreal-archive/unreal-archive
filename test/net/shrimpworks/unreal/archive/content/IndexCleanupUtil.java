@@ -10,6 +10,7 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -30,6 +31,42 @@ import org.junit.Test;
 import static net.shrimpworks.unreal.archive.content.IndexUtils.UNKNOWN;
 
 public class IndexCleanupUtil {
+
+	@Test
+	@Ignore
+	public void contentManagerBenchmark() throws IOException {
+		// warmup
+		new ContentManager(Paths.get("unreal-archive-data/content/"),
+						   new DataStore.NopStore(), new DataStore.NopStore(), new DataStore.NopStore());
+
+		long[] times = new long[10];
+		for (int i = 0; i < times.length; i++) {
+			long start = System.currentTimeMillis();
+			new ContentManager(Paths.get("unreal-archive-data/content/"),
+							   new DataStore.NopStore(), new DataStore.NopStore(), new DataStore.NopStore());
+			times[i] = System.currentTimeMillis() - start;
+			System.out.println(i + ": " + times[i]);
+		}
+
+		System.out.println("Average: " + Arrays.stream(times).average().getAsDouble());
+		System.out.println("Total: " + Arrays.stream(times).sum());
+
+		/*
+		  reference time:
+			0: 9204
+			1: 9257
+			2: 9063
+			3: 9047
+			4: 8884
+			5: 8891
+			6: 8884
+			7: 8861
+			8: 8903
+			9: 8911
+			Average: 8990.5
+			Total: 89905
+		 */
+	}
 
 	/*
 	 * URL encode URLs.

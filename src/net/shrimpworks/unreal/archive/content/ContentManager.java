@@ -2,20 +2,18 @@ package net.shrimpworks.unreal.archive.content;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardOpenOption;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.YAML;
@@ -40,35 +38,33 @@ public class ContentManager {
 		this.contentStore = contentStore;
 		this.imageStore = imageStore;
 		this.attachmentStore = attachmentStore;
-		this.content = new HashMap<>();
-		this.contentFileMap = new HashMap<>();
-		this.variationsMap = new HashMap<>();
+		this.content = new ConcurrentHashMap<>();
+		this.contentFileMap = new ConcurrentHashMap<>();
+		this.variationsMap = new ConcurrentHashMap<>();
 
 		this.changes = new HashSet<>();
 
-		// load contents from path into content
-		Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
-			@Override
-			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-				if (Util.extension(file).equalsIgnoreCase("yml")) {
+		try (Stream<Path> files = Files.walk(path).parallel().filter(file -> Util.extension(file).equalsIgnoreCase("yml"))) {
+			files.forEach(file -> {
+				try {
 					Content c = YAML.fromFile(file, Content.class);
 					content.put(c.hash, new ContentHolder(file, c));
 
 					// while reading this content, also index its individual files for later quick lookup
 					for (Content.ContentFile contentFile : c.files) {
-						Collection<Content> fileSet = contentFileMap.computeIfAbsent(contentFile.hash, h -> new HashSet<>());
+						Collection<Content> fileSet = contentFileMap.computeIfAbsent(contentFile.hash, h -> ConcurrentHashMap.newKeySet());
 						fileSet.add(c);
 					}
 
 					if (c.variationOf != null) {
-						Collection<Content> variations = variationsMap.computeIfAbsent(c.variationOf, h -> new HashSet<>());
+						Collection<Content> variations = variationsMap.computeIfAbsent(c.variationOf, h -> ConcurrentHashMap.newKeySet());
 						variations.add(c);
 					}
+				} catch (Exception e) {
+					throw new RuntimeException(e);
 				}
-				return FileVisitResult.CONTINUE;
-			}
-		});
-
+			});
+		}
 	}
 
 	public int size() {
