@@ -91,7 +91,7 @@
 </@content>
 
 <script type="application/javascript">
-	let url = "http://localhost:8081/";
+	let url = "../incoming/";
 
 	document.addEventListener("DOMContentLoaded", function() {
 
