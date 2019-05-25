@@ -1,4 +1,4 @@
-<#assign extraCss="submit.css?v=2"/>
+<#assign extraCss="submit.css?v=3"/>
 <#include "../_header.ftl">
 <#include "../macros.ftl">
 
@@ -9,31 +9,43 @@
 	</h1>
 
 	<div id="form">
-		<div id="upload-controls" class="display-block">
-			<h2>Choose Files to Submit</h2>
+		<div id="upload-block">
+			<div id="upload-controls" class="display-block">
+				<h2>Choose Files to Submit</h2>
 
-			<!--				<input type="radio" name="type" value="upload" id="rupload" checked>-->
-			<!--				<label for="rupload">Upload Files From your Computer</label>-->
+				<!--				<input type="radio" name="type" value="upload" id="rupload" checked>-->
+				<!--				<label for="rupload">Upload Files From your Computer</label>-->
 
-			<!--				<input type="radio" name="type" value="url" id="rurl">-->
-			<!--				<label for="rurl">Submit via a URL</label>-->
+				<!--				<input type="radio" name="type" value="url" id="rurl">-->
+				<!--				<label for="rurl">Submit via a URL</label>-->
 
-			<!--				<hr />-->
+				<!--				<hr />-->
 
-			<div id="upload" class="display-block">
-				<input type="file" id="files" accept=".zip,.rar,.7z,.ace,.gz,.bz2,.tar,.tgz,.exe,.umod,.ut2mod,.ut4mod" multiple style="display:none">
-				<button id="select-files">Select Files</button>
-				<button id="upload-files">Upload!</button>
+				<div id="upload" class="display-block">
+					<input type="file" id="files" accept=".zip,.rar,.7z,.ace,.gz,.bz2,.tar,.tgz,.exe,.umod,.ut2mod,.ut4mod" multiple style="display:none">
+					<button id="select-files">Select Files</button>
+					<button id="upload-files">Upload!</button>
+				</div>
+
+				<div id="url">
+					<input type="text" id="link" placeholder="paste link here"/>
+					<button id="upload-url">Submit!</button>
+				</div>
 			</div>
 
-			<div id="url">
-				<input type="text" id="link" placeholder="paste link here"/>
-				<button id="upload-url">Submit!</button>
+			<div id="progress-controls">
+				<button id="abort">Cancel Upload</button>
+				<progress id="progress" value="0" max="100" style="width: 100%"></progress>
 			</div>
 
-			<hr/>
+			<div id="files-list">
+				<h2>Selected Files</h2>
+			</div>
+		</div>
 
-			<div id="words">
+		<div id="info-block">
+			<div id="words" class="display-block">
+				<h2>Information</h2>
 				<p>
 					To upload files, you may select one or more <b>.zip, .rar, .7z,
 						.ace, .gz, .bz2, .tar, .tgz, .exe, .umod, ut2mod or .ut4mod</b>
@@ -70,22 +82,16 @@
 				</p>
 			</div>
 
-		</div>
-
-		<div id="progress-controls">
-			<button id="abort">Cancel Upload</button>
-			<progress id="progress" value="0" max="100" style="width: 100%">LOL</progress>
+			<div id="log">
+				<h2>Processing Status</h2>
+			</div>
 		</div>
 	</div>
-
-	<div id="files-list"><h2>Selected Files</h2></div>
-
-	<div id="log"><h2>Processing Status</h2></div>
 
 </@content>
 
 <script type="application/javascript">
-	let url = "../incoming/";
+	let url = "http://localhost:8081/";
 
 	document.addEventListener("DOMContentLoaded", function() {
 
@@ -96,7 +102,8 @@
 		let abortButton = document.querySelector('#abort');
 
 		let filesList = document.querySelector('#files-list');
-		let logList = document.querySelector('#log');
+	  let logList = document.querySelector('#log');
+		let infoBlurb = document.querySelector('#words');
 
 		let uploadControls = document.querySelector('#upload-controls');
 		let progressControls = document.querySelector('#progress-controls')
@@ -212,18 +219,22 @@
 			if (progressing) {
 				if (!logList.classList.contains("display-block")) logList.classList.add("display-block");
 				if (!progressControls.classList.contains("display-block")) progressControls.classList.add("display-block");
-				if (uploadControls.classList.contains("display-block")) uploadControls.classList.remove("display-block");
+		  	if (uploadControls.classList.contains("display-block")) uploadControls.classList.remove("display-block");
+		  	if (infoBlurb.classList.contains("display-block")) infoBlurb.classList.remove("display-block");
 				resetLog();
 			} else {
 				if (logList.classList.contains("display-block")) logList.classList.remove("display-block");
 				if (progressControls.classList.contains("display-block")) progressControls.classList.remove("display-block");
 				if (!uploadControls.classList.contains("display-block")) uploadControls.classList.add("display-block");
 				if (filesList.classList.contains("display-block")) filesList.classList.remove("display-block");
+		  	if (!infoBlurb.classList.contains("display-block")) infoBlurb.classList.add("display-block");
 				history.pushState(null, document.title, '#');
 			}
 		}
 
 		function pollJob(jobId, catchup = false) {
+			if (jobId !== location.hash.substring(1)) return; // stop polling if we're not looking at this job
+
 			fetch(url + 'job/' + jobId.toString() + (catchup ? '?catchup=1' : ''))
 				.then(result => {
 					if (result.ok) {
@@ -255,7 +266,7 @@
 			} else {
 				dateStamp = new Date(event.time);
 				log.innerHTML = linkify(event.message);
-			  logRow.classList.add(event.type.toLowerCase())
+				logRow.classList.add(event.type.toLowerCase())
 			}
 
 			time.innerText = '[' + dateStamp.toLocaleTimeString() + ']';
