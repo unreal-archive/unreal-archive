@@ -34,7 +34,7 @@ public class CLI {
 		props.putAll(defOptions);
 
 		Path confFile = Paths.get(PROPERTIES);
-		if (!Files.exists(confFile)) confFile = Paths.get(System.getenv("HOME")).resolve(PROPERTIES);
+		if (!Files.exists(confFile)) confFile = Paths.get(System.getProperty("user.home")).resolve(PROPERTIES);
 		if (Files.exists(confFile)) {
 			try {
 				Properties fileProps = new Properties();
