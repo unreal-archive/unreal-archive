@@ -66,7 +66,7 @@
 					<td class="nomobile">${f.hash}</td>
 					<#if alsoIn[f.hash]??>
 						<td>
-							<a href="${relUrl(siteRoot, siteRoot + "/files/" + f.hash[0..1] + "/" + f.hash + ".html")}">${alsoIn[f.hash]}</a>
+							<a href="${relPath(siteRoot + "/files/" + f.hash[0..1] + "/" + f.hash + ".html")}">${alsoIn[f.hash]}</a>
 						</td>
 					<#else>
 						<td>-</td>
