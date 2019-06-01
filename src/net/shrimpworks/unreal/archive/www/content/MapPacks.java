@@ -50,16 +50,16 @@ public class MapPacks extends ContentPageGenerator {
 
 		try {
 			pages.add("games.ftl", SiteMap.Page.monthly(0.6f), SECTION)
-					   .put("games", games)
-					   .write(root.resolve("index.html"));
+				 .put("games", games)
+				 .write(root.resolve("index.html"));
 
 			for (Map.Entry<String, Game> g : games.games.entrySet()) {
 
 				var game = net.shrimpworks.unreal.archive.content.Games.byName(g.getKey());
 
 				pages.add("gametypes.ftl", SiteMap.Page.monthly(0.62f), String.join(" / ", SECTION, game.bigName))
-								   .put("game", g.getValue())
-								   .write(g.getValue().path.resolve("index.html"));
+					 .put("game", g.getValue())
+					 .write(g.getValue().path.resolve("index.html"));
 
 				for (Map.Entry<String, Gametype> gt : g.getValue().gametypes.entrySet()) {
 
@@ -78,8 +78,8 @@ public class MapPacks extends ContentPageGenerator {
 
 					// output first letter/page combo, with appropriate relative links
 					pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName, gt.getKey()))
-									   .put("page", gt.getValue().pages.get(0))
-									   .write(gt.getValue().path.resolve("index.html"));
+						 .put("page", gt.getValue().pages.get(0))
+						 .write(gt.getValue().path.resolve("index.html"));
 				}
 			}
 		} catch (IOException e) {
@@ -93,9 +93,10 @@ public class MapPacks extends ContentPageGenerator {
 		localImages(pack.pack, pack.path.getParent());
 
 		pages.add("mappack.ftl", SiteMap.Page.monthly(0.9f, pack.pack.lastIndex), String.join(" / ", SECTION,
-													 pack.page.gametype.game.game.bigName, pack.page.gametype.name, pack.pack.name))
-						   .put("pack", pack)
-						   .write(Paths.get(pack.path.toString() + ".html"));
+																							  pack.page.gametype.game.game.bigName,
+																							  pack.page.gametype.name, pack.pack.name))
+			 .put("pack", pack)
+			 .write(Paths.get(pack.path.toString() + ".html"));
 
 		for (MapPackInfo variation : pack.variations) {
 			packPage(pages, variation);

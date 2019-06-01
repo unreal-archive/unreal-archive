@@ -67,6 +67,7 @@ public class Templates {
 	}
 
 	public static class PageSet {
+
 		public final String resourceRoot;
 		public final Set<SiteMap.Page> pages;
 		public final Map<String, Object> vars;
@@ -174,6 +175,7 @@ public class Templates {
 	}
 
 	private static class RelPageMethod implements TemplateMethodModelEx {
+
 		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
 			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a path");
 			TemplateModel pagePath = Environment.getCurrentEnvironment().getVariable("pagePath");

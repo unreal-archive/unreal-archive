@@ -1,14 +1,14 @@
 <#assign game=gametype.game>
 
 <#assign ogDescription="${gametype.name} maps for ${game.game.bigName}">
-<#assign ogImage="${staticPath(static)}/images/gametypes/${game.name}/${gametype.name}.png">
+<#assign ogImage="${staticPath()}/images/gametypes/${game.name}/${gametype.name}.png">
 
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
 
-	<@heading bg=["${staticPath(static)}/images/gametypes/${game.name}/${gametype.name}.png", "${staticPath(static)}/images/games/${game.name}.png"]>
-		<a href="${siteRoot}/index.html">Maps</a>
-		/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
+	<@heading bg=["${staticPath()}/images/gametypes/${game.name}/${gametype.name}.png", "${staticPath()}/images/games/${game.name}.png"]>
+		<a href="${relPath(sectionPath + "/index.html")}">Maps</a>
+		/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
 		/ ${gametype.name}
 	</@heading>
 
@@ -26,13 +26,13 @@
 			<tbody>
 				<#list maps as m>
 				<tr>
-					<td><a href="${relUrl(gametype.path, m.path + ".html")}">${m.map.name}</a></td>
+					<td><a href="${relPath(m.path + ".html")}">${m.map.name}</a></td>
 					<td class="nomobile">${m.map.title}</td>
 					<td>${m.map.author}</td>
 					<td>${m.map.playerCount}</td>
 					<td class="meta nomobile">
 						<#if m.map.attachments?size gt 0>
-							<img src="${staticPath(static)}/images/icons/black/px22/ico-images-grey.png" alt="Has images"/>
+							<img src="${staticPath()}/images/icons/black/px22/ico-images-grey.png" alt="Has images"/>
 						</#if>
 					</td>
 				</tr>
