@@ -17,7 +17,7 @@ import java.util.TreeMap;
 import net.shrimpworks.unreal.archive.managed.Managed;
 import net.shrimpworks.unreal.archive.managed.ManagedContentManager;
 
-import static net.shrimpworks.unreal.archive.www.Templates.slug;
+import static net.shrimpworks.unreal.archive.Util.slug;
 
 public class ManagedContent implements PageGenerator {
 

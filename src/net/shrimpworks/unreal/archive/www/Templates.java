@@ -16,21 +16,24 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.text.Normalizer;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import com.github.rjeschke.txtmark.Processor;
+import freemarker.core.Environment;
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.SimpleNumber;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateMethodModelEx;
+import freemarker.template.TemplateModel;
 import freemarker.template.TemplateModelException;
 
 import net.shrimpworks.unreal.archive.Util;
@@ -44,8 +47,6 @@ public class Templates {
 
 	private static final Map<String, String> HOST_REMAP = new HashMap<>();
 
-	private static final Pattern NONLATIN = Pattern.compile("[^\\w-]");
-	private static final Pattern WHITESPACE = Pattern.compile("[\\s]");
 	private static final Pattern LINK_PREFIX = Pattern.compile("https?://.*");
 
 	private static final Configuration TPL_CONFIG = new Configuration(Configuration.VERSION_2_3_27);
@@ -64,6 +65,28 @@ public class Templates {
 		TPL_CONFIG.setOutputEncoding(StandardCharsets.UTF_8.name());
 
 		HOST_REMAP.put("f002.backblazeb2.com", SITE_NAME);
+	}
+
+	public static class PageSet {
+		public final String resourceRoot;
+		public final Set<SiteMap.Page> pages;
+		public final Map<String, Object> vars;
+
+		public PageSet(String resourceRoot, Path siteRoot, Path staticPath, Path sectionPath) {
+			this.resourceRoot = resourceRoot;
+			this.pages = new HashSet<>();
+			this.vars = Map.of(
+					"root", siteRoot,
+					"static", staticPath,
+					"sectionPath", sectionPath
+			);
+		}
+
+		public Tpl add(String template, SiteMap.Page page, String title) throws IOException {
+			return template(String.join("/", resourceRoot, template), page)
+					.put("title", title)
+					.putAll(vars);
+		}
 	}
 
 	public static Tpl template(String name) throws IOException {
@@ -89,13 +112,6 @@ public class Templates {
 		return true;
 	}
 
-	public static String slug(String input) {
-		String nowhitespace = WHITESPACE.matcher(input).replaceAll("-");
-		String normalized = Normalizer.normalize(nowhitespace, Normalizer.Form.NFD);
-		String slug = NONLATIN.matcher(normalized).replaceAll("");
-		return slug.toLowerCase(Locale.ENGLISH).replaceAll("(-)\\1+", "-");
-	}
-
 	public static String renderMarkdown(ReadableByteChannel document) throws IOException {
 		try (InputStream is = Channels.newInputStream(document)) {
 			return Processor.process(is, MD_CONFIG);
@@ -107,6 +123,7 @@ public class Templates {
 		private static final Map<String, Object> TPL_VARS = new HashMap<>();
 
 		static {
+			TPL_VARS.put("relPath", new RelPageMethod());
 			TPL_VARS.put("relUrl", new RelUrlMethod());
 			TPL_VARS.put("urlEncode", new UrlEncodeMethod());
 			TPL_VARS.put("urlHost", new UrlHostMethod());
@@ -130,12 +147,18 @@ public class Templates {
 		}
 
 		public Tpl put(String var, Object val) {
-			vars.put(var, val);
+			this.vars.put(var, val);
+			return this;
+		}
+
+		public Tpl putAll(Map<String, Object> vars) {
+			this.vars.putAll(vars);
 			return this;
 		}
 
 		public SiteMap.Page write(Path output) throws IOException {
 			try (Writer writer = templateOut(output)) {
+				vars.put("pagePath", output.getParent().toAbsolutePath());
 				template.process(vars, writer);
 			} catch (TemplateException e) {
 				throw new IOException("Template output failed", e);
@@ -151,12 +174,20 @@ public class Templates {
 
 	}
 
+	private static class RelPageMethod implements TemplateMethodModelEx {
+		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
+			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a path");
+			TemplateModel pagePath = Environment.getCurrentEnvironment().getVariable("pagePath");
+			if (pagePath == null) throw new TemplateModelException("A pagePath variable was not found");
+
+			return Paths.get(pagePath.toString()).relativize(Paths.get(args.get(0).toString()));
+		}
+	}
+
 	private static class RelUrlMethod implements TemplateMethodModelEx {
 
 		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
-			if (args.size() != 2) {
-				throw new TemplateModelException("Wrong arguments");
-			}
+			if (args.size() != 2) throw new TemplateModelException("Wrong arguments, expecting two paths");
 
 			String one = args.get(0).toString();
 			String two = args.get(1).toString();
@@ -174,9 +205,7 @@ public class Templates {
 	private static class UrlEncodeMethod implements TemplateMethodModelEx {
 
 		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
-			if (args.size() != 1) {
-				throw new TemplateModelException("Wrong arguments");
-			}
+			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a URL to encode");
 
 			return args.get(0).toString();
 
@@ -196,9 +225,7 @@ public class Templates {
 		private static final String[] SIZES = { "B", "KB", "MB", "GB", "TB" };
 
 		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
-			if (args.size() != 1) {
-				throw new TemplateModelException("Wrong arguments");
-			}
+			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a file size");
 
 			float size = ((SimpleNumber)args.get(0)).getAsNumber().floatValue();
 
@@ -215,9 +242,7 @@ public class Templates {
 	private static class FileNameMethod implements TemplateMethodModelEx {
 
 		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
-			if (args.size() != 1) {
-				throw new TemplateModelException("Wrong arguments");
-			}
+			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a file path");
 
 			return Util.fileName(args.get(0).toString());
 		}
@@ -226,9 +251,7 @@ public class Templates {
 	private static class UrlHostMethod implements TemplateMethodModelEx {
 
 		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
-			if (args.size() != 1) {
-				throw new TemplateModelException("Wrong arguments");
-			}
+			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a URL");
 
 			try {
 				String host = new URL(args.get(0).toString()).getHost().replaceFirst("www\\.", "");
@@ -242,9 +265,7 @@ public class Templates {
 	private static class StaticPathMethod implements TemplateMethodModelEx {
 
 		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
-			if (args.size() != 1) {
-				throw new TemplateModelException("Wrong arguments");
-			}
+			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a path");
 
 			if (!STATIC_ROOT.isEmpty()) return STATIC_ROOT;
 			else if (args.get(0) == null || args.get(0).toString().isEmpty()) return "static";

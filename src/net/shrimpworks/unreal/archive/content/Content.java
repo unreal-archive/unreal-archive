@@ -13,6 +13,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.content.mappacks.MapPack;
 import net.shrimpworks.unreal.archive.content.maps.Map;
 import net.shrimpworks.unreal.archive.content.models.Model;
@@ -95,6 +96,13 @@ public abstract class Content implements Comparable<Content> {
 		char first = name.toUpperCase().replaceAll("[^A-Z0-9]", "").charAt(0);
 		if (Character.isDigit(first)) first = '0';
 		return Character.toString(first);
+	}
+
+	public Path slugPath(Path root) {
+		String type = Util.slug(this.contentType.toLowerCase().replaceAll("_", "") + "s");
+		String game = Util.slug(this.game);
+		String name = Util.slug(this.name + "_" + this.hash.substring(0, 8));
+		return root.resolve(type).resolve(game).resolve(subGrouping()).resolve(name);
 	}
 
 	/**

@@ -3,6 +3,7 @@ package net.shrimpworks.unreal.archive.content.maps;
 import java.nio.file.Path;
 import java.util.Objects;
 
+import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.content.Content;
 
 public class Map extends Content {
@@ -40,6 +41,15 @@ public class Map extends Content {
 										  gametype,
 										  namePrefix
 		));
+	}
+
+	@Override
+	public Path slugPath(Path root) {
+		String type = Util.slug(this.contentType.toLowerCase().replaceAll("_", "") + "s");
+		String game = Util.slug(this.game);
+		String gameType = Util.slug(this.gametype);
+		String name = Util.slug(this.name + "_" + this.hash.substring(0, 8));
+		return root.resolve(type).resolve(game).resolve(gameType).resolve(subGrouping()).resolve(name);
 	}
 
 	@Override

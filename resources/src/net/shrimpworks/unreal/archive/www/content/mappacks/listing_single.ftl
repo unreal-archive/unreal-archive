@@ -7,9 +7,9 @@
 <#include "../../macros.ftl">
 
 	<@heading bg=["${staticPath(static)}/images/gametypes/${game.name}/${gametype.name}.png", "${staticPath(static)}/images/games/${game.name}.png"]>
-		<a href="${siteRoot}/index.html">Map Packs</a>
-		/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
-		/ <a href="${relUrl(siteRoot, gametype.path)}/index.html">${gametype.name}</a>
+		<a href="${relPath(sectionPath + "/index.html")}">Map Packs</a>
+		/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
+		/ <a href="${relPath(gametype.path + "/index.html")}">${gametype.name}</a>
 	</@heading>
 
 	<@content class="list">
@@ -25,7 +25,7 @@
 			<tbody>
 				<#list packs as p>
 				<tr class="${p?item_parity}">
-					<td><a href="${relUrl(gametype.path, p.path + ".html")}">${p.pack.name}</a></td>
+					<td><a href="${relPath(p.path + ".html")}">${p.pack.name}</a></td>
 					<td>${p.pack.author}</td>
 					<td>${p.pack.maps?size}</td>
 					<td class="meta nomobile">

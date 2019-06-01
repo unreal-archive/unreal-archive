@@ -19,9 +19,12 @@ import net.shrimpworks.unreal.archive.www.Templates;
 public class FileDetails extends ContentPageGenerator {
 
 	private final Map<Content.ContentFile, List<Content>> contentFiles;
+	private final Path output;
 
 	public FileDetails(ContentManager content, Path output, Path staticRoot, boolean localImages) {
 		super(content, output.resolve("files"), staticRoot, localImages);
+
+		this.output = output;
 
 		this.contentFiles = new HashMap<>();
 		content.search(null, null, null, null)
@@ -50,7 +53,7 @@ public class FileDetails extends ContentPageGenerator {
 								   .put("title", String.join(" / ", "Files", e.getKey().name))
 								   .put("file", e.getKey())
 								   .put("packages", e.getValue())
-								   .put("siteRoot", root.resolve("files").relativize(root))
+								   .put("siteRoot", root.resolve("files").relativize(output))
 								   .write(p.resolve(e.getKey().hash + ".html")));
 			}
 

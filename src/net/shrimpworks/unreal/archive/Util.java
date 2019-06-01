@@ -15,7 +15,9 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.Normalizer;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
@@ -59,6 +61,9 @@ public final class Util {
 
 	private static final Pattern DISPOSITION_FILENAME = Pattern.compile(".*filename=\"?([^\"]*)\"?;?.*?");
 
+	private static final Pattern NONLATIN = Pattern.compile("[^\\w-]");
+	private static final Pattern WHITESPACE = Pattern.compile("[\\s]");
+
 	private Util() { }
 
 	public static String extension(Path path) {
@@ -98,6 +103,13 @@ public final class Util {
 
 	public static Path safeFileName(Path path) {
 		return path.getParent().resolve(safeFileName(path.getFileName().toString()));
+	}
+
+	public static String slug(String input) {
+		String nowhitespace = WHITESPACE.matcher(input).replaceAll("-");
+		String normalized = Normalizer.normalize(nowhitespace, Normalizer.Form.NFD);
+		String slug = NONLATIN.matcher(normalized).replaceAll("");
+		return slug.toLowerCase(Locale.ENGLISH).replaceAll("(-)\\1+", "-");
 	}
 
 	public static String hash(Path path) throws IOException {

@@ -17,9 +17,9 @@
 <#include "../../macros.ftl">
 
 	<@heading bg=[headerbg]>
-		<a href="${siteRoot}/index.html">Map Packs</a>
-		/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
-		/ <a href="${relUrl(siteRoot, gametype.path)}/index.html">${gametype.name}</a>
+		<a href="${relPath(sectionPath + "/index.html")}">Map Packs</a>
+		/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
+		/ <a href="${relPath(gametype.path + "/index.html")}">${gametype.name}</a>
 		/ ${pack.pack.name}
 	</@heading>
 
@@ -38,7 +38,7 @@
 				</div>
 				<div class="label-value">
 					<label>Game Type</label><span>
-						<a href="${relUrl(siteRoot, gametype.path + "/index.html")}">${pack.pack.gametype}</a>
+						<a href="${relPath(gametype.path + "/index.html")}">${pack.pack.gametype}</a>
 					</span>
 				</div>
 				<div class="label-value">
@@ -76,7 +76,7 @@
 						<tbody>
 							<#list pack.variations as v>
 							<tr>
-								<td><a href="${relUrl(siteRoot, v.path + ".html")}">${v.pack.name}</a></td>
+								<td><a href="${relPath(v.path + ".html")}">${v.pack.name}</a></td>
 								<td>${v.pack.releaseDate}</td>
 								<td>${v.pack.originalFilename}</td>
 								<td>${fileSize(v.pack.fileSize)}</td>

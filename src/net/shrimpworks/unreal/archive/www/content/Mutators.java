@@ -18,7 +18,7 @@ import net.shrimpworks.unreal.archive.content.mutators.Mutator;
 import net.shrimpworks.unreal.archive.www.SiteMap;
 import net.shrimpworks.unreal.archive.www.Templates;
 
-import static net.shrimpworks.unreal.archive.www.Templates.slug;
+import static net.shrimpworks.unreal.archive.Util.slug;
 
 public class Mutators extends ContentPageGenerator {
 

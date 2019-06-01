@@ -30,7 +30,6 @@
 						<th>Game</th>
 						<th>Name</th>
 						<th>Author</th>
-						<th>Hash</th>
 					</tr>
 					</thead>
 					<tbody>
@@ -39,14 +38,9 @@
 							<td>${c.contentType}</td>
 							<td>${c.game}</td>
 							<td>
-								<#if c.contentType == "MAP">
-									${c.name}
-								<#else>
-									${c.name}
-								</#if>
+								<a href="${relUrl(siteRoot, c.slugPath() + ".html")}">${c.name}</a>
 							</td>
 							<td>${c.author}</td>
-							<td>${c.hash}</td>
 						</tr>
 						</#list>
 					</tbody>

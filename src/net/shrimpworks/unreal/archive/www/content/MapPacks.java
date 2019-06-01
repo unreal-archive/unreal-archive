@@ -2,6 +2,7 @@ package net.shrimpworks.unreal.archive.www.content;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -19,16 +20,18 @@ import net.shrimpworks.unreal.archive.content.mappacks.MapPack;
 import net.shrimpworks.unreal.archive.www.SiteMap;
 import net.shrimpworks.unreal.archive.www.Templates;
 
-import static net.shrimpworks.unreal.archive.www.Templates.slug;
+import static net.shrimpworks.unreal.archive.Util.slug;
 
 public class MapPacks extends ContentPageGenerator {
 
 	private static final String SECTION = "Map Packs";
 
 	private final Games games;
+	private final Path siteRoot;
 
 	public MapPacks(ContentManager content, Path output, Path staticRoot, boolean localImages) {
 		super(content, output.resolve("mappacks"), staticRoot, localImages);
+		this.siteRoot = output;
 
 		this.games = new Games();
 
@@ -51,7 +54,7 @@ public class MapPacks extends ContentPageGenerator {
 							   .put("static", root.relativize(staticRoot))
 							   .put("title", SECTION)
 							   .put("games", games)
-							   .put("siteRoot", root)
+							   .put("sectionPath", root)
 							   .write(root.resolve("index.html")));
 
 			for (Map.Entry<String, Game> g : games.games.entrySet()) {
@@ -62,8 +65,8 @@ public class MapPacks extends ContentPageGenerator {
 								   .put("static", root.resolve(g.getValue().path).relativize(staticRoot))
 								   .put("title", String.join(" / ", SECTION, game.bigName))
 								   .put("game", g.getValue())
-								   .put("siteRoot", root.resolve(g.getValue().path).relativize(root))
-								   .write(root.resolve(g.getValue().path).resolve("index.html")));
+								   .put("sectionPath", root)
+								   .write(g.getValue().path.resolve("index.html")));
 
 				for (Map.Entry<String, Gametype> gt : g.getValue().gametypes.entrySet()) {
 
@@ -78,8 +81,8 @@ public class MapPacks extends ContentPageGenerator {
 										   .put("title", String.join(" / ", SECTION, game.bigName, gt.getKey()))
 										   .put("gametype", gt.getValue())
 										   .put("packs", all)
-										   .put("siteRoot", root.resolve(gt.getValue().path).relativize(root))
-										   .write(root.resolve(gt.getValue().path).resolve("index.html")));
+										   .put("sectionPath", root)
+										   .write(gt.getValue().path.resolve("index.html")));
 
 						// still generate all map pages
 						for (MapPackInfo pack : all) {
@@ -94,9 +97,8 @@ public class MapPacks extends ContentPageGenerator {
 										   .put("static", root.resolve(p.path).relativize(staticRoot))
 										   .put("title", String.join(" / ", SECTION, game.bigName, gt.getKey()))
 										   .put("page", p)
-										   .put("root", p.path)
-										   .put("siteRoot", root.resolve(p.path).relativize(root))
-										   .write(root.resolve(p.path).resolve("index.html")));
+										   .put("sectionPath", root)
+										   .write(p.path.resolve("index.html")));
 
 						for (MapPackInfo pack : p.packs) {
 							pages.addAll(packPage(pack));
@@ -108,9 +110,8 @@ public class MapPacks extends ContentPageGenerator {
 									   .put("static", root.resolve(gt.getValue().path).relativize(staticRoot))
 									   .put("title", String.join(" / ", SECTION, game.bigName, gt.getKey()))
 									   .put("page", gt.getValue().pages.get(0))
-									   .put("root", gt.getValue().path)
-									   .put("siteRoot", root.resolve(gt.getValue().path).relativize(root))
-									   .write(root.resolve(gt.getValue().path).resolve("index.html")));
+									   .put("sectionPath", root)
+									   .write(gt.getValue().path.resolve("index.html")));
 				}
 			}
 		} catch (IOException e) {
@@ -122,15 +123,15 @@ public class MapPacks extends ContentPageGenerator {
 
 	private Set<SiteMap.Page> packPage(MapPackInfo pack) throws IOException {
 		Set<SiteMap.Page> pages = new HashSet<>();
-		localImages(pack.pack, root.resolve(pack.path).getParent());
+		localImages(pack.pack, pack.path.getParent());
 
 		pages.add(Templates.template("content/mappacks/mappack.ftl", SiteMap.Page.monthly(0.9f, pack.pack.lastIndex))
 						   .put("static", root.resolve(pack.path).getParent().relativize(staticRoot))
 						   .put("title", String.join(" / ", SECTION,
 													 pack.page.gametype.game.game.bigName, pack.page.gametype.name, pack.pack.name))
 						   .put("pack", pack)
-						   .put("siteRoot", root.resolve(pack.path).getParent().relativize(root))
-						   .write(root.resolve(pack.path + ".html")));
+						   .put("sectionPath", root)
+						   .write(Paths.get(pack.path.toString() + ".html")));
 
 		for (MapPackInfo variation : pack.variations) {
 			pages.addAll(packPage(variation));
@@ -149,7 +150,7 @@ public class MapPacks extends ContentPageGenerator {
 		public final net.shrimpworks.unreal.archive.content.Games game;
 		public final String name;
 		public final String slug;
-		public final String path;
+		public final Path path;
 		public final TreeMap<String, Gametype> gametypes = new TreeMap<>();
 		public int packs;
 
@@ -157,7 +158,7 @@ public class MapPacks extends ContentPageGenerator {
 			this.game = net.shrimpworks.unreal.archive.content.Games.byName(name);
 			this.name = name;
 			this.slug = slug(name);
-			this.path = slug;
+			this.path = root.resolve(slug);
 		}
 
 		public void add(MapPack p) {
@@ -173,7 +174,7 @@ public class MapPacks extends ContentPageGenerator {
 
 		public final String name;
 		public final String slug;
-		public final String path;
+		public final Path path;
 		public final List<Page> pages = new ArrayList<>();
 		public int packs;
 
@@ -181,7 +182,7 @@ public class MapPacks extends ContentPageGenerator {
 			this.game = game;
 			this.name = name;
 			this.slug = slug(name);
-			this.path = String.join("/", game.path, slug);
+			this.path = game.path.resolve(slug);
 			this.packs = 0;
 		}
 
@@ -202,13 +203,13 @@ public class MapPacks extends ContentPageGenerator {
 
 		public final Gametype gametype;
 		public final int number;
-		public final String path;
+		public final Path path;
 		public final List<MapPackInfo> packs = new ArrayList<>();
 
 		public Page(Gametype gametype, int number) {
 			this.gametype = gametype;
 			this.number = number;
-			this.path = String.join("/", gametype.path, Integer.toString(number));
+			this.path = gametype.path.resolve(Integer.toString(number));
 		}
 
 		public void add(MapPack p) {
@@ -221,8 +222,7 @@ public class MapPacks extends ContentPageGenerator {
 
 		public final Page page;
 		public final MapPack pack;
-		public final String slug;
-		public final String path;
+		public final Path path;
 
 		public final Collection<MapPackInfo> variations;
 		public final Map<String, Integer> alsoIn;
@@ -230,10 +230,7 @@ public class MapPacks extends ContentPageGenerator {
 		public MapPackInfo(Page page, MapPack pack) {
 			this.page = page;
 			this.pack = pack;
-			this.slug = slug(pack.name + "_" + pack.hash.substring(0, 8));
-
-			if (page != null) this.path = String.join("/", page.path, slug);
-			else this.path = slug;
+			this.path = pack.slugPath(siteRoot);
 
 			this.alsoIn = new HashMap<>();
 			for (Content.ContentFile f : pack.files) {
