@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -47,97 +46,60 @@ public class MapPacks extends ContentPageGenerator {
 
 	@Override
 	public Set<SiteMap.Page> generate() {
-		Set<SiteMap.Page> pages = new HashSet<>();
-		try {
+		Templates.PageSet pages = new Templates.PageSet("content/mappacks", siteRoot, staticRoot, root);
 
-			pages.add(Templates.template("content/mappacks/games.ftl", SiteMap.Page.monthly(0.6f))
-							   .put("static", root.relativize(staticRoot))
-							   .put("title", SECTION)
-							   .put("games", games)
-							   .put("sectionPath", root)
-							   .write(root.resolve("index.html")));
+		try {
+			pages.add("games.ftl", SiteMap.Page.monthly(0.6f), SECTION)
+					   .put("games", games)
+					   .write(root.resolve("index.html"));
 
 			for (Map.Entry<String, Game> g : games.games.entrySet()) {
 
 				var game = net.shrimpworks.unreal.archive.content.Games.byName(g.getKey());
 
-				pages.add(Templates.template("content/mappacks/gametypes.ftl", SiteMap.Page.monthly(0.62f))
-								   .put("static", root.resolve(g.getValue().path).relativize(staticRoot))
-								   .put("title", String.join(" / ", SECTION, game.bigName))
+				pages.add("gametypes.ftl", SiteMap.Page.monthly(0.62f), String.join(" / ", SECTION, game.bigName))
 								   .put("game", g.getValue())
-								   .put("sectionPath", root)
-								   .write(g.getValue().path.resolve("index.html")));
+								   .write(g.getValue().path.resolve("index.html"));
 
 				for (Map.Entry<String, Gametype> gt : g.getValue().gametypes.entrySet()) {
 
-					if (gt.getValue().packs < Templates.PAGE_SIZE) {
-						// we can output all maps on a single page
-						List<MapPackInfo> all = gt.getValue().pages.stream()
-																   .flatMap(p -> p.packs.stream())
-																   .sorted()
-																   .collect(Collectors.toList());
-						pages.add(Templates.template("content/mappacks/listing_single.ftl", SiteMap.Page.weekly(0.65f))
-										   .put("static", root.resolve(gt.getValue().path).relativize(staticRoot))
-										   .put("title", String.join(" / ", SECTION, game.bigName, gt.getKey()))
-										   .put("gametype", gt.getValue())
-										   .put("packs", all)
-										   .put("sectionPath", root)
-										   .write(gt.getValue().path.resolve("index.html")));
-
-						// still generate all map pages
-						for (MapPackInfo pack : all) {
-							pages.addAll(packPage(pack));
+					for (Page p : gt.getValue().pages) {
+						// don't bother creating numbered single page, default landing page will suffice
+						if (gt.getValue().pages.size() > 1) {
+							pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName, gt.getKey()))
+								 .put("page", p)
+								 .write(p.path.resolve("index.html"));
 						}
 
-						continue;
-					}
-
-					for (Page p : gt.getValue().pages) {
-						pages.add(Templates.template("content/mappacks/listing.ftl", SiteMap.Page.weekly(0.65f))
-										   .put("static", root.resolve(p.path).relativize(staticRoot))
-										   .put("title", String.join(" / ", SECTION, game.bigName, gt.getKey()))
-										   .put("page", p)
-										   .put("sectionPath", root)
-										   .write(p.path.resolve("index.html")));
-
 						for (MapPackInfo pack : p.packs) {
-							pages.addAll(packPage(pack));
+							packPage(pages, pack);
 						}
 					}
 
 					// output first letter/page combo, with appropriate relative links
-					pages.add(Templates.template("content/mappacks/listing.ftl", SiteMap.Page.weekly(0.65f))
-									   .put("static", root.resolve(gt.getValue().path).relativize(staticRoot))
-									   .put("title", String.join(" / ", SECTION, game.bigName, gt.getKey()))
+					pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName, gt.getKey()))
 									   .put("page", gt.getValue().pages.get(0))
-									   .put("sectionPath", root)
-									   .write(gt.getValue().path.resolve("index.html")));
+									   .write(gt.getValue().path.resolve("index.html"));
 				}
 			}
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to render page", e);
 		}
 
-		return pages;
+		return pages.pages;
 	}
 
-	private Set<SiteMap.Page> packPage(MapPackInfo pack) throws IOException {
-		Set<SiteMap.Page> pages = new HashSet<>();
+	private void packPage(Templates.PageSet pages, MapPackInfo pack) throws IOException {
 		localImages(pack.pack, pack.path.getParent());
 
-		pages.add(Templates.template("content/mappacks/mappack.ftl", SiteMap.Page.monthly(0.9f, pack.pack.lastIndex))
-						   .put("static", root.resolve(pack.path).getParent().relativize(staticRoot))
-						   .put("title", String.join(" / ", SECTION,
+		pages.add("mappack.ftl", SiteMap.Page.monthly(0.9f, pack.pack.lastIndex), String.join(" / ", SECTION,
 													 pack.page.gametype.game.game.bigName, pack.page.gametype.name, pack.pack.name))
 						   .put("pack", pack)
-						   .put("sectionPath", root)
-						   .write(Paths.get(pack.path.toString() + ".html")));
+						   .write(Paths.get(pack.path.toString() + ".html"));
 
 		for (MapPackInfo variation : pack.variations) {
-			pages.addAll(packPage(variation));
+			packPage(pages, variation);
 		}
-
-		return pages;
 	}
 
 	public class Games {

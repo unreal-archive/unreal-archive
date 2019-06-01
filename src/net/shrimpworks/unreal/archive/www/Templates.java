@@ -16,7 +16,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -76,8 +75,8 @@ public class Templates {
 			this.resourceRoot = resourceRoot;
 			this.pages = new HashSet<>();
 			this.vars = Map.of(
-					"root", siteRoot,
-					"static", staticPath,
+					"siteRoot", siteRoot,
+					"staticRoot", staticPath,
 					"sectionPath", sectionPath
 			);
 		}
@@ -208,15 +207,6 @@ public class Templates {
 			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a URL to encode");
 
 			return args.get(0).toString();
-
-//			String url = args.get(0).toString();
-//			if (!url.startsWith("http")) return url;
-
-//			try {
-//				return Util.toUriString(url);
-//			} catch (IllegalArgumentException e) {
-//				throw new TemplateModelException("Invalid URL: " + args.get(0).toString(), e);
-//			}
 		}
 	}
 
@@ -265,11 +255,16 @@ public class Templates {
 	private static class StaticPathMethod implements TemplateMethodModelEx {
 
 		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
-			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a path");
+			if (!args.isEmpty()) System.err.println("Deprecation warning: `staticPath` takes no arguments.");
 
 			if (!STATIC_ROOT.isEmpty()) return STATIC_ROOT;
-			else if (args.get(0) == null || args.get(0).toString().isEmpty()) return "static";
-			else return args.get(0).toString();
+
+			TemplateModel pagePath = Environment.getCurrentEnvironment().getVariable("pagePath");
+			TemplateModel staticRoot = Environment.getCurrentEnvironment().getVariable("staticRoot");
+			if (pagePath == null) throw new TemplateModelException("A pagePath variable was not found");
+			if (staticRoot == null) throw new TemplateModelException("A staticRoot variable was not found");
+
+			return Paths.get(pagePath.toString()).relativize(Paths.get(staticRoot.toString()));
 		}
 	}
 

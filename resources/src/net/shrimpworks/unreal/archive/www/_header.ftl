@@ -5,17 +5,17 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
 	<title>${siteName} / ${title}</title>
-	<link rel="stylesheet" href="${staticPath(static)}/css/style.css">
+	<link rel="stylesheet" href="${staticPath()}/css/style.css">
 	<#if extraCss??>
-		<link rel="stylesheet" href="${staticPath(static)}/css/${extraCss}">
+		<link rel="stylesheet" href="${staticPath()}/css/${extraCss}">
 	</#if>
 
-	<link rel="icon" type="image/png" sizes="192x192" href="${staticPath(static)}/images/logo-192.png">
-	<link rel="icon" type="image/png" sizes="96x96" href="${staticPath(static)}/images/logo-96.png">
-	<link rel="icon" type="image/png" sizes="32x32" href="${staticPath(static)}/images/logo-32.png">
-	<link rel="icon" type="image/png" sizes="16x16" href="${staticPath(static)}/images/logo-16.png">
+	<link rel="icon" type="image/png" sizes="192x192" href="${staticPath()}/images/logo-192.png">
+	<link rel="icon" type="image/png" sizes="96x96" href="${staticPath()}/images/logo-96.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="${staticPath()}/images/logo-32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="${staticPath()}/images/logo-16.png">
 
-	<link rel="favicon" type="image/png" href="${staticPath(static)}/images/logo-32.png">
+	<link rel="favicon" type="image/png" href="${staticPath()}/images/logo-32.png">
 
 	<meta property="og:title" content="${title}">
 	<meta property="og:ste_name" content="${siteName} / ${title}">
@@ -30,7 +30,7 @@
 	<#if ogImage??>
 		<meta property="og:image" content="${ogImage}">
 	<#else>
-		<meta property="og:image" content="${staticPath(static)}/images/logo-96.png">
+		<meta property="og:image" content="${staticPath()}/images/logo-96.png">
 	</#if>
 
 	<meta property="og:type" content="website">
@@ -41,12 +41,12 @@
 <header>
 	<div class="page">
 		<div class="heading">
-			<a href="${staticPath(static)}/../index.html" class="header">
-				<img src="${staticPath(static)}/images/logo.png" alt="Unreal Archive"/>
+			<a href="${relPath(siteRoot + "/index.html")}" class="header">
+				<img src="${staticPath()}/images/logo.png" alt="Unreal Archive"/>
 				<span class="a">UNREAL</span><span class="b">ARCHIVE</span>
 			</a>
 			<div class="menu">
-				<a href="${staticPath(static)}/../submit/index.html">Submit Content</a>
+				<a href="${relPath(siteRoot + "/submit/index.html")}">Submit Content</a>
 			</div>
 		</div>
 	</div>

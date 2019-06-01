@@ -26,9 +26,17 @@
 	</div>
 </#macro>
 
+<#macro paginator pages currentPage>
+	<#if pages?? && pages?size gt 1 && currentPage??>
+		<nav class="pages">
+			<#list pages as pg><a href="${relPath(pg.path + "/index.html")}" <#if pg.number == currentPage.number>class="active"</#if>>${pg.number}</a></#list>
+		</nav>
+	</#if>
+</#macro>
+
 <#macro screenshots attachments>
 	<#if attachments?size == 0>
-		<img src="${staticPath(static)}/images/none.png" class="thumb" alt="no image"/>
+		<img src="${staticPath()}/images/none.png" class="thumb" alt="no image"/>
 	<#else>
 		<#list attachments as a>
 			<#if a.type == "IMAGE">
@@ -58,7 +66,7 @@
 					<td class="nomobile">${f.hash}</td>
 					<#if alsoIn[f.hash]??>
 						<td>
-							<a href="${relUrl(siteRoot + "/../", "files/" + f.hash[0..1] + "/" + f.hash + ".html")}">${alsoIn[f.hash]}</a>
+							<a href="${relUrl(siteRoot, siteRoot + "/files/" + f.hash[0..1] + "/" + f.hash + ".html")}">${alsoIn[f.hash]}</a>
 						</td>
 					<#else>
 						<td>-</td>

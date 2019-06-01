@@ -2,23 +2,21 @@
 <#assign gametype=page.gametype>
 
 <#assign ogDescription="${gametype.name} map packs for ${game.game.bigName}">
-<#assign ogImage="${staticPath(static)}/images/gametypes/${game.name}/${gametype.name}.png">
+<#assign ogImage="${staticPath()}/images/gametypes/${game.name}/${gametype.name}.png">
 
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
 
-	<@heading bg=["${staticPath(static)}/images/gametypes/${game.name}/${gametype.name}.png", "${staticPath(static)}/images/games/${game.name}.png"]>
+	<@heading bg=["${staticPath()}/images/gametypes/${game.name}/${gametype.name}.png", "${staticPath()}/images/games/${game.name}.png"]>
 		<a href="${relPath(sectionPath + "/index.html")}">Map Packs</a>
 		/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
 		/ <a href="${relPath(gametype.path + "/index.html")}">${gametype.name}</a>
-		/ pg ${page.number}
+		<#if gametype.pages?size gt 1>/ pg ${page.number}</#if>
 	</@heading>
 
 	<@content class="list">
 
-		<nav class="pages">
-			<#list gametype.pages as pg><a href="${relPath(pg.path + "/index.html")}" <#if pg.number == page.number>class="active"</#if>>${pg.number}</a></#list>
-		</nav>
+		<@paginator pages=gametype.pages currentPage=page />
 
 		<table class="mappacks">
 			<thead>
@@ -37,7 +35,7 @@
 					<td>${p.pack.maps?size}</td>
 					<td class="meta nomobile">
 						<#if p.pack.attachments?size gt 0>
-							<img src="${staticPath(static)}/images/icons/black/px22/ico-images-grey.png" alt="Has images"/>
+							<img src="${staticPath()}/images/icons/black/px22/ico-images-grey.png" alt="Has images"/>
 						</#if>
 					</td>
 				</tr>
