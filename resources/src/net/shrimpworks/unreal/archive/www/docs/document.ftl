@@ -1,7 +1,7 @@
 <#if document.document.titleImage??>
 	<#assign headerbg>${document.document.titleImage}</#assign>
 <#else>
-	<#assign headerbg>${staticPath(static)}/images/contents/documents.png</#assign>
+	<#assign headerbg>${staticPath()}/images/contents/documents.png</#assign>
 </#if>
 
 <#assign ogDescription=document.document.description>
@@ -11,9 +11,9 @@
 <#include "../macros.ftl">
 
 	<@heading bg=[headerbg]>
-		<a href="${siteRoot}/index.html">Articles & Guides</a>
+		<a href="${relPath(sectionPath + "/index.html")}">Articles & Guides</a>
 		<#list groupPath as p>
-			/ <a href="${relUrl(siteRoot, p.path)}/index.html">${p.name}</a>
+			/ <a href="${relPath(p.path + "/index.html")}">${p.name}</a>
 		</#list>
 		/ ${document.document.title}
 	</@heading>

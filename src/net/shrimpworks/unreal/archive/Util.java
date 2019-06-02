@@ -10,8 +10,10 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -240,5 +242,22 @@ public final class Util {
 		httpConn.setRequestMethod("DELETE");
 		httpConn.connect();
 		return httpConn.getResponseCode() < 400;
+	}
+
+	public static void copyTree(Path source, Path dest) throws IOException {
+		Files.walk(source, FileVisitOption.FOLLOW_LINKS)
+			 .forEach(p -> {
+				 if (Files.isRegularFile(p)) {
+					 Path relPath = source.relativize(p);
+					 Path copyPath = dest.resolve(relPath);
+
+					 try {
+						 if (!Files.isDirectory(copyPath.getParent())) Files.createDirectories(copyPath.getParent());
+						 Files.copy(p, copyPath, StandardCopyOption.REPLACE_EXISTING);
+					 } catch (IOException e) {
+						 e.printStackTrace();
+					 }
+				 }
+			 });
 	}
 }
