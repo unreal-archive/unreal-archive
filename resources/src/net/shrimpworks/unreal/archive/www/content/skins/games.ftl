@@ -1,4 +1,4 @@
-<#assign ogDescription="Custom character skins for Unreal, Unreal Tournament, and Unreal Tournament 2004">
+<#assign ogDescription="Custom player skins for Unreal, Unreal Tournament, and Unreal Tournament 2004">
 <#assign ogImage="${staticPath()}/images/contents/skins.png">
 
 <#include "../../_header.ftl">

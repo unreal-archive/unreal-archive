@@ -47,6 +47,7 @@ public class Skins extends ContentPageGenerator {
 	@Override
 	public Set<SiteMap.Page> generate() {
 		Templates.PageSet pages = new Templates.PageSet("content/skins", siteRoot, staticRoot, root);
+
 		try {
 			pages.add("games.ftl", SiteMap.Page.monthly(0.8f), SECTION)
 				 .put("games", games)
@@ -62,7 +63,7 @@ public class Skins extends ContentPageGenerator {
 															 .flatMap(e -> e.skins.stream())
 															 .sorted()
 															 .collect(Collectors.toList());
-					pages.add("listing_single.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", "Skins", game.bigName))
+					pages.add("listing_single.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName))
 						 .put("game", g.getValue())
 						 .put("skins", all)
 						 .write(g.getValue().path.resolve("index.html"));
@@ -78,7 +79,7 @@ public class Skins extends ContentPageGenerator {
 				for (java.util.Map.Entry<String, LetterGroup> l : g.getValue().letters.entrySet()) {
 
 					for (Page p : l.getValue().pages) {
-						pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", "Skins", game.bigName))
+						pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName))
 							 .put("page", p)
 							 .write(p.path.resolve("index.html"));
 
@@ -88,13 +89,13 @@ public class Skins extends ContentPageGenerator {
 					}
 
 					// output first letter/page combo, with appropriate relative links
-					pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", "Skins", game.bigName))
+					pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName))
 						 .put("page", l.getValue().pages.get(0))
 						 .write(l.getValue().path.resolve("index.html"));
 				}
 
 				// output first letter/page combo, with appropriate relative links
-				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", "Skins", game.bigName))
+				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName))
 					 .put("page", g.getValue().letters.firstEntry().getValue().pages.get(0))
 					 .write(g.getValue().path.resolve("index.html"));
 			}
@@ -109,7 +110,7 @@ public class Skins extends ContentPageGenerator {
 	private void skinPage(Templates.PageSet pages, SkinInfo skin) throws IOException {
 		localImages(skin.skin, root.resolve(skin.path).getParent());
 
-		pages.add("skin.ftl", SiteMap.Page.monthly(0.9f, skin.skin.lastIndex), String.join(" / ", "Skins",
+		pages.add("skin.ftl", SiteMap.Page.monthly(0.9f, skin.skin.lastIndex), String.join(" / ", SECTION,
 																						   skin.page.letter.game.game.name,
 																						   skin.skin.name))
 			 .put("skin", skin)

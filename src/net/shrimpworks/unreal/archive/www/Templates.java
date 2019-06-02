@@ -257,7 +257,8 @@ public class Templates {
 	private static class StaticPathMethod implements TemplateMethodModelEx {
 
 		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
-			if (!args.isEmpty()) System.err.println("Deprecation warning: `staticPath` takes no arguments.");
+			if (!args.isEmpty()) System.err.printf("Deprecation warning: `staticPath` takes no arguments in %s.%n",
+												   Environment.getCurrentEnvironment().getCurrentTemplate().getName());
 
 			if (!STATIC_ROOT.isEmpty()) return STATIC_ROOT;
 
