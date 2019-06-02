@@ -1,12 +1,12 @@
 <#assign ogDescription="Custom player models for ${game.game.bigName}">
-<#assign ogImage="${staticPath(static)}/images/games/${game.name}.png">
+<#assign ogImage="${staticPath()}/images/games/${game.name}.png">
 
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
 
-	<@heading bg=["${staticPath(static)}/images/games/${game.name}.png"]>
-		<a href="${siteRoot}/index.html">Models</a>
-		/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
+	<@heading bg=[ogImage]>
+		<a href="${relPath(sectionPath + "/index.html")}">Models</a>
+		/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
 	</@heading>
 
 	<@content class="list">
@@ -22,7 +22,7 @@
 			<tbody>
 				<#list models as m>
 				<tr>
-					<td><a href="${relUrl(game.path, m.path + ".html")}">${m.model.name}</a></td>
+					<td><a href="${relPath(m.path + ".html")}">${m.model.name}</a></td>
 					<td>${m.model.author}</td>
 					<td>
 						<#if m.model.models?size gt 0>
@@ -35,7 +35,7 @@
 					</td>
 					<td class="meta nomobile">
 						<#if m.model.attachments?size gt 0>
-							<img src="${staticPath(static)}/images/icons/black/px22/ico-images-grey.png" alt="Has images"/>
+							<img src="${staticPath()}/images/icons/black/px22/ico-images-grey.png" alt="Has images"/>
 						</#if>
 					</td>
 				</tr>

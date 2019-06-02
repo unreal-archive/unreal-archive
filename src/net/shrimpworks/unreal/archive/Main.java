@@ -431,7 +431,7 @@ public class Main {
 					new Maps(contentManager, outputPath, staticOutput, localImages),
 					new MapPacks(contentManager, outputPath, staticOutput, localImages),
 					new Skins(contentManager, outputPath, staticOutput, localImages),
-//					new Models(contentManager, outputPath, staticOutput, localImages),
+					new Models(contentManager, outputPath, staticOutput, localImages),
 					new Voices(contentManager, outputPath, staticOutput, localImages)
 //					new Mutators(contentManager, outputPath, staticOutput, localImages),
 //					new FileDetails(contentManager, outputPath, staticOutput, localImages)

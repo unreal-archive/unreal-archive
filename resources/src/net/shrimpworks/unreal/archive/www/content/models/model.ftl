@@ -1,6 +1,6 @@
 <#assign game=model.page.letter.game>
 
-<#assign headerbg>${staticPath(static)}/images/games/${game.name}.png</#assign>
+<#assign headerbg>${staticPath()}/images/games/${game.name}.png</#assign>
 
 <#list model.model.attachments as a>
 	<#if a.type == "IMAGE">
@@ -15,9 +15,9 @@
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
 
-	<@heading bg=[headerbg]>
-		<a href="${siteRoot}/index.html">Models</a>
-		/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
+	<@heading bg=[ogImage]>
+		<a href="${relPath(sectionPath + "/index.html")}">Models</a>
+		/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
 		/ ${model.model.name}
 	</@heading>
 
@@ -83,7 +83,7 @@
 						<tbody>
 							<#list model.variations as v>
 							<tr>
-								<td><a href="${relUrl(siteRoot, v.path + ".html")}">${v.model.name}</a></td>
+								<td><a href="${relPath(v.path + ".html")}">${v.model.name}</a></td>
 								<td>${v.model.releaseDate}</td>
 								<td>${v.model.originalFilename}</td>
 								<td>${fileSize(v.model.fileSize)}</td>
