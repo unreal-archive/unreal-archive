@@ -1,6 +1,6 @@
 <#assign game=mutator.page.letter.game>
 
-<#assign headerbg>${staticPath(static)}/images/games/${game.name}.png</#assign>
+<#assign headerbg>${staticPath()}/images/games/${game.name}.png</#assign>
 
 <#list mutator.mutator.attachments as a>
 	<#if a.type == "IMAGE">
@@ -22,9 +22,9 @@
 <#include "../../macros.ftl">
 
 	<@heading bg=[headerbg]>
-			<a href="${siteRoot}/index.html">Mutators</a>
-			/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
-			/ ${mutator.mutator.name}
+		<a href="${relPath(sectionPath + "/index.html")}">Mutators</a>
+		/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
+		/ ${mutator.mutator.name}
 	</@heading>
 
 	<@content class="info">
@@ -110,7 +110,7 @@
 						<tbody>
 							<#list mutator.variations as v>
 							<tr>
-								<td><a href="${relUrl(siteRoot, v.path + ".html")}">${v.mutator.name}</a></td>
+								<td><a href="${relPath(v.path + ".html")}">${v.mutator.name}</a></td>
 								<td>${v.mutator.releaseDate}</td>
 								<td>${v.mutator.originalFilename}</td>
 								<td>${fileSize(v.mutator.fileSize)}</td>

@@ -4,7 +4,7 @@
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
 
-	<@heading bg=["${staticPath()}/images/contents/skins.png"]>
+	<@heading bg=[ogImage]>
 		Skins
 	</@heading>
 

@@ -6,7 +6,7 @@
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
 
-	<@heading bg=["${staticPath()}/images/gametypes/${game.name}/${gametype.name}.png", "${staticPath()}/images/games/${game.name}.png"]>
+	<@heading bg=[ogImage, "${staticPath()}/images/games/${game.name}.png"]>
 		<a href="${relPath(sectionPath + "/index.html")}">Maps</a>
 		/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
 		/ ${gametype.name}

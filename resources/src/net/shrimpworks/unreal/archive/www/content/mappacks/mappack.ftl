@@ -16,7 +16,7 @@
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
 
-	<@heading bg=[headerbg]>
+	<@heading bg=[ogImage]>
 		<a href="${relPath(sectionPath + "/index.html")}">Map Packs</a>
 		/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
 		/ <a href="${relPath(gametype.path + "/index.html")}">${gametype.name}</a>
