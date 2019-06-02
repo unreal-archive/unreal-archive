@@ -1,12 +1,12 @@
-<#assign ogDescription="Custom character skins for ${game.game.bigName}">
-<#assign ogImage="${staticPath(static)}/images/games/${game.name}.png">
+<#assign ogDescription="Custom player skins for ${game.game.bigName}">
+<#assign ogImage="${staticPath()}/images/games/${game.name}.png">
 
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
 
-	<@heading bg=["${staticPath(static)}/images/games/${game.name}.png"]>
-			<a href="${siteRoot}/index.html">Skins</a>
-			/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
+	<@heading bg=["${staticPath()}/images/games/${game.name}.png"]>
+		<a href="${relPath(sectionPath + "/index.html")}">Skins</a>
+		/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
 	</@heading>
 
 	<@content class="list">
@@ -22,7 +22,7 @@
 			<tbody>
 				<#list skins as s>
 				<tr>
-					<td><a href="${relUrl(game.path, s.path + ".html")}">${s.skin.name}</a></td>
+					<td><a href="${relPath(s.path + ".html")}">${s.skin.name}</a></td>
 					<td>${s.skin.author}</td>
 					<td>
 						<#if s.skin.skins?size gt 0>
@@ -35,7 +35,7 @@
 					</td>
 					<td class="meta nomobile">
 						<#if s.skin.attachments?size gt 0>
-							<img src="${staticPath(static)}/images/icons/black/px22/ico-images-grey.png" alt="Has images"/>
+							<img src="${staticPath()}/images/icons/black/px22/ico-images-grey.png" alt="Has images"/>
 						</#if>
 					</td>
 				</tr>

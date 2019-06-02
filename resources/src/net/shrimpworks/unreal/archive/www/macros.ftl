@@ -26,6 +26,16 @@
 	</div>
 </#macro>
 
+<#macro letterPages letters currentLetter pages currentPage>
+	<#if letters?? && letters?size gt 1 && currentLetter??>
+		<nav class="letters">
+			<#list letters as k, letter><a href="${relPath(letter.path + "/index.html")}"<#if letter.letter == currentLetter>class="active"</#if>>${letter.letter}</a></#list>
+		</nav>
+	</#if>
+
+	<@paginator pages=pages currentPage=currentPage />
+</#macro>
+
 <#macro paginator pages currentPage>
 	<#if pages?? && pages?size gt 1 && currentPage??>
 		<nav class="pages">
