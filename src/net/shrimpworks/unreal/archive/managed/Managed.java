@@ -1,9 +1,14 @@
 package net.shrimpworks.unreal.archive.managed;
 
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+
+import net.shrimpworks.unreal.archive.Util;
 
 /**
  * Managed files represent content we cannot automatically index and
@@ -45,6 +50,13 @@ public class Managed {
 	public List<ManagedFile> downloads = new ArrayList<>();
 
 	public boolean published = true;                // false will hide it
+
+	public Path slugPath(Path root) {
+		String game = Util.slug(this.game);
+		String path = Arrays.stream(this.path.split("/")).map(Util::slug).collect(Collectors.joining("/"));
+		String name = Util.slug(this.title);
+		return root.resolve(game).resolve(path).resolve(name);
+	}
 
 	@Override
 	public boolean equals(Object o) {
