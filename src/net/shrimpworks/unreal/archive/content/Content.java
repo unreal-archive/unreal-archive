@@ -98,11 +98,21 @@ public abstract class Content implements Comparable<Content> {
 		return Character.toString(first);
 	}
 
+	/**
+	 * Create a URL-friendly file path for this content.
+	 *
+	 * @param root www output root path
+	 * @return a path to this content
+	 */
 	public Path slugPath(Path root) {
 		String type = Util.slug(this.contentType.toLowerCase().replaceAll("_", "") + "s");
 		String game = Util.slug(this.game);
 		String name = Util.slug(this.name + "_" + this.hash.substring(0, 8));
 		return root.resolve(type).resolve(game).resolve(subGrouping()).resolve(name);
+	}
+
+	public String friendlyContentType() {
+		return Util.capitalWords(this.contentType.toLowerCase().replaceAll("_", " "));
 	}
 
 	/**

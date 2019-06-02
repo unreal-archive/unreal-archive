@@ -35,10 +35,10 @@
 					<tbody>
 						<#list packages as c>
 						<tr>
-							<td>${c.contentType}</td>
+							<td>${c.friendlyContentType()}</td>
 							<td>${c.game}</td>
 							<td>
-								<a href="${relUrl(siteRoot, c.slugPath() + ".html")}">${c.name}</a>
+								<a href="${relPath(c.slugPath(siteRoot) + ".html")}">${c.name}</a>
 							</td>
 							<td>${c.author}</td>
 						</tr>

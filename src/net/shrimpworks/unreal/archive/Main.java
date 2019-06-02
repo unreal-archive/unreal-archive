@@ -433,8 +433,8 @@ public class Main {
 					new Skins(contentManager, outputPath, staticOutput, localImages),
 					new Models(contentManager, outputPath, staticOutput, localImages),
 					new Voices(contentManager, outputPath, staticOutput, localImages),
-					new Mutators(contentManager, outputPath, staticOutput, localImages)
-//					new FileDetails(contentManager, outputPath, staticOutput, localImages)
+					new Mutators(contentManager, outputPath, staticOutput, localImages),
+					new FileDetails(contentManager, outputPath, staticOutput, localImages)
 			).forEach(g -> {
 				System.out.printf("%nGenerating %s pages%n", g.getClass().getSimpleName());
 				allPages.addAll(g.generate());

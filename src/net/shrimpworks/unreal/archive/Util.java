@@ -64,6 +64,8 @@ public final class Util {
 	private static final Pattern NONLATIN = Pattern.compile("[^\\w-]");
 	private static final Pattern WHITESPACE = Pattern.compile("[\\s]");
 
+	private static final Pattern UC_WORDS = Pattern.compile("\\b(.)(.*?)\\b");
+
 	private Util() { }
 
 	public static String extension(Path path) {
@@ -110,6 +112,10 @@ public final class Util {
 		String normalized = Normalizer.normalize(nowhitespace, Normalizer.Form.NFD);
 		String slug = NONLATIN.matcher(normalized).replaceAll("");
 		return slug.toLowerCase(Locale.ENGLISH).replaceAll("(-)\\1+", "-");
+	}
+
+	public static String capitalWords(String input) {
+		return UC_WORDS.matcher(input).replaceAll(match -> match.group(1).toUpperCase() + match.group(2));
 	}
 
 	public static String hash(Path path) throws IOException {
