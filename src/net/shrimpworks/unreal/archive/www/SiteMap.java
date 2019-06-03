@@ -5,7 +5,6 @@ import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -36,7 +35,8 @@ public interface SiteMap extends PageGenerator {
 		private final List<Page> pages;
 
 		public SiteMapImpl(String rootUrl, Path root, Set<Page> pages, int pageLimit) {
-			this.rootUrl = rootUrl;
+			if (!rootUrl.endsWith("/")) this.rootUrl = rootUrl + "/";
+			else this.rootUrl = rootUrl;
 			this.root = root;
 			this.pages = pages.stream()
 							  .sorted(Collections.reverseOrder())
@@ -46,24 +46,24 @@ public interface SiteMap extends PageGenerator {
 
 		@Override
 		public Set<Page> generate() {
-			Set<Page> genPages = new HashSet<>();
+			Templates.PageSet genPages = new Templates.PageSet("", root, root, root);
+
+			pages.stream().filter(p -> p.path == null).forEach(System.out::println);
 
 			try {
-				genPages.add(Templates.template("sitemap.ftl")
-									  .put("rootUrl", rootUrl)
-									  .put("pages", pages)
-									  .put("siteRoot", root)
-									  .write(root.resolve("sitemap.xml")));
+				genPages.add("sitemap.ftl", Page.monthly(0), "Sitemap")
+						.put("rootUrl", rootUrl)
+						.put("pages", pages)
+						.write(root.resolve("sitemap.xml"));
 
-				genPages.add(Templates.template("robots.ftl", Page.monthly(0))
-									  .put("rootUrl", rootUrl)
-									  .put("siteRoot", root)
-									  .write(root.resolve("robots.txt")));
+				genPages.add("robots.ftl", Page.monthly(0), "Robots")
+						.put("rootUrl", rootUrl)
+						.write(root.resolve("robots.txt"));
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
 
-			return genPages;
+			return genPages.pages;
 		}
 	}
 
@@ -73,7 +73,7 @@ public interface SiteMap extends PageGenerator {
 		public static final float DEFAULT_PRIORITY = 0.5f;
 		public static final ChangeFrequency DEFAULT_FREQ = ChangeFrequency.monthly;
 
-		public final Path path;
+		public Path path;
 		public final float priority;
 		public final LocalDate lastMod;
 		public final ChangeFrequency changeFreq;
@@ -122,7 +122,8 @@ public interface SiteMap extends PageGenerator {
 		}
 
 		public Page withPath(Path path) {
-			return new Page(path, priority, lastMod, changeFreq);
+			this.path = path;
+			return this;
 		}
 
 		@Override

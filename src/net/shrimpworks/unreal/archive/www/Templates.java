@@ -83,6 +83,7 @@ public class Templates {
 		}
 
 		public Tpl add(String template, SiteMap.Page page, String title) throws IOException {
+			if (page != null) this.pages.add(page);
 			return template(String.join("/", resourceRoot, template), page)
 					.put("title", title)
 					.putAll(vars);

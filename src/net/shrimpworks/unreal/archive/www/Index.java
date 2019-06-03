@@ -3,7 +3,6 @@ package net.shrimpworks.unreal.archive.www;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,23 +29,20 @@ public class Index implements PageGenerator {
 
 	@Override
 	public Set<SiteMap.Page> generate() {
-		Set<SiteMap.Page> pages = new HashSet<>();
 		Map<String, Long> contentCount = new HashMap<>();
 		content.countByType().forEach((k, v) -> contentCount.put(k.getSimpleName(), v));
 		contentCount.put("Documents", documents.all().stream().filter(d -> d.published).count());
 		contentCount.put("Updates", updates.all().stream().filter(d -> d.published).count());
 
+		Templates.PageSet pages = new Templates.PageSet("", root, staticRoot, root);
 		try {
-			pages.add(Templates.template("index.ftl", SiteMap.Page.of(1f, SiteMap.ChangeFrequency.weekly))
-							   .put("static", root.relativize(staticRoot))
-							   .put("title", "Home")
-							   .put("count", contentCount)
-							   .put("siteRoot", root)
-							   .write(root.resolve("index.html")));
+			pages.add("index.ftl", SiteMap.Page.of(1f, SiteMap.ChangeFrequency.weekly), "Home")
+				 .put("count", contentCount)
+				 .write(root.resolve("index.html"));
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to render page", e);
 		}
 
-		return pages;
+		return pages.pages;
 	}
 }
