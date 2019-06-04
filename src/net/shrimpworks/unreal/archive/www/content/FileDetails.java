@@ -1,6 +1,5 @@
 package net.shrimpworks.unreal.archive.www.content;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,24 +36,19 @@ public class FileDetails extends ContentPageGenerator {
 	@Override
 	public Set<SiteMap.Page> generate() {
 		Templates.PageSet pages = new Templates.PageSet("content/files", siteRoot, staticRoot, root);
-		try {
-			for (Map.Entry<Content.ContentFile, List<Content>> e : contentFiles.entrySet()) {
-				// we're only interested in multi-use files
-				if (e.getValue().size() < 2) continue;
+		contentFiles.entrySet().parallelStream().forEach(e -> {
+			// we're only interested in multi-use files
+			if (e.getValue().size() < 2) return;
 
-				Path p = root.resolve(e.getKey().hash.substring(0, 2)).resolve(e.getKey().hash + ".html");
+			Path p = root.resolve(e.getKey().hash.substring(0, 2)).resolve(e.getKey().hash + ".html");
 
-				e.getValue().sort(Comparator.comparing(a -> a.name));
+			e.getValue().sort(Comparator.comparing(a -> a.name));
 
-				pages.add("file.ftl", SiteMap.Page.monthly(0.25f), String.join(" / ", "Files", e.getKey().name))
-					 .put("file", e.getKey())
-					 .put("packages", e.getValue())
-					 .write(p);
-			}
-
-		} catch (IOException e) {
-			throw new RuntimeException("Failed to render page", e);
-		}
+			pages.add("file.ftl", SiteMap.Page.monthly(0.25f), String.join(" / ", "Files", e.getKey().name))
+				 .put("file", e.getKey())
+				 .put("packages", e.getValue())
+				 .write(p);
+		});
 
 		return pages.pages;
 	}

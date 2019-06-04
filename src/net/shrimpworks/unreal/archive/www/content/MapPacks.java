@@ -1,6 +1,5 @@
 package net.shrimpworks.unreal.archive.www.content;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -48,48 +47,41 @@ public class MapPacks extends ContentPageGenerator {
 	public Set<SiteMap.Page> generate() {
 		Templates.PageSet pages = new Templates.PageSet("content/mappacks", siteRoot, staticRoot, root);
 
-		try {
-			pages.add("games.ftl", SiteMap.Page.monthly(0.6f), SECTION)
-				 .put("games", games)
-				 .write(root.resolve("index.html"));
+		pages.add("games.ftl", SiteMap.Page.monthly(0.6f), SECTION)
+			 .put("games", games)
+			 .write(root.resolve("index.html"));
 
-			for (Map.Entry<String, Game> g : games.games.entrySet()) {
+		games.games.entrySet().parallelStream().forEach(g -> {
 
-				var game = net.shrimpworks.unreal.archive.content.Games.byName(g.getKey());
+			var game = net.shrimpworks.unreal.archive.content.Games.byName(g.getKey());
 
-				pages.add("gametypes.ftl", SiteMap.Page.monthly(0.62f), String.join(" / ", SECTION, game.bigName))
-					 .put("game", g.getValue())
-					 .write(g.getValue().path.resolve("index.html"));
+			pages.add("gametypes.ftl", SiteMap.Page.monthly(0.62f), String.join(" / ", SECTION, game.bigName))
+				 .put("game", g.getValue())
+				 .write(g.getValue().path.resolve("index.html"));
 
-				for (Map.Entry<String, Gametype> gt : g.getValue().gametypes.entrySet()) {
-
-					for (Page p : gt.getValue().pages) {
-						// don't bother creating numbered single page, default landing page will suffice
-						if (gt.getValue().pages.size() > 1) {
-							pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName, gt.getKey()))
-								 .put("page", p)
-								 .write(p.path.resolve("index.html"));
-						}
-
-						for (MapPackInfo pack : p.packs) {
-							packPage(pages, pack);
-						}
+			g.getValue().gametypes.entrySet().parallelStream().forEach(gt -> {
+				gt.getValue().pages.parallelStream().forEach(p -> {
+					// don't bother creating numbered single page, default landing page will suffice
+					if (gt.getValue().pages.size() > 1) {
+						pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName, gt.getKey()))
+							 .put("page", p)
+							 .write(p.path.resolve("index.html"));
 					}
 
-					// output first letter/page combo, with appropriate relative links
-					pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName, gt.getKey()))
-						 .put("page", gt.getValue().pages.get(0))
-						 .write(gt.getValue().path.resolve("index.html"));
-				}
-			}
-		} catch (IOException e) {
-			throw new RuntimeException("Failed to render page", e);
-		}
+					p.packs.parallelStream().forEach(pack -> packPage(pages, pack));
+				});
+
+				// output first letter/page combo, with appropriate relative links
+				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName, gt.getKey()))
+					 .put("page", gt.getValue().pages.get(0))
+					 .write(gt.getValue().path.resolve("index.html"));
+			});
+		});
 
 		return pages.pages;
 	}
 
-	private void packPage(Templates.PageSet pages, MapPackInfo pack) throws IOException {
+	private void packPage(Templates.PageSet pages, MapPackInfo pack) {
 		localImages(pack.pack, pack.path.getParent());
 
 		pages.add("mappack.ftl", SiteMap.Page.monthly(0.9f, pack.pack.lastIndex), String.join(" / ", SECTION,

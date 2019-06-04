@@ -18,10 +18,10 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 import com.github.rjeschke.txtmark.Processor;
@@ -74,7 +74,7 @@ public class Templates {
 
 		public PageSet(String resourceRoot, Path siteRoot, Path staticPath, Path sectionPath) {
 			this.resourceRoot = resourceRoot;
-			this.pages = new HashSet<>();
+			this.pages = ConcurrentHashMap.newKeySet();
 			this.vars = Map.of(
 					"siteRoot", siteRoot,
 					"staticRoot", staticPath,
@@ -82,11 +82,15 @@ public class Templates {
 			);
 		}
 
-		public Tpl add(String template, SiteMap.Page page, String title) throws IOException {
+		public Tpl add(String template, SiteMap.Page page, String title) {
 			if (page != null) this.pages.add(page);
-			return template(String.join("/", resourceRoot, template), page)
-					.put("title", title)
-					.putAll(vars);
+			try {
+				return template(String.join("/", resourceRoot, template), page)
+						.put("title", title)
+						.putAll(vars);
+			} catch (IOException e) {
+				throw new RuntimeException(String.format("Failed to create template %s", resourceRoot + "/" + template), e);
+			}
 		}
 	}
 
@@ -157,12 +161,12 @@ public class Templates {
 			return this;
 		}
 
-		public SiteMap.Page write(Path output) throws IOException {
+		public SiteMap.Page write(Path output) {
 			try (Writer writer = templateOut(output)) {
 				vars.put("pagePath", output.getParent().toAbsolutePath());
 				template.process(vars, writer);
-			} catch (TemplateException e) {
-				throw new IOException("Template output failed", e);
+			} catch (TemplateException | IOException e) {
+				throw new RuntimeException("Template output failed", e);
 			}
 
 			return page.withPath(output);

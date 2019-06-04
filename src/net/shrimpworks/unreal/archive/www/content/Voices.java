@@ -1,6 +1,5 @@
 package net.shrimpworks.unreal.archive.www.content;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -46,66 +45,56 @@ public class Voices extends ContentPageGenerator {
 	@Override
 	public Set<SiteMap.Page> generate() {
 		Templates.PageSet pages = new Templates.PageSet("content/voices", siteRoot, staticRoot, root);
-		try {
-			pages.add("games.ftl", SiteMap.Page.monthly(0.6f), SECTION)
-				 .put("games", games)
-				 .write(root.resolve("index.html"));
+		pages.add("games.ftl", SiteMap.Page.monthly(0.6f), SECTION)
+			 .put("games", games)
+			 .write(root.resolve("index.html"));
 
-			for (java.util.Map.Entry<String, Game> g : games.games.entrySet()) {
+		games.games.entrySet().parallelStream().forEach(g -> {
 
-				var game = net.shrimpworks.unreal.archive.content.Games.byName(g.getKey());
+			var game = net.shrimpworks.unreal.archive.content.Games.byName(g.getKey());
 
-				if (g.getValue().voices < Templates.PAGE_SIZE) {
-					List<VoiceInfo> all = g.getValue().letters.values().stream()
-															  .flatMap(l -> l.pages.stream())
-															  .flatMap(e -> e.voices.stream())
-															  .sorted()
-															  .collect(Collectors.toList());
-					pages.add("listing_single.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName))
-						 .put("game", g.getValue())
-						 .put("voices", all)
-						 .write(g.getValue().path.resolve("index.html"));
+			if (g.getValue().voices < Templates.PAGE_SIZE) {
+				List<VoiceInfo> all = g.getValue().letters.values().stream()
+														  .flatMap(l -> l.pages.stream())
+														  .flatMap(e -> e.voices.stream())
+														  .sorted()
+														  .collect(Collectors.toList());
+				pages.add("listing_single.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName))
+					 .put("game", g.getValue())
+					 .put("voices", all)
+					 .write(g.getValue().path.resolve("index.html"));
 
-					// still generate all map pages
-					for (VoiceInfo voice : all) {
-						voicePage(pages, voice);
-					}
+				// still generate all map pages
+				all.parallelStream().forEach(voice -> voicePage(pages, voice));
 
-					continue;
-				}
+				return;
+			}
 
-				for (java.util.Map.Entry<String, LetterGroup> l : g.getValue().letters.entrySet()) {
-
-					for (Page p : l.getValue().pages) {
-						pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName))
-							 .put("page", p)
-							 .write(p.path.resolve("index.html"));
-
-						for (VoiceInfo voice : p.voices) {
-							voicePage(pages, voice);
-						}
-					}
-
-					// output first letter/page combo, with appropriate relative links
+			g.getValue().letters.entrySet().parallelStream().forEach(l -> {
+				l.getValue().pages.parallelStream().forEach(p -> {
 					pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName))
-						 .put("page", l.getValue().pages.get(0))
-						 .write(l.getValue().path.resolve("index.html"));
-				}
+						 .put("page", p)
+						 .write(p.path.resolve("index.html"));
+
+					p.voices.parallelStream().forEach(voice -> voicePage(pages, voice));
+				});
 
 				// output first letter/page combo, with appropriate relative links
 				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName))
-					 .put("page", g.getValue().letters.firstEntry().getValue().pages.get(0))
-					 .write(g.getValue().path.resolve("index.html"));
-			}
+					 .put("page", l.getValue().pages.get(0))
+					 .write(l.getValue().path.resolve("index.html"));
+			});
 
-		} catch (IOException e) {
-			throw new RuntimeException("Failed to render page", e);
-		}
+			// output first letter/page combo, with appropriate relative links
+			pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName))
+				 .put("page", g.getValue().letters.firstEntry().getValue().pages.get(0))
+				 .write(g.getValue().path.resolve("index.html"));
+		});
 
 		return pages.pages;
 	}
 
-	private void voicePage(Templates.PageSet pages, VoiceInfo voice) throws IOException {
+	private void voicePage(Templates.PageSet pages, VoiceInfo voice) {
 		localImages(voice.voice, root.resolve(voice.path).getParent());
 
 		pages.add("voice.ftl", SiteMap.Page.monthly(0.9f, voice.voice.lastIndex), String.join(" / ", SECTION,

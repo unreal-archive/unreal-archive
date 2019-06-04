@@ -1,6 +1,5 @@
 package net.shrimpworks.unreal.archive.www.content;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -47,74 +46,65 @@ public class Maps extends ContentPageGenerator {
 	@Override
 	public Set<SiteMap.Page> generate() {
 		Templates.PageSet pages = new Templates.PageSet("content/maps", siteRoot, staticRoot, root);
-		try {
-			pages.add("games.ftl", SiteMap.Page.monthly(0.6f), "Maps")
-				 .put("games", games)
-				 .write(root.resolve("index.html"));
 
-			for (java.util.Map.Entry<String, Game> g : games.games.entrySet()) {
+		pages.add("games.ftl", SiteMap.Page.monthly(0.6f), "Maps")
+			 .put("games", games)
+			 .write(root.resolve("index.html"));
 
-				var game = net.shrimpworks.unreal.archive.content.Games.byName(g.getKey());
+		games.games.entrySet().parallelStream().forEach(g -> {
 
-				pages.add("gametypes.ftl", SiteMap.Page.monthly(0.62f), String.join(" / ", SECTION, game.bigName))
-					 .put("game", g.getValue())
-					 .write(g.getValue().path.resolve("index.html"));
+			var game = net.shrimpworks.unreal.archive.content.Games.byName(g.getKey());
 
-				for (java.util.Map.Entry<String, Gametype> gt : g.getValue().gametypes.entrySet()) {
+			pages.add("gametypes.ftl", SiteMap.Page.monthly(0.62f), String.join(" / ", SECTION, game.bigName))
+				 .put("game", g.getValue())
+				 .write(g.getValue().path.resolve("index.html"));
 
-					if (gt.getValue().maps < Templates.PAGE_SIZE) {
-						// we can output all maps on a single page
-						List<MapInfo> all = gt.getValue().letters.values().stream()
-																 .flatMap(l -> l.pages.stream())
-																 .flatMap(e -> e.maps.stream())
-																 .sorted()
-																 .collect(Collectors.toList());
-						pages.add("listing_single.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName, gt.getKey()))
-							 .put("gametype", gt.getValue())
-							 .put("maps", all)
-							 .write(gt.getValue().path.resolve("index.html"));
+			g.getValue().gametypes.entrySet().parallelStream().forEach(gt -> {
 
-						// still generate all map pages
-						for (MapInfo map : all) {
-							mapPage(pages, map);
-						}
+				if (gt.getValue().maps < Templates.PAGE_SIZE) {
+					// we can output all maps on a single page
+					List<MapInfo> all = gt.getValue().letters.values().stream()
+															 .flatMap(l -> l.pages.stream())
+															 .flatMap(e -> e.maps.stream())
+															 .sorted()
+															 .collect(Collectors.toList());
+					pages.add("listing_single.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName, gt.getKey()))
+						 .put("gametype", gt.getValue())
+						 .put("maps", all)
+						 .write(gt.getValue().path.resolve("index.html"));
 
-						continue;
-					}
+					// still generate all map pages
+					all.parallelStream().forEach(map -> mapPage(pages, map));
 
-					for (java.util.Map.Entry<String, LetterGroup> l : gt.getValue().letters.entrySet()) {
+					return;
+				}
 
-						for (Page p : l.getValue().pages) {
-							pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName, gt.getKey()))
-								 .put("page", p)
-								 .write(p.path.resolve("index.html"));
-
-							for (MapInfo map : p.maps) {
-								mapPage(pages, map);
-							}
-						}
-
-						// output first letter/page combo, with appropriate relative links
+				gt.getValue().letters.entrySet().parallelStream().forEach(l -> {
+					l.getValue().pages.parallelStream().forEach(p -> {
 						pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName, gt.getKey()))
-							 .put("page", l.getValue().pages.get(0))
-							 .write(l.getValue().path.resolve("index.html"));
-					}
+							 .put("page", p)
+							 .write(p.path.resolve("index.html"));
+
+						p.maps.parallelStream().forEach(map -> mapPage(pages, map));
+					});
 
 					// output first letter/page combo, with appropriate relative links
 					pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName, gt.getKey()))
-						 .put("page", gt.getValue().letters.firstEntry().getValue().pages.get(0))
-						 .write(gt.getValue().path.resolve("index.html"));
-				}
-			}
+						 .put("page", l.getValue().pages.get(0))
+						 .write(l.getValue().path.resolve("index.html"));
+				});
 
-		} catch (IOException e) {
-			throw new RuntimeException("Failed to render page", e);
-		}
+				// output first letter/page combo, with appropriate relative links
+				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName, gt.getKey()))
+					 .put("page", gt.getValue().letters.firstEntry().getValue().pages.get(0))
+					 .write(gt.getValue().path.resolve("index.html"));
+			});
+		});
 
 		return pages.pages;
 	}
 
-	private void mapPage(Templates.PageSet pages, MapInfo map) throws IOException {
+	private void mapPage(Templates.PageSet pages, MapInfo map) {
 		localImages(map.map, root.resolve(map.path).getParent());
 
 		pages.add("map.ftl", SiteMap.Page.monthly(0.9f, map.map.lastIndex), String.join(" / ", SECTION,
