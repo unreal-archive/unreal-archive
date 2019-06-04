@@ -1,6 +1,5 @@
 package net.shrimpworks.unreal.archive.www;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,13 +34,10 @@ public class Index implements PageGenerator {
 		contentCount.put("Updates", updates.all().stream().filter(d -> d.published).count());
 
 		Templates.PageSet pages = new Templates.PageSet("", root, staticRoot, root);
-		try {
-			pages.add("index.ftl", SiteMap.Page.of(1f, SiteMap.ChangeFrequency.weekly), "Home")
-				 .put("count", contentCount)
-				 .write(root.resolve("index.html"));
-		} catch (IOException e) {
-			throw new RuntimeException("Failed to render page", e);
-		}
+
+		pages.add("index.ftl", SiteMap.Page.of(1f, SiteMap.ChangeFrequency.weekly), "Home")
+			 .put("count", contentCount)
+			 .write(root.resolve("index.html"));
 
 		return pages.pages;
 	}

@@ -47,7 +47,7 @@ public class Maps extends ContentPageGenerator {
 	public Set<SiteMap.Page> generate() {
 		Templates.PageSet pages = new Templates.PageSet("content/maps", siteRoot, staticRoot, root);
 
-		pages.add("games.ftl", SiteMap.Page.monthly(0.6f), "Maps")
+		pages.add("games.ftl", SiteMap.Page.monthly(0.6f), SECTION)
 			 .put("games", games)
 			 .write(root.resolve("index.html"));
 

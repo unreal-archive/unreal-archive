@@ -1,6 +1,5 @@
 package net.shrimpworks.unreal.archive.www;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -50,18 +49,14 @@ public interface SiteMap extends PageGenerator {
 
 			pages.stream().filter(p -> p.path == null).forEach(System.out::println);
 
-			try {
-				genPages.add("sitemap.ftl", Page.monthly(0), "Sitemap")
-						.put("rootUrl", rootUrl)
-						.put("pages", pages)
-						.write(root.resolve("sitemap.xml"));
+			genPages.add("sitemap.ftl", Page.monthly(0), "Sitemap")
+					.put("rootUrl", rootUrl)
+					.put("pages", pages)
+					.write(root.resolve("sitemap.xml"));
 
-				genPages.add("robots.ftl", Page.monthly(0), "Robots")
-						.put("rootUrl", rootUrl)
-						.write(root.resolve("robots.txt"));
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
+			genPages.add("robots.ftl", Page.monthly(0), "Robots")
+					.put("rootUrl", rootUrl)
+					.write(root.resolve("robots.txt"));
 
 			return genPages.pages;
 		}

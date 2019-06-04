@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -404,7 +405,7 @@ public class Main {
 			System.exit(2);
 		}
 
-		final Path outputPath = Paths.get(cli.commands()[1]);
+		final Path outputPath = Paths.get(cli.commands()[1]).toAbsolutePath();
 		if (!Files.exists(outputPath)) {
 			System.out.println("Creating directory " + outputPath);
 			Files.createDirectories(outputPath);
@@ -423,7 +424,7 @@ public class Main {
 		// unpack static content
 		Templates.unpackResources("static.list", Files.createDirectories(staticOutput).getParent());
 
-		final Set<SiteMap.Page> allPages = new HashSet<>();
+		final Set<SiteMap.Page> allPages = ConcurrentHashMap.newKeySet();
 
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("content"))) {
 			// generate content pages
@@ -435,7 +436,7 @@ public class Main {
 					new Voices(contentManager, outputPath, staticOutput, localImages),
 					new Mutators(contentManager, outputPath, staticOutput, localImages),
 					new FileDetails(contentManager, outputPath, staticOutput, localImages)
-			).forEach(g -> {
+			).parallelStream().forEach(g -> {
 				System.out.printf("%nGenerating %s pages%n", g.getClass().getSimpleName());
 				allPages.addAll(g.generate());
 			});
