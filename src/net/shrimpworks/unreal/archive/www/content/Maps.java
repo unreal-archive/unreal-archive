@@ -68,7 +68,7 @@ public class Maps extends ContentPageGenerator {
 															 .flatMap(e -> e.maps.stream())
 															 .sorted()
 															 .collect(Collectors.toList());
-					pages.add("listing_single.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName, gt.getKey()))
+					pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName, gt.getKey()))
 						 .put("gametype", gt.getValue())
 						 .put("maps", all)
 						 .write(gt.getValue().path.resolve("index.html"));

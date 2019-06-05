@@ -61,7 +61,7 @@ public class Models extends ContentPageGenerator {
 														  .flatMap(e -> e.models.stream())
 														  .sorted()
 														  .collect(Collectors.toList());
-				pages.add("listing_single.ftl", SiteMap.Page.monthly(0.65f), String.join(" / ", SECTION, game.bigName))
+				pages.add("listing.ftl", SiteMap.Page.monthly(0.65f), String.join(" / ", SECTION, game.bigName))
 					 .put("game", g.getValue())
 					 .put("models", all)
 					 .write(g.getValue().path.resolve("index.html"));

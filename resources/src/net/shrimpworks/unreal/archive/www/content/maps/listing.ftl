@@ -1,5 +1,9 @@
-<#assign game=page.letter.gametype.game>
-<#assign gametype=page.letter.gametype>
+<#if page??>
+  <#assign gametype=page.letter.gametype>
+  <#assign maps=page.maps>
+</#if>
+
+<#assign game=gametype.game>
 
 <#assign ogDescription="${gametype.name} maps for ${game.game.bigName}">
 <#assign ogImage="${staticPath()}/images/gametypes/${game.name}/${gametype.name}.png">
@@ -11,17 +15,15 @@
 		<a href="${relPath(sectionPath + "/index.html")}">Maps</a>
 		/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
 		/ <a href="${relPath(gametype.path + "/index.html")}">${gametype.name}</a>
-		/ ${page.letter.letter}
-		<#if page.letter.pages?size gt 1>/ pg ${page.number}</#if>
+    <#if page?? && gametype.letters?size gt 1>/ ${page.letter.letter}</#if>
+    <#if page?? && page.letter.pages?size gt 1>/ pg ${page.number}</#if>
 	</@heading>
 
 	<@content class="list">
 
-		<nav class="letters">
-			<#list gametype.letters as k, letter><a href="${relPath(letter.path + "/index.html")}"<#if letter.letter == page.letter.letter>class="active"</#if>>${letter.letter}</a></#list>
-		</nav>
-
-		<@paginator pages=page.letter.pages currentPage=page />
+    <#if page??>
+      <@letterPages letters=gametype.letters currentLetter=page.letter.letter pages=page.letter.pages currentPage=page />
+    </#if>
 
 		<table class="maps">
 			<thead>
@@ -34,7 +36,7 @@
 			</tr>
 			</thead>
 			<tbody>
-				<#list page.maps as m>
+				<#list maps as m>
 				<tr class="${m?item_parity}">
 					<td nowrap="nowrap"><a href="${relPath(m.path + ".html")}">${m.map.name}</a></td>
 					<td class="nomobile">${m.map.title}</td>

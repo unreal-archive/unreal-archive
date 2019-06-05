@@ -1,4 +1,7 @@
-<#assign game=page.letter.game>
+<#if page??>
+  <#assign game=page.letter.game>
+  <#assign models=page.models>
+</#if>
 
 <#assign ogDescription="Custom player models for ${game.game.bigName}">
 <#assign ogImage="${staticPath()}/images/games/${game.name}.png">
@@ -9,13 +12,15 @@
 	<@heading bg=[ogImage]>
 		<a href="${relPath(sectionPath + "/index.html")}">Models</a>
 		/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
-		<#if game.letters?size gt 1>/ ${page.letter.letter}</#if>
-		<#if page.letter.pages?size gt 1>/ pg ${page.number}</#if>
+		<#if page?? && game.letters?size gt 1>/ ${page.letter.letter}</#if>
+		<#if page?? && page.letter.pages?size gt 1>/ pg ${page.number}</#if>
 	</@heading>
 
 	<@content class="list">
 
-		<@letterPages letters=game.letters currentLetter=page.letter.letter pages=page.letter.pages currentPage=page />
+		<#if page??>
+			<@letterPages letters=game.letters currentLetter=page.letter.letter pages=page.letter.pages currentPage=page />
+		</#if>
 
 		<table class="models">
 			<thead>
@@ -27,7 +32,7 @@
 			</tr>
 			</thead>
 			<tbody>
-				<#list page.models as m>
+				<#list models as m>
 				<tr class="${m?item_parity}">
 					<td nowrap="nowrap"><a href="${relPath(m.path + ".html")}">${m.model.name}</a></td>
 					<td>${m.model.author}</td>

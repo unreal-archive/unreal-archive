@@ -61,7 +61,7 @@ public class Skins extends ContentPageGenerator {
 														 .flatMap(e -> e.skins.stream())
 														 .sorted()
 														 .collect(Collectors.toList());
-				pages.add("listing_single.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName))
+				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName))
 					 .put("game", g.getValue())
 					 .put("skins", all)
 					 .write(g.getValue().path.resolve("index.html"));

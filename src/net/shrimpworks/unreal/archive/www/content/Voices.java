@@ -59,7 +59,7 @@ public class Voices extends ContentPageGenerator {
 														  .flatMap(e -> e.voices.stream())
 														  .sorted()
 														  .collect(Collectors.toList());
-				pages.add("listing_single.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName))
+				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName))
 					 .put("game", g.getValue())
 					 .put("voices", all)
 					 .write(g.getValue().path.resolve("index.html"));
