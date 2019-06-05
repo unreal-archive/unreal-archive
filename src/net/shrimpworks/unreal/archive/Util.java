@@ -10,12 +10,16 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.Normalizer;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
@@ -59,6 +63,11 @@ public final class Util {
 
 	private static final Pattern DISPOSITION_FILENAME = Pattern.compile(".*filename=\"?([^\"]*)\"?;?.*?");
 
+	private static final Pattern NONLATIN = Pattern.compile("[^\\w-]");
+	private static final Pattern WHITESPACE = Pattern.compile("[\\s]");
+
+	private static final Pattern UC_WORDS = Pattern.compile("\\b(.)(.*?)\\b");
+
 	private Util() { }
 
 	public static String extension(Path path) {
@@ -98,6 +107,17 @@ public final class Util {
 
 	public static Path safeFileName(Path path) {
 		return path.getParent().resolve(safeFileName(path.getFileName().toString()));
+	}
+
+	public static String slug(String input) {
+		String nowhitespace = WHITESPACE.matcher(input).replaceAll("-");
+		String normalized = Normalizer.normalize(nowhitespace, Normalizer.Form.NFD);
+		String slug = NONLATIN.matcher(normalized).replaceAll("");
+		return slug.toLowerCase(Locale.ENGLISH).replaceAll("(-)\\1+", "-");
+	}
+
+	public static String capitalWords(String input) {
+		return UC_WORDS.matcher(input).replaceAll(match -> match.group(1).toUpperCase() + match.group(2));
 	}
 
 	public static String hash(Path path) throws IOException {
@@ -222,5 +242,22 @@ public final class Util {
 		httpConn.setRequestMethod("DELETE");
 		httpConn.connect();
 		return httpConn.getResponseCode() < 400;
+	}
+
+	public static void copyTree(Path source, Path dest) throws IOException {
+		Files.walk(source, FileVisitOption.FOLLOW_LINKS)
+			 .forEach(p -> {
+				 if (Files.isRegularFile(p)) {
+					 Path relPath = source.relativize(p);
+					 Path copyPath = dest.resolve(relPath);
+
+					 try {
+						 if (!Files.isDirectory(copyPath.getParent())) Files.createDirectories(copyPath.getParent());
+						 Files.copy(p, copyPath, StandardCopyOption.REPLACE_EXISTING);
+					 } catch (IOException e) {
+						 e.printStackTrace();
+					 }
+				 }
+			 });
 	}
 }

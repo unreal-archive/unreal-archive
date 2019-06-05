@@ -1,7 +1,7 @@
 <#assign game=map.page.letter.gametype.game>
 <#assign gametype=map.page.letter.gametype>
 
-<#assign headerbg>${staticPath(static)}/images/games/${game.name}.png</#assign>
+<#assign headerbg>${staticPath()}/images/games/${game.name}.png</#assign>
 
 <#list map.map.attachments as a>
 	<#if a.type == "IMAGE">
@@ -17,9 +17,9 @@
 <#include "../../macros.ftl">
 
 	<@heading bg=[headerbg]>
-		<a href="${siteRoot}/index.html">Maps</a>
-		/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
-		/ <a href="${relUrl(siteRoot, gametype.path)}/index.html">${gametype.name}</a>
+		<a href="${relPath(sectionPath + "/index.html")}">Maps</a>
+		/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
+		/ <a href="${relPath(gametype.path + "/index.html")}">${gametype.name}</a>
 		/ ${map.map.name}
 	</@heading>
 
@@ -37,7 +37,7 @@
 				</div>
 				<div class="label-value">
 					<label>Game Type</label><span>
-						<a href="${relUrl(siteRoot, gametype.path + "/index.html")}">${map.map.gametype}</a>
+						<a href="${relPath(gametype.path + "/index.html")}">${map.map.gametype}</a>
 					</span>
 				</div>
 				<div class="label-value">
@@ -81,7 +81,7 @@
 						<tbody>
 							<#list map.variations as v>
 							<tr>
-								<td><a href="${relUrl(siteRoot, v.path + ".html")}">${v.map.name}</a></td>
+								<td><a href="${relPath(v.path + ".html")}">${v.map.name}</a></td>
 								<td>${v.map.releaseDate}</td>
 								<td>${v.map.originalFilename}</td>
 								<td>${fileSize(v.map.fileSize)}</td>

@@ -1,12 +1,11 @@
 package net.shrimpworks.unreal.archive.www.content;
 
-import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
@@ -18,18 +17,20 @@ import net.shrimpworks.unreal.archive.content.maps.Map;
 import net.shrimpworks.unreal.archive.www.SiteMap;
 import net.shrimpworks.unreal.archive.www.Templates;
 
-import static net.shrimpworks.unreal.archive.www.Templates.slug;
+import static net.shrimpworks.unreal.archive.Util.slug;
 
 public class Maps extends ContentPageGenerator {
 
+	private static final String SECTION = "Maps";
+
 	private final Games games;
-	private final Authors authors;
+	private final Path siteRoot;
 
 	public Maps(ContentManager content, Path output, Path staticRoot, boolean localImages) {
 		super(content, output.resolve("maps"), staticRoot, localImages);
+		this.siteRoot = output;
 
 		this.games = new Games();
-		this.authors = new Authors();
 
 		content.get(Map.class).stream()
 			   .filter(m -> !m.deleted)
@@ -38,127 +39,84 @@ public class Maps extends ContentPageGenerator {
 			   .forEach(m -> {
 				   Game g = games.games.computeIfAbsent(m.game, Game::new);
 				   g.add(m);
-
-//					Author a = authors.authors.computeIfAbsent(m.author, Author::new);
-//					a.maps.add(new MapInfo(null, m)); // FIXME
 			   });
 
 	}
 
 	@Override
 	public Set<SiteMap.Page> generate() {
-		Set<SiteMap.Page> pages = new HashSet<>();
-		try {
-			// url structure:
-			// landing with games: /maps/index.html
-			// page page with gametypes: /maps/game.html
-			// gametype page: /maps/game/gametype/a/1.html
-			// map page: /maps/game/gametype/a/1/name_hash8.html
+		Templates.PageSet pages = new Templates.PageSet("content/maps", siteRoot, staticRoot, root);
 
-			pages.add(Templates.template("content/maps/games.ftl", SiteMap.Page.monthly(0.6f))
-							   .put("static", root.relativize(staticRoot))
-							   .put("title", "Maps")
-							   .put("games", games)
-							   .put("siteRoot", root)
-							   .write(root.resolve("index.html")));
+		pages.add("games.ftl", SiteMap.Page.monthly(0.6f), SECTION)
+			 .put("games", games)
+			 .write(root.resolve("index.html"));
 
-			for (java.util.Map.Entry<String, Game> g : games.games.entrySet()) {
+		games.games.entrySet().parallelStream().forEach(g -> {
 
-				var game = net.shrimpworks.unreal.archive.content.Games.byName(g.getKey());
+			var game = net.shrimpworks.unreal.archive.content.Games.byName(g.getKey());
 
-				pages.add(Templates.template("content/maps/gametypes.ftl", SiteMap.Page.monthly(0.62f))
-								   .put("static", root.resolve(g.getValue().path).relativize(staticRoot))
-								   .put("title", String.join(" / ", "Maps", game.bigName))
-								   .put("game", g.getValue())
-								   .put("siteRoot", root.resolve(g.getValue().path).relativize(root))
-								   .write(root.resolve(g.getValue().path).resolve("index.html")));
+			pages.add("gametypes.ftl", SiteMap.Page.monthly(0.62f), String.join(" / ", SECTION, game.bigName))
+				 .put("game", g.getValue())
+				 .write(g.getValue().path.resolve("index.html"));
 
-				for (java.util.Map.Entry<String, Gametype> gt : g.getValue().gametypes.entrySet()) {
+			g.getValue().gametypes.entrySet().parallelStream().forEach(gt -> {
 
-					if (gt.getValue().maps < Templates.PAGE_SIZE) {
-						// we can output all maps on a single page
-						List<MapInfo> all = gt.getValue().letters.values().stream()
-																 .flatMap(l -> l.pages.stream())
-																 .flatMap(e -> e.maps.stream())
-																 .sorted()
-																 .collect(Collectors.toList());
-						pages.add(Templates.template("content/maps/listing_single.ftl", SiteMap.Page.weekly(0.65f))
-										   .put("static", root.resolve(gt.getValue().path).relativize(staticRoot))
-										   .put("title", String.join(" / ", "Maps", game.bigName, gt.getKey()))
-										   .put("gametype", gt.getValue())
-										   .put("maps", all)
-										   .put("siteRoot", root.resolve(gt.getValue().path).relativize(root))
-										   .write(root.resolve(gt.getValue().path).resolve("index.html")));
+				if (gt.getValue().maps < Templates.PAGE_SIZE) {
+					// we can output all maps on a single page
+					List<MapInfo> all = gt.getValue().letters.values().stream()
+															 .flatMap(l -> l.pages.stream())
+															 .flatMap(e -> e.maps.stream())
+															 .sorted()
+															 .collect(Collectors.toList());
+					pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName, gt.getKey()))
+						 .put("gametype", gt.getValue())
+						 .put("maps", all)
+						 .write(gt.getValue().path.resolve("index.html"));
 
-						// still generate all map pages
-						for (MapInfo map : all) {
-							pages.addAll(mapPage(map));
-						}
+					// still generate all map pages
+					all.parallelStream().forEach(map -> mapPage(pages, map));
 
-						continue;
-					}
+					return;
+				}
 
-					for (java.util.Map.Entry<String, LetterGroup> l : gt.getValue().letters.entrySet()) {
+				gt.getValue().letters.entrySet().parallelStream().forEach(l -> {
+					l.getValue().pages.parallelStream().forEach(p -> {
+						pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName, gt.getKey()))
+							 .put("page", p)
+							 .write(p.path.resolve("index.html"));
 
-						for (Page p : l.getValue().pages) {
-							pages.add(Templates.template("content/maps/listing.ftl", SiteMap.Page.weekly(0.65f))
-											   .put("static", root.resolve(p.path).relativize(staticRoot))
-											   .put("title", String.join(" / ", "Maps", game.bigName, gt.getKey()))
-											   .put("page", p)
-											   .put("root", p.path)
-											   .put("siteRoot", root.resolve(p.path).relativize(root))
-											   .write(root.resolve(p.path).resolve("index.html")));
-
-							for (MapInfo map : p.maps) {
-								pages.addAll(mapPage(map));
-							}
-						}
-
-						// output first letter/page combo, with appropriate relative links
-						pages.add(Templates.template("content/maps/listing.ftl", SiteMap.Page.weekly(0.65f))
-										   .put("static", root.resolve(l.getValue().path).relativize(staticRoot))
-										   .put("title", String.join(" / ", "Maps", game.bigName, gt.getKey()))
-										   .put("page", l.getValue().pages.get(0))
-										   .put("root", l.getValue().path)
-										   .put("siteRoot", root.resolve(l.getValue().path).relativize(root))
-										   .write(root.resolve(l.getValue().path).resolve("index.html")));
-					}
+						p.maps.parallelStream().forEach(map -> mapPage(pages, map));
+					});
 
 					// output first letter/page combo, with appropriate relative links
-					pages.add(Templates.template("content/maps/listing.ftl", SiteMap.Page.weekly(0.65f))
-									   .put("static", root.resolve(gt.getValue().path).relativize(staticRoot))
-									   .put("title", String.join(" / ", "Maps", game.bigName, gt.getKey()))
-									   .put("page", gt.getValue().letters.firstEntry().getValue().pages.get(0))
-									   .put("root", gt.getValue().path)
-									   .put("siteRoot", root.resolve(gt.getValue().path).relativize(root))
-									   .write(root.resolve(gt.getValue().path).resolve("index.html")));
-				}
-			}
+					pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName, gt.getKey()))
+						 .put("page", l.getValue().pages.get(0))
+						 .write(l.getValue().path.resolve("index.html"));
+				});
 
-		} catch (IOException e) {
-			throw new RuntimeException("Failed to render page", e);
-		}
+				// output first letter/page combo, with appropriate relative links
+				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName, gt.getKey()))
+					 .put("page", gt.getValue().letters.firstEntry().getValue().pages.get(0))
+					 .write(gt.getValue().path.resolve("index.html"));
+			});
+		});
 
-		return pages;
+		return pages.pages;
 	}
 
-	private Set<SiteMap.Page> mapPage(MapInfo map) throws IOException {
-		Set<SiteMap.Page> paths = new HashSet<>();
+	private void mapPage(Templates.PageSet pages, MapInfo map) {
 		localImages(map.map, root.resolve(map.path).getParent());
 
-		paths.add(Templates.template("content/maps/map.ftl", SiteMap.Page.monthly(0.9f, map.map.lastIndex))
-						   .put("static", root.resolve(map.path).getParent().relativize(staticRoot))
-						   .put("title", String.join(" / ", "Maps", map.page.letter.gametype.game.game.bigName,
-													 map.page.letter.gametype.name, map.map.title))
-						   .put("map", map)
-						   .put("siteRoot", root.resolve(map.path).getParent().relativize(root))
-						   .write(root.resolve(map.path + ".html")));
+		pages.add("map.ftl", SiteMap.Page.monthly(0.9f, map.map.lastIndex), String.join(" / ", SECTION,
+																						map.page.letter.gametype.game.game.bigName,
+																						map.page.letter.gametype.name,
+																						map.map.title))
+			 .put("map", map)
+			 .write(Paths.get(map.path.toString() + ".html"));
 
 		for (MapInfo variation : map.variations) {
-			paths.addAll(this.mapPage(variation));
+			this.mapPage(pages, variation);
 		}
-
-		return paths;
 	}
 
 	public class Games {
@@ -171,7 +129,7 @@ public class Maps extends ContentPageGenerator {
 		public final net.shrimpworks.unreal.archive.content.Games game;
 		public final String name;
 		public final String slug;
-		public final String path;
+		public final Path path;
 		public final TreeMap<String, Gametype> gametypes = new TreeMap<>();
 		public int maps;
 
@@ -179,7 +137,7 @@ public class Maps extends ContentPageGenerator {
 			this.game = net.shrimpworks.unreal.archive.content.Games.byName(name);
 			this.name = name;
 			this.slug = slug(name);
-			this.path = slug;
+			this.path = root.resolve(slug);
 			this.maps = 0;
 		}
 
@@ -196,7 +154,7 @@ public class Maps extends ContentPageGenerator {
 
 		public final String name;
 		public final String slug;
-		public final String path;
+		public final Path path;
 		public final TreeMap<String, LetterGroup> letters = new TreeMap<>();
 		public int maps;
 
@@ -204,7 +162,7 @@ public class Maps extends ContentPageGenerator {
 			this.game = game;
 			this.name = name;
 			this.slug = slug(name);
-			this.path = String.join("/", game.path, slug);
+			this.path = game.path.resolve(slug);
 			this.maps = 0;
 		}
 
@@ -219,14 +177,14 @@ public class Maps extends ContentPageGenerator {
 
 		public final Gametype gametype;
 		public final String letter;
-		public final String path;
+		public final Path path;
 		public final List<Page> pages = new ArrayList<>();
 		public int maps;
 
 		public LetterGroup(Gametype gametype, String letter) {
 			this.gametype = gametype;
 			this.letter = letter;
-			this.path = String.join("/", gametype.path, letter);
+			this.path = gametype.path.resolve(letter);
 			this.maps = 0;
 		}
 
@@ -247,13 +205,13 @@ public class Maps extends ContentPageGenerator {
 
 		public final LetterGroup letter;
 		public final int number;
-		public final String path;
+		public final Path path;
 		public final List<MapInfo> maps = new ArrayList<>();
 
 		public Page(LetterGroup letter, int number) {
 			this.letter = letter;
 			this.number = number;
-			this.path = String.join("/", letter.path, Integer.toString(number));
+			this.path = letter.path.resolve(Integer.toString(number));
 		}
 
 		public void add(Map map) {
@@ -266,8 +224,7 @@ public class Maps extends ContentPageGenerator {
 
 		public final Page page;
 		public final Map map;
-		public final String slug;
-		public final String path;
+		public final Path path;
 
 		public final Collection<MapInfo> variations;
 		public final java.util.Map<String, Integer> alsoIn;
@@ -275,10 +232,7 @@ public class Maps extends ContentPageGenerator {
 		public MapInfo(Page page, Map map) {
 			this.page = page;
 			this.map = map;
-			this.slug = slug(map.name + "_" + map.hash.substring(0, 8));
-
-			if (page != null) this.path = String.join("/", page.path, slug);
-			else this.path = slug;
+			this.path = map.slugPath(siteRoot);
 
 			this.alsoIn = new HashMap<>();
 			for (Content.ContentFile f : map.files) {
@@ -301,23 +255,6 @@ public class Maps extends ContentPageGenerator {
 		@Override
 		public int compareTo(MapInfo o) {
 			return map.name.toLowerCase().compareTo(o.map.name.toLowerCase());
-		}
-	}
-
-	public class Authors {
-
-		public final TreeMap<String, Author> authors = new TreeMap<>();
-	}
-
-	public class Author {
-
-		public final String name;
-		public final String slug;
-		public final List<MapInfo> maps = new ArrayList<>();
-
-		public Author(String name) {
-			this.name = name;
-			this.slug = slug(name);
 		}
 	}
 

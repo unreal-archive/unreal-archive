@@ -1,20 +1,20 @@
 <#include "../_header.ftl">
 <#include "../macros.ftl">
 
-	<@heading bg=["${staticPath(static)}/images/contents/documents.png"]>
-		<a href="${siteRoot}/index.html">Articles & Guides</a>
+	<@heading bg=["${staticPath()}/images/contents/documents.png"]>
+		<a href="${relPath(sectionPath + "/index.html")}">Articles & Guides</a>
 		<#list groupPath as p>
-			/ <a href="${relUrl(siteRoot, p.path)}/index.html">${p.name}</a>
+			/ <a href="${relPath(p.path + "/index.html")}">${p.name}</a>
 		</#list>
 	</@heading>
 
 	<@content class="biglist">
 		<ul>
 		<#list group.groups as k, g>
-			<li style='background-image: url("${staticPath(static)}/images/games/${g.name}.png")'>
+			<li style='background-image: url("${staticPath()}/images/games/${g.name}.png")'>
 				<span class="meta">${g.docs}</span>
 				<#if g.parent??>
-					<a href="${relUrl(g.parent.path, g.path + "/index.html")}">${g.name}</a>
+					<a href="${relPath(g.path + "/index.html")}">${g.name}</a>
 				<#else>
 					<a href="${g.path}/index.html">${g.name}</a>
 				</#if>
@@ -39,15 +39,15 @@
 					<#list group.documents as d>
 						<tr class="${d?item_parity}">
 							<td class="title-image nomobile" rowspan="2">
-								<a href="${relUrl(group.path, d.path)}/index.html">
+								<a href="${relPath(d.path + "/index.html")}">
 									<#if d.document.titleImage??>
-										<img src="${relUrl(group.path, d.path)}/${d.document.titleImage}"/>
+										<img src="${relPath(d.path + "/" + d.document.titleImage)}"/>
 									<#else>
-										<img src="${staticPath(static)}/images/none-document.png"/>
+										<img src="${staticPath()}/images/none-document.png"/>
 									</#if>
 								</a>
 							</td>
-							<td nowrap="nowrap"><a href="${relUrl(group.path, d.path)}/index.html">${d.document.title}</a></td>
+							<td nowrap="nowrap"><a href="${relPath(d.path + "/index.html")}">${d.document.title}</a></td>
 							<td>${d.document.author}</td>
 							<td class="nomobile">${d.document.createdDate}</td>
 							<td>${d.document.updatedDate}</td>

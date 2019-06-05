@@ -1,6 +1,6 @@
 <#assign game=voice.page.letter.game>
 
-<#assign headerbg>${staticPath(static)}/images/games/${game.name}.png</#assign>
+<#assign headerbg>${staticPath()}/images/games/${game.name}.png</#assign>
 
 <#list voice.voice.attachments as a>
 	<#if a.type == "IMAGE">
@@ -9,15 +9,15 @@
 	</#if>
 </#list>
 
-<#assign ogDescription="${voice.voice.name}, a custom player voice packs for ${game.game.bigName}, created by ${voice.voice.author}">
+<#assign ogDescription="${voice.voice.name}, a custom player voice pack for ${game.game.bigName}, created by ${voice.voice.author}">
 <#assign ogImage=headerbg>
 
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
 
 	<@heading bg=[headerbg]>
-		<a href="${siteRoot}/index.html">Voices</a>
-		/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
+		<a href="${relPath(sectionPath + "/index.html")}">Voices</a>
+		/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
 		/ ${voice.voice.name}
 	</@heading>
 
@@ -74,7 +74,7 @@
 						<tbody>
 							<#list voice.variations as v>
 							<tr>
-								<td><a href="${relUrl(siteRoot, v.path + ".html")}">${v.voice.name}</a></td>
+								<td><a href="${relPath(v.path + ".html")}">${v.voice.name}</a></td>
 								<td>${v.voice.releaseDate}</td>
 								<td>${v.voice.originalFilename}</td>
 								<td>${fileSize(v.voice.fileSize)}</td>

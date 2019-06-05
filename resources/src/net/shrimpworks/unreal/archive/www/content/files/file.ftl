@@ -30,23 +30,17 @@
 						<th>Game</th>
 						<th>Name</th>
 						<th>Author</th>
-						<th>Hash</th>
 					</tr>
 					</thead>
 					<tbody>
 						<#list packages as c>
 						<tr>
-							<td>${c.contentType}</td>
+							<td>${c.friendlyContentType()}</td>
 							<td>${c.game}</td>
 							<td>
-								<#if c.contentType == "MAP">
-									${c.name}
-								<#else>
-									${c.name}
-								</#if>
+								<a href="${relPath(c.slugPath(siteRoot) + ".html")}">${c.name}</a>
 							</td>
 							<td>${c.author}</td>
-							<td>${c.hash}</td>
 						</tr>
 						</#list>
 					</tbody>

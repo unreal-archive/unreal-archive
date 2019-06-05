@@ -6,11 +6,11 @@
 		Contents
 	</h1>
 	<ul>
-		<li style='background-image: url("${staticPath(static)}/images/contents/documents.png")'>
+		<li style='background-image: url("${staticPath()}/images/contents/documents.png")'>
 			<span class="meta">${count.Documents}</span>
 			<a href="documents/index.html">Guides &amp; Articles</a>
 		</li>
-		<li style='background-image: url("${staticPath(static)}/images/contents/patches.png")'>
+		<li style='background-image: url("${staticPath()}/images/contents/patches.png")'>
 			<span class="meta">${count.Updates}</span>
 			<a href="patches-updates/index.html">Patches & Updates</a>
 		</li>
@@ -18,27 +18,27 @@
 			<span class="meta">coming soon</span>
 			<a href="#">Game Types</a>
 		</li>
-		<li style='background-image: url("${staticPath(static)}/images/contents/maps.png")'>
+		<li style='background-image: url("${staticPath()}/images/contents/maps.png")'>
 			<span class="meta">${count.Map}</span>
 			<a href="maps/index.html">Maps</a>
 		</li>
-		<li style='background-image: url("${staticPath(static)}/images/contents/mappacks.png")'>
+		<li style='background-image: url("${staticPath()}/images/contents/mappacks.png")'>
 			<span class="meta">${count.MapPack}</span>
 			<a href="mappacks/index.html">Map Packs</a>
 		</li>
-		<li style='background-image: url("${staticPath(static)}/images/contents/mutators.png")'>
+		<li style='background-image: url("${staticPath()}/images/contents/mutators.png")'>
 			<span class="meta">${count.Mutator!"0"}</span>
 			<a href="mutators/index.html">Mutators</a>
 		</li>
-		<li style='background-image: url("${staticPath(static)}/images/contents/models.png")'>
+		<li style='background-image: url("${staticPath()}/images/contents/models.png")'>
 			<span class="meta">${count.Model!"0"}</span>
 			<a href="models/index.html">Models</a>
 		</li>
-		<li style='background-image: url("${staticPath(static)}/images/contents/skins.png")'>
+		<li style='background-image: url("${staticPath()}/images/contents/skins.png")'>
 			<span class="meta">${count.Skin!"0"}</span>
 			<a href="skins/index.html">Skins</a>
 		</li>
-		<li style='background-image: url("${staticPath(static)}/images/contents/voices.png")'>
+		<li style='background-image: url("${staticPath()}/images/contents/voices.png")'>
 			<span class="meta">${count.Voice!"0"}</span>
 			<a href="voices/index.html">Voices</a>
 		</li>

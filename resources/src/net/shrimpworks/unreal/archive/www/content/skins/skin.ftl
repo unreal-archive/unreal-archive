@@ -1,6 +1,6 @@
 <#assign game=skin.page.letter.game>
 
-<#assign headerbg>${staticPath(static)}/images/games/${game.name}.png</#assign>
+<#assign headerbg>${staticPath()}/images/games/${game.name}.png</#assign>
 
 <#list skin.skin.attachments as a>
 	<#if a.type == "IMAGE">
@@ -9,16 +9,16 @@
 	</#if>
 </#list>
 
-<#assign ogDescription="${skin.skin.name}, a custom character skin for ${game.game.bigName}, created by ${skin.skin.author}">
+<#assign ogDescription="${skin.skin.name}, a custom player skin for ${game.game.bigName}, created by ${skin.skin.author}">
 <#assign ogImage=headerbg>
 
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
 
 	<@heading bg=[headerbg]>
-			<a href="${siteRoot}/index.html">Skins</a>
-			/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
-			/ ${skin.skin.name}
+		<a href="${relPath(sectionPath + "/index.html")}">Skins</a>
+		/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
+		/ ${skin.skin.name}
 	</@heading>
 
 	<@content class="info">
@@ -86,7 +86,7 @@
 						<tbody>
 							<#list skin.variations as v>
 							<tr>
-								<td><a href="${relUrl(siteRoot, v.path + ".html")}">${v.skin.name}</a></td>
+								<td><a href="${relPath(v.path + ".html")}">${v.skin.name}</a></td>
 								<td>${v.skin.releaseDate}</td>
 								<td>${v.skin.originalFilename}</td>
 								<td>${fileSize(v.skin.fileSize)}</td>

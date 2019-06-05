@@ -1,7 +1,7 @@
 <#if managed.managed.titleImage??>
 	<#assign headerbg>${managed.managed.titleImage}</#assign>
 <#else>
-	<#assign headerbg>${staticPath(static)}/images/contents/patches.png</#assign>
+	<#assign headerbg>${staticPath()}/images/contents/patches.png</#assign>
 </#if>
 
 <#assign ogDescription=managed.managed.description>
@@ -11,9 +11,9 @@
 <#include "../macros.ftl">
 
 	<@heading bg=[headerbg]>
-		<a href="${siteRoot}/index.html">Patches & Updates</a>
+		<a href="${relPath(sectionPath + "/index.html")}">Patches & Updates</a>
 		<#list groupPath as p>
-			/ <a href="${relUrl(siteRoot, p.path)}/index.html">${p.name}</a>
+			/ <a href="${relPath(p.path + "/index.html")}">${p.name}</a>
 		</#list>
 		/ ${managed.managed.title}
 	</@heading>
@@ -48,7 +48,7 @@
 					<#if !d.deleted && d.downloads?size gt 0>
 						<div class="download">
 							<div class="title">
-								<img src="${staticPath(static)}/images/icons/black/px22/os-${d.platform?lower_case}.png" title="${d.platform}" align="absmiddle" alt="${d.platform}"/>
+								<img src="${staticPath()}/images/icons/black/px22/os-${d.platform?lower_case}.png" title="${d.platform}" align="absmiddle" alt="${d.platform}"/>
 								${d.title} ver ${d.version}
 							</div>
 							<div class="info">
@@ -59,7 +59,7 @@
 							<div class="links">
 								<#list d.downloads as l>
 									<a href="${urlEncode(l)}">
-										<img src="${staticPath(static)}/images/icons/black/px22/download.png" align="absmiddle" alt="Download"/>
+										<img src="${staticPath()}/images/icons/black/px22/download.png" align="absmiddle" alt="Download"/>
 										${urlHost(l)}
 									</a>
 								</#list>

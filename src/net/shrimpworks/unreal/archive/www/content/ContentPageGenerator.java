@@ -45,7 +45,7 @@ public abstract class ContentPageGenerator implements PageGenerator {
 	 * @param localPath local output path
 	 * @throws IOException something probably broke
 	 */
-	void localImages(Content content, Path localPath) throws IOException {
+	void localImages(Content content, Path localPath) {
 		if (!localImages) return;
 
 		// find all the images
@@ -55,7 +55,12 @@ public abstract class ContentPageGenerator implements PageGenerator {
 
 		// we're creating a sub-directory here, to create a nicer looking on-disk structure
 		Path imgPath = localPath.resolve("images");
-		if (!Files.exists(imgPath)) Files.createDirectories(imgPath);
+		try {
+			if (!Files.exists(imgPath)) Files.createDirectories(imgPath);
+		} catch (IOException e) {
+			System.err.printf("\rFailed to download create output directory %s: %s%n", imgPath.toString(), e.toString());
+			return;
+		}
 
 		for (Content.Attachment img : images) {
 			try {

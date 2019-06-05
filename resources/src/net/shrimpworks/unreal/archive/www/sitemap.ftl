@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <#list pages as p>
 	<url>
-		<loc>${rootUrl}/${relUrl(siteRoot, p.path)}</loc>
+		<loc>${rootUrl}${relPath(p.path)}</loc>
 		<lastmod>${p.lastMod}</lastmod>
 		<changefreq>${p.changeFreq}</changefreq>
 		<priority>${p.priority?string["0.##"]}</priority>

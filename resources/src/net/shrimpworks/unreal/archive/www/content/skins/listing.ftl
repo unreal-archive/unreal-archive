@@ -1,28 +1,25 @@
-<#assign game=page.letter.game>
+<#if page??>
+  <#assign game=page.letter.game>
+  <#assign skins=page.skins>
+</#if>
 
-<#assign ogDescription="Custom character skins for ${game.game.bigName}">
-<#assign ogImage="${staticPath(static)}/images/games/${game.name}.png">
+<#assign ogDescription="Custom player skins for ${game.game.bigName}">
+<#assign ogImage="${staticPath()}/images/games/${game.name}.png">
 
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
 
-	<@heading bg=["${staticPath(static)}/images/games/${game.name}.png"]>
-			<a href="${siteRoot}/index.html">Skins</a>
-			/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
-			/ ${page.letter.letter}
-			/ pg ${page.number}
+	<@heading bg=[ogImage]>
+			<a href="${relPath(sectionPath + "/index.html")}">Skins</a>
+			/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
+			<#if page?? && game.letters?size gt 1>/ ${page.letter.letter}</#if>
+		  <#if page?? && page.letter.pages?size gt 1>/ pg ${page.number}</#if>
 	</@heading>
 
 	<@content class="list">
 
-		<nav class="letters">
-			<#list game.letters as k, letter><a href="${relUrl(root, letter.path + "/index.html")}"<#if letter.letter == page.letter.letter>class="active"</#if>>${letter.letter}</a></#list>
-		</nav>
-
-		<#if page.letter.pages?size gt 1>
-			<nav class="pages">
-				<#list page.letter.pages as pg><a href="${relUrl(root, pg.path + "/index.html")}" <#if pg.number == page.number>class="active"</#if>>${pg.number}</a></#list>
-			</nav>
+		<#if page??>
+			<@letterPages letters=game.letters currentLetter=page.letter.letter pages=page.letter.pages currentPage=page />
 		</#if>
 
 		<table class="skins">
@@ -35,9 +32,9 @@
 			</tr>
 			</thead>
 			<tbody>
-				<#list page.skins as s>
+				<#list skins as s>
 				<tr class="${s?item_parity}">
-					<td nowrap="nowrap"><a href="${relUrl(root, s.path + ".html")}">${s.skin.name}</a></td>
+					<td nowrap="nowrap"><a href="${relPath(s.path + ".html")}">${s.skin.name}</a></td>
 					<td>${s.skin.author}</td>
 					<td>
 						<#if s.skin.skins?size gt 0>
@@ -50,7 +47,7 @@
 					</td>
 					<td class="meta nomobile">
 						<#if s.skin.attachments?size gt 0>
-							<img src="${staticPath(static)}/images/icons/black/px22/ico-images-grey.png" alt="Has images"/>
+							<img src="${staticPath()}/images/icons/black/px22/ico-images-grey.png" alt="Has images"/>
 						</#if>
 					</td>
 				</tr>
