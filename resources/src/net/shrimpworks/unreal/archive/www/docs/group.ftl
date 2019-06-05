@@ -13,11 +13,7 @@
 		<#list group.groups as k, g>
 			<li style='background-image: url("${staticPath()}/images/games/${g.name}.png")'>
 				<span class="meta">${g.docs}</span>
-				<#if g.parent??>
-					<a href="${relPath(g.path + "/index.html")}">${g.name}</a>
-				<#else>
-					<a href="${g.path}/index.html">${g.name}</a>
-				</#if>
+				<a href="${relPath(g.path + "/index.html")}">${g.name}</a>
 			</li>
 		</#list>
 		</ul>
