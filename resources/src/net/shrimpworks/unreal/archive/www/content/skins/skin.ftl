@@ -37,7 +37,7 @@
 					<label>Author</label><span>${skin.skin.author}</span>
 				</div>
 				<div class="label-value">
-					<label>Release (est.)</label><span>${skin.skin.releaseDate}</span>
+					<label>Release (est.)</label><span>${dateFmtShort(skin.skin.releaseDate)}</span>
 				</div>
 				<div class="label-value">
 					<label>Team Skins</label><span>${skin.skin.teamSkins?string('Yes', 'No')}</span>

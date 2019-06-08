@@ -46,7 +46,7 @@
 					<label>Author</label><span>${mutator.mutator.author}</span>
 				</div>
 				<div class="label-value">
-					<label>Release (est.)</label><span>${mutator.mutator.releaseDate}</span>
+					<label>Release (est.)</label><span>${dateFmtShort(mutator.mutator.releaseDate)}</span>
 				</div>
 				<div class="label-value">
 					<label>Custom Config Menus</label><span>${mutator.mutator.hasConfigMenu?string('Yes', 'No')}</span>

@@ -1,7 +1,9 @@
+<#assign ogImage="${staticPath()}/images/games/All.png">
+
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
 
-	<@heading>
+	<@heading bg=[ogImage]>
 		File / ${file.name}
 	</@heading>
 

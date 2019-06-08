@@ -48,7 +48,7 @@
 					<label>Author</label><span>${pack.pack.author}</span>
 				</div>
 				<div class="label-value">
-					<label>Release (est.)</label><span>${pack.pack.releaseDate}</span>
+					<label>Release (est.)</label><span>${dateFmtShort(pack.pack.releaseDate)}</span>
 				</div>
 				<div class="label-value">
 					<label>File Size</label><span>${fileSize(pack.pack.fileSize)}</span>

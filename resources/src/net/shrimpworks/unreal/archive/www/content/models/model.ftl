@@ -37,7 +37,7 @@
 					<label>Author</label><span>${model.model.author}</span>
 				</div>
 				<div class="label-value">
-					<label>Release (est.)</label><span>${model.model.releaseDate}</span>
+					<label>Release (est.)</label><span>${dateFmtShort(model.model.releaseDate)}</span>
 				</div>
 				<#if model.model.models?size gt 0>
 					<div class="label-value">

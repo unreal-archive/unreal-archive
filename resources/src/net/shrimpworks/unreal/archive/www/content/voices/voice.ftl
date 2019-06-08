@@ -37,7 +37,7 @@
 					<label>Author</label><span>${voice.voice.author}</span>
 				</div>
 				<div class="label-value">
-					<label>Release (est.)</label><span>${voice.voice.releaseDate}</span>
+					<label>Release (est.)</label><span>${dateFmtShort(voice.voice.releaseDate)}</span>
 				</div>
 				<#if voice.voice.voices?size gt 0>
 					<div class="label-value">

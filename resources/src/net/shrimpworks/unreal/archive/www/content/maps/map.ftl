@@ -50,7 +50,7 @@
 					<label>Player Count</label><span>${map.map.playerCount}</span>
 				</div>
 				<div class="label-value">
-					<label>Release (est.)</label><span>${map.map.releaseDate}</span>
+					<label>Release (est.)</label><span>${dateFmtShort(map.map.releaseDate)}</span>
 				</div>
 				<div class="label-value">
 					<label>Description</label><span>${map.map.description?replace("||", "<br/><br/>")}</span>
