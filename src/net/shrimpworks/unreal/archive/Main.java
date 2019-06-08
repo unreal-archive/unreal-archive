@@ -52,6 +52,7 @@ import net.shrimpworks.unreal.archive.www.SiteMap;
 import net.shrimpworks.unreal.archive.www.Submit;
 import net.shrimpworks.unreal.archive.www.Templates;
 import net.shrimpworks.unreal.archive.www.content.FileDetails;
+import net.shrimpworks.unreal.archive.www.content.Latest;
 import net.shrimpworks.unreal.archive.www.content.MapPacks;
 import net.shrimpworks.unreal.archive.www.content.Maps;
 import net.shrimpworks.unreal.archive.www.content.Models;
@@ -458,6 +459,9 @@ public class Main {
 		System.out.printf("%nGenerating index page%n");
 		allPages.addAll(new Index(contentManager, documentManager, updates, outputPath, staticOutput).generate());
 		allPages.addAll(new Submit(outputPath, staticOutput).generate());
+
+		System.out.printf("%nGenerating latest files%n");
+		allPages.addAll(new Latest(contentManager, outputPath, staticOutput, localImages).generate());
 
 		System.out.printf("%nGenerating sitemap%n");
 		allPages.addAll(SiteMap.siteMap(SiteMap.SITE_ROOT, outputPath, allPages, 50000).generate());

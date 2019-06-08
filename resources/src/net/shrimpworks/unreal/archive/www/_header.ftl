@@ -46,6 +46,7 @@
 				<span class="a">UNREAL</span><span class="b">ARCHIVE</span>
 			</a>
 			<div class="menu">
+				<a href="${relPath(siteRoot + "/latest/index.html")}">Latest Additions</a>
 				<a href="${relPath(siteRoot + "/submit/index.html")}">Submit Content</a>
 			</div>
 		</div>

@@ -11,31 +11,31 @@
 
 
 	<@content class="list">
-		<#list dates as d>
+		<#list latest as date, content>
 			<section class="latest">
-				<h2>${d.date}</h2>
+				<h2>${dateFmt(date)}</h2>
 				<table>
 					<thead>
 					<tr>
 						<th>Type</th>
-						<th>Game</th>
 						<th>Name</th>
 						<th>Author</th>
 					</tr>
 					</thead>
 					<tbody>
-          <#list packages as c>
+          <#list content as c>
 						<tr>
-							<td>${c.friendlyContentType()}</td>
-							<td>${c.game}</td>
+							<td>${c.game} ${c.friendlyContentType()}</td>
 							<td>
 								<a href="${relPath(c.slugPath(siteRoot) + ".html")}">${c.name}</a>
 							</td>
-							<td>${c.author}</td>
+							<td>${trunc(c.author, 30)}</td>
 						</tr>
           </#list>
 					</tbody>
 				</table>
 			</section>
+
+			<#if date?counter == 10><#break></#if>
 		</#list>
 	</@content>
