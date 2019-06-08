@@ -86,6 +86,15 @@ header .heading .menu {
 	padding-bottom: 10px;
 }
 
+.heading .menu a {
+	padding: 5px;
+	border-right: 1px dotted white;
+}
+
+.heading .menu a:first-child {
+	border-left: 1px dotted white;
+}
+
 header .heading .a {
 	color: white;
 }
