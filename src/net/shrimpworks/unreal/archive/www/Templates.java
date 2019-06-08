@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -135,6 +136,9 @@ public class Templates {
 			TPL_VARS.put("fileSize", new FileSizeMethod());
 			TPL_VARS.put("fileName", new FileNameMethod());
 			TPL_VARS.put("staticPath", new StaticPathMethod());
+			TPL_VARS.put("dateFmt", new FormatLocalDateMethod(false));
+			TPL_VARS.put("dateFmtShort", new FormatLocalDateMethod(true));
+			TPL_VARS.put("trunc", new TruncateStringMethod());
 			TPL_VARS.put("siteName", SITE_NAME);
 		}
 
@@ -233,6 +237,45 @@ public class Templates {
 			}
 
 			return String.format("%.1f %s", size, SIZES[cnt]);
+		}
+	}
+
+	private static class TruncateStringMethod implements TemplateMethodModelEx {
+
+		private static final String ELLIPSIS = "…";
+
+		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
+			if (args.size() < 2) throw new TemplateModelException("Wrong arguments, expecting a string to truncate and maximum size");
+
+			String string = args.get(0).toString();
+			int maxLength = Integer.parseInt(args.get(1).toString());
+			string = string.length() <= maxLength
+					? string
+					: string.substring(0, Math.min(maxLength, string.length())) + ELLIPSIS;
+
+			return string;
+		}
+	}
+
+	private static class FormatLocalDateMethod implements TemplateMethodModelEx {
+
+		private final boolean shortDate;
+
+		private static final DateTimeFormatter IN_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		private static final DateTimeFormatter OUT_FMT = DateTimeFormatter.ofPattern("dd MMMM yyyy");
+
+		private static final DateTimeFormatter IN_FMT_SHORT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		private static final DateTimeFormatter OUT_FMT_SHORT = DateTimeFormatter.ofPattern("MMMM yyyy");
+
+		private FormatLocalDateMethod(boolean shortDate) {
+			this.shortDate = shortDate;
+		}
+
+		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
+			if (args.isEmpty()) throw new TemplateModelException("Wrong arguments, expecting a date");
+
+			if (shortDate) return OUT_FMT_SHORT.format(IN_FMT_SHORT.parse(args.get(0).toString() + "-01"));
+			else return OUT_FMT.format(IN_FMT.parse(args.get(0).toString()));
 		}
 	}
 
