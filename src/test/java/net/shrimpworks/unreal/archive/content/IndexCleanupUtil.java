@@ -25,15 +25,15 @@ import net.shrimpworks.unreal.archive.content.maps.GameTypes;
 import net.shrimpworks.unreal.archive.content.maps.Map;
 import net.shrimpworks.unreal.archive.storage.DataStore;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import static net.shrimpworks.unreal.archive.content.IndexUtils.UNKNOWN;
 
 public class IndexCleanupUtil {
 
 	@Test
-	@Ignore
+	@Disabled
 	public void contentManagerBenchmark() throws IOException {
 		// warmup
 		new ContentManager(Paths.get("unreal-archive-data/content/"),
@@ -72,7 +72,7 @@ public class IndexCleanupUtil {
 	 * URL encode URLs.
 	 */
 	@Test
-	@Ignore
+	@Disabled
 	public void fixUrlEncoding() throws IOException {
 		ContentManager cm = new ContentManager(Paths.get("unreal-archive-data/content/"),
 											   new DataStore.NopStore(), new DataStore.NopStore(), new DataStore.NopStore());
@@ -101,7 +101,7 @@ public class IndexCleanupUtil {
 	}
 
 	@Test
-	@Ignore
+	@Disabled
 	public void sanitiseFilenames() throws IOException {
 		Path root = Paths.get("unreal-archive-data/content/");
 		Files.walkFileTree(root, new SimpleFileVisitor<>() {
@@ -126,7 +126,7 @@ public class IndexCleanupUtil {
 	 * variances in content and hash.
 	 */
 	@Test
-	@Ignore
+	@Disabled
 	public void findDupes() throws IOException {
 		ContentManager cm = new ContentManager(Paths.get("unreal-archive-data/content/"),
 											   new DataStore.NopStore(), new DataStore.NopStore(), new DataStore.NopStore());
@@ -171,7 +171,7 @@ public class IndexCleanupUtil {
 	 * transformations to indexed data.
 	 */
 	@Test
-	@Ignore
+	@Disabled
 	public void fixThings() throws IOException {
 		ContentManager cm = new ContentManager(Paths.get("unreal-archive-data/content/"),
 											   new DataStore.NopStore(), new DataStore.NopStore(), new DataStore.NopStore());
@@ -223,7 +223,7 @@ public class IndexCleanupUtil {
 	 * gametype.
 	 */
 	@Test
-	@Ignore
+	@Disabled
 	public void setMapPackGametypes() throws IOException {
 		ContentManager cm = new ContentManager(Paths.get("unreal-archive-data/content/"),
 											   new DataStore.NopStore(), new DataStore.NopStore(), new DataStore.NopStore());
@@ -255,7 +255,7 @@ public class IndexCleanupUtil {
 	}
 
 	@Test
-	@Ignore
+	@Disabled
 	public void fixMapGametypes() throws IOException {
 		ContentManager cm = new ContentManager(Paths.get("unreal-archive-data/content/"),
 											   new DataStore.NopStore(), new DataStore.NopStore(), new DataStore.NopStore());
@@ -274,7 +274,7 @@ public class IndexCleanupUtil {
 	}
 
 	@Test
-	@Ignore
+	@Disabled
 	public void addMedorLinks() throws IOException {
 		Path root = Paths.get("/home/shrimp/tmp/files/UnrealTournament/Voices/Scraped/Medor/");
 		String path = "Voices/%s";
@@ -302,7 +302,7 @@ public class IndexCleanupUtil {
 	}
 
 	@Test
-	@Ignore
+	@Disabled
 	public void reindexContent() throws IOException {
 //		final CLI cli = net.shrimpworks.unreal.archive.CLI.parse(Collections.emptyMap());
 //		final DataStore imageStore = store(DataStore.StoreContent.IMAGES, cli);

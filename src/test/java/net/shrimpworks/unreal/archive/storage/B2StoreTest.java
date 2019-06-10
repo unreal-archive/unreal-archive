@@ -1,18 +1,17 @@
 package net.shrimpworks.unreal.archive.storage;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
-@Ignore
+@Disabled
 public class B2StoreTest {
 
 	@Test
@@ -31,8 +30,7 @@ public class B2StoreTest {
 				try {
 					b2.download(s, dl -> {
 						try {
-							assertEquals(new String(Files.readAllBytes(file), StandardCharsets.UTF_8),
-										 new String(Files.readAllBytes(dl), StandardCharsets.UTF_8));
+							assertEquals(Files.readString(file), Files.readString(dl));
 						} catch (IOException e) {
 							fail(e.toString());
 						} finally {
@@ -47,7 +45,7 @@ public class B2StoreTest {
 					fail(e.toString());
 				} finally {
 					try {
-						b2.delete(s, Assert::assertTrue);
+						b2.delete(s, Assertions::assertTrue);
 					} catch (IOException e) {
 						fail(e.getMessage());
 					}

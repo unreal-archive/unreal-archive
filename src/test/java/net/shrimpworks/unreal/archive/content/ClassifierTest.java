@@ -7,13 +7,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ClassifierTest {
 
-	@Test(expected = UnsupportedOperationException.class)
+	@Test
 	public void invalid() throws IOException {
 		Path tmp = Files.createTempFile("classify-invalid", ".txt");
 		try {
@@ -23,12 +23,10 @@ public class ClassifierTest {
 			IndexLog log = new IndexLog(sub);
 
 			// will fail to process text file as a valid content file
-			new Incoming(sub, log).prepare();
+			assertThrows(UnsupportedOperationException.class, () -> new Incoming(sub, log).prepare());
 		} finally {
 			Files.deleteIfExists(tmp);
 		}
-
-		fail("Did not throw exception");
 	}
 
 	@Test

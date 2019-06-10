@@ -14,9 +14,9 @@ import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.ContentType;
 import net.shrimpworks.unreal.archive.content.maps.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class YAMLTest {
 

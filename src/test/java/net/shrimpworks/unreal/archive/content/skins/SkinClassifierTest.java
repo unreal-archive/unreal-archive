@@ -6,19 +6,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
+import net.shrimpworks.unreal.archive.content.ContentType;
 import net.shrimpworks.unreal.archive.content.Incoming;
 import net.shrimpworks.unreal.archive.content.IndexLog;
 import net.shrimpworks.unreal.archive.content.Submission;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-// ignored for now due to JDK module visibility problems...
-@Ignore
-public class SkinIndexerTest {
+public class SkinClassifierTest {
 
 	@Test
 	public void ut2004() throws IOException {
@@ -30,13 +27,7 @@ public class SkinIndexerTest {
 			IndexLog log = new IndexLog(sub);
 			Incoming incoming = new Incoming(sub, log).prepare();
 
-			SkinIndexHandler indexer = new SkinIndexHandler();
-			indexer.index(incoming, new Skin(), r -> {
-				assertEquals("Unreal Tournament 2004", r.content.game);
-				assertEquals("Nasdarek", r.content.name);
-				assertTrue(r.content.skins.contains("Nasdarek"));
-			});
-
+			assertEquals(ContentType.SKIN, ContentType.classify(incoming));
 		} finally {
 			Files.deleteIfExists(tmpSkin);
 		}

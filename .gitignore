@@ -1,6 +1,5 @@
+.gradle
 build
-dist
-lib
 out
 .idea
 *.iml
