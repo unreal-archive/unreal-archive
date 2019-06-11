@@ -1,0 +1,135 @@
+import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+import java.nio.file.StandardOpenOption
+
+plugins {
+    id 'java'
+    id 'application'
+    id 'maven-publish'
+    id 'jacoco'
+}
+
+group = 'net.shrimpworks'
+version = "1.3"
+
+mainClassName = 'net.shrimpworks.unreal.archive.Main'
+
+sourceCompatibility = '11'
+targetCompatibility = '11'
+
+if (System.getenv().containsKey("TRAVIS_BUILD_NUMBER")) {
+    version = "${version}.${System.env.TRAVIS_BUILD_NUMBER}"
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url "https://code.shrimpworks.za.net/artefacts"
+    }
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "ShrimpWorks"
+            url = 'https://code.shrimpworks.za.net/artefacts/'
+            authentication {
+                basic(BasicAuthentication)
+            }
+            credentials(PasswordCredentials) {
+                username = "${System.env.ARTEFACTS_USER}"
+                password = "${System.env.ARTEFACTS_PASSWORD}"
+            }
+        }
+    }
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
+}
+
+dependencies {
+    implementation 'net.shrimpworks:unreal-package-lib:1.+'
+
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.6'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.6'
+
+    implementation 'org.jsoup:jsoup:1.9.+'
+
+    implementation 'org.freemarker:freemarker:2.+'
+
+    implementation 'com.backblaze.b2:b2-sdk-core:1.4.0'
+    implementation 'com.backblaze.b2:b2-sdk-httpclient:1.4.0'
+
+    implementation 'com.github.rjeschke:txtmark:0.13'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.4.2'
+}
+
+/**
+ * Create list of static files, used for later extraction from the jar to disk.
+ */
+processResources.doLast {
+    def wwwStaticDir = projectDir.toPath().resolve('src/main/resources/net/shrimpworks/unreal/archive/www/static')
+    def destFile = buildDir.toPath().resolve('resources/main/net/shrimpworks/unreal/archive/www/static.list')
+    def staticList = new StringBuilder()
+    files { fileTree(wwwStaticDir) }.each {
+        staticList.append(wwwStaticDir.getParent().relativize(it.toPath())).append("\n")
+    }
+    Files.write(destFile, staticList.toString().getBytes(StandardCharsets.UTF_8),
+            StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
+}
+
+jar {
+    manifest {
+        attributes(
+                'Implementation-Title': project.name,
+                'Implementation-Version': project.version,
+                'Main-Class': mainClassName,
+        )
+    }
+}
+
+task execJar(type: Jar) {
+    archiveClassifier = "exec"
+    archiveName = "${baseName}-${classifier}.${extension}"
+    from sourceSets.main.output
+
+    dependsOn configurations.runtimeClasspath
+
+    manifest {
+        attributes (
+                'Implementation-Title': project.name,
+                'Implementation-Version': project.version,
+                'Main-Class': mainClassName,
+                'Class-Path': configurations.runtimeClasspath.files.collect { it.getName() }.join(' ')
+        )
+    }
+
+    // build the fat executable jar file
+    from {
+        configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
+    }
+
+    // run the script which builds the executable
+    doLast {
+        project.exec {
+            commandLine(
+                    "$projectDir/etc/build-launcher.sh",
+                    "$projectDir/etc/launcher.sh",
+                    "$destinationDir/$archiveName",
+                    "$destinationDir/$baseName")
+        }
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled = true
+    }
+}

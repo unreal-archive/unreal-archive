@@ -7,26 +7,25 @@ jdk:
 git:
   submodules: false
 
+before_cache:
+  - rm -f  ~/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr ~/.gradle/caches/*/plugin-resolution/
 cache:
   directories:
-    - /home/travis/.ant/
+    - ~/.gradle/caches/
+    - ~/.gradle/wrapper/
 
 before_install:
   - sudo apt-get update
   - sudo apt-get install -y p7zip-full unrar
-  - ./resources/install-ant.sh
 
 jobs:
   include:
     - stage: test
-      script: ~/.ant/ant/bin/ant test
+      script: ./gradlew test
     - stage: build and publish binaries
       if: branch = master
       script:
-        - ~/.ant/ant/bin/ant publish
-        - ~/.ant/ant/bin/ant bin
-        - ./resources/publish.sh https://code.shrimpworks.za.net/artefacts/unreal-archive ./dist/unreal-archive ./dist/unreal-archive-exec.jar
-    - stage: trigger publish of www content
-      if: branch = master
-      script:
-        - ./resources/rebuild-www.sh
+        - ./gradlew publish execJar
+        - ./etc/publish.sh https://code.shrimpworks.za.net/artefacts/unreal-archive ./build/libs/unreal-archive ./build/libs/unreal-archive-exec.jar
+        - ./etc/rebuild-www.sh

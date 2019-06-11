@@ -1,0 +1,99 @@
+#form {
+	display: grid;
+
+	grid-template-columns: 40% auto;
+	grid-template-areas: 'upload-block info-block';
+	grid-gap: 10px;
+}
+
+.display-block {
+	display: block !important;
+}
+
+#upload-controls {
+	display: none;
+}
+
+#upload-controls #upload {
+	display: none;
+}
+
+#upload-controls #url {
+	display: none;
+}
+
+#progress-controls {
+	display: none;
+}
+
+#files-list {
+	margin: 10px 0;
+	line-height: 2em;
+	display: none;
+}
+
+#files-list .file {
+	border-bottom: 1px dotted #999999;
+}
+
+#files-list .file .name {
+	display: inline-block;
+	width: 75%;
+}
+
+#files-list .file .size {
+	display: inline-block;
+	width: calc(100% - 75%);
+}
+
+#words {
+	display: none;
+}
+
+#log {
+	display: none;
+	margin: 10px 0;
+	line-height: 1.6em;
+}
+
+#log .log {
+	border-bottom: 1px dotted #999999;
+	padding: 0 5px;
+	font-family: monospace;
+}
+
+#log .log .time {
+	display: inline;
+}
+
+#log .log .message {
+	display: inline;
+	padding-left: 10px;
+}
+
+#log .info {
+	background-color: transparent;
+}
+
+#log .warn {
+	background-color: #ffff88;
+}
+
+#log .error {
+	background-color: #ff8888;
+}
+
+#log .good {
+	background-color: #88ff88;
+}
+
+#abort {
+	display: inline-block;
+	width: calc(100% - 76%);
+}
+
+#progress {
+	display: inline-block;
+	width: 75% !important;
+	height: 100%;
+}
