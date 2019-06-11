@@ -22,14 +22,10 @@ before_install:
 jobs:
   include:
     - stage: test
-      script: ./gradlew test
+      script: ./gradlew build
     - stage: build and publish binaries
       if: branch = master
       script:
-        - ./gradlew publish
-#        - ~/.ant/ant/bin/ant bin
-#        - ./resources/publish.sh https://code.shrimpworks.za.net/artefacts/unreal-archive ./dist/unreal-archive ./dist/unreal-archive-exec.jar
-    - stage: trigger publish of www content
-      if: branch = master
-      script:
+        - ./gradlew publish execJar
+        - ./etc/publish.sh https://code.shrimpworks.za.net/artefacts/unreal-archive ./build/libs/unreal-archive ./build/libs/unreal-archive-exec.jar
         - ./resources/rebuild-www.sh

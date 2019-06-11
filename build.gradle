@@ -5,6 +5,7 @@ import java.nio.file.StandardOpenOption
 plugins {
     id 'java'
     id 'application'
+    id 'maven-publish'
     id 'jacoco'
 }
 
@@ -24,6 +25,22 @@ repositories {
     mavenCentral()
     maven {
         url "https://code.shrimpworks.za.net/artefacts"
+    }
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "ShrimpWorks"
+            url = 'https://code.shrimpworks.za.net/artefacts/'
+            authentication {
+                basic(BasicAuthentication)
+            }
+            credentials(PasswordCredentials) {
+                username = "${System.env.ARTEFACTS_USER}"
+                password = "${System.env.ARTEFACTS_PASSWORD}"
+            }
+        }
     }
 }
 
@@ -63,8 +80,42 @@ jar {
     manifest {
         attributes(
                 'Implementation-Title': project.name,
-                'Implementation-Version': project.version
+                'Implementation-Version': project.version,
+                'Main-Class': mainClassName,
         )
+    }
+}
+
+task execJar(type: Jar) {
+    archiveClassifier = "exec"
+    archiveName = "${baseName}-${classifier}.${extension}"
+    from sourceSets.main.output
+
+    dependsOn configurations.runtimeClasspath
+
+    manifest {
+        attributes (
+                'Implementation-Title': project.name,
+                'Implementation-Version': project.version,
+                'Main-Class': mainClassName,
+                'Class-Path': configurations.runtimeClasspath.files.collect { it.getName() }.join(' ')
+        )
+    }
+
+    // build the fat executable jar file
+    from {
+        configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
+    }
+
+    // run the script which builds the executable
+    doLast {
+        project.exec {
+            commandLine(
+                    "$projectDir/etc/build-launcher.sh",
+                    "$projectDir/etc/launcher.sh",
+                    "$destinationDir/$archiveName",
+                    "$destinationDir/$baseName")
+        }
     }
 }
 
