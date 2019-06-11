@@ -5,7 +5,8 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
 	<title>${siteName} / ${title}</title>
-	<link rel="stylesheet" href="${staticPath()}/css/style.css?v=2">
+	<link rel="stylesheet" href="${staticPath()}/css/style.css?v=3">
+	<link rel="stylesheet" href="${staticPath()}/fonts/fonts.css?v=1">
 	<#if extraCss??>
 		<link rel="stylesheet" href="${staticPath()}/css/${extraCss}">
 	</#if>
