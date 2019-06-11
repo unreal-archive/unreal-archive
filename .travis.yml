@@ -28,4 +28,4 @@ jobs:
       script:
         - ./gradlew publish execJar
         - ./etc/publish.sh https://code.shrimpworks.za.net/artefacts/unreal-archive ./build/libs/unreal-archive ./build/libs/unreal-archive-exec.jar
-        - ./resources/rebuild-www.sh
+        - ./etc/rebuild-www.sh
