@@ -22,7 +22,7 @@ before_install:
 jobs:
   include:
     - stage: test
-      script: ./gradlew build
+      script: ./gradlew test
     - stage: build and publish binaries
       if: branch = master
       script:
