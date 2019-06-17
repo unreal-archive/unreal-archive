@@ -1,9 +1,11 @@
 package net.shrimpworks.unreal.archive;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Duration;
@@ -104,9 +106,23 @@ public class ArchiveUtil {
 		Files.deleteIfExists(path);
 	}
 
+	private static String sevenZipBin() {
+		if (System.getProperty("os.name", "").toLowerCase().startsWith("windows")) {
+			final Path sevenZip = Paths.get(System.getenv().getOrDefault("ProgramFiles", "C:\\Program Files")).resolve("7-Zip").resolve("7z.exe");
+			if (Files.exists(sevenZip)) {
+				return sevenZip.toString();
+			} else {
+				throw new RuntimeException("Could not find 7-Zip. Please install it.", new FileNotFoundException(sevenZip.toString()));
+			}
+		} else {
+			// FIXME find 7z executable on *nix
+			return SEVENZIP_BIN;
+		}
+	}
+
 	private static String[] sevenZipCmd(Path source, Path destination) {
 		return new String[] {
-				SEVENZIP_BIN,
+				sevenZipBin(),
 				"x",                          // extract
 				"-bd",                        // no progress
 				"-y",                         // yes to all
@@ -117,7 +133,7 @@ public class ArchiveUtil {
 
 	private static String[] rarCmd(Path source, Path destination) {
 		return new String[] {
-				UNRAR_BIN,
+				UNRAR_BIN, // FIXME find rar bin
 				"e",                   // extract
 				"-y",                  // yes to all
 				source.toString(),     // file to extract
@@ -135,6 +151,7 @@ public class ArchiveUtil {
 		boolean b = process.waitFor(timeout.toMillis(), TimeUnit.MILLISECONDS);
 		if (!b) {
 			process.destroyForcibly().waitFor(KILL_WAIT.toMillis(), TimeUnit.MILLISECONDS);
+			throw new IllegalStateException(String.format("Timed out unpacking file %s", source));
 		}
 
 		if (process.exitValue() != 0) {
@@ -164,6 +181,7 @@ public class ArchiveUtil {
 		boolean b = process.waitFor(timeout.toMillis(), TimeUnit.MILLISECONDS);
 		if (!b) {
 			process.destroyForcibly().waitFor(KILL_WAIT.toMillis(), TimeUnit.MILLISECONDS);
+			throw new IllegalStateException(String.format("Timed out creating zip file %s", source));
 		}
 
 		if (process.exitValue() != 0) {

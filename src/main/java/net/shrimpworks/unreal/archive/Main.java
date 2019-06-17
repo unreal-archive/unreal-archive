@@ -149,7 +149,9 @@ public class Main {
 					Util.downloadTo(Util.toUriString(CONTENT_URL), tmpFile);
 					System.out.println("Done");
 					try {
-						ArchiveUtil.extract(tmpFile, tmpPath, Duration.ofMinutes(1));
+						System.out.printf("Extracting archive from %s to %s... ", tmpFile.toString(), tmpPath.toString());
+						ArchiveUtil.extract(tmpFile, tmpPath, Duration.ofMinutes(5));
+						System.out.println("Done");
 					} catch (Throwable e) {
 						throw new IOException("Failed to extract downloaded content archive", e);
 					}
