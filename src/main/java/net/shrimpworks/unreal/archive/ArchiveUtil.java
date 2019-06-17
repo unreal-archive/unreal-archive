@@ -11,6 +11,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -24,7 +25,6 @@ public class ArchiveUtil {
 
 	private static final String SEVENZIP_BIN = "/usr/bin/7z";
 	private static final String UNRAR_BIN = "/usr/bin/unrar";
-	private static final String ZIP_BIN = "/usr/bin/zip";
 
 	public static boolean isArchive(Path path) {
 		if (!Files.isRegularFile(path)) return false;
@@ -107,8 +107,9 @@ public class ArchiveUtil {
 	}
 
 	private static String sevenZipBin() {
-		if (System.getProperty("os.name", "").toLowerCase().startsWith("windows")) {
-			final Path sevenZip = Paths.get(System.getenv().getOrDefault("ProgramFiles", "C:\\Program Files")).resolve("7-Zip").resolve("7z.exe");
+		if (System.getProperty("os.name", "").toLowerCase(Locale.ROOT).startsWith("windows")) {
+			final Path sevenZip = Paths.get(System.getenv().getOrDefault("ProgramFiles", "C:\\Program Files"))
+									   .resolve("7-Zip").resolve("7z.exe");
 			if (Files.exists(sevenZip)) {
 				return sevenZip.toString();
 			} else {
@@ -117,6 +118,22 @@ public class ArchiveUtil {
 		} else {
 			// FIXME find 7z executable on *nix
 			return SEVENZIP_BIN;
+		}
+	}
+
+
+	private static String unrarBin() {
+		if (System.getProperty("os.name", "").toLowerCase(Locale.ROOT).startsWith("windows")) {
+			final Path winRar = Paths.get(System.getenv().getOrDefault("ProgramFiles", "C:\\Program Files"))
+									   .resolve("WinRAR").resolve("UnRAR.exe");
+			if (Files.exists(winRar)) {
+				return winRar.toString();
+			} else {
+				throw new RuntimeException("Could not find WinRAR. Please install it.", new FileNotFoundException(winRar.toString()));
+			}
+		} else {
+			// FIXME find unrar executable on *nix
+			return UNRAR_BIN;
 		}
 	}
 
@@ -133,7 +150,7 @@ public class ArchiveUtil {
 
 	private static String[] rarCmd(Path source, Path destination) {
 		return new String[] {
-				UNRAR_BIN, // FIXME find rar bin
+				unrarBin(),
 				"e",                   // extract
 				"-y",                  // yes to all
 				source.toString(),     // file to extract
@@ -170,9 +187,9 @@ public class ArchiveUtil {
 
 		Process process = new ProcessBuilder()
 				.command(
-						ZIP_BIN,
-						"-9",                   // compress more
-						"-r",                   // recursive
+						sevenZipBin(),
+						"a",                    // add to archive
+						"-tzip",                // set zip archive type
 						destination.toString(), // destination zip file
 						source.toString()       // source directory
 				)
