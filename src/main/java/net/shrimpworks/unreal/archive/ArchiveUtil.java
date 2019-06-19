@@ -23,8 +23,15 @@ public class ArchiveUtil {
 			"zip", "z", "gz", "7z", "rar", "lzh", "exe"
 	));
 
-	private static final String SEVENZIP_BIN = "/usr/bin/7z";
-	private static final String UNRAR_BIN = "/usr/bin/unrar";
+
+	private static final boolean IS_WINDOWS = System.getProperty("os.name", "").toLowerCase(Locale.ROOT).startsWith("windows");
+
+	private static final String NIX_SEVENZIP_BIN = "/usr/bin/7z";
+	private static final String NIX_UNRAR_BIN = "/usr/bin/unrar";
+
+	private static final Path PROGRAM_FILES = Paths.get(System.getenv().getOrDefault("ProgramFiles", "C:\\Program Files"));
+	private static final Path WIN_SEVENZIP_BIN = PROGRAM_FILES.resolve("7-Zip").resolve("7z.exe");
+	private static final Path WIN_UNRAR_BIN = PROGRAM_FILES.resolve("WinRAR").resolve("UnRAR.exe");
 
 	public static boolean isArchive(Path path) {
 		if (!Files.isRegularFile(path)) return false;
@@ -68,7 +75,7 @@ public class ArchiveUtil {
 
 		if (recursive) {
 			Set<Path> next = new HashSet<>();
-			Files.walkFileTree(result, new SimpleFileVisitor<Path>() {
+			Files.walkFileTree(result, new SimpleFileVisitor<>() {
 				@Override
 				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 					if (!visited.contains(file) && isArchive(file)) next.add(file);
@@ -89,7 +96,7 @@ public class ArchiveUtil {
 	}
 
 	public static void cleanPath(Path path) throws IOException {
-		Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
+		Files.walkFileTree(path, new SimpleFileVisitor<>() {
 			@Override
 			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 				Files.delete(file);
@@ -107,9 +114,8 @@ public class ArchiveUtil {
 	}
 
 	private static String sevenZipBin() {
-		if (System.getProperty("os.name", "").toLowerCase(Locale.ROOT).startsWith("windows")) {
-			final Path sevenZip = Paths.get(System.getenv().getOrDefault("ProgramFiles", "C:\\Program Files"))
-									   .resolve("7-Zip").resolve("7z.exe");
+		if (IS_WINDOWS) {
+			final Path sevenZip = WIN_SEVENZIP_BIN;
 			if (Files.exists(sevenZip)) {
 				return sevenZip.toString();
 			} else {
@@ -117,15 +123,13 @@ public class ArchiveUtil {
 			}
 		} else {
 			// FIXME find 7z executable on *nix
-			return SEVENZIP_BIN;
+			return NIX_SEVENZIP_BIN;
 		}
 	}
 
-
 	private static String unrarBin() {
-		if (System.getProperty("os.name", "").toLowerCase(Locale.ROOT).startsWith("windows")) {
-			final Path winRar = Paths.get(System.getenv().getOrDefault("ProgramFiles", "C:\\Program Files"))
-									   .resolve("WinRAR").resolve("UnRAR.exe");
+		if (IS_WINDOWS) {
+			final Path winRar = WIN_UNRAR_BIN;
 			if (Files.exists(winRar)) {
 				return winRar.toString();
 			} else {
@@ -133,7 +137,7 @@ public class ArchiveUtil {
 			}
 		} else {
 			// FIXME find unrar executable on *nix
-			return UNRAR_BIN;
+			return NIX_UNRAR_BIN;
 		}
 	}
 
