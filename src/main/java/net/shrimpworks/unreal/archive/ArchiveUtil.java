@@ -2,6 +2,7 @@ package net.shrimpworks.unreal.archive;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,11 +24,13 @@ public class ArchiveUtil {
 			"zip", "z", "gz", "7z", "rar", "lzh", "exe"
 	));
 
-
 	private static final boolean IS_WINDOWS = System.getProperty("os.name", "").toLowerCase(Locale.ROOT).startsWith("windows");
 
-	private static final String NIX_SEVENZIP_BIN = "/usr/bin/7z";
-	private static final String NIX_UNRAR_BIN = "/usr/bin/unrar";
+	private static final String NIX_SEVENZIP_CMD = "7z";
+	private static final String NIX_UNRAR_CMD = "unrar";
+
+	private static final String NIX_SEVENZIP_BIN = "/usr/bin/" + NIX_SEVENZIP_CMD;
+	private static final String NIX_UNRAR_BIN = "/usr/bin/" + NIX_UNRAR_CMD;
 
 	private static final Path PROGRAM_FILES = Paths.get(System.getenv().getOrDefault("ProgramFiles", "C:\\Program Files"));
 	private static final Path WIN_SEVENZIP_BIN = PROGRAM_FILES.resolve("7-Zip").resolve("7z.exe");
@@ -122,8 +125,16 @@ public class ArchiveUtil {
 				throw new RuntimeException("Could not find 7-Zip. Please install it.", new FileNotFoundException(sevenZip.toString()));
 			}
 		} else {
-			// FIXME find 7z executable on *nix
-			return NIX_SEVENZIP_BIN;
+			// find 7z executable on *nix
+			try {
+				final Process which = new ProcessBuilder()
+						.command("which", NIX_SEVENZIP_CMD)
+						.start();
+				final byte[] bytes = which.getInputStream().readAllBytes();
+				return new String(bytes, StandardCharsets.UTF_8).trim();
+			} catch (Exception e) {
+				return NIX_SEVENZIP_BIN;
+			}
 		}
 	}
 
@@ -136,8 +147,16 @@ public class ArchiveUtil {
 				throw new RuntimeException("Could not find WinRAR. Please install it.", new FileNotFoundException(winRar.toString()));
 			}
 		} else {
-			// FIXME find unrar executable on *nix
-			return NIX_UNRAR_BIN;
+			// find unrar executable on *nix
+			try {
+				final Process which = new ProcessBuilder()
+						.command("which", NIX_UNRAR_CMD)
+						.start();
+				final byte[] bytes = which.getInputStream().readAllBytes();
+				return new String(bytes, StandardCharsets.UTF_8).trim();
+			} catch (Exception e) {
+				return NIX_UNRAR_BIN;
+			}
 		}
 	}
 

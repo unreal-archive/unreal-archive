@@ -282,11 +282,9 @@ public class Main {
 	public static DataStore store(DataStore.StoreContent contentType, CLI cli) {
 		String stringType = cli.option(contentType.name().toLowerCase() + "-store", cli.option("store", null));
 		if (stringType == null) {
-			System.err.println(contentType.name().toLowerCase() + "-store or store must be specified!");
-			System.err.println("Valid options are: " + Arrays.stream(DataStore.StoreType.values())
-															 .map(Enum::name)
-															 .collect(Collectors.joining(", ")));
-			System.exit(3);
+			System.err.printf("No %s store specified, this will be necessary for indexing new content. Falling back to no-op store.%n",
+							  contentType.name().toLowerCase());
+			stringType = "NOP";
 		}
 
 		DataStore.StoreType storeType = DataStore.StoreType.valueOf(stringType.toUpperCase());
