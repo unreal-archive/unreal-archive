@@ -2,7 +2,6 @@ package net.shrimpworks.unreal.archive.content;
 
 import java.beans.ConstructorProperties;
 import java.nio.file.Path;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -39,7 +38,6 @@ public abstract class Content implements Comparable<Content> {
 	public String contentType;
 
 	public LocalDateTime firstIndex;
-	public LocalDateTime lastIndex;
 
 	/**
 	 * If set to a valid content hash, this content will not be displayed or listed
@@ -158,7 +156,7 @@ public abstract class Content implements Comparable<Content> {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(contentType, firstIndex, lastIndex, variationOf, game, name, author, description, releaseDate, attachments,
+		return Objects.hash(contentType, firstIndex, variationOf, game, name, author, description, releaseDate, attachments,
 							originalFilename, hash, fileSize, files, otherFiles, downloads, deleted);
 	}
 
@@ -230,33 +228,32 @@ public abstract class Content implements Comparable<Content> {
 		}
 	}
 
+	public static enum DownloadState {
+		OK,
+		MISSING,
+		DELETED
+	}
+
 	public static class Download implements Comparable<Download> {
 
 		public final String url;
 		public final boolean main;
-		public final LocalDate added;
-		public LocalDate lastChecked;
-		public boolean ok;                // health at last check date
 		public final boolean repack;
+		public DownloadState state;
 
-		public boolean deleted;
-
-		@ConstructorProperties({ "url", "main", "added", "lastChecked", "ok", "repack", "deleted" })
-		public Download(String url, boolean main, LocalDate added, LocalDate lastChecked, boolean ok, boolean repack, boolean deleted) {
+		@ConstructorProperties({ "url", "main", "repack", "state" })
+		public Download(String url, boolean main, boolean repack, DownloadState state) {
 			this.url = url;
 			this.main = main;
-			this.added = added;
-			this.lastChecked = lastChecked;
-			this.ok = ok;
 			this.repack = repack;
-			this.deleted = deleted;
+			this.state = state == null ? DownloadState.OK : state;
 		}
 
-		public Download(String url, LocalDate added, boolean repack) {
+		public Download(String url, boolean repack) {
 			this.url = url;
-			this.added = added;
 			this.repack = repack;
 			this.main = false;
+			this.state = DownloadState.OK;
 		}
 
 		@Override
@@ -269,16 +266,20 @@ public abstract class Content implements Comparable<Content> {
 			if (this == o) return true;
 			if (o == null || getClass() != o.getClass()) return false;
 			Download download = (Download)o;
-			return ok == download.ok
+			return state == download.state
 				   && main == download.main
 				   && repack == download.repack
-				   && deleted == download.deleted
 				   && Objects.equals(url, download.url);
 		}
 
 		@Override
 		public int hashCode() {
-			return Objects.hash(url, main, ok, repack, deleted);
+			return Objects.hash(url, main, repack, state);
+		}
+
+		@Override
+		public String toString() {
+			return String.format("Download [url=%s, main=%s, repack=%s, state=%s]", url, main, repack, state);
 		}
 	}
 }

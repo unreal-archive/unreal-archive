@@ -7,7 +7,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -180,7 +179,7 @@ public class Indexer {
 				if (!content.deleted && sub.sourceUrls != null) {
 					for (String url : sub.sourceUrls) {
 						if (url != null && !url.isEmpty() && !content.hasDownload(url)) {
-							content.downloads.add(new Content.Download(url, LocalDate.now(), false));
+							content.downloads.add(new Content.Download(url, false));
 						}
 					}
 					contentManager.checkin(new IndexResult<>(content, Collections.emptySet()), incoming.submission);
@@ -239,11 +238,10 @@ public class Indexer {
 
 	public interface IndexerPostProcessor {
 		public default void indexed(Submission sub, Content before, IndexResult<? extends Content> result) {
-			result.content.lastIndex = LocalDateTime.now();
 			if (sub.sourceUrls != null) {
 				for (String url : sub.sourceUrls) {
 					if (url != null && !url.isEmpty() && !result.content.hasDownload(url)) {
-						result.content.downloads.add(new Content.Download(url, LocalDate.now(), false));
+						result.content.downloads.add(new Content.Download(url, false));
 					}
 				}
 			}

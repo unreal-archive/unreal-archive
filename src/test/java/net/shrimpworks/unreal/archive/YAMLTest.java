@@ -5,7 +5,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
@@ -19,6 +18,22 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class YAMLTest {
+
+	@Test
+	public void verifyDownloadSimplification() throws IOException {
+		// verifies that existing download metadata can be loaded by new code
+		StringBuilder sb = new StringBuilder();
+		sb.append("url: \"https://f002.backblazeb2.com/file/unreal-archive-files/Unreal%202/Maps/XMP/F/xmp-face.zip\"\n");
+		sb.append("main: true\n");
+		sb.append("added: \"2019-02-19\"\n");
+		sb.append("lastChecked: \"2019-02-19\"\n");
+		sb.append("ok: true\n");
+		sb.append("repack: false\n");
+		sb.append("deleted: false\n");
+
+		Content.Download dl = YAML.fromString(sb.toString(), Content.Download.class);
+		System.out.println(dl);
+	}
 
 	@Test
 	public void serialiseStuff() throws IOException {
@@ -50,7 +65,6 @@ public class YAMLTest {
 		Map m = ContentType.MAP.newContent(null);
 
 		m.firstIndex = LocalDateTime.now().minus(1, ChronoUnit.DAYS);
-		m.lastIndex = LocalDateTime.now();
 
 		m.game = "Unreal Tournament";
 		m.name = "DM-MyMap";
@@ -75,11 +89,7 @@ public class YAMLTest {
 	}
 
 	private Content.Download download(String url) {
-		return new Content.Download(url, false,
-									LocalDate.now().minus((long)(Math.random() * 500), ChronoUnit.DAYS),
-									LocalDate.now().minus((long)(Math.random() * 100), ChronoUnit.DAYS),
-									true, false, false
-		);
+		return new Content.Download(url, false, false, Content.DownloadState.OK);
 	}
 
 	private Content.Attachment attachment(String url) {

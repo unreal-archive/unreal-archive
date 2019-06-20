@@ -98,7 +98,7 @@ public class Mutators extends ContentPageGenerator {
 	private void mutatorPage(Templates.PageSet pages, MutatorInfo mutator) {
 		localImages(mutator.mutator, root.resolve(mutator.path).getParent());
 
-		pages.add("mutator.ftl", SiteMap.Page.monthly(0.9f, mutator.mutator.lastIndex), String.join(" / ", SECTION,
+		pages.add("mutator.ftl", SiteMap.Page.monthly(0.9f, mutator.mutator.firstIndex), String.join(" / ", SECTION,
 																									mutator.page.letter.game.game.bigName,
 																									mutator.mutator.name))
 			 .put("mutator", mutator)

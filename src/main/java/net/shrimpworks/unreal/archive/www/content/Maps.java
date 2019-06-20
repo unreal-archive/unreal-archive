@@ -107,7 +107,7 @@ public class Maps extends ContentPageGenerator {
 	private void mapPage(Templates.PageSet pages, MapInfo map) {
 		localImages(map.map, root.resolve(map.path).getParent());
 
-		pages.add("map.ftl", SiteMap.Page.monthly(0.9f, map.map.lastIndex), String.join(" / ", SECTION,
+		pages.add("map.ftl", SiteMap.Page.monthly(0.9f, map.map.firstIndex), String.join(" / ", SECTION,
 																						map.page.letter.gametype.game.game.bigName,
 																						map.page.letter.gametype.name,
 																						map.map.title))

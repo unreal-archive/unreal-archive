@@ -99,7 +99,7 @@ public class Models extends ContentPageGenerator {
 	private void modelPage(Templates.PageSet pages, ModelInfo model) {
 		localImages(model.model, root.resolve(model.path).getParent());
 
-		pages.add("model.ftl", SiteMap.Page.monthly(0.9f, model.model.lastIndex), String.join(" / ", SECTION,
+		pages.add("model.ftl", SiteMap.Page.monthly(0.9f, model.model.firstIndex), String.join(" / ", SECTION,
 																							  model.page.letter.game.game.bigName,
 																							  model.model.name))
 			 .put("model", model)

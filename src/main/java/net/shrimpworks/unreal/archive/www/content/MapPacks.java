@@ -84,7 +84,7 @@ public class MapPacks extends ContentPageGenerator {
 	private void packPage(Templates.PageSet pages, MapPackInfo pack) {
 		localImages(pack.pack, pack.path.getParent());
 
-		pages.add("mappack.ftl", SiteMap.Page.monthly(0.9f, pack.pack.lastIndex), String.join(" / ", SECTION,
+		pages.add("mappack.ftl", SiteMap.Page.monthly(0.9f, pack.pack.firstIndex), String.join(" / ", SECTION,
 																							  pack.page.gametype.game.game.bigName,
 																							  pack.page.gametype.name, pack.pack.name))
 			 .put("pack", pack)

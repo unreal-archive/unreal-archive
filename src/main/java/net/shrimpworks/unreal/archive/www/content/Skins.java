@@ -99,7 +99,7 @@ public class Skins extends ContentPageGenerator {
 	private void skinPage(Templates.PageSet pages, SkinInfo skin) {
 		localImages(skin.skin, root.resolve(skin.path).getParent());
 
-		pages.add("skin.ftl", SiteMap.Page.monthly(0.9f, skin.skin.lastIndex), String.join(" / ", SECTION,
+		pages.add("skin.ftl", SiteMap.Page.monthly(0.9f, skin.skin.firstIndex), String.join(" / ", SECTION,
 																						   skin.page.letter.game.game.name,
 																						   skin.skin.name))
 			 .put("skin", skin)

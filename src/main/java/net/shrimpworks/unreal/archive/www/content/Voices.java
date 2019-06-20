@@ -97,7 +97,7 @@ public class Voices extends ContentPageGenerator {
 	private void voicePage(Templates.PageSet pages, VoiceInfo voice) {
 		localImages(voice.voice, root.resolve(voice.path).getParent());
 
-		pages.add("voice.ftl", SiteMap.Page.monthly(0.9f, voice.voice.lastIndex), String.join(" / ", SECTION,
+		pages.add("voice.ftl", SiteMap.Page.monthly(0.9f, voice.voice.firstIndex), String.join(" / ", SECTION,
 																							  voice.page.letter.game.game.bigName,
 																							  voice.voice.name))
 			 .put("voice", voice)

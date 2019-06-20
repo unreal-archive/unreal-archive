@@ -5,7 +5,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -167,7 +166,7 @@ public class ContentManager {
 	public boolean checkin(IndexResult<? extends Content> indexed, Submission submission) throws IOException {
 		ContentHolder current = this.content.get(indexed.content.hash);
 
-		if (current == null || !indexed.content.equals(current.content) || indexed.content.lastIndex.isAfter(current.content.lastIndex)) {
+		if (current == null || !indexed.content.equals(current.content)) {
 			// lets store the content \o/
 			Path next = indexed.content.contentPath(path);
 			Files.createDirectories(next);
@@ -210,8 +209,7 @@ public class ContentManager {
 			if (submission != null && indexed.content.downloads.stream().noneMatch(d -> d.main)) {
 				String uploadPath = path.relativize(next.resolve(submission.filePath.getFileName())).toString();
 				contentStore.store(submission.filePath, uploadPath,
-								   s -> indexed.content.downloads.add(new Content.Download(s, true, LocalDate.now(), LocalDate.now(),
-																						   true, false, false))
+								   s -> indexed.content.downloads.add(new Content.Download(s, true, false, Content.DownloadState.OK))
 				);
 			}
 
