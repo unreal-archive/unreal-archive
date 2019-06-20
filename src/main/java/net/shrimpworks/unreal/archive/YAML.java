@@ -48,11 +48,19 @@ public class YAML {
 	}
 
 	public static <T> T fromFile(Path path, Class<T> type) throws IOException {
-		return MAPPER.readValue(MAPPER.readTree(path.toFile()).traverse(), type);
+		try {
+			return MAPPER.readValue(MAPPER.readTree(path.toFile()).traverse(), type);
+		} catch (Exception e) {
+			throw new IOException("Failed to read YAML file " + path.toString(), e);
+		}
 	}
 
 	public static <T> T fromFile(Path path, TypeReference<T> type) throws IOException {
-		return MAPPER.readValue(MAPPER.readTree(path.toFile()).traverse(), type);
+		try {
+			return MAPPER.readValue(MAPPER.readTree(path.toFile()).traverse(), type);
+		} catch (Exception e) {
+			throw new IOException("Failed to read YAML file " + path.toString(), e);
+		}
 	}
 
 	public static <T> T fromString(String yaml, Class<T> type) throws IOException {

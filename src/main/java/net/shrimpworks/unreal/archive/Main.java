@@ -149,8 +149,12 @@ public class Main {
 					Util.downloadTo(Util.toUriString(CONTENT_URL), tmpFile);
 					System.out.println("Done");
 					try {
-						ArchiveUtil.extract(tmpFile, tmpPath, Duration.ofMinutes(1));
+						System.out.printf("Extracting archive from %s to %s... ", tmpFile.toString(), tmpPath.toString());
+						ArchiveUtil.extract(tmpFile, tmpPath, Duration.ofMinutes(10));
+						System.out.println("Done");
 					} catch (Throwable e) {
+						// make sure to clean out the path, so we can try again next time
+						ArchiveUtil.cleanPath(tmpPath);
 						throw new IOException("Failed to extract downloaded content archive", e);
 					}
 				}
@@ -280,11 +284,9 @@ public class Main {
 	public static DataStore store(DataStore.StoreContent contentType, CLI cli) {
 		String stringType = cli.option(contentType.name().toLowerCase() + "-store", cli.option("store", null));
 		if (stringType == null) {
-			System.err.println(contentType.name().toLowerCase() + "-store or store must be specified!");
-			System.err.println("Valid options are: " + Arrays.stream(DataStore.StoreType.values())
-															 .map(Enum::name)
-															 .collect(Collectors.joining(", ")));
-			System.exit(3);
+			System.err.printf("No %s store specified, this will be necessary for indexing new content. Falling back to no-op store.%n",
+							  contentType.name().toLowerCase());
+			stringType = "NOP";
 		}
 
 		DataStore.StoreType storeType = DataStore.StoreType.valueOf(stringType.toUpperCase());
