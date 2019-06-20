@@ -100,12 +100,10 @@
 		<h2>Downloads</h2>
 		<div class="links">
 			<#list downloads as d>
-				<#if !d.deleted>
-					<#if d.main>
-						<a href="${urlEncode(d.url)}" class="main">Primary</a>
-					<#else>
-						<a href="${urlEncode(d.url)}" class="secondary">${urlHost(d.url)}</a>
-					</#if>
+				<#if d.main>
+					<a href="${urlEncode(d.url)}" class="main">Primary</a>
+				<#else>
+					<a href="${urlEncode(d.url)}" class="secondary">${urlHost(d.url)}</a>
 				</#if>
 			</#list>
 		</div>
