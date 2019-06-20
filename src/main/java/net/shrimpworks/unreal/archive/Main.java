@@ -150,9 +150,11 @@ public class Main {
 					System.out.println("Done");
 					try {
 						System.out.printf("Extracting archive from %s to %s... ", tmpFile.toString(), tmpPath.toString());
-						ArchiveUtil.extract(tmpFile, tmpPath, Duration.ofMinutes(5));
+						ArchiveUtil.extract(tmpFile, tmpPath, Duration.ofMinutes(10));
 						System.out.println("Done");
 					} catch (Throwable e) {
+						// make sure to clean out the path, so we can try again next time
+						ArchiveUtil.cleanPath(tmpPath);
 						throw new IOException("Failed to extract downloaded content archive", e);
 					}
 				}
