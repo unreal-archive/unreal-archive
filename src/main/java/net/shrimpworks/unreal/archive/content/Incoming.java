@@ -29,6 +29,8 @@ import net.shrimpworks.unreal.packages.Umod;
 
 public class Incoming implements Closeable {
 
+	private static final Duration EXTRACT_TIMEOUT = Duration.ofMinutes(2);
+
 	public enum FileType {
 		CODE(true, "u"),
 		MAP(true, "unr", "ut2", "ut3"),
@@ -196,7 +198,7 @@ public class Incoming implements Closeable {
 		if (ArchiveUtil.isArchive(incoming)) {
 			// its an archive of files of some sort, unpack it to the root
 			try {
-				return ArchiveUtil.extract(incoming, tempDir, Duration.ofSeconds(30), true);
+				return ArchiveUtil.extract(incoming, tempDir, EXTRACT_TIMEOUT, true);
 			} catch (InterruptedException e) {
 				throw new IOException("Extract took too long", e);
 			}

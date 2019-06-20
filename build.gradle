@@ -1,3 +1,5 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.StandardOpenOption
@@ -77,7 +79,7 @@ processResources.doLast {
     files { fileTree(wwwStaticDir) }.each {
         staticList.append(wwwStaticDir.getParent().relativize(it.toPath())).append("\n")
     }
-    Files.write(destFile, staticList.toString().getBytes(StandardCharsets.UTF_8),
+    Files.write(destFile, staticList.toString().replaceAll("\\\\", "/").getBytes(StandardCharsets.UTF_8),
             StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
 }
 
@@ -113,13 +115,15 @@ task execJar(type: Jar) {
     }
 
     // run the script which builds the executable
-    doLast {
-        project.exec {
-            commandLine(
-                    "$projectDir/etc/build-launcher.sh",
-                    "$projectDir/etc/launcher.sh",
-                    "$destinationDir/$archiveName",
-                    "$destinationDir/$baseName")
+    if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
+        doLast {
+            project.exec {
+                commandLine(
+                        "$projectDir/etc/build-launcher.sh",
+                        "$projectDir/etc/launcher.sh",
+                        "$destinationDir/$archiveName",
+                        "$destinationDir/$baseName")
+            }
         }
     }
 }
