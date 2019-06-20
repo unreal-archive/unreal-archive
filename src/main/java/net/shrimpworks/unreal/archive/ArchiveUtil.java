@@ -36,6 +36,10 @@ public class ArchiveUtil {
 	private static final Path WIN_SEVENZIP_BIN = PROGRAM_FILES.resolve("7-Zip").resolve("7z.exe");
 	private static final Path WIN_UNRAR_BIN = PROGRAM_FILES.resolve("WinRAR").resolve("UnRAR.exe");
 
+	// these will be populated at runtime and remembered after resolving OS-specific command paths
+	private static String unrar = null;
+	private static String sevenZip = null;
+
 	public static boolean isArchive(Path path) {
 		if (!Files.isRegularFile(path)) return false;
 		return ARCHIVES.contains(Util.extension(path.toString().toLowerCase()));
@@ -117,12 +121,13 @@ public class ArchiveUtil {
 	}
 
 	private static String sevenZipBin() {
+		if (sevenZip != null) return sevenZip;
+
 		if (IS_WINDOWS) {
-			final Path sevenZip = WIN_SEVENZIP_BIN;
-			if (Files.exists(sevenZip)) {
-				return sevenZip.toString();
+			if (Files.exists(WIN_SEVENZIP_BIN)) {
+				sevenZip = WIN_SEVENZIP_BIN.toString();
 			} else {
-				throw new RuntimeException("Could not find 7-Zip. Please install it.", new FileNotFoundException(sevenZip.toString()));
+				throw new RuntimeException("Could not find 7-Zip. Please install it.", new FileNotFoundException(WIN_SEVENZIP_BIN.toString()));
 			}
 		} else {
 			// find 7z executable on *nix
@@ -131,20 +136,23 @@ public class ArchiveUtil {
 						.command("which", NIX_SEVENZIP_CMD)
 						.start();
 				final byte[] bytes = which.getInputStream().readAllBytes();
-				return new String(bytes, StandardCharsets.UTF_8).trim();
+				sevenZip = new String(bytes, StandardCharsets.UTF_8).trim();
 			} catch (Exception e) {
-				return NIX_SEVENZIP_BIN;
+				sevenZip = NIX_SEVENZIP_BIN;
 			}
 		}
+
+		return sevenZip;
 	}
 
 	private static String unrarBin() {
+		if (unrar != null) return unrar;
+
 		if (IS_WINDOWS) {
-			final Path winRar = WIN_UNRAR_BIN;
-			if (Files.exists(winRar)) {
-				return winRar.toString();
+			if (Files.exists(WIN_UNRAR_BIN)) {
+				unrar = WIN_UNRAR_BIN.toString();
 			} else {
-				throw new RuntimeException("Could not find WinRAR. Please install it.", new FileNotFoundException(winRar.toString()));
+				throw new RuntimeException("Could not find WinRAR. Please install it.", new FileNotFoundException(WIN_UNRAR_BIN.toString()));
 			}
 		} else {
 			// find unrar executable on *nix
@@ -153,11 +161,13 @@ public class ArchiveUtil {
 						.command("which", NIX_UNRAR_CMD)
 						.start();
 				final byte[] bytes = which.getInputStream().readAllBytes();
-				return new String(bytes, StandardCharsets.UTF_8).trim();
+				unrar = new String(bytes, StandardCharsets.UTF_8).trim();
 			} catch (Exception e) {
-				return NIX_UNRAR_BIN;
+				unrar = NIX_UNRAR_BIN;
 			}
 		}
+
+		return unrar;
 	}
 
 	private static String[] sevenZipCmd(Path source, Path destination) {
