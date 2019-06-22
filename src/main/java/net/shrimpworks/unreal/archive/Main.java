@@ -647,10 +647,6 @@ public class Main {
 		System.out.println("    List indexed content in <content-path>, filtered by game, type or author");
 		System.out.println("  show [name ...] [hash ...] --content-path=<path>");
 		System.out.println("    Show data for the content items specified");
-		System.out.println("  refresh --content-path=<path>");
-		System.out.println("    Perform a liveliness check of all download URLs");
-		System.out.println("  mirror <output-path> --content-path=<path>");
-		System.out.println("    Download all content in the index to <output-path>");
 		System.out.println("  unpack <umod-file> <destination>");
 		System.out.println("    Unpack the contents of <umod-file> to directory <destination>");
 		System.out.println("  scrape <type> [parameters ...] [--slowdown=<millis>]");

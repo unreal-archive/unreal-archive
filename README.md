@@ -1,42 +1,74 @@
 # Unreal Archive
 
 Scans, categorises and produces metadata for Unreal, Unreal Tournament, 
-and Unreal Tournament 2003/4 content.
+and Unreal Tournament 2003/4 content, and builds a static browsable website
+of the content, currently published at 
+[https://unrealarchive.org/](https://unrealarchive.org/).
+
 
 ## TODO
 
-- Docs
-- Content categorisation
-  1. ~~support Unreal and UT maps and map packs~~
-  2. ~~support skins~~
-  3. ~~support models~~
-  4. ~~support voice packs~~
-  5. ~~support mutators~~
-  6. support mods/gametypes
-- ~~Metadata is to be stored in YAML format, with a format and file structure
-  appropriate to each content type~~
-- ~~Original release dates (stick to Month and Year) can be gleaned from the
-  contents of archives where possible~~
-- ~~Generate and store SHA1 hashes for archives, as well as individual content
-  (only for packages such as maps, textures, sounds, not readmes and config
-  files)~~
-- ~~Support for documents and articles, stored in Markdown format with YAML
-  metadata~~
-- ~~Support for non-content files, like patches, drivers and similar updates~~
-- Support for generating the HTML output/presentation for the content database
-  - ~~Maps~~
-  - ~~Map Packs~~
-  - ~~Skins~~
-  - ~~Models~~
-  - ~~Voice Packs~~
-  - ~~Mutators~~
-  - Mods and Gametypes
-  - ~~Documents and Articles~~
-  - ~~Support for mirroring images so as to make offline use and mirrors feasible
-    and to reduce reliance on continued existence of some hosting.~~
-- ~~Support to create a local mirror of the archive, complete~~ or by game.
-- ~~Publish website~~
-- ~~Publish code publicly~~
+- More Docs
+- Support mods/gametypes, definitions and browsable output.
+
+
+## Requirements
+
+- Java JRE 11 for running
+- Java JDK 11 for building
+
+Tested with both OpenJDK 11 on Linux and Azul's Zulu Java 11 on Windows.
+
+
+## Building
+
+The project is build with Gradle. The provided `gradlew` wrapper may be 
+invoked as follows to produce an executable Jar file:
+
+### On Linux
+
+```
+./gradlew execJar
+```
+
+To run, execute:
+
+```
+./build/libs/unreal-archive
+```
+
+### On Windows
+
+```
+gradlew.bat execJar
+```
+
+To run, execute:
+
+```
+java -jar build\libs\unreal-archive-exec.jar
+```
+
+## Usage and Functionality
+
+> TODO: complete this section 
+
+**Browsing and Information:**
+- `ls`: List indexed content filtered by game, type or author.
+- `show`: Show data for the content items specified.
+- `summary`: Show stats and counters for the content index.
+
+**Content Management**
+- `scan`: Dry-run scan the contents of files or paths, comparing to known content where possible.
+- `index`: Index the contents of files or paths, writing the results to the content path.
+- `edit`: Edit the metadata for the <hash> provided.
+- `sync`: Sync managed files' local files to remote storage.
+
+**Utilities and Tools:**
+- `unpack`: Unpack the contents of a umod file to a directory.
+
+**Website Build:**
+- `www`: Generate the HTML website for browsing content.
 
 
 ## Content Submission and Indexing Pipeline
@@ -68,69 +100,15 @@ and Unreal Tournament 2003/4 content.
 Most of this process uses `Consumer<>`s for providing feedback, with the 
 intention of eventually being able to make this process more parallelised for
 better performance. Currently the performance is "good enough" that such
-parallel behaviour is not quite worth the refactoring time.
+parallel behaviour is not quite worth the implementation time.
 
 
-## Content Identification
+## Storage Configuration
 
-### Maps
+A storage backend must be configured in order to store content during indexing.
 
-- Loose, archive (zip, 7z, rar, self-extracting, etc), or Umod
-- Must have a single `.unr` or `.ut2` file present; any other files present
-  will be ignored.
-  - `.u` may indicate a mod, though if it only has a single `.unr` or `.ut2`,
-    it is probably a map with some custom code.
-- Gametype is identified using a simple collection of known prefixes (`DM-`, 
-  `MH-`, etc)
-  - Single Player maps don't usually have a prefix, we investigate the 
-    map's README to see if it says anything about being single player, though
-    this is unreliable and requires manual tweaking later.
-
-### Map Packs
-
-- Archive (zip, 7z, rar, self-extracting, etc), or Umod
-- Multiple `.unr` or `.ut2` files present
-- May contain `.utx`, `.umx`, `.ogg` and other package content
-- No `.int`, `.ucl` or `.upl` files should be present, as these could 
-  indicate the content of a mod or gametype, which also contain maultiple 
-  maps
-
-### Skins
-
-- Archive (zip, 7z, rar, self-extracting, etc) or Umod
-- One or more `.utx` files present
-- UT (and Unreal?):
-  - One or more `.int` files present, containing the skin manifest format
-- UT2003 and UT2004:
-  - One or more `.upl` files present
-- No other content
-
-### Models
-
-- Archive (zip, 7z, rar, self-extracting, etc) or Umod
-- At least one `.utx` file present (contains mesh)
-- UT (and Unreal?):
-  - One `.u` file present (contains mesh)
-  - One or more `.int` files present, containing the player model manifest
-- UT2003 and UT2004:
-  - One or more `.upl` files present
-  - One or more `.ukx` (animation) files present
-- No other content
-
-### Voices
-
-- TODO notes
-
-### Mutators
-
-- TODO notes
-
-### Mods and Gametypes
-
-- Manually?
-
-
-## Storage
+When interrogating, mirroring or downloading content, no store needs to be 
+specified, the default no-op store (`--store=nop`) will be used. 
 
 ### HTTP/DAV
 
