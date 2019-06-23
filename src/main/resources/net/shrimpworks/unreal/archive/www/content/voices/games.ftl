@@ -1,5 +1,5 @@
 <#assign ogDescription="Custom player voice packs for Unreal, Unreal Tournament, and Unreal Tournament 2004">
-<#assign ogImage="${staticPath()}/images/contents/skins.png">
+<#assign ogImage="${staticPath()}/images/contents/voices.png">
 
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
