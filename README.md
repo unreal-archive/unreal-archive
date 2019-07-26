@@ -35,6 +35,8 @@ To run, execute:
 
 ```
 ./build/libs/unreal-archive
+# - or via java -
+java -jar build/libs/unreal-archive-exec.jar
 ```
 
 ### On Windows
