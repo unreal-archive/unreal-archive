@@ -368,4 +368,25 @@ public class IndexCleanupUtil {
 			}
 		});
 	}
+
+	@Test
+	@Disabled
+	public void fixDuplicateMapImageFiles() throws IOException {
+		ContentManager cm = new ContentManager(Paths.get("unreal-archive-data/content/"),
+											   new DataStore.NopStore(), new DataStore.NopStore(), new DataStore.NopStore());
+
+		// find all maps with the same name, which have attachments
+		java.util.Map<String, List<Content>> grouped = cm.search(null, "MAP", null, null).stream()
+													 .filter(c -> !c.attachments.isEmpty())
+													 .collect(Collectors.groupingBy(s -> String.format("%s_%s",
+																									   s.game.toLowerCase(),
+																									   s.name.toLowerCase())))
+													 .entrySet().stream()
+													 .filter(m -> m.getValue().size() > 1)
+													 .collect(Collectors.toMap(java.util.Map.Entry::getKey,
+																			   java.util.Map.Entry::getValue));
+
+
+		grouped.forEach((k, v) -> System.out.println(k));
+	}
 }
