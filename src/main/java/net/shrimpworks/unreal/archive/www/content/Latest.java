@@ -22,8 +22,9 @@ public class Latest extends ContentPageGenerator {
 		this.siteRoot = output;
 
 		this.contentFiles = new TreeMap<>();
-		this.contentFiles.putAll(content.search(null, null, null, null)
-										.stream().collect(Collectors.groupingBy(c -> c.firstIndex.toLocalDate())));
+		this.contentFiles.putAll(content.search(null, null, null, null).stream()
+										.filter(c -> !c.deleted)
+										.collect(Collectors.groupingBy(c -> c.firstIndex.toLocalDate())));
 	}
 
 	@Override
