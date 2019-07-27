@@ -7,7 +7,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -34,7 +33,7 @@ public class Indexer {
 	private final IndexerPostProcessor postProcessor;
 
 	public Indexer(ContentManager contentManager, IndexerEvents events) {
-		this(contentManager, events, new IndexerPostProcessor(){});
+		this(contentManager, events, new IndexerPostProcessor() {});
 	}
 
 	public Indexer(ContentManager contentManager, IndexerEvents events, IndexerPostProcessor postProcessor) {
@@ -172,71 +171,87 @@ public class Indexer {
 	private void indexFile(
 			Submission sub, IndexLog log, boolean force, ContentType forceType, Consumer<Optional<IndexResult<? extends Content>>> done) {
 		try (Incoming incoming = new Incoming(sub, log)) {
-			Content content = contentManager.checkout(incoming.hash);
+			Content content = prepContent(incoming, force, forceType);
 
-			if ((content != null && !force)) {
-				// even when not forcing a full re-index of something, we can still update download sources
-				if (!content.deleted && sub.sourceUrls != null) {
-					for (String url : sub.sourceUrls) {
-						if (url != null && !url.isEmpty() && !content.hasDownload(url)) {
-							content.downloads.add(new Content.Download(url, false));
-						}
+			ContentType type;
+			if (content == null || (type = ContentType.valueOf(content.contentType)) == ContentType.UNKNOWN) return;
+
+			type.indexer.get().index(incoming, content, result -> {
+				try {
+					Content current = contentManager.forHash(incoming.hash);
+					postProcessor.indexed(sub, current, result);
+
+					if (result.content.name.isEmpty()) {
+						throw new IllegalStateException("Name cannot be blank for " + incoming.submission.filePath);
 					}
-					contentManager.checkin(new IndexResult<>(content, Collections.emptySet()), incoming.submission);
-				}
-				return;
-			}
 
-			incoming.prepare();
-
-			ContentType type = forceType == null ? ContentType.classify(incoming) : forceType;
-
-			// TODO better way to handle re-indexing - we already have content, but if type changes we can't re-use it
-			if (content == null || !type.toString().equalsIgnoreCase(content.contentType)) {
-				content = type.newContent(incoming);
-			}
-
-			if (type != ContentType.UNKNOWN) { // TODO later support a generic dumping ground for unknown content
-
-				type.indexer.get().index(incoming, content, result -> {
-					try {
-						Content current = contentManager.forHash(incoming.hash);
-						postProcessor.indexed(sub, current, result);
-
-						if (result.content.name.isEmpty()) {
-							throw new IllegalStateException("Name cannot be blank for " + incoming.submission.filePath);
-						}
-
-						// before checkin, remove any "new" attachments which already exist... this is a bit of a hack
-						if (current != null) {
-							result.files.removeIf(f -> {
-								if (current.attachments.stream().anyMatch(a -> a.name.equals(f.name))) {
-									try {
-										Files.deleteIfExists(f.path);
-									} catch (IOException e) {
-										log.log(IndexLog.EntryType.CONTINUE, "Failed to delete duplicate attachment" + f, e);
-									}
-									return true;
+					// before checkin, remove any "new" attachments which already exist... this is a bit of a hack
+					if (current != null) {
+						result.files.removeIf(f -> {
+							if (current.attachments.stream().anyMatch(a -> a.name.equals(f.name))) {
+								try {
+									Files.deleteIfExists(f.path);
+								} catch (IOException e) {
+									log.log(IndexLog.EntryType.CONTINUE, "Failed to delete duplicate attachment" + f, e);
 								}
-								return false;
-							});
-						}
-
-						contentManager.checkin(result, incoming.submission);
-					} catch (IOException e) {
-						log.log(IndexLog.EntryType.FATAL, "Failed to store content file data for " + sub.filePath.toString(), e);
+								return true;
+							}
+							return false;
+						});
 					}
 
-					done.accept(Optional.of(result));
-				});
-			}
+					contentManager.checkin(result, incoming.submission);
+				} catch (IOException e) {
+					log.log(IndexLog.EntryType.FATAL, "Failed to store content file data for " + sub.filePath.toString(), e);
+				}
+
+				done.accept(Optional.of(result));
+			});
 		} catch (Throwable e) {
 			log.log(IndexLog.EntryType.FATAL, e.getMessage(), e);
 			done.accept(Optional.empty());
 		}
 	}
 
+	/**
+	 * Prepare and identify content for indexing.
+	 *
+	 * @param incoming  incoming content to be indexed
+	 * @param force     whether to force re-indexing of known content
+	 * @param forceType force the content type to this, null to auto-detect
+	 * @return null if known, or a new Content instance otherwise
+	 * @throws IOException failed to read content files
+	 */
+	private Content prepContent(Incoming incoming, boolean force, ContentType forceType) throws IOException {
+		Content content = contentManager.checkout(incoming.hash);
+
+		if ((content != null && !force)) {
+			// even when not forcing a full re-index of something, we can still update download sources
+			if (!content.deleted && incoming.submission.sourceUrls != null) {
+				for (String url : incoming.submission.sourceUrls) {
+					if (url != null && !url.isEmpty() && !content.hasDownload(url)) {
+						content.downloads.add(new Content.Download(url, false));
+					}
+				}
+				contentManager.checkin(new IndexResult<>(content, Collections.emptySet()), incoming.submission);
+			}
+			return null;
+		}
+
+		incoming.prepare();
+
+		ContentType type = forceType == null ? ContentType.classify(incoming) : forceType;
+
+		// TODO better way to handle re-indexing - we already have content, but if type changes we can't re-use it
+		if (content == null || !type.toString().equalsIgnoreCase(content.contentType)) {
+			content = type.newContent(incoming);
+		}
+
+		return content;
+	}
+
 	public interface IndexerPostProcessor {
+
 		public default void indexed(Submission sub, Content before, IndexResult<? extends Content> result) {
 			if (sub.sourceUrls != null) {
 				for (String url : sub.sourceUrls) {

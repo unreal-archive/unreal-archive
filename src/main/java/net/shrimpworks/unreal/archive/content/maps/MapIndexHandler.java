@@ -45,8 +45,6 @@ public class MapIndexHandler implements IndexHandler<Map> {
 
 		Incoming.IncomingFile baseMap = baseMap(incoming);
 
-		// TODO find .txt file in content root and scan for dates, authors, etc
-
 		// populate basic information; the rest of this will be filled in later if possible
 		m.name = mapName(baseMap);
 		m.gametype = gameType(incoming, m.name);
