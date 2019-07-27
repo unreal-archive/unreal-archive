@@ -122,7 +122,7 @@ public class ManagedContentManager {
 
 			clone.downloads.stream().filter(d -> !d.synced).forEach(d -> {
 				Path f = m.path.resolve(d.localFile);
-				if (!Files.exists(f)) return; // FIXME report this
+				if (!Files.exists(f)) throw new IllegalArgumentException(String.format("Local file %s not found!", d.localFile));
 
 				try {
 					contentStore.store(f, String.join("/", remotePath(m.managed), f.getFileName().toString()), u -> {
@@ -137,12 +137,13 @@ public class ManagedContentManager {
 
 							success[0] = true;
 						} catch (IOException e) {
-							System.err.printf("Failed to update managed content definition %s: %s%n", m.path, e.toString()); // FIXME logs?
+							throw new RuntimeException(String.format("Failed to update managed content definition %s: %s%n",
+																	 m.path, e.toString()));
 						}
 
 					});
 				} catch (IOException e) {
-					System.err.printf("Failed to sync file %s: %s%n", d.localFile, e.toString()); // FIXME logs?
+					throw new RuntimeException(String.format("Failed to sync file %s: %s%n", d.localFile, e.toString()));
 				}
 			});
 
@@ -170,5 +171,4 @@ public class ManagedContentManager {
 			this.managed = managed;
 		}
 	}
-
 }
