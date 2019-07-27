@@ -92,8 +92,8 @@ public enum ContentType {
 							newInstance.releaseDate = Content.RELEASE_DATE_FMT.format(f.fileDate());
 						}
 					} catch (Exception ex) {
-//							log.log(IndexLog.EntryType.CONTINUE, "Failed getting data for " + e.getKey(), ex);
-						// TODO expose log via incoming
+						incoming.log.log(IndexLog.EntryType.CONTINUE, String.format("Failed collecting content files for %s",
+																					incoming.submission.filePath), ex);
 					}
 				}
 			}
