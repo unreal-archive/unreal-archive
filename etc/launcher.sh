@@ -1,8 +1,8 @@
 #!/bin/sh
 
-MYSELF=`which "$0" 2>/dev/null`
+MYSELF=$(which "$0" 2>/dev/null)
 
-[ $? -gt 0 -a -f "$0" ] && MYSELF="./$0"
+[ $? -gt 0 ] && [ -f "$0" ] && MYSELF="./$0"
 
 java=java
 
