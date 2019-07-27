@@ -39,3 +39,5 @@
 			<#if date?counter == 10><#break></#if>
 		</#list>
 	</@content>
+
+<#include "../../_footer.ftl">
