@@ -110,7 +110,7 @@ public class Indexer {
 	private List<Submission> findFiles(Path inputPath) throws IOException {
 		List<Submission> all = new ArrayList<>();
 		if (Files.isDirectory(inputPath)) {
-			Files.walkFileTree(inputPath, new SimpleFileVisitor<Path>() {
+			Files.walkFileTree(inputPath, new SimpleFileVisitor<>() {
 
 				final Map<Path, SubmissionOverride> override = new HashMap<>();
 

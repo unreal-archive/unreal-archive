@@ -383,17 +383,19 @@ public class Main {
 			System.exit(2);
 		}
 
-		Path output = Files.createDirectories(Paths.get(cli.commands()[1]));
+		Path output = Files.createDirectories(Paths.get(cli.commands()[1])).toAbsolutePath();
 
 		System.out.printf("Writing files to %s with concurrency of %s%n",
-						  output.toAbsolutePath().toString(), cli.option("concurrency", "3"));
+						  output.toString(), cli.option("concurrency", "3"));
 
 		MirrorClient mirror = new MirrorClient(
 				contentManager,
 				output,
-				Integer.parseInt(cli.option("concurrency", "3"))
+				Integer.parseInt(cli.option("concurrency", "3")),
+				((total, remaining, last) -> System.out.printf("\r[ %-6s / %-6s ] Processed %-40s",
+															   total - remaining, total, last.originalFilename))
 		);
-		mirror.mirror(((total, remaining, last) -> System.out.printf("\r[ %-6s / %-6s ] Processed %-40s", total - remaining, total, last)));
+		mirror.mirror();
 
 		System.out.println("Mirror completed");
 

@@ -166,7 +166,7 @@ public class ContentManager {
 	public boolean checkin(IndexResult<? extends Content> indexed, Submission submission) throws IOException {
 		ContentHolder current = this.content.get(indexed.content.hash);
 
-		if (current == null || !indexed.content.equals(current.content)) {
+		if (current == null || (!indexed.content.equals(current.content) || !indexed.files.isEmpty())) {
 			// lets store the content \o/
 			Path next = indexed.content.contentPath(path);
 			Files.createDirectories(next);
