@@ -1,5 +1,6 @@
 package net.shrimpworks.unreal.archive.mirror;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayDeque;
@@ -7,6 +8,7 @@ import java.util.Deque;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.content.Content;
@@ -19,32 +21,39 @@ import net.shrimpworks.unreal.archive.content.ContentManager;
  * to monitor progress (overall file counts, not individual file
  * progress).
  */
-public class MirrorClient {
+public class MirrorClient implements Consumer<MirrorClient.Downloader> {
 
-	private final Deque<Content> content; // TODO this isn't really re-usable; a single call to mirror() renders the class a bit useless
-	private final long totalCount;
+	private final Deque<Content> content;
 	private final Path output;
 	private final int concurrency;
 	private final ExecutorService executor;
 
+	private final Progress progress;
+
+	private final long totalCount;
+	private final CountDownLatch counter;
+
 	private volatile Thread mirrorThread;
 
-	public MirrorClient(ContentManager content, Path output, int concurrency) {
+	public MirrorClient(ContentManager content, Path output, int concurrency, Progress progress) {
 		this.content = new ArrayDeque<>(content.search(null, null, null, null));
-		this.totalCount = content.size();
 		this.output = output;
 		this.concurrency = concurrency;
+
+		this.progress = progress;
+
+		this.totalCount = content.size();
+		this.counter = new CountDownLatch(content.size());
+
 		this.executor = Executors.newFixedThreadPool(concurrency);
 	}
 
-	public boolean mirror(Progress progress) {
+	public boolean mirror() {
 		this.mirrorThread = Thread.currentThread();
 
 		try {
-			final CountDownLatch counter = new CountDownLatch(content.size());
-
 			// kick off the initial tasks, subsequent tasks will schedule as they complete
-			for (int i = 0; i < concurrency; i++) next(counter, progress);
+			for (int i = 0; i < concurrency; i++) next();
 
 			// wait for all downloads to complete
 			counter.await();
@@ -66,27 +75,45 @@ public class MirrorClient {
 		}
 	}
 
-	private void next(CountDownLatch counter, Progress progress) {
+	@Override
+	public void accept(Downloader downloader) {
+		progress.progress(totalCount, MirrorClient.this.content.size(), downloader.content);
+
+		// finally, countdown
+		counter.countDown();
+
+		// kick off next one
+		next();
+	}
+
+	private void next() {
 		final Content c = MirrorClient.this.content.poll();
-		if (c != null) executor.submit(new Downloader(c, counter, progress));
+		if (c != null) executor.submit(new Downloader(c, output, this));
 	}
 
 	@FunctionalInterface
 	public interface Progress {
 
-		public void progress(long total, long remaining, String last);
+		public void progress(long total, long remaining, Content last);
 	}
 
-	private class Downloader implements Runnable {
+	public static class Downloader implements Runnable {
 
-		private final Content content;
-		private final CountDownLatch counter;
-		private final Progress progress;
+		public final Content content;
+		private final Path output;
+		private final Consumer<Downloader> done;
+		public final Path destination;
 
-		public Downloader(Content c, CountDownLatch counter, Progress progress) {
+		public Downloader(Content c, Path output, Consumer<Downloader> done) {
 			this.content = c;
-			this.counter = counter;
-			this.progress = progress;
+			this.output = output;
+			this.done = done;
+
+			try {
+				this.destination = Files.createDirectories(content.contentPath(output)).resolve(content.originalFilename);
+			} catch (IOException e) {
+				throw new RuntimeException("Failed to create directories for content " + content.originalFilename);
+			}
 		}
 
 		@Override
@@ -97,24 +124,15 @@ public class MirrorClient {
 				Content.Download dl = content.downloads.stream().filter(d -> d.main).findFirst().orElse(null);
 				if (dl == null) return;
 
-				// set up output path and file
-				final Path dest = Files.createDirectories(content.contentPath(output)).resolve(content.originalFilename);
-
 				// file already downloaded
-				if (Files.exists(dest) && Files.size(dest) == content.fileSize) return;
+				if (Files.exists(destination) && Files.size(destination) == content.fileSize) return;
 
 				// download the stuff, hopefully
-				Util.downloadTo(dl.url, dest);
+				Util.downloadTo(dl.url, destination);
 			} catch (Throwable t) {
 				System.err.printf("%nFailed to download content %s: %s%n", content.contentPath(output), t.toString());
 			} finally {
-				// attempt to submit next download if available
-				next(counter, progress);
-
-				if (progress != null) progress.progress(totalCount, MirrorClient.this.content.size(), content.originalFilename);
-
-				// finally, countdown
-				counter.countDown();
+				if (done != null) done.accept(this);
 			}
 		}
 	}

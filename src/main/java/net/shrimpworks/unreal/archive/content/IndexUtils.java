@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.imageio.ImageIO;
 
+import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.packages.IntFile;
 import net.shrimpworks.unreal.packages.Package;
 import net.shrimpworks.unreal.packages.PackageReader;
@@ -39,7 +40,7 @@ public class IndexUtils {
 	public static final Pattern AUTHOR_MATCH = Pattern.compile("(.+)?(author|by)([\\s:]+)?([A-Za-z0-9 _]{2,25})(\\s+)?",
 															   Pattern.CASE_INSENSITIVE);
 
-	public static final String SHOT_NAME = "%s_shot_%d.png";
+	public static final String SHOT_NAME = "%s_shot_%s_%d.png";
 
 	public static String game(Set<Incoming.IncomingFile> files) throws IOException {
 		if (files.isEmpty()) return UNKNOWN;
@@ -182,7 +183,7 @@ public class IndexUtils {
 			String shotTemplate, Content content, List<BufferedImage> screenshots, Set<IndexResult.NewAttachment> attachments)
 			throws IOException {
 		for (int i = 0; i < screenshots.size(); i++) {
-			String shotName = String.format(shotTemplate, content.name.replaceAll(" ", "_"), attachments.size() + 1);
+			String shotName = String.format(shotTemplate, Util.slug(content.name), content.hash.substring(0, 8), attachments.size() + 1);
 			Path out = Paths.get(shotName);
 			ImageIO.write(screenshots.get(i), "png", out.toFile());
 			attachments.add(new IndexResult.NewAttachment(Content.AttachmentType.IMAGE, shotName, out));

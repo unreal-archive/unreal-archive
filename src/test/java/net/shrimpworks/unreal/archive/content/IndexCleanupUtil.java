@@ -23,6 +23,7 @@ import net.shrimpworks.unreal.archive.YAML;
 import net.shrimpworks.unreal.archive.content.mappacks.MapPack;
 import net.shrimpworks.unreal.archive.content.maps.GameTypes;
 import net.shrimpworks.unreal.archive.content.maps.Map;
+import net.shrimpworks.unreal.archive.mirror.MirrorClient;
 import net.shrimpworks.unreal.archive.storage.DataStore;
 
 import org.junit.jupiter.api.Disabled;
@@ -366,6 +367,86 @@ public class IndexCleanupUtil {
 
 				return FileVisitResult.CONTINUE;
 			}
+		});
+	}
+
+	@Test
+	@Disabled
+	public void fixDuplicateMapImageFiles() throws IOException {
+//		final CLI cli = net.shrimpworks.unreal.archive.CLI.parse(Collections.emptyMap());
+//		final DataStore imageStore = store(DataStore.StoreContent.IMAGES, cli);
+//		final DataStore attachmentStore = store(DataStore.StoreContent.ATTACHMENTS, cli);
+//		final DataStore contentStore = store(DataStore.StoreContent.CONTENT, cli);
+		final DataStore imageStore = new DataStore.NopStore();
+		final DataStore attachmentStore = new DataStore.NopStore();
+		final DataStore contentStore = new DataStore.NopStore();
+
+		final ContentManager cm = new ContentManager(Paths.get("unreal-archive-data/content/"),
+													 contentStore, imageStore, attachmentStore);
+
+		final Indexer indexer = new Indexer(cm, new Indexer.IndexerEvents() {
+			@Override
+			public void starting(int foundFiles) {}
+
+			@Override
+			public void progress(int indexed, int total, Path currentFile) {}
+
+			@Override
+			public void indexed(Submission submission, Optional<IndexResult<? extends Content>> indexed, IndexLog log) {
+				indexed.ifPresent(i -> {
+					try {
+						System.out.println(YAML.toString(i.content));
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				});
+			}
+
+			@Override
+			public void completed(int indexedFiles, int errorCount) {}
+		}, new Indexer.IndexerPostProcessor() {
+			@Override
+			public void indexed(Submission sub, Content before, IndexResult<? extends Content> result) {
+				// do not let game get reassigned during this process
+				if (before != null) {
+					result.content.game = before.game;
+				}
+
+				// do not let gametype get reassigned during this process
+				if (before instanceof Map && result.content instanceof Map) {
+					((Map)result.content).gametype = ((Map)before).gametype;
+				}
+
+				// clear existing attachments
+				if (before != null) before.attachments.clear();
+				result.content.attachments.clear();
+			}
+		});
+
+		// find all maps with the same name, which have attachments
+		java.util.Map<String, List<Content>> grouped = cm.search(null, "MAP", null, null).stream()
+														 .filter(c -> !c.attachments.isEmpty())
+														 .collect(Collectors.groupingBy(s -> String.format("%s_%s",
+																										   s.game.toLowerCase(),
+																										   s.name.toLowerCase())))
+														 .entrySet().stream()
+														 .filter(m -> m.getValue().size() > 1)
+														 .collect(Collectors.toMap(java.util.Map.Entry::getKey,
+																				   java.util.Map.Entry::getValue));
+
+		final Path tmpDir = Files.createTempDirectory("ua-image-cleanup");
+
+		grouped.forEach((k, contents) -> {
+			System.out.println(k);
+			contents.forEach(c -> new MirrorClient.Downloader(c, tmpDir, d -> {
+				// remove images from content
+				System.out.println("downloaded " + d.destination);
+				try {
+					indexer.index(true, null, d.destination);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}).run());
 		});
 	}
 }
