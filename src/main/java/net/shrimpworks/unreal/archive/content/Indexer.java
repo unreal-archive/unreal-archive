@@ -10,6 +10,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -179,6 +180,28 @@ public class Indexer {
 			type.indexer.get().index(incoming, content, result -> {
 				try {
 					Content current = contentManager.forHash(incoming.hash);
+
+					// check if the item is a variation of existing content
+					if (current == null) {
+						Optional<Content> maybeNewest = contentManager.search(result.content.game, result.content.contentType,
+																			  result.content.name, result.content.author)
+																	  .stream().max(Comparator.comparing(a -> a.releaseDate));
+						Content existing = maybeNewest.orElse(null);
+						if (existing != null) {
+							if (existing.variationOf == null && existing.releaseDate.compareTo(result.content.releaseDate) < 0) {
+								Content variation = contentManager.checkout(existing.hash);
+								variation.variationOf = result.content.hash;
+								contentManager.checkin(new IndexResult<>(variation, Collections.emptySet()), null);
+								log.log(IndexLog.EntryType.CONTINUE,
+										String.format("Flagging original content %s variation", existing.originalFilename));
+							} else {
+								result.content.variationOf = existing.hash;
+								log.log(IndexLog.EntryType.CONTINUE,
+										String.format("Flagging as variation of %s", existing.originalFilename));
+							}
+						}
+					}
+
 					postProcessor.indexed(sub, current, result);
 
 					if (result.content.name.isEmpty()) {

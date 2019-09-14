@@ -1,10 +1,6 @@
 package net.shrimpworks.unreal.archive.scraper;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -40,7 +36,7 @@ public class Downloader {
 		final Path output = Paths.get(cli.commands()[2]);
 		if (!Files.isDirectory(output)) throw new IllegalArgumentException("Output path is not a directory: " + output.toString());
 
-		final long slowdown = Long.valueOf(cli.option("slowdown", "5000"));
+		final long slowdown = Long.parseLong(cli.option("slowdown", "5000"));
 
 		List<Found.FoundUrl> urls = YAML.fromFile(fileListPath, new TypeReference<List<Found.FoundUrl>>() {});
 
@@ -131,14 +127,5 @@ public class Downloader {
 		}
 
 		return true;
-	}
-
-	private static URI toUri(String s) throws IOException {
-		try {
-			URL url = new URL(s);
-			return new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
-		} catch (URISyntaxException | MalformedURLException e) {
-			throw new IOException("Invalid URL: " + s, e);
-		}
 	}
 }

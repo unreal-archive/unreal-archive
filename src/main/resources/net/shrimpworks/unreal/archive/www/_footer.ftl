@@ -10,7 +10,7 @@
 		<div><i>${siteName}</i> does not use cookies or employ any visitor tracking analytics.</div>
 		<div style="text-align: right">
 			<a href="https://github.com/unreal-archive">
-				<img src="${staticPath()}/images/icons/black/px22/ico-github.png" align="absmiddle"/> Contribute on GitHub
+				<img src="${staticPath()}/images/icons/black/px22/ico-github.png" align="absmiddle" alt=""GitHub Logo/> Contribute on GitHub
 			</a>
 		</div>
 	</div>

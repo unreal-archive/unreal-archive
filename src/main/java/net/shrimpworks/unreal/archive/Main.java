@@ -300,8 +300,8 @@ public class Main {
 			System.exit(2);
 		}
 
-		boolean verbose = Boolean.valueOf(cli.option("verbose", "true"));
-		boolean force = Boolean.valueOf(cli.option("force", "false"));
+		boolean verbose = Boolean.parseBoolean(cli.option("verbose", "true"));
+		boolean force = Boolean.parseBoolean(cli.option("force", "false"));
 		ContentType forceType = (!cli.option("type", "").isEmpty()) ? ContentType.valueOf(cli.option("type", "").toUpperCase()) : null;
 
 		Indexer indexer = new Indexer(contentManager, new Indexer.CLIEventPrinter(verbose));
