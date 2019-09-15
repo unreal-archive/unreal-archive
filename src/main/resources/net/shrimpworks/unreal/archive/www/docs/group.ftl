@@ -33,7 +33,7 @@
 				</thead>
 				<tbody>
 					<#list group.documents as d>
-						<tr class="${d?item_parity}">
+						<tr>
 							<td class="title-image nomobile" rowspan="2">
 								<a href="${relPath(d.path + "/index.html")}">
 									<#if d.document.titleImage??>
@@ -48,7 +48,7 @@
 							<td class="nomobile">${d.document.createdDate}</td>
 							<td>${d.document.updatedDate}</td>
 						</tr>
-						<tr class="${d?item_parity}">
+						<tr>
 							<td colspan="4">${d.document.description}</td>
 						</tr>
 					</#list>

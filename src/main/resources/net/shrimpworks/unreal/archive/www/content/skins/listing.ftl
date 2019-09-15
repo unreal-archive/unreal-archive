@@ -33,7 +33,7 @@
 			</thead>
 			<tbody>
 				<#list skins as s>
-				<tr class="${s?item_parity}">
+				<tr>
 					<td nowrap="nowrap"><a href="${relPath(s.path + ".html")}">${s.skin.name}</a></td>
 					<td>${s.skin.author}</td>
 					<td>

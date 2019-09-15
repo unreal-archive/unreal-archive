@@ -37,7 +37,7 @@
 			</thead>
 			<tbody>
 				<#list maps as m>
-				<tr class="${m?item_parity}">
+				<tr>
 					<td nowrap="nowrap"><a href="${relPath(m.path + ".html")}">${m.map.name}</a></td>
 					<td class="nomobile">${m.map.title}</td>
 					<td>${m.map.author}</td>

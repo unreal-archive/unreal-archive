@@ -33,7 +33,7 @@
 			</thead>
 			<tbody>
 				<#list voices as v>
-				<tr class="${v?item_parity}">
+				<tr>
 					<td nowrap="nowrap"><a href="${relPath(v.path + ".html")}">${v.voice.name}</a></td>
 					<td>${v.voice.author}</td>
 					<td>

@@ -33,7 +33,7 @@
 			</thead>
 			<tbody>
 				<#list mutators as m>
-				<tr class="${m?item_parity}">
+				<tr>
 					<td nowrap="nowrap"><a href="${relPath(m.path + ".html")}">${m.mutator.name}</a></td>
 					<td>${m.mutator.author}</td>
 					<td>

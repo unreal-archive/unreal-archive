@@ -33,7 +33,7 @@
 			</thead>
 			<tbody>
 				<#list models as m>
-				<tr class="${m?item_parity}">
+				<tr>
 					<td nowrap="nowrap"><a href="${relPath(m.path + ".html")}">${m.model.name}</a></td>
 					<td>${m.model.author}</td>
 					<td>

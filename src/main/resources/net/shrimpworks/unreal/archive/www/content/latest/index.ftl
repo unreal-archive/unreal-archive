@@ -1,14 +1,12 @@
-<#assign ogDescription="Last added Files for Unreal, Unreal Tournament, and Unreal Tournament 2004">
+<#assign ogDescription="Latest added downloads for Unreal, Unreal Tournament, and Unreal Tournament 2004">
 <#assign ogImage="${staticPath()}/images/games/All.png">
 
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
 
-
 	<@heading bg=[ogImage]>
 		Latest Content Additions
 	</@heading>
-
 
 	<@content class="list">
 		<#list latest as date, content>

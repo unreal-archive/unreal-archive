@@ -333,8 +333,8 @@ table thead {
 	color: white;
 }
 
-table tr.odd {
-	background-color: #d0d9e0;
+table tbody tr:nth-child(odd) {
+	background-color: #f0f0f5;
 }
 
 table :not(thead) > tr:hover {
@@ -438,6 +438,24 @@ article.managed section.downloads .download .links a {
 
 article.managed section.downloads .download .links a:hover {
 	background-color: lawngreen;
+}
+
+section.latest table tr th:nth-child(1) {
+	width: 25%;
+}
+
+section.latest table tr th:nth-child(2) {
+	width: 45%;
+}
+
+section.latest table tr th:nth-child(3) {
+	width: 30%;
+}
+
+section.latest table td {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 @media screen and (max-width: 1024px) {

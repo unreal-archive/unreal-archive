@@ -32,7 +32,7 @@
 				</thead>
 				<tbody>
 					<#list group.content as c>
-						<tr class="${c?item_parity}">
+						<tr>
 							<td class="title-image nomobile" rowspan="2">
 								<a href="${relPath(c.path + "/index.html")}">
 									<#if c.managed.titleImage??>
@@ -46,7 +46,7 @@
 							<td>${c.managed.author}</td>
 							<td>${c.managed.releaseDate!"-"}</td>
 						</tr>
-						<tr class="${c?item_parity}">
+						<tr>
 							<td colspan="3">${c.managed.description}</td>
 						</tr>
 					</#list>

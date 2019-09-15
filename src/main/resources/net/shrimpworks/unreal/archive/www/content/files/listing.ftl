@@ -34,7 +34,7 @@
 			</thead>
 			<tbody>
 				<#list page.files as f>
-				<tr class="${f?item_parity}">
+				<tr>
 					<td nowrap="nowrap"><a href="${relUrl(root, f.path + ".html")}">${f.name}</a></td>
 					<td>${f.variations}</td>
 					<td>${f.packages}</td>

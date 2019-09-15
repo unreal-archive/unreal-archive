@@ -29,7 +29,7 @@
 			</thead>
 			<tbody>
 				<#list page.packs as p>
-				<tr class="${p?item_parity}">
+				<tr>
 					<td><a href="${relPath(p.path + ".html")}">${p.pack.name}</a></td>
 					<td>${p.pack.author}</td>
 					<td>${p.pack.maps?size}</td>
