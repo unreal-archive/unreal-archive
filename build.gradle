@@ -52,7 +52,7 @@ publishing {
 }
 
 dependencies {
-    implementation 'net.shrimpworks:unreal-package-lib:1.+'
+    implementation 'net.shrimpworks:unreal-package-lib:1.4.47+'
 
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.6'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.6'
