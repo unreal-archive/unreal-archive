@@ -10,7 +10,7 @@ import net.shrimpworks.unreal.archive.content.Content;
 public class Mutator extends Content {
 
 	// Game/Type/A/
-	private static final String PATH_STRING = "%s/%s/%s/";
+	private static final String PATH_STRING = "%s/%s/%s/%s/";
 
 	static final String UT_MUTATOR_CLASS = "Engine.Mutator";
 	static final String UT_MENU_CLASS = "UMenu.UMenuModMenuItem";
@@ -33,7 +33,8 @@ public class Mutator extends Content {
 		return root.resolve(String.format(PATH_STRING,
 										  game,
 										  "Mutators",
-										  namePrefix
+										  namePrefix,
+										  this.hash.substring(0, 2)
 		));
 	}
 

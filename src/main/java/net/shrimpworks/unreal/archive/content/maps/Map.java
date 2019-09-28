@@ -8,8 +8,8 @@ import net.shrimpworks.unreal.archive.content.Content;
 
 public class Map extends Content {
 
-	// Game/Type/Gametype/A/
-	private static final String PATH_STRING = "%s/%s/%s/%s/";
+	// Game/Type/Gametype/A/[hash]
+	private static final String PATH_STRING = "%s/%s/%s/%s/%s/";
 
 	public String gametype = "Unknown";             // Deathmatch
 	public String title = "Unknown";                // My Map
@@ -39,7 +39,8 @@ public class Map extends Content {
 										  game,
 										  "Maps",
 										  gametype,
-										  namePrefix
+										  namePrefix,
+										  this.hash.substring(0, 2)
 		));
 	}
 

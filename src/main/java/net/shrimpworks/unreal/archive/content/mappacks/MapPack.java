@@ -11,7 +11,7 @@ import net.shrimpworks.unreal.archive.content.Content;
 public class MapPack extends Content {
 
 	// Game/Type/A/
-	private static final String PATH_STRING = "%s/%s/%s/";
+	private static final String PATH_STRING = "%s/%s/%s/%s/";
 
 	public List<PackMap> maps = new ArrayList<>();
 	public String gametype = "Mixed";
@@ -22,7 +22,8 @@ public class MapPack extends Content {
 		return root.resolve(String.format(PATH_STRING,
 										  game,
 										  "MapPacks",
-										  namePrefix
+										  namePrefix,
+										  this.hash.substring(0, 2)
 		));
 	}
 
