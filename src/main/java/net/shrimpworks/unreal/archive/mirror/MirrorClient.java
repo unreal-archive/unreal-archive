@@ -23,8 +23,9 @@ import net.shrimpworks.unreal.archive.content.ContentManager;
  * progress).
  */
 public class MirrorClient implements Consumer<MirrorClient.Downloader> {
-
-	private final Deque<Content> content;
+	private final int retryLimit = 4;
+	private Deque<Content> content;
+	private Deque<Content> retryQueue;
 	private final Path output;
 	private final int concurrency;
 	private final ExecutorService executor;
@@ -32,19 +33,19 @@ public class MirrorClient implements Consumer<MirrorClient.Downloader> {
 	private final Progress progress;
 
 	private final long totalCount;
-	private final CountDownLatch counter;
+	private CountDownLatch counter;
 
 	private volatile Thread mirrorThread;
 
 	public MirrorClient(ContentManager content, Path output, int concurrency, Progress progress) {
 		this.content = new ConcurrentLinkedDeque<>(content.search(null, null, null, null));
+		this.retryQueue = new ConcurrentLinkedDeque<>();
 		this.output = output;
 		this.concurrency = concurrency;
 
 		this.progress = progress;
 
 		this.totalCount = content.size();
-		this.counter = new CountDownLatch(content.size());
 
 		this.executor = Executors.newFixedThreadPool(concurrency);
 	}
@@ -52,12 +53,24 @@ public class MirrorClient implements Consumer<MirrorClient.Downloader> {
 	public boolean mirror() {
 		this.mirrorThread = Thread.currentThread();
 
+		// limit number of retry cycles
 		try {
-			// kick off the initial tasks, subsequent tasks will schedule as they complete
-			for (int i = 0; i < concurrency; i++) next();
+			for (int retryCount = this.retryLimit; retryCount > 0 && content.size() > 0; retryCount--) {
+				// initialize counter
+				this.counter = new CountDownLatch(content.size());
+				
+				// kick off the initial tasks, subsequent tasks will schedule as they complete
+				for (int i = 0; i < concurrency; i++) next();
 
-			// wait for all downloads to complete
-			counter.await();
+				// wait for all downloads to complete
+				counter.await();
+
+				if (retryQueue.size() > 0) {
+					System.err.printf("%nTotal of %i failed to download, retrying (%i/%i)...%n", retryQueue.size(), retryLimit - retryCount + 1, retryLimit);
+					content = retryQueue;
+					retryQueue = new ConcurrentLinkedDeque<>();
+				}
+			}
 
 			return true;
 		} catch (InterruptedException e) {
@@ -89,7 +102,7 @@ public class MirrorClient implements Consumer<MirrorClient.Downloader> {
 
 	private void next() {
 		final Content c = MirrorClient.this.content.poll();
-		if (c != null) executor.submit(new Downloader(c, output, this));
+		if (c != null) executor.submit(new Downloader(c, output, this, this.retryQueue));
 	}
 
 	@FunctionalInterface
@@ -104,8 +117,14 @@ public class MirrorClient implements Consumer<MirrorClient.Downloader> {
 		private final Path output;
 		private final Consumer<Downloader> done;
 		public final Path destination;
+		private Deque<Content>retryQueue;
 
 		public Downloader(Content c, Path output, Consumer<Downloader> done) {
+			this(c, output, done, null);
+		}
+
+		public Downloader(Content c, Path output, Consumer<Downloader> done, Deque<Content>retryQueue) {
+			this.retryQueue = retryQueue;
 			this.content = c;
 			this.output = output;
 			this.done = done;
@@ -131,7 +150,10 @@ public class MirrorClient implements Consumer<MirrorClient.Downloader> {
 				// download the stuff, hopefully
 				Util.downloadTo(dl.url, destination);
 			} catch (Throwable t) {
-				System.err.printf("%nFailed to download content %s: %s%n", content.contentPath(output), t.toString());
+				System.err.printf("%nFailed to download content %s: %s (queued for retry)%n", content.contentPath(output), t.toString());
+				if (retryQueue != null) {
+					retryQueue.add(content);
+				}
 			} finally {
 				if (done != null) done.accept(this);
 			}
