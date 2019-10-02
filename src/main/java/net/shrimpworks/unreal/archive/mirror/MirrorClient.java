@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -36,7 +37,7 @@ public class MirrorClient implements Consumer<MirrorClient.Downloader> {
 	private volatile Thread mirrorThread;
 
 	public MirrorClient(ContentManager content, Path output, int concurrency, Progress progress) {
-		this.content = new ArrayDeque<>(content.search(null, null, null, null));
+		this.content = new ConcurrentLinkedDeque<>(content.search(null, null, null, null));
 		this.output = output;
 		this.concurrency = concurrency;
 
