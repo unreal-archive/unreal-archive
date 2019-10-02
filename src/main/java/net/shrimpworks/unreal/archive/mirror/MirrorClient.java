@@ -55,10 +55,14 @@ public class MirrorClient implements Consumer<MirrorClient.Downloader> {
 
 		// limit number of retry cycles
 		try {
-			for (int retryCount = this.retryLimit; retryCount > 0 && content.size() > 0; retryCount--) {
+			for (int retryCount = 0; retryCount <= retryLimit && content.size() > 0; retryCount++) {
+				if (retryCount > 0) {
+					System.err.printf("%nA total of %d download(s) failed, retrying (%d/%d)...%n", content.size(), retryCount, retryLimit);
+				}
+
 				// initialize counter
 				this.counter = new CountDownLatch(content.size());
-				
+
 				// kick off the initial tasks, subsequent tasks will schedule as they complete
 				for (int i = 0; i < concurrency; i++) next();
 
@@ -66,10 +70,13 @@ public class MirrorClient implements Consumer<MirrorClient.Downloader> {
 				counter.await();
 
 				if (retryQueue.size() > 0) {
-					System.err.printf("%nTotal of %i failed to download, retrying (%i/%i)...%n", retryQueue.size(), retryLimit - retryCount + 1, retryLimit);
 					content = retryQueue;
 					retryQueue = new ConcurrentLinkedDeque<>();
 				}
+			}
+
+			if (retryQueue.size() > 0) {
+				System.err.printf("%nA total of %d download(s) failed, giving up after %d retries.%n", retryLimit);
 			}
 
 			return true;
