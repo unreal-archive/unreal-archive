@@ -10,7 +10,7 @@ import net.shrimpworks.unreal.archive.content.Content;
 public class Model extends Content {
 
 	// Game/Type/A/
-	private static final String PATH_STRING = "%s/%s/%s/%s";
+	private static final String PATH_STRING = "%s/%s/%s/%s/";
 
 	static final String UT_PLAYER_CLASS = "Botpack.TournamentPlayer";
 

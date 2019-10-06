@@ -10,7 +10,7 @@ import net.shrimpworks.unreal.archive.content.Content;
 public class Voice extends Content {
 
 	// Game/Type/A/
-	private static final String PATH_STRING = "%s/%s/%s/%s";
+	private static final String PATH_STRING = "%s/%s/%s/%s/";
 
 	static final Pattern UT_VOICE_MATCH = Pattern.compile("Botpack\\.Voice.+?", Pattern.CASE_INSENSITIVE);
 	static final String UT2_VOICE_CLASS = "XGame.xVoicePack";

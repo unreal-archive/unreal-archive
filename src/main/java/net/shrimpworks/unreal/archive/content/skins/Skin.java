@@ -10,7 +10,7 @@ import net.shrimpworks.unreal.archive.content.Content;
 public class Skin extends Content {
 
 	// Game/Type/A/
-	private static final String PATH_STRING = "%s/%s/%s/%s";
+	private static final String PATH_STRING = "%s/%s/%s/%s/";
 
 	static final Pattern NAME_MATCH = Pattern.compile(".+?\\..+?\\d");
 	static final Pattern NAME_MATCH_UNREAL = Pattern.compile(".+?\\.(.+?)");
