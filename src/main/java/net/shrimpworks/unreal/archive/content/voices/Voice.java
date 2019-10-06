@@ -24,7 +24,7 @@ public class Voice extends Content {
 										  game,
 										  "Voices",
 										  namePrefix,
-										  this.hash.substring(0, 2)
+										  hashPath()
 		));
 	}
 }

@@ -23,7 +23,7 @@ public class MapPack extends Content {
 										  game,
 										  "MapPacks",
 										  namePrefix,
-										  this.hash.substring(0, 2)
+										  hashPath()
 		));
 	}
 

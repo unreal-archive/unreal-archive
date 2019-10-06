@@ -83,6 +83,10 @@ public abstract class Content implements Comparable<Content> {
 	 */
 	public abstract Path contentPath(Path root);
 
+	protected String hashPath() {
+		return String.format("%s/%s/%s", hash.charAt(0), hash.charAt(1), hash.substring(2, 8));
+	}
+
 	/**
 	 * Grouping for pagination and directory partitioning.
 	 * <p>
@@ -109,6 +113,13 @@ public abstract class Content implements Comparable<Content> {
 		return root.resolve(type).resolve(game).resolve(subGrouping()).resolve(name);
 	}
 
+	/**
+	 * Create a friendly name from the content type enum.
+	 * <p>
+	 * NOTE: This is _NOT_ unused; Freemarker templates make use of it in www output.
+	 *
+	 * @return "MAP_PACK" -> "Map Pack"
+	 */
 	public String friendlyContentType() {
 		return Util.capitalWords(this.contentType.toLowerCase().replaceAll("_", " "));
 	}

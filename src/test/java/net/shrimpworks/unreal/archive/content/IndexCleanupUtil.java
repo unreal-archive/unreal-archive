@@ -14,10 +14,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import net.shrimpworks.unreal.archive.CLI;
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.YAML;
 import net.shrimpworks.unreal.archive.content.mappacks.MapPack;
@@ -29,6 +32,7 @@ import net.shrimpworks.unreal.archive.storage.DataStore;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import static net.shrimpworks.unreal.archive.Main.store;
 import static net.shrimpworks.unreal.archive.content.IndexUtils.UNKNOWN;
 
 public class IndexCleanupUtil {
@@ -448,5 +452,82 @@ public class IndexCleanupUtil {
 				}
 			}).run());
 		});
+	}
+
+	/*
+	 * Find files which have the same main download URL, but different hashes.
+	 *
+	 * Try to find their original downloads then re-upload them.
+	 */
+	@Test
+	@Disabled
+	public void findDupeFiles() throws IOException {
+		final CLI cli = net.shrimpworks.unreal.archive.CLI.parse(Collections.emptyMap());
+		final DataStore imageStore = store(DataStore.StoreContent.IMAGES, cli);
+		final DataStore attachmentStore = store(DataStore.StoreContent.ATTACHMENTS, cli);
+		final DataStore contentStore = store(DataStore.StoreContent.CONTENT, cli);
+//		final DataStore imageStore = new DataStore.NopStore();
+//		final DataStore attachmentStore = new DataStore.NopStore();
+//		final DataStore contentStore = new DataStore.NopStore();
+
+		final ContentManager cm = new ContentManager(Paths.get("unreal-archive-data/content/"),
+													 contentStore, imageStore, attachmentStore);
+
+		System.out.println("Find all files");
+		Set<Path> allFiles = new HashSet<>();
+		Files.walkFileTree(Paths.get("/home/shrimp/tmp/files/"), new SimpleFileVisitor<>() {
+			@Override
+			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+				allFiles.add(file);
+				return FileVisitResult.CONTINUE;
+			}
+		});
+
+		for (ContentType contentType : ContentType.values()) {
+			System.out.println("finding duplicate urls for " + contentType.name());
+			// first, find the duplicate download URLs
+			java.util.Map<String, List<Content>> collect = cm.search(null, contentType.name(), null, null).stream()
+															 .collect(Collectors.groupingBy(s -> {
+																 Content.Download dl = s.downloads.stream().filter(d -> d.main)
+																								  .findFirst().get();
+																 return dl.url;
+															 }))
+															 .entrySet().stream()
+															 .filter(m -> m.getValue().size() > 1)
+															 .collect(Collectors.toMap(java.util.Map.Entry::getKey,
+																					   java.util.Map.Entry::getValue));
+
+			// for all the duplicates, look for their hashes in the local file system
+			collect.values().stream().flatMap(Collection::stream).forEach(c -> {
+				Path path = allFiles.parallelStream()
+									.filter(p -> p.getFileName().toString().equalsIgnoreCase(c.originalFilename))
+									.filter(p -> {
+										try {
+											return Util.hash(p).equals(c.hash);
+										} catch (IOException e) {
+											e.printStackTrace();
+										}
+										return false;
+									}).findFirst().orElse(null);
+
+				// if we found a local file for the content hash, re-upload it with the new path info
+				if (path != null) {
+					Content fixed = cm.checkout(c.hash);
+					fixed.downloads.removeIf(d -> d.main);
+					Submission sub = new Submission(path);
+					try {
+						if (cm.checkin(new IndexResult<>(fixed, Collections.emptySet()), sub)) {
+							System.out.println("Stored changes for " + String.join(" / ", fixed.contentType, fixed.game, fixed.name));
+						} else {
+							System.out.println("Failed to apply");
+						}
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				} else {
+					System.out.println("No local files found for " + c.name + " [" + c.hash + "]");
+				}
+			});
+		}
 	}
 }

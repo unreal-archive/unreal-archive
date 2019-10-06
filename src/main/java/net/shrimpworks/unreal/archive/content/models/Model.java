@@ -26,7 +26,7 @@ public class Model extends Content {
 										  game,
 										  "Models",
 										  namePrefix,
-										  this.hash.substring(0, 2)
+										  hashPath()
 		));
 	}
 }

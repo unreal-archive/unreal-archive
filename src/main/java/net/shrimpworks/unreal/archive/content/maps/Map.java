@@ -40,7 +40,7 @@ public class Map extends Content {
 										  "Maps",
 										  gametype,
 										  namePrefix,
-										  this.hash.substring(0, 2)
+										  hashPath()
 		));
 	}
 

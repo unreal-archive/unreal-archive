@@ -30,7 +30,7 @@ public class Skin extends Content {
 										  game,
 										  "Skins",
 										  namePrefix,
-										  this.hash.substring(0, 2)
+										  hashPath()
 		));
 	}
 

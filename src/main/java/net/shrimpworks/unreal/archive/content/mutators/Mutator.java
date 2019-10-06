@@ -34,7 +34,7 @@ public class Mutator extends Content {
 										  game,
 										  "Mutators",
 										  namePrefix,
-										  this.hash.substring(0, 2)
+										  hashPath()
 		));
 	}
 
