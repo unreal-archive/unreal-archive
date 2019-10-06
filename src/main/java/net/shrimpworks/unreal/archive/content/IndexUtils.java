@@ -74,9 +74,9 @@ public class IndexUtils {
 
 				if (shotResolved instanceof Import) {
 					// sigh... its stored in another package
-					Named pkg = ((Import)shotResolved).packageName.get();
+					Named pkg = ((Import)shotResolved).packageIndex.get();
 					try {
-						String parentPkg = pkg instanceof Import ? ((Import)pkg).packageName.get().name().name : "None";
+						String parentPkg = pkg instanceof Import ? ((Import)pkg).packageIndex.get().name().name : "None";
 						shotPackage = findPackage(incoming, parentPkg.equals("None") ? pkg.name().name : parentPkg);
 						ExportedObject exp = shotPackage.objectByName(((Import)shotResolved).name);
 						object = exp.object();
