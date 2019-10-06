@@ -20,7 +20,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import net.shrimpworks.unreal.archive.CLI;
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.YAML;
 import net.shrimpworks.unreal.archive.content.mappacks.MapPack;
@@ -32,7 +31,6 @@ import net.shrimpworks.unreal.archive.storage.DataStore;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import static net.shrimpworks.unreal.archive.Main.store;
 import static net.shrimpworks.unreal.archive.content.IndexUtils.UNKNOWN;
 
 public class IndexCleanupUtil {
@@ -462,13 +460,13 @@ public class IndexCleanupUtil {
 	@Test
 	@Disabled
 	public void findDupeFiles() throws IOException {
-		final CLI cli = net.shrimpworks.unreal.archive.CLI.parse(Collections.emptyMap());
-		final DataStore imageStore = store(DataStore.StoreContent.IMAGES, cli);
-		final DataStore attachmentStore = store(DataStore.StoreContent.ATTACHMENTS, cli);
-		final DataStore contentStore = store(DataStore.StoreContent.CONTENT, cli);
-//		final DataStore imageStore = new DataStore.NopStore();
-//		final DataStore attachmentStore = new DataStore.NopStore();
-//		final DataStore contentStore = new DataStore.NopStore();
+//		final CLI cli = net.shrimpworks.unreal.archive.CLI.parse(Collections.emptyMap());
+//		final DataStore imageStore = store(DataStore.StoreContent.IMAGES, cli);
+//		final DataStore attachmentStore = store(DataStore.StoreContent.ATTACHMENTS, cli);
+//		final DataStore contentStore = store(DataStore.StoreContent.CONTENT, cli);
+		final DataStore imageStore = new DataStore.NopStore();
+		final DataStore attachmentStore = new DataStore.NopStore();
+		final DataStore contentStore = new DataStore.NopStore();
 
 		final ContentManager cm = new ContentManager(Paths.get("unreal-archive-data/content/"),
 													 contentStore, imageStore, attachmentStore);
