@@ -3,7 +3,6 @@ package net.shrimpworks.unreal.archive.mirror;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.CountDownLatch;
@@ -23,7 +22,7 @@ import net.shrimpworks.unreal.archive.content.ContentManager;
  * progress).
  */
 public class MirrorClient implements Consumer<MirrorClient.Downloader> {
-	private final int retryLimit = 4;
+	private static final int RETRY_LIMIT = 4;
 	private Deque<Content> content;
 	private Deque<Content> retryQueue;
 	private final Path output;
@@ -55,9 +54,9 @@ public class MirrorClient implements Consumer<MirrorClient.Downloader> {
 
 		// limit number of retry cycles
 		try {
-			for (int retryCount = 0; retryCount <= retryLimit && content.size() > 0; retryCount++) {
+			for (int retryCount = 0; retryCount <= RETRY_LIMIT && content.size() > 0; retryCount++) {
 				if (retryCount > 0) {
-					System.err.printf("%nA total of %d download(s) failed, retrying (%d/%d)...%n", content.size(), retryCount, retryLimit);
+					System.err.printf("%nA total of %d download(s) failed, retrying (%d/%d)...%n", content.size(), retryCount, RETRY_LIMIT);
 				}
 
 				// initialize counter
@@ -69,14 +68,14 @@ public class MirrorClient implements Consumer<MirrorClient.Downloader> {
 				// wait for all downloads to complete
 				counter.await();
 
-				if (retryQueue.size() > 0) {
+				if (!retryQueue.isEmpty()) {
 					content = retryQueue;
 					retryQueue = new ConcurrentLinkedDeque<>();
 				}
 			}
 
-			if (retryQueue.size() > 0) {
-				System.err.printf("%nA total of %d download(s) failed, giving up after %d retries.%n", retryLimit);
+			if (!retryQueue.isEmpty()) {
+				System.err.printf("%nA total of %d download(s) failed, giving up after %d retries.%n", retryQueue.size(), RETRY_LIMIT);
 			}
 
 			return true;
@@ -124,7 +123,7 @@ public class MirrorClient implements Consumer<MirrorClient.Downloader> {
 		private final Path output;
 		private final Consumer<Downloader> done;
 		public final Path destination;
-		private Deque<Content>retryQueue;
+		private final Deque<Content>retryQueue;
 
 		public Downloader(Content c, Path output, Consumer<Downloader> done) {
 			this(c, output, done, null);
