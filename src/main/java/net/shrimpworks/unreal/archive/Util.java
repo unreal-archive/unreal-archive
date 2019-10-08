@@ -68,6 +68,8 @@ public final class Util {
 
 	private static final Pattern UC_WORDS = Pattern.compile("\\b(.)(.*?)\\b");
 
+	private static final int HASH_BUFFER_SIZE = 1024 * 50; // 50kb read buffer
+
 	private Util() { }
 
 	public static String extension(Path path) {
@@ -124,7 +126,7 @@ public final class Util {
 		try (FileChannel channel = FileChannel.open(path, StandardOpenOption.READ)) {
 			MessageDigest md = MessageDigest.getInstance("SHA-1");
 
-			ByteBuffer buffer = ByteBuffer.allocate(4096);
+			ByteBuffer buffer = ByteBuffer.allocate(HASH_BUFFER_SIZE);
 
 			while (channel.read(buffer) > 0) {
 				buffer.flip();
