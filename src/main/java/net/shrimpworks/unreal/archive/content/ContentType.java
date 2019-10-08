@@ -79,6 +79,7 @@ public enum ContentType {
 				newInstance.game = incoming.submission.override.get("game", "Unknown");
 				newInstance.author = incoming.submission.override.get("author", "Unknown");
 
+				LocalDateTime releaseDate = null;
 				// populate list of interesting files
 				for (Incoming.IncomingFile f : incoming.files(Incoming.FileType.ALL)) {
 					if (!Incoming.FileType.important(f.file)) {
@@ -88,13 +89,15 @@ public enum ContentType {
 
 					try {
 						newInstance.files.add(new Content.ContentFile(f.fileName(), f.fileSize(), f.hash()));
-						if (newInstance.releaseDate.equals("Unknown")) {
-							newInstance.releaseDate = Content.RELEASE_DATE_FMT.format(f.fileDate());
-						}
+						// try to find the newest possible file within this archive to use as the release date
+						if (releaseDate == null || releaseDate.isBefore(f.fileDate())) releaseDate = f.fileDate();
 					} catch (Exception ex) {
 						incoming.log.log(IndexLog.EntryType.CONTINUE, String.format("Failed collecting content files for %s",
 																					incoming.submission.filePath), ex);
 					}
+				}
+				if (newInstance.releaseDate.equals("Unknown") && releaseDate != null) {
+					newInstance.releaseDate = Content.RELEASE_DATE_FMT.format(releaseDate);
 				}
 			}
 
