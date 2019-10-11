@@ -24,6 +24,7 @@ public class Latest extends ContentPageGenerator {
 		this.contentFiles = new TreeMap<>();
 		this.contentFiles.putAll(content.search(null, null, null, null).stream()
 										.filter(c -> !c.deleted)
+										.filter(c -> c.variationOf == null)
 										.collect(Collectors.groupingBy(c -> c.firstIndex.toLocalDate())));
 	}
 
