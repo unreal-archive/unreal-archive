@@ -22,6 +22,7 @@ import net.shrimpworks.unreal.archive.content.ContentManager;
  * progress).
  */
 public class MirrorClient implements Consumer<MirrorClient.Downloader> {
+
 	private static final int RETRY_LIMIT = 4;
 	private Deque<Content> content;
 	private Deque<Content> retryQueue;
@@ -32,8 +33,8 @@ public class MirrorClient implements Consumer<MirrorClient.Downloader> {
 	private final Progress progress;
 
 	private final long totalCount;
-	private CountDownLatch counter;
 
+	private volatile CountDownLatch counter;
 	private volatile Thread mirrorThread;
 
 	public MirrorClient(ContentManager content, Path output, int concurrency, Progress progress) {
@@ -120,16 +121,16 @@ public class MirrorClient implements Consumer<MirrorClient.Downloader> {
 	public static class Downloader implements Runnable {
 
 		public final Content content;
+		public final Path destination;
 		private final Path output;
 		private final Consumer<Downloader> done;
-		public final Path destination;
-		private final Deque<Content>retryQueue;
+		private final Deque<Content> retryQueue;
 
 		public Downloader(Content c, Path output, Consumer<Downloader> done) {
 			this(c, output, done, null);
 		}
 
-		public Downloader(Content c, Path output, Consumer<Downloader> done, Deque<Content>retryQueue) {
+		public Downloader(Content c, Path output, Consumer<Downloader> done, Deque<Content> retryQueue) {
 			this.retryQueue = retryQueue;
 			this.content = c;
 			this.output = output;
