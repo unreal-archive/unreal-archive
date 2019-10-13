@@ -28,49 +28,37 @@
 
 		<div class="info">
 
-			<section class="meta">
-				<h2>Model Information</h2>
-				<div class="label-value">
-					<label>Name</label><span>${model.model.name}</span>
-				</div>
-				<div class="label-value">
-					<label>Author</label><span>${model.model.author}</span>
-				</div>
-				<div class="label-value">
-					<label>Release (est.)</label><span>${dateFmtShort(model.model.releaseDate)}</span>
-				</div>
-				<#if model.model.models?size gt 0>
-					<div class="label-value">
-						<label>Included Models</label><span>
-							<#list model.model.models as m>
-								<div>${m}</div>
-							</#list>
-						</span>
-					</div>
-				</#if>
-				<#if model.model.skins?size gt 0>
-					<div class="label-value">
-						<label>Included Skins</label><span>
-							<#list model.model.skins as s>
-								<div>${s}</div>
-							</#list>
-						</span>
-					</div>
-				</#if>
-				<div class="label-value">
-					<label>File Size</label><span>${fileSize(model.model.fileSize)}</span>
-				</div>
-				<div class="label-value">
-					<label>File Name</label><span>${model.model.originalFilename}</span>
-				</div>
-				<div class="label-value nomobile">
-					<label>Hash</label><span>${model.model.hash}</span>
-				</div>
-			</section>
+			<#assign modelList><#list model.model.models as m><div>${m}</div><#else>Unknown</#list></#assign>
+			<#assign skinsList><#list model.model.skins as s><div>${s}</div><#else>Unknown</#list></#assign>
+
+			<#assign
+			labels=[
+					"Name",
+					"Author",
+					"Release (est.)",
+					"Included Models",
+					"Included Skins",
+					"File Size",
+					"File Name",
+					"Hash"
+			]
+
+			values=[
+					'${model.model.name}',
+					'${model.model.author}',
+					'${dateFmtShort(model.model.releaseDate)}',
+					'${modelList}',
+					'${skinsList}',
+					'${fileSize(model.model.fileSize)}',
+					'${model.model.originalFilename}',
+					'${model.model.hash}'
+			]>
+
+			<@meta title="Model Information" labels=labels values=values/>
 
 			<#if model.variations?size gt 0>
 				<section class="variations">
-					<h2>Variations</h2>
+					<h2><img src="${staticPath()}/images/icons/black/px22/variant.png" alt="Variations"/>Variations</h2>
 					<table>
 						<thead>
 						<tr>

@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 
 import com.github.rjeschke.txtmark.Processor;
 import freemarker.core.Environment;
+import freemarker.core.HTMLOutputFormat;
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.SimpleNumber;
@@ -63,6 +64,7 @@ public class Templates {
 		ow.setExposeFields(true);
 		TPL_CONFIG.setObjectWrapper(ow);
 		TPL_CONFIG.setOutputEncoding(StandardCharsets.UTF_8.name());
+		TPL_CONFIG.setOutputFormat(HTMLOutputFormat.INSTANCE);
 
 		HOST_REMAP.put("f002.backblazeb2.com", SITE_NAME);
 	}

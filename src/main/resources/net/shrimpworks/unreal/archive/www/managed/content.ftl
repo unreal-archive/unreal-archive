@@ -20,7 +20,7 @@
 
 	<@content class="managed document">
 		<section class="meta">
-			<h2>Information</h2>
+			<h2><img src="${staticPath()}/images/icons/black/px22/info.png" alt="Information"/>Information</h2>
 			<div class="label-value">
 				<label>Author</label><span>${managed.managed.author}</span>
 			</div>
@@ -43,7 +43,7 @@
 			</div>
 
 			<section class="downloads">
-				<h2>Downloads</h2>
+				<h2><img src="${staticPath()}/images/icons/black/px22/download.png" alt="Downloads"/> Downloads</h2>
 				<#list managed.managed.downloads as d>
 					<#if !d.deleted && d.downloads?size gt 0>
 						<div class="download">
@@ -58,10 +58,7 @@
 							</div>
 							<div class="links">
 								<#list d.downloads as l>
-									<a href="${urlEncode(l)}">
-										<img src="${staticPath()}/images/icons/black/px22/download.png" align="absmiddle" alt="Download"/>
-										${urlHost(l)}
-									</a>
+									<a href="${urlEncode(l)}">${urlHost(l)}</a>
 								</#list>
 							</div>
 						</div>
@@ -71,7 +68,7 @@
 		</section>
 
 		<section class="content readable">
-			${page}
+			${page?no_esc}
 		</section>
 	</@content>
 

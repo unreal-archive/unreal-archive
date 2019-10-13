@@ -31,39 +31,34 @@
 
 		<div class="info">
 
-			<section class="meta">
-				<h2>Map Pack Information</h2>
-				<div class="label-value">
-					<label>Name</label><span>${pack.pack.name}</span>
-				</div>
-				<div class="label-value">
-					<label>Game Type</label><span>
-						<a href="${relPath(gametype.path + "/index.html")}">${pack.pack.gametype}</a>
-					</span>
-				</div>
-				<div class="label-value">
-					<label>Maps</label><span>${pack.pack.maps?size}</span>
-				</div>
-				<div class="label-value">
-					<label>Author</label><span>${pack.pack.author}</span>
-				</div>
-				<div class="label-value">
-					<label>Release (est.)</label><span>${dateFmtShort(pack.pack.releaseDate)}</span>
-				</div>
-				<div class="label-value">
-					<label>File Size</label><span>${fileSize(pack.pack.fileSize)}</span>
-				</div>
-				<div class="label-value">
-					<label>File Name</label><span>${pack.pack.originalFilename}</span>
-				</div>
-				<div class="label-value nomobile">
-					<label>Hash</label><span>${pack.pack.hash}</span>
-				</div>
-			</section>
+			<#assign
+			labels=[
+				"Name",
+				"Game Type",
+				"Maps",
+				"Author",
+				"Release (est)",
+				"File Size",
+				"File Name",
+				"Hash"
+			]
+
+			values=[
+				'${pack.pack.name}',
+				'<a href="${relPath(gametype.path + "/index.html")}">${pack.pack.gametype}</a>'?no_esc,
+				'${pack.pack.maps?size}',
+				'${pack.pack.author}',
+				'${dateFmtShort(pack.pack.releaseDate)}',
+				'${fileSize(pack.pack.fileSize)}',
+				'${pack.pack.originalFilename}',
+				'${pack.pack.hash}'
+			]>
+
+			<@meta title="Map Pack Information" labels=labels values=values/>
 
 			<#if pack.variations?size gt 0>
 				<section class="variations">
-					<h2>Variations</h2>
+					<h2><img src="${staticPath()}/images/icons/black/px22/variant.png" alt="Variations"/>Variations</h2>
 					<table>
 						<thead>
 						<tr>
@@ -88,7 +83,7 @@
 			</#if>
 
 			<section class="maps">
-				<h2>Maps</h2>
+				<h2><img src="${staticPath()}/images/icons/black/px22/list.png" alt="Maps"/>Maps</h2>
 				<table>
 					<thead>
 					<tr>

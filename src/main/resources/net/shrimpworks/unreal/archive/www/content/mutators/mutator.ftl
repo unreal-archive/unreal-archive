@@ -34,70 +34,69 @@
 
 		<div class="info">
 
-			<section class="meta">
-				<h2>Mutator Information</h2>
-				<div class="label-value">
-					<label>Name</label><span>${mutator.mutator.name}</span>
-				</div>
-				<div class="label-value">
-					<label>Description</label><span>${mutator.mutator.description}</span>
-				</div>
-				<div class="label-value">
-					<label>Author</label><span>${mutator.mutator.author}</span>
-				</div>
-				<div class="label-value">
-					<label>Release (est.)</label><span>${dateFmtShort(mutator.mutator.releaseDate)}</span>
-				</div>
-				<div class="label-value">
-					<label>Custom Config Menus</label><span>${mutator.mutator.hasConfigMenu?string('Yes', 'No')}</span>
-				</div>
-				<div class="label-value">
-					<label>Custom Keybinds</label><span>${mutator.mutator.hasKeybinds?string('Yes', 'No')}</span>
-				</div>
-				<#if mutator.mutator.mutators?size gt 0>
-					<div class="label-value">
-						<label>Included Mutators</label><span>
-							<#list mutator.mutator.mutators as m>
-								<div class="mini-head">${m.name}</div>
-								<div class="mini-detail">${m.description}</div>
-							</#list>
-						</span>
-					</div>
-				</#if>
-				<#if mutator.mutator.weapons?size gt 0>
-					<div class="label-value">
-						<label>Weapons</label><span>
-							<#list mutator.mutator.weapons as m>
-								<div class="mini-head">${m.name}</div>
-								<div class="mini-detail">${m.description}</div>
-							</#list>
-						</span>
-					</div>
-				</#if>
-				<#if mutator.mutator.vehicles?size gt 0>
-					<div class="label-value">
-						<label>Vehicles</label><span>
-							<#list mutator.mutator.vehicles as m>
-								<div class="mini-head">${m.name}</div>
-								<div class="mini-detail">${m.description}</div>
-							</#list>
-						</span>
-					</div>
-				</#if>
-				<div class="label-value">
-					<label>File Size</label><span>${fileSize(mutator.mutator.fileSize)}</span>
-				</div>
-				<div class="label-value">
-					<label>File Name</label><span>${mutator.mutator.originalFilename}</span>
-				</div>
-				<div class="label-value nomobile">
-					<label>Hash</label><span>${mutator.mutator.hash}</span>
-				</div>
-			</section>
+			<#assign mutatorList>
+				<#list mutator.mutator.mutators as m>
+					<div class="mini-head">${m.name}</div>
+					<div class="mini-detail">${m.description?replace("|", "<br/>")?no_esc}</div>
+				<#else>
+					Unknown
+				</#list>
+			</#assign>
+
+			<#assign weaponsList>
+				<#list mutator.mutator.weapons as m>
+					<div class="mini-head">${m.name}</div>
+					<div class="mini-detail">${m.description?replace("|", "<br/>")?no_esc}</div>
+        <#else>
+					None
+				</#list>
+			</#assign>
+
+			<#assign vehicleList>
+				<#list mutator.mutator.vehicles as m>
+					<div class="mini-head">${m.name}</div>
+					<div class="mini-detail">${m.description?replace("|", "<br/>")?no_esc}</div>
+        <#else>
+					None
+				</#list>
+			</#assign>
+
+			<#assign
+			labels=[
+					"Name",
+					"Description",
+					"Author",
+					"Release (est.)",
+					"Custom Config Menus",
+					"Custom Keybinds",
+					"Included Mutators",
+					"Weapons",
+					"Vehicles",
+					"File Size",
+					"File Name",
+					"Hash"
+			]
+
+			values=[
+					'${mutator.mutator.name}',
+					'${mutator.mutator.description}',
+					'${mutator.mutator.author}',
+					'${dateFmtShort(mutator.mutator.releaseDate)}',
+					'${mutator.mutator.hasConfigMenu?string("Yes", "No")}',
+					'${mutator.mutator.hasKeybinds?string("Yes", "No")}',
+					'${mutatorList}',
+					'${weaponsList}',
+					'${vehicleList}',
+					'${fileSize(mutator.mutator.fileSize)}',
+					'${mutator.mutator.originalFilename}',
+					'${mutator.mutator.hash}'
+			]>
+
+			<@meta title="Mutator Information" labels=labels values=values/>
 
 			<#if mutator.variations?size gt 0>
 				<section class="variations">
-					<h2>Variations</h2>
+					<h2><img src="${staticPath()}/images/icons/black/px22/variant.png" alt="Variations"/>Variations</h2>
 					<table>
 						<thead>
 						<tr>
@@ -120,7 +119,6 @@
 					</table>
 				</section>
 			</#if>
-
 
 			<@files files=mutator.mutator.files alsoIn=mutator.alsoIn otherFiles=mutator.mutator.otherFiles/>
 

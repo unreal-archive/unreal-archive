@@ -35,6 +35,11 @@ h2 {
 	font-size: 1.75em;
 }
 
+h2 img {
+	vertical-align: middle;
+	padding: 3px 7px 5px 0;
+}
+
 .page {
 	max-width: 1024px;
 	margin-left: auto;
@@ -272,17 +277,15 @@ article.info .info {
 }
 
 article.info .downloads .links a {
+	background-color: lightgreen;
 	display: block;
 	padding: 10px;
 	margin: 5px 0;
+	text-decoration: none;
 }
 
 article.info .downloads .links a.main {
 	background-color: greenyellow;
-}
-
-article.info .downloads .links a.secondary {
-	background-color: lightgreen;
 }
 
 article.info .downloads .links a:hover {
@@ -297,7 +300,7 @@ article section h2 {
 	font-size: 1.6em;
 	background-color: #d0d9e0;
 	margin: 0;
-	padding: 0 10px;
+	padding: 5px 10px;
 }
 
 .label-value {

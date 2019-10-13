@@ -42,7 +42,7 @@
 							<#if m.mutator.weapons?size gt 0 || m.mutator.vehicles?size gt 0>,</#if>
 						</#if>
 						<#if m.mutator.weapons?size gt 0>
-							${m.mutator.weapons?size} weapons<#if m.mutator.weapons?size gt 1>s</#if>
+							${m.mutator.weapons?size} weapon<#if m.mutator.weapons?size gt 1>s</#if>
 							<#if m.mutator.vehicles?size gt 0>,</#if>
 						</#if>
 						<#if m.mutator.vehicles?size gt 0>

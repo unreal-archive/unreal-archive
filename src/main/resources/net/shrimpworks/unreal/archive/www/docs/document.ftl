@@ -34,7 +34,7 @@
 			</div>
 		</div>
 		<div class="content readable">
-			${page}
+			${page?no_esc}
 		</div>
 	</@content>
 

@@ -28,40 +28,34 @@
 
 		<div class="info">
 
-			<section class="meta">
-				<h2>Voice Information</h2>
-				<div class="label-value">
-					<label>Name</label><span>${voice.voice.name}</span>
-				</div>
-				<div class="label-value">
-					<label>Author</label><span>${voice.voice.author}</span>
-				</div>
-				<div class="label-value">
-					<label>Release (est.)</label><span>${dateFmtShort(voice.voice.releaseDate)}</span>
-				</div>
-				<#if voice.voice.voices?size gt 0>
-					<div class="label-value">
-						<label>Included Voices</label><span>
-							<#list voice.voice.voices as v>
-								<div>${v}</div>
-							</#list>
-						</span>
-					</div>
-				</#if>
-				<div class="label-value">
-					<label>File Size</label><span>${fileSize(voice.voice.fileSize)}</span>
-				</div>
-				<div class="label-value">
-					<label>File Name</label><span>${voice.voice.originalFilename}</span>
-				</div>
-				<div class="label-value nomobile">
-					<label>Hash</label><span>${voice.voice.hash}</span>
-				</div>
-			</section>
+			<#assign voicesList><#list voice.voice.voices as v><div>${v}</div><#else>Unknown</#list></#assign>
+
+			<#assign
+			labels=[
+					"Name",
+					"Author",
+					"Release (est.)",
+					"Included Voices",
+					"File Size",
+					"File Name",
+					"Hash"
+			]
+
+			values=[
+					'${voice.voice.name}',
+					'${voice.voice.author}',
+					'${dateFmtShort(voice.voice.releaseDate)}',
+					'${voicesList}',
+					'${fileSize(voice.voice.fileSize)}',
+					'${voice.voice.originalFilename}',
+					'${voice.voice.hash}'
+			]>
+
+			<@meta title="Voice Information" labels=labels values=values/>
 
 			<#if voice.variations?size gt 0>
 				<section class="variations">
-					<h2>Variations</h2>
+					<h2><img src="${staticPath()}/images/icons/black/px22/variant.png" alt="Variations"/>Variations</h2>
 					<table>
 						<thead>
 						<tr>

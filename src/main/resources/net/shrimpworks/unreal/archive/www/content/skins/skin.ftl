@@ -28,52 +28,39 @@
 
 		<div class="info">
 
-			<section class="meta">
-				<h2>Skin Information</h2>
-				<div class="label-value">
-					<label>Name</label><span>${skin.skin.name}</span>
-				</div>
-				<div class="label-value">
-					<label>Author</label><span>${skin.skin.author}</span>
-				</div>
-				<div class="label-value">
-					<label>Release (est.)</label><span>${dateFmtShort(skin.skin.releaseDate)}</span>
-				</div>
-				<div class="label-value">
-					<label>Team Skins</label><span>${skin.skin.teamSkins?string('Yes', 'No')}</span>
-				</div>
-				<#if skin.skin.skins?size gt 0>
-					<div class="label-value">
-						<label>Included Skins</label><span>
-							<#list skin.skin.skins as s>
-								<div>${s}</div>
-							</#list>
-						</span>
-					</div>
-				</#if>
-				<#if skin.skin.faces?size gt 0>
-					<div class="label-value">
-						<label>Faces</label><span>
-							<#list skin.skin.faces as s>
-								<div>${s}</div>
-							</#list>
-						</span>
-					</div>
-				</#if>
-				<div class="label-value">
-					<label>File Size</label><span>${fileSize(skin.skin.fileSize)}</span>
-				</div>
-				<div class="label-value">
-					<label>File Name</label><span>${skin.skin.originalFilename}</span>
-				</div>
-				<div class="label-value nomobile">
-					<label>Hash</label><span>${skin.skin.hash}</span>
-				</div>
-			</section>
+			<#assign skinsList><#list skin.skin.skins as s><div>${s}</div><#else>Unknown</#list></#assign>
+			<#assign faceList><#list skin.skin.faces as s><div>${s}</div><#else>Unknown</#list></#assign>
+
+			<#assign
+			labels=[
+					"Name",
+					"Author",
+					"Release (est.)",
+					"Team Skins",
+					"Included Skins",
+					"Faces",
+					"File Size",
+					"File Name",
+					"Hash"
+			]
+
+			values=[
+					'${skin.skin.name}',
+					'${skin.skin.author}',
+					'${dateFmtShort(skin.skin.releaseDate)}',
+					'${skin.skin.teamSkins?string("Yes", "No")}',
+					'${skinsList}',
+					'${faceList}',
+					'${fileSize(skin.skin.fileSize)}',
+					'${skin.skin.originalFilename}',
+					'${skin.skin.hash}'
+			]>
+
+			<@meta title="Skin Information" labels=labels values=values/>
 
 			<#if skin.variations?size gt 0>
 				<section class="variations">
-					<h2>Variations</h2>
+					<h2><img src="${staticPath()}/images/icons/black/px22/variant.png" alt="Variations"/>Variations</h2>
 					<table>
 						<thead>
 						<tr>

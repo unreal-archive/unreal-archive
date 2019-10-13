@@ -30,45 +30,38 @@
 
 		<div class="info">
 
-			<section class="meta">
-				<h2>Map Information</h2>
-				<div class="label-value">
-					<label>Name</label><span>${map.map.name}</span>
-				</div>
-				<div class="label-value">
-					<label>Game Type</label><span>
-						<a href="${relPath(gametype.path + "/index.html")}">${map.map.gametype}</a>
-					</span>
-				</div>
-				<div class="label-value">
-					<label>Title</label><span>${map.map.title}</span>
-				</div>
-				<div class="label-value">
-					<label>Author</label><span>${map.map.author}</span>
-				</div>
-				<div class="label-value">
-					<label>Player Count</label><span>${map.map.playerCount}</span>
-				</div>
-				<div class="label-value">
-					<label>Release (est.)</label><span>${dateFmtShort(map.map.releaseDate)}</span>
-				</div>
-				<div class="label-value">
-					<label>Description</label><span>${map.map.description?replace("||", "<br/><br/>")}</span>
-				</div>
-				<div class="label-value">
-					<label>File Size</label><span>${fileSize(map.map.fileSize)}</span>
-				</div>
-				<div class="label-value">
-					<label>File Name</label><span>${map.map.originalFilename}</span>
-				</div>
-				<div class="label-value nomobile">
-					<label>Hash</label><span>${map.map.hash}</span>
-				</div>
-			</section>
+			<#assign
+			labels=[
+				  "Name",
+					"Game Type",
+					"Title",
+					"Author",
+					"Player Count",
+					"Release (est)",
+					"Description",
+					"File Size",
+					"File Name",
+					"Hash"
+			]
+
+			values=[
+					'${map.map.name}',
+					'<a href="${relPath(gametype.path + "/index.html")}">${map.map.gametype}</a>'?no_esc,
+					'${map.map.title}',
+					'${map.map.author}',
+					'${map.map.playerCount}',
+					'${dateFmtShort(map.map.releaseDate)}',
+					'${map.map.description?replace("||", "<br/><br/>")?no_esc}',
+					'${fileSize(map.map.fileSize)}',
+					'${map.map.originalFilename}',
+					'${map.map.hash}'
+			]>
+
+			<@meta title="Map Information" labels=labels values=values/>
 
 			<#if map.variations?size gt 0>
 				<section class="variations">
-					<h2>Variations</h2>
+					<h2><img src="${staticPath()}/images/icons/black/px22/variant.png" alt="Variations"/>Variations</h2>
 					<table>
 						<thead>
 						<tr>

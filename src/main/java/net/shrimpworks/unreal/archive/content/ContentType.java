@@ -89,8 +89,13 @@ public enum ContentType {
 
 					try {
 						newInstance.files.add(new Content.ContentFile(f.fileName(), f.fileSize(), f.hash()));
+
 						// try to find the newest possible file within this archive to use as the release date
-						if (releaseDate == null || releaseDate.isBefore(f.fileDate())) releaseDate = f.fileDate();
+						// exclude umods because they're not specifically content, and their download date would be used
+						if (!Incoming.FileType.UMOD.matches(f.file)
+							&& (releaseDate == null || releaseDate.isBefore(f.fileDate()))) {
+							releaseDate = f.fileDate();
+						}
 					} catch (Exception ex) {
 						incoming.log.log(IndexLog.EntryType.CONTINUE, String.format("Failed collecting content files for %s",
 																					incoming.submission.filePath), ex);
