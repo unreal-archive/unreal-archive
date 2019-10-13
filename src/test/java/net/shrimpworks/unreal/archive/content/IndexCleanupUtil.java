@@ -262,11 +262,11 @@ public class IndexCleanupUtil {
 	public void fixMapGametypes() throws IOException {
 		ContentManager cm = new ContentManager(Paths.get("unreal-archive-data/content/"),
 											   new DataStore.NopStore(), new DataStore.NopStore(), new DataStore.NopStore());
-		Collection<Content> search = cm.search(null, "MAP", "RO-", null);
+		Collection<Content> search = cm.search(null, "MAP", "FHI-", null);
 		for (Content c : search) {
 			if (c instanceof Map && ((Map)c).gametype.equalsIgnoreCase("unknown")) {
 				Map map = (Map)cm.checkout(c.hash);
-				map.gametype = "Red Orchestra";
+				map.gametype = "Fraghouse Invasion";
 				if (cm.checkin(new IndexResult<>(map, Collections.emptySet()), null)) {
 					System.out.println("Stored changes for " + String.join(" / ", map.game, map.gametype, map.name));
 				} else {

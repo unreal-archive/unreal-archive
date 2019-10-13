@@ -22,7 +22,7 @@ public class GameTypes {
 			new GameType("Monster Hunt", "MH"),
 			new GameType("Monster Arena", "MA"),
 			new GameType("Team Monster Hunt", "TMH"),
-			new GameType("Rocket Arena", "RA"),
+			new GameType("Rocket Arena", "RA-"),
 			new GameType("Jailbreak", "JB"),
 			new GameType("Tactical Ops", "TO"),
 			new GameType("Tactical Ops", "SW"),
@@ -38,10 +38,11 @@ public class GameTypes {
 			new GameType("Killing Floor", "KF"),
 			new GameType("AirFight", "AF"),
 			new GameType("DeathBall", "DB"),
-			new GameType("Unreal Racer", "UNR"),
+			new GameType("Unreal Racer", "UNR-"),
 			new GameType("Air Buccaneers", "ABU"),
 			new GameType("Clone Bandits", "CLN"),
-			new GameType("Red Orchestra", "RO")
+			new GameType("Red Orchestra", "RO-"),
+			new GameType("Fraghouse Invasion", "FHI")
 	);
 
 	public static GameType forMap(String mapName) {
