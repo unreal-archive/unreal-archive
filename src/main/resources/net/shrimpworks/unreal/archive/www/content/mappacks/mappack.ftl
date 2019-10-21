@@ -52,9 +52,12 @@
 				'${fileSize(pack.pack.fileSize)}',
 				'${pack.pack.originalFilename}',
 				'${pack.pack.hash}'
-			]>
+			]
 
-			<@meta title="Map Pack Information" labels=labels values=values/>
+      styles={"7": "nomobile"}
+			>
+
+			<@meta title="Map Pack Information" labels=labels values=values styles=styles/>
 
 			<#if pack.variations?size gt 0>
 				<section class="variations">

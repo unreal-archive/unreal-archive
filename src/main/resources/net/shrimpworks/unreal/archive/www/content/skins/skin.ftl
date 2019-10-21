@@ -54,9 +54,12 @@
 					'${fileSize(skin.skin.fileSize)}',
 					'${skin.skin.originalFilename}',
 					'${skin.skin.hash}'
-			]>
+			]
 
-			<@meta title="Skin Information" labels=labels values=values/>
+      styles={"8": "nomobile"}
+      >
+
+			<@meta title="Skin Information" labels=labels values=values styles=styles/>
 
 			<#if skin.variations?size gt 0>
 				<section class="variations">

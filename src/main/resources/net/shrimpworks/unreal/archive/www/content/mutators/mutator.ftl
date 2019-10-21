@@ -90,9 +90,12 @@
 					'${fileSize(mutator.mutator.fileSize)}',
 					'${mutator.mutator.originalFilename}',
 					'${mutator.mutator.hash}'
-			]>
+			]
 
-			<@meta title="Mutator Information" labels=labels values=values/>
+      styles={"11": "nomobile"}
+      >
+
+			<@meta title="Mutator Information" labels=labels values=values styles=styles/>
 
 			<#if mutator.variations?size gt 0>
 				<section class="variations">

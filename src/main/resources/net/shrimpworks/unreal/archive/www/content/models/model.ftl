@@ -52,9 +52,12 @@
 					'${fileSize(model.model.fileSize)}',
 					'${model.model.originalFilename}',
 					'${model.model.hash}'
-			]>
+			]
 
-			<@meta title="Model Information" labels=labels values=values/>
+      styles={"7": "nomobile"}
+      >
+
+			<@meta title="Model Information" labels=labels values=values styles=styles/>
 
 			<#if model.variations?size gt 0>
 				<section class="variations">

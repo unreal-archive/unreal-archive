@@ -56,12 +56,12 @@
 	</#if>
 </#macro>
 
-<#macro meta title labels values>
+<#macro meta title labels values styles={}>
 	<section class="files">
 		<h2><img src="${staticPath()}/images/icons/black/px22/info.png" alt="Info"/>${title}</h2>
 		<#list labels as l>
 			<#if values[l?index]??>
-				<div class="label-value">
+				<div class="label-value <#if styles[l?index?string]??>${styles[l?index?string]}</#if>">
 					<label>${l}</label><span>${values[l?index]}</span>
 				</div>
 			</#if>

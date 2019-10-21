@@ -55,9 +55,12 @@
 					'${fileSize(map.map.fileSize)}',
 					'${map.map.originalFilename}',
 					'${map.map.hash}'
-			]>
+			]
 
-			<@meta title="Map Information" labels=labels values=values/>
+			styles={"9": "nomobile"}
+			>
+
+			<@meta title="Map Information" labels=labels values=values styles=styles/>
 
 			<#if map.variations?size gt 0>
 				<section class="variations">

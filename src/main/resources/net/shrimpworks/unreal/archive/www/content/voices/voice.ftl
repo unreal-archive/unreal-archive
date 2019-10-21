@@ -49,9 +49,12 @@
 					'${fileSize(voice.voice.fileSize)}',
 					'${voice.voice.originalFilename}',
 					'${voice.voice.hash}'
-			]>
+			]
 
-			<@meta title="Voice Information" labels=labels values=values/>
+      styles={"6": "nomobile"}
+      >
+
+			<@meta title="Voice Information" labels=labels values=values styles=styles/>
 
 			<#if voice.variations?size gt 0>
 				<section class="variations">
