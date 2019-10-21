@@ -39,14 +39,12 @@ public class IndexCleanupUtil {
 	@Disabled
 	public void contentManagerBenchmark() throws IOException {
 		// warmup
-		new ContentManager(Paths.get("unreal-archive-data/content/"),
-						   new DataStore.NopStore(), new DataStore.NopStore(), new DataStore.NopStore());
+		new ContentManager(Paths.get("unreal-archive-data/content/"), DataStore.NOP, DataStore.NOP, DataStore.NOP);
 
 		long[] times = new long[10];
 		for (int i = 0; i < times.length; i++) {
 			long start = System.currentTimeMillis();
-			new ContentManager(Paths.get("unreal-archive-data/content/"),
-							   new DataStore.NopStore(), new DataStore.NopStore(), new DataStore.NopStore());
+			new ContentManager(Paths.get("unreal-archive-data/content/"), DataStore.NOP, DataStore.NOP, DataStore.NOP);
 			times[i] = System.currentTimeMillis() - start;
 			System.out.println(i + ": " + times[i]);
 		}
@@ -77,8 +75,7 @@ public class IndexCleanupUtil {
 	@Test
 	@Disabled
 	public void fixUrlEncoding() throws IOException {
-		ContentManager cm = new ContentManager(Paths.get("unreal-archive-data/content/"),
-											   new DataStore.NopStore(), new DataStore.NopStore(), new DataStore.NopStore());
+		ContentManager cm = new ContentManager(Paths.get("unreal-archive-data/content/"), DataStore.NOP, DataStore.NOP, DataStore.NOP);
 
 		Collection<Content> all = cm.search(null, null, null, null);
 
@@ -131,8 +128,7 @@ public class IndexCleanupUtil {
 	@Test
 	@Disabled
 	public void findDupes() throws IOException {
-		ContentManager cm = new ContentManager(Paths.get("unreal-archive-data/content/"),
-											   new DataStore.NopStore(), new DataStore.NopStore(), new DataStore.NopStore());
+		ContentManager cm = new ContentManager(Paths.get("unreal-archive-data/content/"), DataStore.NOP, DataStore.NOP, DataStore.NOP);
 
 		for (ContentType contentType : ContentType.values()) {
 			// first, find the dupes
@@ -176,8 +172,7 @@ public class IndexCleanupUtil {
 	@Test
 	@Disabled
 	public void fixThings() throws IOException {
-		ContentManager cm = new ContentManager(Paths.get("unreal-archive-data/content/"),
-											   new DataStore.NopStore(), new DataStore.NopStore(), new DataStore.NopStore());
+		ContentManager cm = new ContentManager(Paths.get("unreal-archive-data/content/"), DataStore.NOP, DataStore.NOP, DataStore.NOP);
 		Collection<Content> search = cm.search(null, null, null, null);
 		for (Content c : search) {
 			if (c.downloads.stream().anyMatch(d -> d.url == null)) {
@@ -228,8 +223,7 @@ public class IndexCleanupUtil {
 	@Test
 	@Disabled
 	public void setMapPackGametypes() throws IOException {
-		ContentManager cm = new ContentManager(Paths.get("unreal-archive-data/content/"),
-											   new DataStore.NopStore(), new DataStore.NopStore(), new DataStore.NopStore());
+		ContentManager cm = new ContentManager(Paths.get("unreal-archive-data/content/"), DataStore.NOP, DataStore.NOP, DataStore.NOP);
 		Collection<MapPack> search = cm.get(MapPack.class);
 		for (MapPack mp : search) {
 			if (!mp.gametype.equalsIgnoreCase("unknown")) continue;
@@ -260,8 +254,7 @@ public class IndexCleanupUtil {
 	@Test
 	@Disabled
 	public void fixMapGametypes() throws IOException {
-		ContentManager cm = new ContentManager(Paths.get("unreal-archive-data/content/"),
-											   new DataStore.NopStore(), new DataStore.NopStore(), new DataStore.NopStore());
+		ContentManager cm = new ContentManager(Paths.get("unreal-archive-data/content/"), DataStore.NOP, DataStore.NOP, DataStore.NOP);
 		Collection<Content> search = cm.search(null, "MAP", "FHI-", null);
 		for (Content c : search) {
 			if (c instanceof Map && ((Map)c).gametype.equalsIgnoreCase("unknown")) {
@@ -283,7 +276,7 @@ public class IndexCleanupUtil {
 		String path = "Voices/%s";
 		String url = "http://medor.no-ip.org/index.php?dir=%s&file=%s";
 
-		Files.walkFileTree(root, new SimpleFileVisitor<Path>() {
+		Files.walkFileTree(root, new SimpleFileVisitor<>() {
 
 			@Override
 			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
@@ -311,9 +304,9 @@ public class IndexCleanupUtil {
 //		final DataStore imageStore = store(DataStore.StoreContent.IMAGES, cli);
 //		final DataStore attachmentStore = store(DataStore.StoreContent.ATTACHMENTS, cli);
 //		final DataStore contentStore = store(DataStore.StoreContent.CONTENT, cli);
-		final DataStore imageStore = new DataStore.NopStore();
-		final DataStore attachmentStore = new DataStore.NopStore();
-		final DataStore contentStore = new DataStore.NopStore();
+		final DataStore imageStore = DataStore.NOP;
+		final DataStore attachmentStore = DataStore.NOP;
+		final DataStore contentStore = DataStore.NOP;
 
 		final ContentManager cm = new ContentManager(Paths.get("unreal-archive-data/content/"),
 													 contentStore, imageStore, attachmentStore);
@@ -379,9 +372,9 @@ public class IndexCleanupUtil {
 //		final DataStore imageStore = store(DataStore.StoreContent.IMAGES, cli);
 //		final DataStore attachmentStore = store(DataStore.StoreContent.ATTACHMENTS, cli);
 //		final DataStore contentStore = store(DataStore.StoreContent.CONTENT, cli);
-		final DataStore imageStore = new DataStore.NopStore();
-		final DataStore attachmentStore = new DataStore.NopStore();
-		final DataStore contentStore = new DataStore.NopStore();
+		final DataStore imageStore = DataStore.NOP;
+		final DataStore attachmentStore = DataStore.NOP;
+		final DataStore contentStore = DataStore.NOP;
 
 		final ContentManager cm = new ContentManager(Paths.get("unreal-archive-data/content/"),
 													 contentStore, imageStore, attachmentStore);
@@ -464,9 +457,9 @@ public class IndexCleanupUtil {
 //		final DataStore imageStore = store(DataStore.StoreContent.IMAGES, cli);
 //		final DataStore attachmentStore = store(DataStore.StoreContent.ATTACHMENTS, cli);
 //		final DataStore contentStore = store(DataStore.StoreContent.CONTENT, cli);
-		final DataStore imageStore = new DataStore.NopStore();
-		final DataStore attachmentStore = new DataStore.NopStore();
-		final DataStore contentStore = new DataStore.NopStore();
+		final DataStore imageStore = DataStore.NOP;
+		final DataStore attachmentStore = DataStore.NOP;
+		final DataStore contentStore = DataStore.NOP;
 
 		final ContentManager cm = new ContentManager(Paths.get("unreal-archive-data/content/"),
 													 contentStore, imageStore, attachmentStore);
