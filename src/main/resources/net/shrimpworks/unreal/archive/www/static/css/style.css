@@ -21,6 +21,14 @@ body {
 	padding-bottom: 180px;
 }
 
+a {
+	color: mediumblue;
+}
+
+a:visited {
+	color: rebeccapurple;
+}
+
 h1, h2 {
 	font-family: 'PassionOne', serif;
 	font-weight: normal;
