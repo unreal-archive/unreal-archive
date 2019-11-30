@@ -23,7 +23,7 @@
 			<tr>
 				<th>Name</th>
 				<th>Author</th>
-				<th>Maps</th>
+				<th class="nomobile">Maps</th>
 				<th class="nomobile"> </th>
 			</tr>
 			</thead>
@@ -32,7 +32,7 @@
 				<tr>
 					<td><a href="${relPath(p.path + ".html")}">${p.pack.name}</a></td>
 					<td>${p.pack.author}</td>
-					<td>${p.pack.maps?size}</td>
+					<td class="nomobile">${p.pack.maps?size}</td>
 					<td class="meta nomobile">
 						<#if p.pack.attachments?size gt 0>
 							<img src="${staticPath()}/images/icons/black/px22/ico-images-grey.png" alt="Has images"/>

@@ -27,7 +27,7 @@
 			<tr>
 				<th>Model</th>
 				<th>Author</th>
-				<th>Info</th>
+				<th class="nomobile">Info</th>
 				<th class="nomobile"> </th>
 			</tr>
 			</thead>
@@ -36,7 +36,7 @@
 				<tr>
 					<td nowrap="nowrap"><a href="${relPath(m.path + ".html")}">${m.model.name}</a></td>
 					<td>${m.model.author}</td>
-					<td>
+					<td class="nomobile">
 						<#if m.model.models?size gt 0>
 							${m.model.models?size} character<#if m.model.models?size gt 1>s</#if>
 							<#if m.model.skins?size gt 0>,</#if>

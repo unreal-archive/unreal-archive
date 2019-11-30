@@ -17,7 +17,7 @@
 					<tr>
 						<th>Type</th>
 						<th>Name</th>
-						<th>Author</th>
+						<th class="nomobile">Author</th>
 					</tr>
 					</thead>
 					<tbody>
@@ -27,7 +27,7 @@
 							<td>
 								<a href="${relPath(c.slugPath(siteRoot) + ".html")}">${c.name}</a>
 							</td>
-							<td>${trunc(c.author, 30)}</td>
+							<td class="nomobile">${trunc(c.author, 30)}</td>
 						</tr>
           </#list>
 					</tbody>

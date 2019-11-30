@@ -31,7 +31,7 @@
 				<th>Map</th>
 				<th class="nomobile">Title</th>
 				<th>Author</th>
-				<th>Players</th>
+				<th class="nomobile">Players</th>
 				<th class="nomobile"> </th>
 			</tr>
 			</thead>
@@ -41,7 +41,7 @@
 					<td nowrap="nowrap"><a href="${relPath(m.path + ".html")}">${m.map.name}</a></td>
 					<td class="nomobile">${m.map.title}</td>
 					<td>${m.map.author}</td>
-					<td>${m.map.playerCount}</td>
+					<td class="nomobile">${m.map.playerCount}</td>
 					<td class="meta nomobile">
 						<#if m.map.attachments?size gt 0>
 							<img src="${staticPath()}/images/icons/black/px22/ico-images-grey.png" alt="Has images"/>

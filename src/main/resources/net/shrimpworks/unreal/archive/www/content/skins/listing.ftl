@@ -27,7 +27,7 @@
 			<tr>
 				<th>Skin</th>
 				<th>Author</th>
-				<th>Info</th>
+				<th class="nomobile">Info</th>
 				<th class="nomobile"> </th>
 			</tr>
 			</thead>
@@ -36,7 +36,7 @@
 				<tr>
 					<td nowrap="nowrap"><a href="${relPath(s.path + ".html")}">${s.skin.name}</a></td>
 					<td>${s.skin.author}</td>
-					<td>
+					<td class="nomobile">
 						<#if s.skin.skins?size gt 0>
 							${s.skin.skins?size} skin<#if s.skin.skins?size gt 1>s</#if>
 							<#if s.skin.faces?size gt 0>,</#if>

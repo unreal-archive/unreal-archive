@@ -27,7 +27,7 @@
 			<tr>
 				<th>Voice</th>
 				<th>Author</th>
-				<th>Info</th>
+				<th class="nomobile">Info</th>
 				<th class="nomobile"> </th>
 			</tr>
 			</thead>
@@ -36,7 +36,7 @@
 				<tr>
 					<td nowrap="nowrap"><a href="${relPath(v.path + ".html")}">${v.voice.name}</a></td>
 					<td>${v.voice.author}</td>
-					<td>
+					<td class="nomobile">
 						<#if v.voice.voices?size gt 0>
 							${v.voice.voices?size} voice<#if v.voice.voices?size gt 1>s</#if>
 						</#if>
