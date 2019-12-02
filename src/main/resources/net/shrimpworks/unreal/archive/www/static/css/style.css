@@ -474,13 +474,17 @@ section.latest table td {
 */
 
 div.theme-gauge { }
-div.theme-gauge .part { display: inline-block; }
-div.theme-gauge .part.p0 { background-color: coral; }
-div.theme-gauge .part.p1 { background-color: cornflowerblue; }
+div.theme-gauge .part {
+	display: inline-block;
+	overflow: visible;
+	white-space: nowrap;
+}
+div.theme-gauge .part.p0 { background-color: khaki; }
+div.theme-gauge .part.p1 { background-color: lightskyblue; }
 div.theme-gauge .part.p2 { background-color: lightgreen; }
-div.theme-gauge .part.p3 { background-color: lightsalmon; }
-div.theme-gauge .part.p4 { background-color: goldenrod; }
-div.theme-gauge .part.p5 { background-color: darkorchid; }
+div.theme-gauge .part.p3 { background-color: bisque; }
+div.theme-gauge .part.p4 { background-color: lemonchiffon; }
+div.theme-gauge .part.p5 { background-color: lightpink; }
 
 @media screen and (max-width: 1024px) {
 

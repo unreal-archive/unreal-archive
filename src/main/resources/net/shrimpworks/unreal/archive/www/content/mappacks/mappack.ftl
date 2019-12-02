@@ -32,16 +32,15 @@
 		<div class="info">
 
 			<#assign themes>
-					<#if pack.pack.themes?size gt 0>
+				<#if pack.pack.themes?size gt 0>
+					<#list pack.pack.themes as theme, weight>
 						<div class="theme-gauge">
-								<#list pack.pack.themes as theme, weight>
-									<div class="part p${theme?index}" style="width: ${weight * 100}%">&nbsp;</div>
-									<div>${theme}</div>
-								</#list>
+							<div class="part p${theme?index}" style="width: ${weight * 100}%">${theme}</div>
 						</div>
-					<#else>
-						Unknown
-					</#if>
+					</#list>
+				<#else>
+					Unknown
+				</#if>
 			</#assign>
 
 			<#assign

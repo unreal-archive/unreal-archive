@@ -31,16 +31,15 @@
 		<div class="info">
 
 			<#assign themes>
-					<#if map.map.themes?size gt 0>
+				<#if map.map.themes?size gt 0>
+					<#list map.map.themes as theme, weight>
 						<div class="theme-gauge">
-							<#list map.map.themes as theme, weight>
-								<div class="part p${theme?index}" style="width: ${weight * 100}%">&nbsp;</div>
-								<div>${theme}</div>
-							</#list>
+							<div class="part p${theme?index}" style="width: ${weight * 100}%">${theme}</div>
 						</div>
-					<#else>
-						Unknown
-					</#if>
+					</#list>
+				<#else>
+					Unknown
+				</#if>
 			</#assign>
 
 			<#assign

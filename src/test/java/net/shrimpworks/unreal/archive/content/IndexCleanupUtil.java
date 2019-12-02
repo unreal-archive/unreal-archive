@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -527,6 +528,18 @@ public class IndexCleanupUtil {
 	public void reindexMapsWithThemes() throws IOException {
 		ContentManager cm = new ContentManager(Paths.get("unreal-archive-data/content/"), DataStore.NOP, DataStore.NOP, DataStore.NOP);
 
+		final Path root = Paths.get("/home/shrimp/tmp/files/");
+		final java.util.Map<String, Path> fileHashes = new HashMap<>();
+		Files.walkFileTree(root, new SimpleFileVisitor<>() {
+			@Override
+			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+				fileHashes.put(Util.hash(file), file);
+				return super.visitFile(file, attrs);
+			}
+		});
+
+		System.out.printf("Cached %d file hashes", fileHashes.size());
+
 		final Indexer indexer = new Indexer(cm, new Indexer.IndexerEvents() {
 			@Override
 			public void starting(int foundFiles) {}
@@ -574,22 +587,33 @@ public class IndexCleanupUtil {
 		final Path tmpDir = Files.createTempDirectory("ua-themes");
 
 		for (Content c : search) {
-			if (!(c.subGrouping().toLowerCase().startsWith("b"))) continue;
+			if (c instanceof Map && !((Map)c).themes.isEmpty()) continue;
+			if (c instanceof MapPack && !((MapPack)c).themes.isEmpty()) continue;
 
-			new MirrorClient.Downloader(c, tmpDir, d -> {
-				System.out.printf("Downloaded %s%n", d.destination);
+			Path existing = fileHashes.get(c.hash);
+			if (existing != null) {
+				System.out.printf("Indexing %s%n", existing);
 				try {
-					indexer.index(true, null, d.destination);
+					indexer.index(true, null, existing);
 				} catch (IOException e) {
 					e.printStackTrace();
-				} finally {
+				}
+			} else {
+				new MirrorClient.Downloader(c, tmpDir, d -> {
+					System.out.printf("Downloaded %s%n", d.destination);
 					try {
-						Files.deleteIfExists(d.destination);
+						indexer.index(true, null, d.destination);
 					} catch (IOException e) {
 						e.printStackTrace();
+					} finally {
+						try {
+							Files.deleteIfExists(d.destination);
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
 					}
-				}
-			}).run();
+				}).run();
+			}
 		}
 	}
 }
