@@ -11,7 +11,7 @@ public class Themes {
 	static final String TH_NALI_TEMPLE = "Nali Temple";
 	static final String TH_NALI_CASTLE = "Nali Castle";
 	static final String TH_TECH = "Tech";
-	static final String TH_INDUSTRIAL = "Indistrial";
+	static final String TH_INDUSTRIAL = "Industrial";
 	static final String TH_CITY = "City";
 	static final String TH_EGYPTIAN = "Egyptian";
 	static final String TH_NATURAL = "Natural";
