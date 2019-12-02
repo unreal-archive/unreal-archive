@@ -2,12 +2,17 @@ package net.shrimpworks.unreal.archive.content.mappacks;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.content.Content;
@@ -17,6 +22,8 @@ import net.shrimpworks.unreal.archive.content.IndexLog;
 import net.shrimpworks.unreal.archive.content.IndexResult;
 import net.shrimpworks.unreal.archive.content.IndexUtils;
 import net.shrimpworks.unreal.archive.content.maps.GameTypes;
+import net.shrimpworks.unreal.archive.content.maps.MapIndexHandler;
+import net.shrimpworks.unreal.archive.content.maps.Themes;
 import net.shrimpworks.unreal.packages.Package;
 import net.shrimpworks.unreal.packages.PackageReader;
 import net.shrimpworks.unreal.packages.entities.ExportedObject;
@@ -70,9 +77,10 @@ public class MapPackIndexHandler implements IndexHandler<MapPack> {
 
 		m.maps.clear();
 		Set<IndexResult.NewAttachment> attachments = new HashSet<>();
+		Map<String, Double> mapThemes = new HashMap<>();
 		for (Incoming.IncomingFile map : maps) {
 			try {
-				m.maps.add(addMap(incoming, map, images -> {
+				m.maps.add(addMap(incoming, map, mapThemes, images -> {
 					try {
 						IndexUtils.saveImages(IndexUtils.SHOT_NAME, m, images, attachments);
 					} catch (IOException e) {
@@ -108,10 +116,26 @@ public class MapPackIndexHandler implements IndexHandler<MapPack> {
 			}
 		}
 
+		// for the top 5 themes, give them a percentage value of the total themeable content
+		Map<String, Double> topThemes = mapThemes.entrySet().stream()
+												 .sorted((a, b) -> -a.getValue().compareTo(b.getValue()))
+												 .limit(Themes.MAX_THEMES)
+												 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+		double totalScore = topThemes.values().stream().mapToDouble(e -> e).sum();
+		m.themes.clear();
+		m.themes.putAll(mapThemes.entrySet()
+								 .stream()
+								 .filter(e -> (e.getValue() / totalScore) > Themes.MIN_THRESHOLD)
+								 .collect(Collectors.toMap(Map.Entry::getKey,
+														   v -> BigDecimal.valueOf(v.getValue() / totalScore)
+																		  .setScale(1, RoundingMode.HALF_UP).doubleValue()
+								 )));
+
 		completed.accept(new IndexResult<>(m, attachments));
 	}
 
-	private MapPack.PackMap addMap(Incoming incoming, Incoming.IncomingFile map, Consumer<List<BufferedImage>> listConsumer) {
+	private MapPack.PackMap addMap(Incoming incoming, Incoming.IncomingFile map, Map<String, Double> themes,
+								   Consumer<List<BufferedImage>> listConsumer) {
 		MapPack.PackMap p = new MapPack.PackMap();
 		p.author = IndexUtils.UNKNOWN;
 		p.name = Util.fileName(map.fileName());
@@ -121,7 +145,6 @@ public class MapPackIndexHandler implements IndexHandler<MapPack> {
 		List<BufferedImage> images = new ArrayList<>();
 
 		try (Package pkg = map(map)) {
-
 			Collection<ExportedObject> maybeLevelInfo = pkg.objectsByClassName("LevelInfo");
 			if (maybeLevelInfo != null && !maybeLevelInfo.isEmpty()) {
 				ExportedObject levelInfo = maybeLevelInfo.iterator().next();
@@ -138,7 +161,7 @@ public class MapPackIndexHandler implements IndexHandler<MapPack> {
 				Property screenshot = level.property("Screenshot");
 				images.addAll(IndexUtils.screenshots(incoming, pkg, screenshot));
 			}
-
+			MapIndexHandler.themes(pkg).forEach((theme, weight) -> themes.compute(theme, (k, v) -> v == null ? weight : v + weight));
 		} catch (Exception e) {
 			incoming.log.log(IndexLog.EntryType.CONTINUE, "Failed to read map properties", e);
 		}

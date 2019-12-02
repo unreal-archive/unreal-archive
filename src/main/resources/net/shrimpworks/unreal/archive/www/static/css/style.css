@@ -469,6 +469,19 @@ section.latest table td {
 	text-overflow: ellipsis;
 }
 
+/*
+  special style for map themes
+*/
+
+div.theme-gauge { }
+div.theme-gauge .part { display: inline-block; }
+div.theme-gauge .part.p0 { background-color: coral; }
+div.theme-gauge .part.p1 { background-color: cornflowerblue; }
+div.theme-gauge .part.p2 { background-color: lightgreen; }
+div.theme-gauge .part.p3 { background-color: lightsalmon; }
+div.theme-gauge .part.p4 { background-color: goldenrod; }
+div.theme-gauge .part.p5 { background-color: darkorchid; }
+
 @media screen and (max-width: 1024px) {
 
 	body {

@@ -1,6 +1,7 @@
 package net.shrimpworks.unreal.archive.content.maps;
 
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Objects;
 
 import net.shrimpworks.unreal.archive.Util;
@@ -14,6 +15,7 @@ public class Map extends Content {
 	public String gametype = "Unknown";             // Deathmatch
 	public String title = "Unknown";                // My Map
 	public String playerCount = "Unknown";          // 2 - 4 Players
+	public java.util.Map<String, Double> themes = new HashMap<>(); // "Industrial": 0.75, "Tech": 0.25
 
 	@Override
 	public String subGrouping() {
@@ -61,11 +63,12 @@ public class Map extends Content {
 		Map map = (Map)o;
 		return Objects.equals(gametype, map.gametype)
 			   && Objects.equals(title, map.title)
-			   && Objects.equals(playerCount, map.playerCount);
+			   && Objects.equals(playerCount, map.playerCount)
+			   && Objects.equals(themes, map.themes);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(super.hashCode(), gametype, title, playerCount);
+		return Objects.hash(super.hashCode(), gametype, title, playerCount, themes);
 	}
 }

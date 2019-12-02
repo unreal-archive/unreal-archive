@@ -521,4 +521,75 @@ public class IndexCleanupUtil {
 			});
 		}
 	}
+
+	@Test
+	@Disabled
+	public void reindexMapsWithThemes() throws IOException {
+		ContentManager cm = new ContentManager(Paths.get("unreal-archive-data/content/"), DataStore.NOP, DataStore.NOP, DataStore.NOP);
+
+		final Indexer indexer = new Indexer(cm, new Indexer.IndexerEvents() {
+			@Override
+			public void starting(int foundFiles) {}
+
+			@Override
+			public void progress(int indexed, int total, Path currentFile) {}
+
+			@Override
+			public void indexed(Submission submission, Optional<IndexResult<? extends Content>> indexed, IndexLog log) {}
+
+			@Override
+			public void completed(int indexedFiles, int errorCount) {}
+		}, new Indexer.IndexerPostProcessor() {
+			@Override
+			public void indexed(Submission sub, Content before, IndexResult<? extends Content> result) {
+				// do not let some things get reassigned during this process
+				if (before != null) {
+					result.content.game = before.game;
+					result.content.author = before.author;
+					result.content.variationOf = before.variationOf;
+					result.content.attachments = before.attachments;
+				}
+
+				// in this process, we don't want to change files
+				for (IndexResult.NewAttachment file : result.files) {
+					try {
+						Files.deleteIfExists(file.path);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+				result.files.clear();
+
+				// do not let gametype get reassigned
+				if (before instanceof Map && result.content instanceof Map) {
+					((Map)result.content).gametype = ((Map)before).gametype;
+				}
+				if (before instanceof MapPack && result.content instanceof MapPack) {
+					((MapPack)result.content).gametype = ((MapPack)before).gametype;
+				}
+			}
+		});
+
+		Collection<Content> search = cm.search("Unreal Tournament", "MAP", null, null);
+		final Path tmpDir = Files.createTempDirectory("ua-themes");
+
+		for (Content c : search) {
+			if (!(c.subGrouping().toLowerCase().startsWith("b"))) continue;
+
+			new MirrorClient.Downloader(c, tmpDir, d -> {
+				System.out.printf("Downloaded %s%n", d.destination);
+				try {
+					indexer.index(true, null, d.destination);
+				} catch (IOException e) {
+					e.printStackTrace();
+				} finally {
+					try {
+						Files.deleteIfExists(d.destination);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}).run();
+		}
+	}
 }

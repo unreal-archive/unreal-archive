@@ -30,6 +30,19 @@
 
 		<div class="info">
 
+			<#assign themes>
+					<#if map.map.themes?size gt 0>
+						<div class="theme-gauge">
+							<#list map.map.themes as theme, weight>
+								<div class="part p${theme?index}" style="width: ${weight * 100}%">&nbsp;</div>
+								<div>${theme}</div>
+							</#list>
+						</div>
+					<#else>
+						Unknown
+					</#if>
+			</#assign>
+
 			<#assign
 			labels=[
 				  "Name",
@@ -39,6 +52,7 @@
 					"Player Count",
 					"Release (est)",
 					"Description",
+					"Themes",
 					"File Size",
 					"File Name",
 					"Hash"
@@ -52,12 +66,13 @@
 					'${map.map.playerCount}',
 					'${dateFmtShort(map.map.releaseDate)}',
 					'${map.map.description?replace("||", "<br/><br/>")?no_esc}',
-					'${fileSize(map.map.fileSize)}',
+      		'${themes}',
+      		'${fileSize(map.map.fileSize)}',
 					'${map.map.originalFilename}',
 					'${map.map.hash}'
 			]
 
-			styles={"9": "nomobile"}
+			styles={"10": "nomobile"}
 			>
 
 			<@meta title="Map Information" labels=labels values=values styles=styles/>

@@ -2,13 +2,17 @@ package net.shrimpworks.unreal.archive.content.maps;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.content.Content;
@@ -20,7 +24,10 @@ import net.shrimpworks.unreal.archive.content.IndexUtils;
 import net.shrimpworks.unreal.packages.Package;
 import net.shrimpworks.unreal.packages.PackageReader;
 import net.shrimpworks.unreal.packages.entities.ExportedObject;
+import net.shrimpworks.unreal.packages.entities.Import;
+import net.shrimpworks.unreal.packages.entities.Named;
 import net.shrimpworks.unreal.packages.entities.objects.Object;
+import net.shrimpworks.unreal.packages.entities.objects.Polys;
 import net.shrimpworks.unreal.packages.entities.properties.IntegerProperty;
 import net.shrimpworks.unreal.packages.entities.properties.Property;
 import net.shrimpworks.unreal.packages.entities.properties.StringProperty;
@@ -129,6 +136,9 @@ public class MapIndexHandler implements IndexHandler<Map> {
 			screenshots.addAll(IndexUtils.findImageFiles(incoming));
 			IndexUtils.saveImages(IndexUtils.SHOT_NAME, m, screenshots, attachments);
 
+			// Find map themes
+			m.themes.clear();
+			m.themes.putAll(themes(map));
 		} catch (IOException e) {
 			log.log(IndexLog.EntryType.CONTINUE, "Failed to read map package", e);
 		} catch (Exception e) {
@@ -202,6 +212,51 @@ public class MapIndexHandler implements IndexHandler<Map> {
 		}
 
 		return IndexUtils.UNKNOWN;
+	}
+
+	public static java.util.Map<String, Double> themes(Package pkg) {
+		final java.util.Map<String, Integer> foundThemes = new HashMap<>();
+
+		// this can also work using "Models", but there are issues parsing those for UE2 maps
+		pkg.objectsByClassName("Polys").forEach(o -> {
+			Polys polys = (Polys)o.object();
+			polys.polys.stream()
+					   .map(p -> p.texture.get())
+					   .filter(n -> n instanceof Import)
+					   .map(n -> (Import)n)
+					   .forEach(i -> {
+						   // find the package a texture came from, which can be allocated to a theme
+						   Import current = i;
+						   Named parent = i.packageIndex.get();
+						   while (parent instanceof Import) {
+							   current = (Import)parent;
+							   parent = current.packageIndex.get();
+						   }
+
+						   // if the package seems to belong to a theme, count its usage
+						   String theme = Themes.findTheme(current.name.name);
+						   if (theme != null) {
+							   foundThemes.compute(theme, (k, v) -> v == null ? 1 : ++v);
+						   }
+					   });
+		});
+
+		// sort and collect the top 5 themes
+		java.util.Map<String, Integer> mapThemes = foundThemes.entrySet().stream()
+															  .sorted((a, b) -> -a.getValue().compareTo(b.getValue()))
+															  .limit(Themes.MAX_THEMES)
+															  .collect(Collectors.toMap(java.util.Map.Entry::getKey,
+																						java.util.Map.Entry::getValue));
+
+		// for the top 5 themes, give them a percentage value of the total themeable content
+		double totalScore = mapThemes.values().stream().mapToInt(e -> e).sum();
+		return mapThemes.entrySet()
+						.stream()
+						.filter(e -> ((double)e.getValue() / totalScore) > Themes.MIN_THRESHOLD)
+						.collect(Collectors.toMap(java.util.Map.Entry::getKey,
+												  v -> BigDecimal.valueOf((double)v.getValue() / totalScore)
+																 .setScale(1, RoundingMode.HALF_UP).doubleValue()
+						));
 	}
 
 }

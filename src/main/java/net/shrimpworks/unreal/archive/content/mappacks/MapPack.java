@@ -2,6 +2,7 @@ package net.shrimpworks.unreal.archive.content.mappacks;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -15,6 +16,7 @@ public class MapPack extends Content {
 
 	public List<PackMap> maps = new ArrayList<>();
 	public String gametype = "Mixed";
+	public java.util.Map<String, Double> themes = new HashMap<>();
 
 	@Override
 	public Path contentPath(Path root) {
@@ -43,12 +45,13 @@ public class MapPack extends Content {
 		if (!super.equals(o)) return false;
 		MapPack mapPack = (MapPack)o;
 		return Objects.equals(maps, mapPack.maps)
-			   && Objects.equals(gametype, mapPack.gametype);
+			   && Objects.equals(gametype, mapPack.gametype)
+			   && Objects.equals(themes, mapPack.themes);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(super.hashCode(), maps, gametype);
+		return Objects.hash(super.hashCode(), maps, gametype, themes);
 	}
 
 	public static class PackMap implements Comparable<PackMap> {

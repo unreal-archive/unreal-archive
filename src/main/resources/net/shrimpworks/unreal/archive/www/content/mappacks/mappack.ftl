@@ -31,6 +31,19 @@
 
 		<div class="info">
 
+			<#assign themes>
+					<#if pack.pack.themes?size gt 0>
+						<div class="theme-gauge">
+								<#list pack.pack.themes as theme, weight>
+									<div class="part p${theme?index}" style="width: ${weight * 100}%">&nbsp;</div>
+									<div>${theme}</div>
+								</#list>
+						</div>
+					<#else>
+						Unknown
+					</#if>
+			</#assign>
+
 			<#assign
 			labels=[
 				"Name",
@@ -38,6 +51,7 @@
 				"Maps",
 				"Author",
 				"Release (est)",
+        "Themes",
 				"File Size",
 				"File Name",
 				"Hash"
@@ -49,12 +63,13 @@
 				'${pack.pack.maps?size}',
 				'${pack.pack.author}',
 				'${dateFmtShort(pack.pack.releaseDate)}',
+        '${themes}',
 				'${fileSize(pack.pack.fileSize)}',
 				'${pack.pack.originalFilename}',
 				'${pack.pack.hash}'
 			]
 
-      styles={"7": "nomobile"}
+      styles={"8": "nomobile"}
 			>
 
 			<@meta title="Map Pack Information" labels=labels values=values styles=styles/>
