@@ -39,7 +39,7 @@ public class AutoIndexPHPScraper {
 
 		final List<Found.FoundUrl> foundList = new ArrayList<>();
 
-		final long slowdown = Long.valueOf(cli.option("slowdown", "2500"));
+		final long slowdown = Long.parseLong(cli.option("slowdown", "2500"));
 
 		index(connection, cli.commands()[2], cli.option("style-prefix", "default"), new Consumer<Found>() {
 			@Override

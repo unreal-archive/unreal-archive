@@ -36,7 +36,7 @@ public class GameTypes {
 			new GameType("Flag Domination", "FD"),
 			new GameType("Soccer Tournament", "SCR"),
 			new GameType("Killing Floor", "KF"),
-			new GameType("AirFight", "AF"),
+			new GameType("AirFight", "AF", "DM-AF-", "CTF-AF-", "DOM-AF-"),
 			new GameType("DeathBall", "DB"),
 			new GameType("Unreal Racer", "UNR-"),
 			new GameType("Air Buccaneers", "ABU"),
