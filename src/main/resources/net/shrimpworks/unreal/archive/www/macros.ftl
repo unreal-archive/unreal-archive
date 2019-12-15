@@ -113,9 +113,11 @@
 		<h2><img src="${staticPath()}/images/icons/black/px22/download.png" alt="Download"/> Downloads</h2>
 		<div class="links">
 			<#list downloads as d>
-				<a href="${urlEncode(d.url)}" <#if d.main>class="main"</#if>>
-					${urlHost(d.url)}
-				</a>
+				<#if d.state == 'OK'>
+					<a href="${urlEncode(d.url)}" <#if d.main>class="main"</#if>>
+						${urlHost(d.url)}
+					</a>
+				</#if>
 			</#list>
 		</div>
 	</section>
