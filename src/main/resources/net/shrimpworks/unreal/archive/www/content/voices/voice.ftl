@@ -9,7 +9,7 @@
 	</#if>
 </#list>
 
-<#assign ogDescription="${voice.voice.name}, a custom player voice pack for ${game.game.bigName}, created by ${voice.voice.author}">
+<#assign ogDescription="${voice.voice.autoDescription()}">
 <#assign ogImage=headerbg>
 
 <#include "../../_header.ftl">

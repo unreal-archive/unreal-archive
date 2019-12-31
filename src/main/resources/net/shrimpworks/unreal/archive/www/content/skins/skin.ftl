@@ -9,7 +9,7 @@
 	</#if>
 </#list>
 
-<#assign ogDescription="${skin.skin.name}, a custom player skin for ${game.game.bigName}, created by ${skin.skin.author}">
+<#assign ogDescription="${skin.skin.autoDescription()}">
 <#assign ogImage=headerbg>
 
 <#include "../../_header.ftl">

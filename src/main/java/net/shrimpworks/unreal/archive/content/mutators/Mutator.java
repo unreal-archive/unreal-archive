@@ -4,8 +4,10 @@ import java.beans.ConstructorProperties;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import net.shrimpworks.unreal.archive.content.Content;
+import net.shrimpworks.unreal.archive.content.Games;
 
 public class Mutator extends Content {
 
@@ -36,6 +38,30 @@ public class Mutator extends Content {
 										  namePrefix,
 										  hashPath()
 		));
+	}
+
+	@Override
+	public String autoDescription() {
+		return String.format("%s, a custom %s mutator for %s, created by %s",
+							 name,
+							 vehicles.isEmpty() && weapons.isEmpty() ? "" :
+									 !weapons.isEmpty() && !vehicles.isEmpty()
+											 ? "weapon and vehicle"
+											 : !weapons.isEmpty()
+													 ? "weapon"
+													 : "vehicle",
+							 Games.byName(game).bigName,
+							 author);
+	}
+
+	@Override
+	public List<String> autoTags() {
+		List<String> tags = new ArrayList<>(super.autoTags());
+		tags.add(name.toLowerCase());
+		if (!weapons.isEmpty()) tags.add("weapons");
+		if (!vehicles.isEmpty()) tags.add("vehicles");
+		tags.addAll(mutators.stream().map(m -> m.name.toLowerCase()).collect(Collectors.toList()));
+		return tags;
 	}
 
 	public static class NameDescription {

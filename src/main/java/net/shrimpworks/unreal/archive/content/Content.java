@@ -124,6 +124,17 @@ public abstract class Content implements Comparable<Content> {
 		return Util.capitalWords(this.contentType.toLowerCase().replaceAll("_", " "));
 	}
 
+	public String autoDescription() {
+		return description;
+	}
+
+	public List<String> autoTags() {
+		List<String> tags = new ArrayList<>();
+		tags.add(this.contentType.toLowerCase().replaceAll("_", " "));
+		tags.addAll(Games.byName(game).tags);
+		return tags;
+	}
+
 	/**
 	 * Check whether or not the given URL is already known as a download
 	 * location for this content.

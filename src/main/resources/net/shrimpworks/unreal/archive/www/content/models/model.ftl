@@ -9,7 +9,7 @@
 	</#if>
 </#list>
 
-<#assign ogDescription="${model.model.name}, a custom player model for ${game.game.bigName}, created by ${model.model.author}">
+<#assign ogDescription="${model.model.autoDescription()}">
 <#assign ogImage=headerbg>
 
 <#include "../../_header.ftl">

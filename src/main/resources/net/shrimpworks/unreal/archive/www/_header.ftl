@@ -19,7 +19,7 @@
 	<link rel="favicon" type="image/png" href="${staticPath()}/images/logo-32.png">
 
 	<meta property="og:title" content="${title}">
-	<meta property="og:ste_name" content="${siteName} / ${title}">
+	<meta property="og:site_name" content="${siteName}">
 
 	<#if !(ogDescription??)>
 		<#assign ogDescription="Downloads and guides for maps, mutators, skins, voices, models and mods, for the original classic Unreal, Unreal Tournament (UT99), and Unreal Tournament 2004 (UT2004) games">

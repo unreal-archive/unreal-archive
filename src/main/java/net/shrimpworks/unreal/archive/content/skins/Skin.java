@@ -4,8 +4,10 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import net.shrimpworks.unreal.archive.content.Content;
+import net.shrimpworks.unreal.archive.content.Games;
 
 public class Skin extends Content {
 
@@ -32,6 +34,28 @@ public class Skin extends Content {
 										  namePrefix,
 										  hashPath()
 		));
+	}
+
+	@Override
+	public String autoDescription() {
+		return String.format("%s, a custom player skin for %s with %s and %s, created by %s",
+							 name, Games.byName(game).bigName,
+							 skins.isEmpty()
+									 ? "no skins"
+									 : skins.size() > 1 ? skins.size() + " skins" : skins.size() + " skin",
+							 faces.isEmpty()
+									 ? "no faces"
+									 : faces.size() > 1 ? faces.size() + " faces" : faces.size() + " face",
+							 author);
+	}
+
+	@Override
+	public List<String> autoTags() {
+		List<String> tags = new ArrayList<>(super.autoTags());
+		tags.add(name.toLowerCase());
+		tags.addAll(skins.stream().map(String::toLowerCase).collect(Collectors.toList()));
+		tags.addAll(faces.stream().map(String::toLowerCase).collect(Collectors.toList()));
+		return tags;
 	}
 
 }

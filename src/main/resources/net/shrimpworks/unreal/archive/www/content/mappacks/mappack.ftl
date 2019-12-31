@@ -10,7 +10,7 @@
 	</#if>
 </#list>
 
-<#assign ogDescription="${pack.pack.name}, a ${gametype.name} map pack for ${game.game.bigName} containing ${pack.pack.maps?size} maps, created by ${pack.pack.author}">
+<#assign ogDescription="${pack.pack.autoDescription()}">
 <#assign ogImage=headerbg>
 
 <#include "../../_header.ftl">

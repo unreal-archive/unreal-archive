@@ -10,7 +10,7 @@
 	</#if>
 </#list>
 
-<#assign ogDescription="${map.map.name}, a ${map.map.playerCount} player ${gametype.name} map for ${game.game.bigName}, created by ${map.map.author}">
+<#assign ogDescription="${map.map.autoDescription()}">
 <#assign ogImage=headerbg>
 
 <#include "../../_header.ftl">

@@ -9,13 +9,7 @@
 	</#if>
 </#list>
 
-<#if mutator.mutator.weapons?size gt 0>
-	<#assign weaponString="weapon">
-<#else>
-	<#assign weaponString="">
-</#if>
-
-<#assign ogDescription="${mutator.mutator.name}, a custom ${weaponString} mutator for ${game.game.bigName}, created by ${mutator.mutator.author}">
+<#assign ogDescription="${mutator.mutator.autoDescription()}">
 <#assign ogImage=headerbg>
 
 <#include "../../_header.ftl">
