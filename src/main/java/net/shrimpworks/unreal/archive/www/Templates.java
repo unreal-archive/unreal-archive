@@ -43,6 +43,8 @@ public class Templates {
 
 	public static final int PAGE_SIZE = 150;
 
+	private static final String CDN_HOST = "f002.backblazeb2.com";
+
 	private static final String SITE_NAME = System.getenv().getOrDefault("SITE_NAME", "Unreal Archive");
 	private static final String STATIC_ROOT = System.getenv().getOrDefault("STATIC_ROOT", "");
 
@@ -66,7 +68,7 @@ public class Templates {
 		TPL_CONFIG.setOutputEncoding(StandardCharsets.UTF_8.name());
 		TPL_CONFIG.setOutputFormat(HTMLOutputFormat.INSTANCE);
 
-		HOST_REMAP.put("f002.backblazeb2.com", SITE_NAME);
+		HOST_REMAP.put(CDN_HOST, SITE_NAME);
 	}
 
 	public static class PageSet {

@@ -47,6 +47,7 @@ import net.shrimpworks.unreal.archive.scraper.UnrealPlayground;
 import net.shrimpworks.unreal.archive.storage.DataStore;
 import net.shrimpworks.unreal.archive.www.Documents;
 import net.shrimpworks.unreal.archive.www.Index;
+import net.shrimpworks.unreal.archive.www.MESSubmitter;
 import net.shrimpworks.unreal.archive.www.ManagedContent;
 import net.shrimpworks.unreal.archive.www.SiteMap;
 import net.shrimpworks.unreal.archive.www.Submit;
@@ -96,6 +97,9 @@ public class Main {
 				break;
 			case "www":
 				www(contentManager(cli), documentManager(cli), managedContent(cli, "updates"), cli);
+				break;
+			case "search-submit":
+				searchSubmit(contentManager(cli), documentManager(cli), managedContent(cli, "updates"), cli);
 				break;
 			case "summary":
 				summary(contentManager(cli));
@@ -471,6 +475,18 @@ public class Main {
 		allPages.addAll(SiteMap.siteMap(SiteMap.SITE_ROOT, outputPath, allPages, 50000).generate());
 
 		System.out.printf("Output %d pages in %.2fs%n", allPages.size(), (System.currentTimeMillis() - start) / 1000f);
+	}
+
+	private static void searchSubmit(ContentManager contentManager, DocumentManager documentManager, ManagedContentManager updates,
+									 CLI cli) throws IOException {
+		// TODO documents and updates
+		System.out.printf("Submitting content to search instance at %s%n", System.getenv().getOrDefault("MSE_URL", ""));
+		new MESSubmitter(contentManager,
+						 System.getenv().getOrDefault("SITE_URL", ""),
+						 System.getenv().getOrDefault("MSE_URL", ""),
+						 System.getenv().getOrDefault("MSE_TOKEN", ""))
+				.submit(percent -> System.out.printf("\r%.1f%% complete", percent * 100d),
+						done -> System.out.println("\nSubmission Complete"));
 	}
 
 	private static void summary(ContentManager contentManager) {
