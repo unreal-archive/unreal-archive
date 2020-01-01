@@ -1,0 +1,43 @@
+#search-form {
+	padding: 10px 0 10px 0;
+	border-bottom: 2px solid #999999;
+}
+
+#search-form input {
+}
+
+#search-form button {
+}
+
+#search-results {
+}
+
+#search-results .result {
+	display: flex;
+	padding: 10px 0 10px 0;
+	border-bottom: 1px dotted #999999;
+}
+
+#search-results .result .image {
+	padding-right: 10px;
+}
+
+#search-results .result .image img {
+	max-width: 140px;
+	max-height: 140px;
+	border-radius: 5px;
+}
+
+#search-results .result .info {
+}
+
+#search-results .result .info h2 {
+}
+
+#search-results .result .info .author {
+	font-size: 0.85em;
+	font-style: italic;
+}
+
+#search-results .result .info .description {
+}

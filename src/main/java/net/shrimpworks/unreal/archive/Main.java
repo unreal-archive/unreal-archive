@@ -49,6 +49,7 @@ import net.shrimpworks.unreal.archive.www.Documents;
 import net.shrimpworks.unreal.archive.www.Index;
 import net.shrimpworks.unreal.archive.www.MESSubmitter;
 import net.shrimpworks.unreal.archive.www.ManagedContent;
+import net.shrimpworks.unreal.archive.www.Search;
 import net.shrimpworks.unreal.archive.www.SiteMap;
 import net.shrimpworks.unreal.archive.www.Submit;
 import net.shrimpworks.unreal.archive.www.Templates;
@@ -423,7 +424,8 @@ public class Main {
 			System.exit(4);
 		}
 
-		final boolean localImages = Boolean.valueOf(cli.option("local-images", "false"));
+		final boolean withSearch = Boolean.parseBoolean(cli.option("with-search", "false"));
+		final boolean localImages = Boolean.parseBoolean(cli.option("local-images", "false"));
 		if (localImages) System.out.println("Will download a local copy of content images, this will take additional time.");
 
 		final Path staticOutput = outputPath.resolve("static");
@@ -467,6 +469,7 @@ public class Main {
 		System.out.printf("%nGenerating index page%n");
 		allPages.addAll(new Index(contentManager, documentManager, updates, outputPath, staticOutput).generate());
 		allPages.addAll(new Submit(outputPath, staticOutput).generate());
+		if (withSearch) allPages.addAll(new Search(outputPath, staticOutput).generate());
 
 		System.out.printf("%nGenerating latest files%n");
 		allPages.addAll(new Latest(contentManager, outputPath, staticOutput, localImages).generate());

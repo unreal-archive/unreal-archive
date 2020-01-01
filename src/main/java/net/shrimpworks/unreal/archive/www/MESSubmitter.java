@@ -47,6 +47,7 @@ public class MESSubmitter {
 		int i = 0;
 
 		for (Content content : contents) {
+			if (content.variationOf != null) continue;
 			Map<String, Object> doc = Map.of(
 					"id", content.hash,
 					"score", 1.0d,
@@ -57,7 +58,11 @@ public class MESSubmitter {
 							"author", content.author,
 							"url", rootUrl + content.slugPath(root).toString() + ".html",
 							"description", content.autoDescription(),
-							"tags", String.join(",", content.autoTags())
+							"image", content.attachments.stream()
+														.filter(a -> a.type == Content.AttachmentType.IMAGE)
+														.map(a -> a.url)
+														.findFirst().orElse(""),
+							"keywords", String.join(" ", content.autoTags())
 					)
 			);
 			post(mseUrl + ADD_ENDPOINT, mseToken, JSON_MAPPER.writeValueAsString(doc));
