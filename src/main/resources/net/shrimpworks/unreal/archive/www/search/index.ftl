@@ -8,35 +8,64 @@
 		Search
 	</h1>
 
-	<div id="search-form">
+	<form id="search-form">
 		<input type="text" id="q"/>
 		<button>Search</button>
-	</div>
+	</form>
 
 	<div id="search-results">
+	</div>
+
+	<div id="search-nav">
+		<button id="nav-back">Previous</button>
+		<span id="nav-text"></span>
+		<button id="nav-next">Next</button>
 	</div>
 
 </@content>
 
 <script type="application/javascript">
-	let searchRoot = "http://localhost:8080/search/api";
+	const searchRoot = "http://localhost:8080/search/api";
+  const pageSize = 10;
 
 	document.addEventListener("DOMContentLoaded", function() {
-		const searchQ = document.querySelector('#q');
-		const searchButton = document.querySelector('#search-form button');
-		const results = document.querySelector('#search-results');
+	  const searchForm = document.querySelector('#search-form');
 
-		searchButton.addEventListener('click', () => {
-			search(searchQ.value);
-		});
+	  const searchQ = document.querySelector('#q');
+	  const results = document.querySelector('#search-results');
 
-		function search(query, offset = 0, limit = 20) {
+	  const navBack = document.querySelector('#nav-back');
+	  const navNext = document.querySelector('#nav-next');
+	  const navText = document.querySelector('#nav-text');
+
+	  searchForm.addEventListener('submit', e => {
+		  search(searchQ.value);
+		  e.preventDefault();
+		  return false
+	  });
+
+	  const navClick = function(e) {
+			search(currentQuery, e.target.dataset.offset, pageSize);
+		};
+
+	  navBack.addEventListener('click', navClick);
+	  navNext.addEventListener('click', navClick);
+
+	  let currentQuery;
+
+	  function search(query, offset = 0, limit = pageSize) {
+	  	currentQuery = query;
+			window.history.replaceState(null, null, "?q=" + query);
+
 			while (results.childNodes.length > 0) results.removeChild(results.childNodes[0]);
 			const loading = document.createElement("h2");
 			loading.innerText = "... Searching ...";
 			results.append(loading);
 
-			fetch(searchRoot + "/search?q=" + query + "&offset=" + offset + "&limit=" + limit)
+			const url = searchRoot + "/search?q=" + query + "&offset=" + offset + "&limit=" + limit;
+			console.log("Query URL is ", url);
+
+			fetch(url)
 				.then((response) => {
 					results.removeChild(loading);
 					return response.json();
@@ -44,6 +73,8 @@
 				.then((data) => {
 					console.log("got results", data.totalResults);
 					data.docs.forEach(d => addResult(d));
+
+					navigation(data.totalResults, data.offset, data.limit);
 				});
 		}
 
@@ -86,6 +117,27 @@
 			resultRow.classList.add('result');
 			resultRow.append(imageDiv, info);
 			results.append(resultRow);
+		}
+
+		function navigation(totalResults = 0, offset = 0, limit = 0) {
+			navBack.disabled = offset === 0;
+			navNext.disabled = (totalResults <= limit) || (offset + limit > totalResults);
+			navText.innerText = totalResults === 0
+					? "-"
+					: `Showing ${"$"}{offset + 1} to ${"$"}{Math.min(offset + limit, totalResults)} of ${"$"}{totalResults} results`;
+			if (!navBack.disabled) navBack.dataset.offset = offset - limit;
+			if (!navNext.disabled) navNext.dataset.offset = offset + limit;
+		}
+
+		// initialise based on passed-in query string
+	  const urlParams = new URLSearchParams(window.location.search);
+	  const searchString = urlParams.get('q');
+	  if (searchString && searchString !== '') {
+			searchQ.value = searchString;
+			search(searchString);
+		} else {
+	  	// initialise navigation buttons in disabled state
+	  	navigation();
 		}
 	});
 

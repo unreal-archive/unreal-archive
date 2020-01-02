@@ -9,7 +9,6 @@ body, body:before, body:after {
 }
 
 body {
-	padding: 0;
 	margin: 0;
 
 	font-family: 'Dosis', sans-serif;
@@ -18,7 +17,7 @@ body {
 	/* footer-bottom hax */
 	min-height: 100%;
 	position: relative;
-	padding-bottom: 180px;
+	padding: 0 0 180px 0;
 }
 
 a {
@@ -486,7 +485,7 @@ div.theme-gauge .part.p3 { background-color: bisque; }
 div.theme-gauge .part.p4 { background-color: lemonchiffon; }
 div.theme-gauge .part.p5 { background-color: lightpink; }
 
-@media screen and (max-width: 1200px) {
+@media screen and (max-width: 1024px) {
 
 	body {
 		font-size: 1.2em;
