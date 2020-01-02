@@ -1,6 +1,6 @@
-Abel:
- - Designed by:	MADType
- - http://www.madtype.com/
+Dosis:
+ - Designed by: Edgar Tolentino, Pablo Impallari, Igino Marini
+ - https://github.com/eliheuer/dosis-vf
 
 Passion One:
  - Designed by:	Fontstage

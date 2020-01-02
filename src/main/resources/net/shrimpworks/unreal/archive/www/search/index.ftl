@@ -63,6 +63,7 @@
 			const game = document.createElement("img");
 			game.setAttribute("src", "${staticPath()}/images/games/icons/" + result.fields.game + ".png");
 			game.setAttribute("alt", result.fields.game);
+			game.setAttribute("title", result.fields.game);
 			const link = document.createElement("a");
 			link.setAttribute("href", result.fields.url);
 			link.innerText = result.fields.name;
@@ -71,7 +72,7 @@
 
 			const author = document.createElement("div");
 			author.classList.add('author');
-			author.innerText = "by " + result.fields.author;
+			author.innerText = result.fields.type + " by " + result.fields.author;
 
 			const description = document.createElement("div");
 			description.classList.add('description');

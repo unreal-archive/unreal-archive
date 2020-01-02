@@ -12,8 +12,8 @@ body {
 	padding: 0;
 	margin: 0;
 
-	font-family: 'Abel', sans-serif;
-	font-size: 1em;
+	font-family: 'Dosis', sans-serif;
+	font-size: 1.075em;
 
 	/* footer-bottom hax */
 	min-height: 100%;
@@ -49,7 +49,7 @@ h2 img {
 }
 
 .page {
-	max-width: 1024px;
+	max-width: 1200px;
 	margin-left: auto;
 	margin-right: auto;
 }
@@ -178,7 +178,7 @@ section.header h1 a:hover {
 	display: grid;
 	grid-template-columns: 33.3%;
 	grid-template-areas: 'block block block';
-	grid-gap: 10px;
+	grid-gap: 15px;
 }
 
 .biglist ul li {
@@ -486,7 +486,7 @@ div.theme-gauge .part.p3 { background-color: bisque; }
 div.theme-gauge .part.p4 { background-color: lemonchiffon; }
 div.theme-gauge .part.p5 { background-color: lightpink; }
 
-@media screen and (max-width: 1024px) {
+@media screen and (max-width: 1200px) {
 
 	body {
 		font-size: 1.2em;

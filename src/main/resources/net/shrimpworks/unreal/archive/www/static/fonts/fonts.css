@@ -7,17 +7,17 @@
 }
 
 @font-face {
-	font-family: 'Abel';
-	src: url('abel-regular-webfont.woff2') format('woff2'),
-			 url('abel-regular-webfont.woff') format('woff');
+	font-family: 'Nobile';
+	src: url('nobile-regular-webfont.woff2') format('woff2'),
+	url('nobile-regular-webfont.woff') format('woff');
 	font-weight: normal;
 	font-style: normal;
 }
 
 @font-face {
-	font-family: 'Nobile';
-	src: url('nobile-regular-webfont.woff2') format('woff2'),
-	url('nobile-regular-webfont.woff') format('woff');
+	font-family: 'Dosis';
+	src: url('dosis-regular.woff2') format('woff2'),
+	url('dosis-regular.woff') format('woff');
 	font-weight: normal;
 	font-style: normal;
 }

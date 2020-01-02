@@ -1,6 +1,6 @@
 #search-form {
 	padding: 10px 0 10px 0;
-	border-bottom: 2px solid #999999;
+	border-bottom: 4px solid #aaa;
 }
 
 #search-form input {
@@ -15,11 +15,14 @@
 #search-results .result {
 	display: flex;
 	padding: 10px 0 10px 0;
-	border-bottom: 1px dotted #999999;
+}
+
+#search-results .result:not(:last-child) {
+	border-bottom: 1px dotted #aaa;
 }
 
 #search-results .result .image {
-	padding-right: 10px;
+	padding-right: 20px;
 }
 
 #search-results .result .image img {
@@ -37,6 +40,7 @@
 #search-results .result .info .author {
 	font-size: 0.85em;
 	font-style: italic;
+	padding-bottom: 5px;
 }
 
 #search-results .result .info .description {
