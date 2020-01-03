@@ -50,6 +50,7 @@ import net.shrimpworks.unreal.archive.www.Index;
 import net.shrimpworks.unreal.archive.www.MESSubmitter;
 import net.shrimpworks.unreal.archive.www.ManagedContent;
 import net.shrimpworks.unreal.archive.www.Search;
+import net.shrimpworks.unreal.archive.www.SiteFeatures;
 import net.shrimpworks.unreal.archive.www.SiteMap;
 import net.shrimpworks.unreal.archive.www.Submit;
 import net.shrimpworks.unreal.archive.www.Templates;
@@ -425,8 +426,12 @@ public class Main {
 		}
 
 		final boolean withSearch = Boolean.parseBoolean(cli.option("with-search", "false"));
+		final boolean withSubmit = Boolean.parseBoolean(cli.option("with-submit", "false"));
+		final boolean withLatest = Boolean.parseBoolean(cli.option("with-latest", "false"));
 		final boolean localImages = Boolean.parseBoolean(cli.option("local-images", "false"));
 		if (localImages) System.out.println("Will download a local copy of content images, this will take additional time.");
+
+		final SiteFeatures features = new SiteFeatures(localImages, withLatest, withSubmit, withSearch);
 
 		final Path staticOutput = outputPath.resolve("static");
 
@@ -440,42 +445,52 @@ public class Main {
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("content"))) {
 			// generate content pages
 			Arrays.asList(
-					new Maps(contentManager, outputPath, staticOutput, localImages),
-					new MapPacks(contentManager, outputPath, staticOutput, localImages),
-					new Skins(contentManager, outputPath, staticOutput, localImages),
-					new Models(contentManager, outputPath, staticOutput, localImages),
-					new Voices(contentManager, outputPath, staticOutput, localImages),
-					new Mutators(contentManager, outputPath, staticOutput, localImages),
-					new FileDetails(contentManager, outputPath, staticOutput, localImages)
+					new Maps(contentManager, outputPath, staticOutput, features),
+					new MapPacks(contentManager, outputPath, staticOutput, features),
+					new Skins(contentManager, outputPath, staticOutput, features),
+					new Models(contentManager, outputPath, staticOutput, features),
+					new Voices(contentManager, outputPath, staticOutput, features),
+					new Mutators(contentManager, outputPath, staticOutput, features),
+					new FileDetails(contentManager, outputPath, staticOutput, features)
 			).parallelStream().forEach(g -> {
-				System.out.printf("%nGenerating %s pages%n", g.getClass().getSimpleName());
+				System.out.printf("Generating %s pages%n", g.getClass().getSimpleName());
 				allPages.addAll(g.generate());
 			});
 		}
 
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("docs"))) {
 			// generate document pages
-			System.out.printf("%nGenerating Document pages%n");
-			allPages.addAll(new Documents(documentManager, outputPath, staticOutput).generate());
+			System.out.println("Generating Document pages");
+			allPages.addAll(new Documents(documentManager, outputPath, staticOutput, features).generate());
 		}
 
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("updates"))) {
 			// generate updates pages
-			System.out.printf("%nGenerating Updates pages%n");
-			allPages.addAll(new ManagedContent(updates, outputPath, staticOutput, "Patches & Updates").generate());
+			System.out.println("Generating Updates pages");
+			allPages.addAll(new ManagedContent(updates, outputPath, staticOutput, features, "Patches & Updates").generate());
 		}
 
 		// generate index
-		System.out.printf("%nGenerating index page%n");
-		allPages.addAll(new Index(contentManager, documentManager, updates, outputPath, staticOutput).generate());
-		allPages.addAll(new Submit(outputPath, staticOutput).generate());
-		if (withSearch) allPages.addAll(new Search(outputPath, staticOutput).generate());
+		System.out.println("Generating index page");
+		allPages.addAll(new Index(contentManager, documentManager, updates, outputPath, staticOutput, features).generate());
 
-		System.out.printf("%nGenerating latest files%n");
-		allPages.addAll(new Latest(contentManager, outputPath, staticOutput, localImages).generate());
+		if (withSubmit) {
+			System.out.println("Generating submit page");
+			allPages.addAll(new Submit(outputPath, staticOutput, features).generate());
+		}
 
-		System.out.printf("%nGenerating sitemap%n");
-		allPages.addAll(SiteMap.siteMap(SiteMap.SITE_ROOT, outputPath, allPages, 50000).generate());
+		if (withSearch) {
+			System.out.println("Generating search page");
+			allPages.addAll(new Search(outputPath, staticOutput, features).generate());
+		}
+
+		if (withLatest) {
+			System.out.println("Generating latest files");
+			allPages.addAll(new Latest(contentManager, outputPath, staticOutput, features).generate());
+		}
+
+		System.out.println("Generating sitemap");
+		allPages.addAll(SiteMap.siteMap(SiteMap.SITE_ROOT, outputPath, allPages, 50000, features).generate());
 
 		System.out.printf("Output %d pages in %.2fs%n", allPages.size(), (System.currentTimeMillis() - start) / 1000f);
 	}
@@ -483,13 +498,16 @@ public class Main {
 	private static void searchSubmit(ContentManager contentManager, DocumentManager documentManager, ManagedContentManager updates,
 									 CLI cli) throws IOException {
 		// TODO documents and updates
+
+		final long start = System.currentTimeMillis();
+
 		System.out.printf("Submitting content to search instance at %s%n", System.getenv().getOrDefault("MSE_URL", ""));
 		new MESSubmitter(contentManager,
 						 System.getenv().getOrDefault("SITE_URL", ""),
 						 System.getenv().getOrDefault("MSE_URL", ""),
-						 System.getenv().getOrDefault("MSE_TOKEN", ""))
+						 System.getenv().getOrDefault("MSE_TOKEN", ""), 10)
 				.submit(percent -> System.out.printf("\r%.1f%% complete", percent * 100d),
-						done -> System.out.println("\nSubmission Complete"));
+						done -> System.out.printf("%nSearch submission complete in %.2fs%n", (System.currentTimeMillis() - start) / 1000f));
 	}
 
 	private static void summary(ContentManager contentManager) {

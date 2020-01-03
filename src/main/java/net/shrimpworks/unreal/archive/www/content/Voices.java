@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.ContentManager;
 import net.shrimpworks.unreal.archive.content.voices.Voice;
+import net.shrimpworks.unreal.archive.www.SiteFeatures;
 import net.shrimpworks.unreal.archive.www.SiteMap;
 import net.shrimpworks.unreal.archive.www.Templates;
 
@@ -24,11 +25,9 @@ public class Voices extends ContentPageGenerator {
 	private static final String SECTION = "Voices";
 
 	private final Games games;
-	private final Path siteRoot;
 
-	public Voices(ContentManager content, Path output, Path staticRoot, boolean localImages) {
-		super(content, output.resolve("voices"), staticRoot, localImages);
-		this.siteRoot = output;
+	public Voices(ContentManager content, Path output, Path staticRoot, SiteFeatures localImages) {
+		super(content, output, output.resolve("voices"), staticRoot, localImages);
 
 		this.games = new Games();
 
@@ -44,7 +43,7 @@ public class Voices extends ContentPageGenerator {
 
 	@Override
 	public Set<SiteMap.Page> generate() {
-		Templates.PageSet pages = new Templates.PageSet("content/voices", siteRoot, staticRoot, root);
+		Templates.PageSet pages = pageSet("content/voices");
 		pages.add("games.ftl", SiteMap.Page.monthly(0.6f), SECTION)
 			 .put("games", games)
 			 .write(root.resolve("index.html"));
@@ -98,8 +97,8 @@ public class Voices extends ContentPageGenerator {
 		localImages(voice.voice, root.resolve(voice.path).getParent());
 
 		pages.add("voice.ftl", SiteMap.Page.monthly(0.9f, voice.voice.firstIndex), String.join(" / ", SECTION,
-																							  voice.page.letter.game.game.bigName,
-																							  voice.voice.name))
+																							   voice.page.letter.game.game.bigName,
+																							   voice.voice.name))
 			 .put("voice", voice)
 			 .write(Paths.get(voice.path.toString() + ".html"));
 

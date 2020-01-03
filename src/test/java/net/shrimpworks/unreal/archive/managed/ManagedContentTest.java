@@ -15,6 +15,7 @@ import com.github.rjeschke.txtmark.Processor;
 import net.shrimpworks.unreal.archive.ArchiveUtil;
 import net.shrimpworks.unreal.archive.YAML;
 import net.shrimpworks.unreal.archive.www.ManagedContent;
+import net.shrimpworks.unreal.archive.www.SiteFeatures;
 
 import org.junit.jupiter.api.Test;
 
@@ -90,7 +91,7 @@ public class ManagedContentTest {
 			final ManagedContentManager cm = new ManagedContentManager(tmpRoot, "tests");
 			assertTrue(cm.all().contains(man));
 
-			ManagedContent content = new ManagedContent(cm, wwwRoot, wwwRoot, "Testing Stuff");
+			ManagedContent content = new ManagedContent(cm, wwwRoot, wwwRoot, SiteFeatures.ALL, "Testing Stuff");
 			assertEquals(4, content.generate().size());
 		} finally {
 			// cleanup temp files

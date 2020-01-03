@@ -24,15 +24,17 @@ public class ManagedContent implements PageGenerator {
 	private final Path root;
 	private final Path staticRoot;
 	private final String section;
+	private final SiteFeatures features;
 
 	private final Map<String, ContentGroup> groups;
 
-	public ManagedContent(ManagedContentManager content, Path root, Path staticRoot, String section) {
+	public ManagedContent(ManagedContentManager content, Path root, Path staticRoot, SiteFeatures features, String section) {
 		this.content = content;
 		this.siteRoot = root;
 		this.root = root.resolve(slug(section));
 		this.staticRoot = staticRoot;
 		this.section = section;
+		this.features = features;
 
 		this.groups = new HashMap<>();
 
@@ -51,7 +53,7 @@ public class ManagedContent implements PageGenerator {
 	 */
 	@Override
 	public Set<SiteMap.Page> generate() {
-		Templates.PageSet pages = new Templates.PageSet("managed", siteRoot, staticRoot, root);
+		Templates.PageSet pages = new Templates.PageSet("managed", features, siteRoot, staticRoot, root);
 		try {
 			// create the root landing page, for reasons
 			ContentGroup rootGroup = new ContentGroup(null, "");

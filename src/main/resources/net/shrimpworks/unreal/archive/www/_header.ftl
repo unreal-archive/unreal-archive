@@ -47,8 +47,11 @@
 				<span class="a">UNREAL</span><span class="b">ARCHIVE</span>
 			</a>
 			<div class="menu">
-				<a href="${relPath(siteRoot + "/latest/index.html")}">Latest Additions</a>
-				<a href="${relPath(siteRoot + "/submit/index.html")}">Submit Content</a>
+				<#if features??>
+          <#if features.search><a href="${relPath(siteRoot + "/search/index.html")}">Search</a></#if>
+          <#if features.latest><a href="${relPath(siteRoot + "/latest/index.html")}">Latest Additions</a></#if>
+          <#if features.submit><a href="${relPath(siteRoot + "/submit/index.html")}">Submit Content</a></#if>
+        </#if>
 			</div>
 		</div>
 	</div>

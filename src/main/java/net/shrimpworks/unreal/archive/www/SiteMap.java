@@ -23,8 +23,8 @@ public interface SiteMap extends PageGenerator {
 		never
 	}
 
-	static SiteMap siteMap(String rootUrl, Path root, Set<Page> pages, int pageLimit) {
-		return new SiteMapImpl(rootUrl, root, pages, pageLimit);
+	static SiteMap siteMap(String rootUrl, Path root, Set<Page> pages, int pageLimit, SiteFeatures features) {
+		return new SiteMapImpl(rootUrl, root, pages, pageLimit, features);
 	}
 
 	class SiteMapImpl implements SiteMap {
@@ -32,8 +32,10 @@ public interface SiteMap extends PageGenerator {
 		private final String rootUrl;
 		private final Path root;
 		private final List<Page> pages;
+		private final SiteFeatures features;
 
-		public SiteMapImpl(String rootUrl, Path root, Set<Page> pages, int pageLimit) {
+		public SiteMapImpl(String rootUrl, Path root, Set<Page> pages, int pageLimit, SiteFeatures features) {
+			this.features = features;
 			if (!rootUrl.endsWith("/")) this.rootUrl = rootUrl + "/";
 			else this.rootUrl = rootUrl;
 			this.root = root;
@@ -45,7 +47,7 @@ public interface SiteMap extends PageGenerator {
 
 		@Override
 		public Set<Page> generate() {
-			Templates.PageSet genPages = new Templates.PageSet("", root, root, root);
+			Templates.PageSet genPages = new Templates.PageSet("", features, root, root, root);
 
 			pages.stream().filter(p -> p.path == null).forEach(System.out::println);
 

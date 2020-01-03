@@ -25,14 +25,16 @@ public class Documents implements PageGenerator {
 	private final Path siteRoot;
 	private final Path root;
 	private final Path staticRoot;
+	private final SiteFeatures features;
 
 	private final Map<String, DocumentGroup> groups;
 
-	public Documents(DocumentManager documents, Path root, Path staticRoot) {
+	public Documents(DocumentManager documents, Path root, Path staticRoot, SiteFeatures features) {
 		this.documents = documents;
 		this.siteRoot = root;
 		this.root = root.resolve("documents");
 		this.staticRoot = staticRoot;
+		this.features = features;
 
 		this.groups = new HashMap<>();
 
@@ -51,7 +53,7 @@ public class Documents implements PageGenerator {
 	 */
 	@Override
 	public Set<SiteMap.Page> generate() {
-		Templates.PageSet pages = new Templates.PageSet("docs", siteRoot, staticRoot, root);
+		Templates.PageSet pages = new Templates.PageSet("docs", features, siteRoot, staticRoot, root);
 		try {
 			// create the root landing page, for reasons
 			DocumentGroup rootGroup = new DocumentGroup(null, "");

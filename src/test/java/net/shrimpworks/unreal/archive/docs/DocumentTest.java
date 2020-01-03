@@ -15,6 +15,7 @@ import com.github.rjeschke.txtmark.Processor;
 import net.shrimpworks.unreal.archive.ArchiveUtil;
 import net.shrimpworks.unreal.archive.YAML;
 import net.shrimpworks.unreal.archive.www.Documents;
+import net.shrimpworks.unreal.archive.www.SiteFeatures;
 
 import org.junit.jupiter.api.Test;
 
@@ -105,7 +106,7 @@ public class DocumentTest {
 			DocumentManager dm = new DocumentManager(tmpRoot);
 			assertTrue(dm.all().contains(doc));
 
-			Documents documents = new Documents(dm, wwwRoot, wwwRoot);
+			Documents documents = new Documents(dm, wwwRoot, wwwRoot, SiteFeatures.ALL);
 			assertEquals(6, documents.generate().size());
 		} finally {
 			// cleanup temp files

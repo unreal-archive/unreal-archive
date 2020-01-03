@@ -16,14 +16,17 @@ public class Index implements PageGenerator {
 	private final ContentManager content;
 	private final Path root;
 	private final Path staticRoot;
+	private final SiteFeatures features;
 
-	public Index(ContentManager content, DocumentManager documents, ManagedContentManager updates, Path output, Path staticRoot) {
+	public Index(ContentManager content, DocumentManager documents, ManagedContentManager updates, Path output, Path staticRoot,
+				 SiteFeatures features) {
 		this.content = content;
 		this.documents = documents;
 		this.updates = updates;
 
 		this.root = output;
 		this.staticRoot = staticRoot;
+		this.features = features;
 	}
 
 	@Override
@@ -33,7 +36,7 @@ public class Index implements PageGenerator {
 		contentCount.put("Documents", documents.all().stream().filter(d -> d.published).count());
 		contentCount.put("Updates", updates.all().stream().filter(d -> d.published).count());
 
-		Templates.PageSet pages = new Templates.PageSet("", root, staticRoot, root);
+		Templates.PageSet pages = new Templates.PageSet("", features, root, staticRoot, root);
 
 		pages.add("index.ftl", SiteMap.Page.of(1f, SiteMap.ChangeFrequency.weekly), "Home")
 			 .put("count", contentCount)

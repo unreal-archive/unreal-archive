@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.ContentManager;
 import net.shrimpworks.unreal.archive.content.mutators.Mutator;
+import net.shrimpworks.unreal.archive.www.SiteFeatures;
 import net.shrimpworks.unreal.archive.www.SiteMap;
 import net.shrimpworks.unreal.archive.www.Templates;
 
@@ -24,11 +25,9 @@ public class Mutators extends ContentPageGenerator {
 	private static final String SECTION = "Mutators";
 
 	private final Games games;
-	private final Path siteRoot;
 
-	public Mutators(ContentManager content, Path output, Path staticRoot, boolean localImages) {
-		super(content, output.resolve("mutators"), staticRoot, localImages);
-		this.siteRoot = output;
+	public Mutators(ContentManager content, Path output, Path staticRoot, SiteFeatures localImages) {
+		super(content, output, output.resolve("mutators"), staticRoot, localImages);
 
 		this.games = new Games();
 
@@ -44,7 +43,7 @@ public class Mutators extends ContentPageGenerator {
 
 	@Override
 	public Set<SiteMap.Page> generate() {
-		Templates.PageSet pages = new Templates.PageSet("content/mutators", siteRoot, staticRoot, root);
+		Templates.PageSet pages = pageSet("content/mutators");
 
 		pages.add("games.ftl", SiteMap.Page.monthly(0.6f), SECTION)
 			 .put("games", games)
@@ -99,8 +98,8 @@ public class Mutators extends ContentPageGenerator {
 		localImages(mutator.mutator, root.resolve(mutator.path).getParent());
 
 		pages.add("mutator.ftl", SiteMap.Page.monthly(0.9f, mutator.mutator.firstIndex), String.join(" / ", SECTION,
-																									mutator.page.letter.game.game.bigName,
-																									mutator.mutator.name))
+																									 mutator.page.letter.game.game.bigName,
+																									 mutator.mutator.name))
 			 .put("mutator", mutator)
 			 .write(Paths.get(mutator.path.toString() + ".html"));
 

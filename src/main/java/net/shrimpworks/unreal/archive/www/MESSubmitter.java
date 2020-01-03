@@ -7,7 +7,9 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -27,17 +29,20 @@ public class MESSubmitter {
 	private static ObjectMapper JSON_MAPPER = new ObjectMapper(new JsonFactory());
 
 	private static final String ADD_ENDPOINT = "/index/add";
+	private static final String ADD_BATCH_ENDPOINT = "/index/addBatch";
 
 	private final ContentManager contentManager;
 	private final String rootUrl;
 	private final String mseUrl;
 	private final String mseToken;
+	private final int batchSize;
 
-	public MESSubmitter(ContentManager contentManager, String rootUrl, String mseUrl, String mseToken) {
+	public MESSubmitter(ContentManager contentManager, String rootUrl, String mseUrl, String mseToken, int batchSize) {
 		this.contentManager = contentManager;
 		this.rootUrl = rootUrl;
 		this.mseUrl = mseUrl;
 		this.mseToken = mseToken;
+		this.batchSize = batchSize;
 	}
 
 	public void submit(Consumer<Double> progress, Consumer<Boolean> done) throws IOException {
@@ -45,6 +50,8 @@ public class MESSubmitter {
 		Path root = Paths.get("");
 		final int count = contents.size();
 		int i = 0;
+
+		final List<Map<String, Object>> batchDocs = new ArrayList<>(batchSize);
 
 		for (Content content : contents) {
 			if (content.variationOf != null) continue;
@@ -65,7 +72,13 @@ public class MESSubmitter {
 							"keywords", String.join(" ", content.autoTags())
 					)
 			);
-			post(mseUrl + ADD_ENDPOINT, mseToken, JSON_MAPPER.writeValueAsString(doc));
+
+			batchDocs.add(doc);
+
+			if (batchDocs.size() >= batchSize) {
+				post(mseUrl + ADD_BATCH_ENDPOINT, mseToken, JSON_MAPPER.writeValueAsString(Map.of("docs", batchDocs)));
+				batchDocs.clear();
+			}
 
 			i++;
 

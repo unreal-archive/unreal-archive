@@ -10,28 +10,37 @@ import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.ContentManager;
 import net.shrimpworks.unreal.archive.www.PageGenerator;
+import net.shrimpworks.unreal.archive.www.SiteFeatures;
+import net.shrimpworks.unreal.archive.www.Templates;
 
 public abstract class ContentPageGenerator implements PageGenerator {
 
 	final ContentManager content;
+	final Path siteRoot;
 	final Path root;
 	final Path staticRoot;
 
-	private final boolean localImages;
+	final SiteFeatures features;
 
 	/**
 	 * Create a new Page Generator instance.
 	 *
-	 * @param content     content manager
-	 * @param output      path to write this generator's output to
-	 * @param staticRoot  path to static content
-	 * @param localImages if true, download and reference local copies of remote images
+	 * @param content    content manager
+	 * @param siteRoot   root directory of the website output
+	 * @param output     path to write this generator's output to
+	 * @param staticRoot path to static content
+	 * @param features   if true, download and reference local copies of remote images
 	 */
-	public ContentPageGenerator(ContentManager content, Path output, Path staticRoot, boolean localImages) {
+	public ContentPageGenerator(ContentManager content, Path siteRoot, Path output, Path staticRoot, SiteFeatures features) {
 		this.content = content;
+		this.siteRoot = siteRoot;
 		this.root = output;
 		this.staticRoot = staticRoot;
-		this.localImages = localImages;
+		this.features = features;
+	}
+
+	Templates.PageSet pageSet(String resourceRoot) {
+		return new Templates.PageSet(resourceRoot, features, siteRoot, staticRoot, root);
 	}
 
 	/**
@@ -43,10 +52,9 @@ public abstract class ContentPageGenerator implements PageGenerator {
 	 *
 	 * @param content   content item to download images for
 	 * @param localPath local output path
-	 * @throws IOException something probably broke
 	 */
 	void localImages(Content content, Path localPath) {
-		if (!localImages) return;
+		if (!features.localImages) return;
 
 		// find all the images
 		List<Content.Attachment> images = content.attachments.stream()

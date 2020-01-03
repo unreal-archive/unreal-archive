@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.ContentManager;
 import net.shrimpworks.unreal.archive.content.maps.Map;
+import net.shrimpworks.unreal.archive.www.SiteFeatures;
 import net.shrimpworks.unreal.archive.www.SiteMap;
 import net.shrimpworks.unreal.archive.www.Templates;
 
@@ -24,11 +25,9 @@ public class Maps extends ContentPageGenerator {
 	private static final String SECTION = "Maps";
 
 	private final Games games;
-	private final Path siteRoot;
 
-	public Maps(ContentManager content, Path output, Path staticRoot, boolean localImages) {
-		super(content, output.resolve("maps"), staticRoot, localImages);
-		this.siteRoot = output;
+	public Maps(ContentManager content, Path output, Path staticRoot, SiteFeatures features) {
+		super(content, output, output.resolve("maps"), staticRoot, features);
 
 		this.games = new Games();
 
@@ -45,7 +44,7 @@ public class Maps extends ContentPageGenerator {
 
 	@Override
 	public Set<SiteMap.Page> generate() {
-		Templates.PageSet pages = new Templates.PageSet("content/maps", siteRoot, staticRoot, root);
+		Templates.PageSet pages = pageSet("content/maps");
 
 		pages.add("games.ftl", SiteMap.Page.monthly(0.6f), SECTION)
 			 .put("games", games)
@@ -108,9 +107,9 @@ public class Maps extends ContentPageGenerator {
 		localImages(map.map, root.resolve(map.path).getParent());
 
 		pages.add("map.ftl", SiteMap.Page.monthly(0.9f, map.map.firstIndex), String.join(" / ", SECTION,
-																						map.page.letter.gametype.game.game.bigName,
-																						map.page.letter.gametype.name,
-																						map.map.title))
+																						 map.page.letter.gametype.game.game.bigName,
+																						 map.page.letter.gametype.name,
+																						 map.map.title))
 			 .put("map", map)
 			 .write(Paths.get(map.path.toString() + ".html"));
 

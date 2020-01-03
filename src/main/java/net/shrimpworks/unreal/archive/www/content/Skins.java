@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.ContentManager;
 import net.shrimpworks.unreal.archive.content.skins.Skin;
+import net.shrimpworks.unreal.archive.www.SiteFeatures;
 import net.shrimpworks.unreal.archive.www.SiteMap;
 import net.shrimpworks.unreal.archive.www.Templates;
 
@@ -24,11 +25,9 @@ public class Skins extends ContentPageGenerator {
 	private static final String SECTION = "Skins";
 
 	private final Games games;
-	private final Path siteRoot;
 
-	public Skins(ContentManager content, Path output, Path staticRoot, boolean localImages) {
-		super(content, output.resolve("skins"), staticRoot, localImages);
-		this.siteRoot = output;
+	public Skins(ContentManager content, Path output, Path staticRoot, SiteFeatures localImages) {
+		super(content, output, output.resolve("skins"), staticRoot, localImages);
 
 		this.games = new Games();
 
@@ -45,7 +44,7 @@ public class Skins extends ContentPageGenerator {
 
 	@Override
 	public Set<SiteMap.Page> generate() {
-		Templates.PageSet pages = new Templates.PageSet("content/skins", siteRoot, staticRoot, root);
+		Templates.PageSet pages = pageSet("content/skins");
 
 		pages.add("games.ftl", SiteMap.Page.monthly(0.8f), SECTION)
 			 .put("games", games)
@@ -100,8 +99,8 @@ public class Skins extends ContentPageGenerator {
 		localImages(skin.skin, root.resolve(skin.path).getParent());
 
 		pages.add("skin.ftl", SiteMap.Page.monthly(0.9f, skin.skin.firstIndex), String.join(" / ", SECTION,
-																						   skin.page.letter.game.game.name,
-																						   skin.skin.name))
+																							skin.page.letter.game.game.name,
+																							skin.skin.name))
 			 .put("skin", skin)
 			 .write(Paths.get(skin.path.toString() + ".html"));
 

@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.ContentManager;
 import net.shrimpworks.unreal.archive.content.models.Model;
+import net.shrimpworks.unreal.archive.www.SiteFeatures;
 import net.shrimpworks.unreal.archive.www.SiteMap;
 import net.shrimpworks.unreal.archive.www.Templates;
 
@@ -24,11 +25,9 @@ public class Models extends ContentPageGenerator {
 	private static final String SECTION = "Models";
 
 	private final Games games;
-	private final Path siteRoot;
 
-	public Models(ContentManager content, Path output, Path staticRoot, boolean localImages) {
-		super(content, output.resolve("models"), staticRoot, localImages);
-		this.siteRoot = output;
+	public Models(ContentManager content, Path output, Path staticRoot, SiteFeatures localImages) {
+		super(content, output, output.resolve("models"), staticRoot, localImages);
 
 		this.games = new Games();
 
@@ -45,7 +44,7 @@ public class Models extends ContentPageGenerator {
 
 	@Override
 	public Set<SiteMap.Page> generate() {
-		Templates.PageSet pages = new Templates.PageSet("content/models", siteRoot, staticRoot, root);
+		Templates.PageSet pages = pageSet("content/models");
 
 		pages.add("games.ftl", SiteMap.Page.monthly(0.6f), SECTION)
 			 .put("games", games)
@@ -100,8 +99,8 @@ public class Models extends ContentPageGenerator {
 		localImages(model.model, root.resolve(model.path).getParent());
 
 		pages.add("model.ftl", SiteMap.Page.monthly(0.9f, model.model.firstIndex), String.join(" / ", SECTION,
-																							  model.page.letter.game.game.bigName,
-																							  model.model.name))
+																							   model.page.letter.game.game.bigName,
+																							   model.model.name))
 			 .put("model", model)
 			 .write(Paths.get(model.path.toString() + ".html"));
 

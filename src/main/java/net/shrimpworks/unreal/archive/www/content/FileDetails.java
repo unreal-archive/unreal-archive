@@ -11,17 +11,16 @@ import java.util.Set;
 
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.ContentManager;
+import net.shrimpworks.unreal.archive.www.SiteFeatures;
 import net.shrimpworks.unreal.archive.www.SiteMap;
 import net.shrimpworks.unreal.archive.www.Templates;
 
 public class FileDetails extends ContentPageGenerator {
 
 	private final Map<Content.ContentFile, List<Content>> contentFiles;
-	private final Path siteRoot;
 
-	public FileDetails(ContentManager content, Path output, Path staticRoot, boolean localImages) {
-		super(content, output.resolve("files"), staticRoot, localImages);
-		this.siteRoot = output;
+	public FileDetails(ContentManager content, Path output, Path staticRoot, SiteFeatures localImages) {
+		super(content, output, output.resolve("files"), staticRoot, localImages);
 
 		this.contentFiles = new HashMap<>();
 		content.search(null, null, null, null)
@@ -35,7 +34,7 @@ public class FileDetails extends ContentPageGenerator {
 
 	@Override
 	public Set<SiteMap.Page> generate() {
-		Templates.PageSet pages = new Templates.PageSet("content/files", siteRoot, staticRoot, root);
+		Templates.PageSet pages = pageSet("content/files");
 		contentFiles.entrySet().parallelStream().forEach(e -> {
 			// we're only interested in multi-use files
 			if (e.getValue().size() < 2) return;
