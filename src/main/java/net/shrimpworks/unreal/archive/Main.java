@@ -505,7 +505,7 @@ public class Main {
 		new MESSubmitter(contentManager,
 						 System.getenv().getOrDefault("SITE_URL", ""),
 						 System.getenv().getOrDefault("MSE_URL", ""),
-						 System.getenv().getOrDefault("MSE_TOKEN", ""), 10)
+						 System.getenv().getOrDefault("MSE_TOKEN", ""), 15)
 				.submit(percent -> System.out.printf("\r%.1f%% complete", percent * 100d),
 						done -> System.out.printf("%nSearch submission complete in %.2fs%n", (System.currentTimeMillis() - start) / 1000f));
 	}

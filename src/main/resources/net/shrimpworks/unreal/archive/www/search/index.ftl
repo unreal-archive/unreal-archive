@@ -25,7 +25,7 @@
 </@content>
 
 <script type="application/javascript">
-	const searchRoot = "http://localhost:8080/search/api";
+	const searchRoot = "./api";
   const pageSize = 10;
 
 	document.addEventListener("DOMContentLoaded", function() {
