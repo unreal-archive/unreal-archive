@@ -63,7 +63,7 @@ public class MESSubmitter {
 							"game", content.game,
 							"type", content.friendlyContentType(),
 							"author", content.author,
-							"url", rootUrl + content.slugPath(root).toString() + ".html",
+							"url", rootUrl + "/" + content.slugPath(root).toString() + ".html",
 							"description", content.autoDescription(),
 							"image", content.attachments.stream()
 														.filter(a -> a.type == Content.AttachmentType.IMAGE)
