@@ -64,6 +64,7 @@ public class MESSubmitter {
 							"type", content.friendlyContentType(),
 							"author", content.author,
 							"url", rootUrl + "/" + content.slugPath(root).toString() + ".html",
+							"date", content.releaseDate,
 							"description", content.autoDescription(),
 							"image", content.attachments.stream()
 														.filter(a -> a.type == Content.AttachmentType.IMAGE)

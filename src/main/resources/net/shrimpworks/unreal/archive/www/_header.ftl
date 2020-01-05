@@ -6,7 +6,7 @@
 
 	<title>${siteName} / ${title}</title>
 	<link rel="stylesheet" href="${staticPath()}/fonts/fonts.css?v=2">
-	<link rel="stylesheet" href="${staticPath()}/css/style.css?v=8">
+	<link rel="stylesheet" href="${staticPath()}/css/style.css?v=9">
 	<#if extraCss??>
 		<link rel="stylesheet" href="${staticPath()}/css/${extraCss}">
 	</#if>
@@ -38,21 +38,4 @@
 </head>
 
 <body>
-
-<header>
-	<div class="page">
-		<div class="heading">
-			<a href="${relPath(siteRoot + "/index.html")}" class="header">
-				<img src="${staticPath()}/images/logo.png" alt="Unreal Archive"/>
-				<span class="a">UNREAL</span><span class="b">ARCHIVE</span>
-			</a>
-			<div class="menu">
-				<#if features??>
-          <#if features.search><a href="${relPath(siteRoot + "/search/index.html")}">Search</a></#if>
-          <#if features.latest><a href="${relPath(siteRoot + "/latest/index.html")}">Latest Additions</a></#if>
-          <#if features.submit><a href="${relPath(siteRoot + "/submit/index.html")}">Submit Content</a></#if>
-        </#if>
-			</div>
-		</div>
-	</div>
-</header>
+<#include "title.ftl">
