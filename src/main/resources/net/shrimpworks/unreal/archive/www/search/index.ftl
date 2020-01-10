@@ -26,35 +26,35 @@
 
 <script type="application/javascript">
 	const searchRoot = "./api";
-  const pageSize = 10;
+	const pageSize = 30;
 
 	document.addEventListener("DOMContentLoaded", function() {
-	  const searchForm = document.querySelector('#search-form');
+		const searchForm = document.querySelector('#search-form');
 
-	  const searchQ = document.querySelector('#q');
-	  const results = document.querySelector('#search-results');
+		const searchQ = document.querySelector('#q');
+		const results = document.querySelector('#search-results');
 
-	  const navBack = document.querySelector('#nav-back');
-	  const navNext = document.querySelector('#nav-next');
-	  const navText = document.querySelector('#nav-text');
+		const navBack = document.querySelector('#nav-back');
+		const navNext = document.querySelector('#nav-next');
+		const navText = document.querySelector('#nav-text');
 
-	  searchForm.addEventListener('submit', e => {
-		  search(searchQ.value);
-		  e.preventDefault();
-		  return false
-	  });
+		let currentQuery;
 
-	  const navClick = function(e) {
+		searchForm.addEventListener('submit', e => {
+			search(searchQ.value);
+			e.preventDefault();
+			return false
+		});
+
+		const navClick = function(e) {
 			search(currentQuery, e.target.dataset.offset, pageSize);
 		};
 
-	  navBack.addEventListener('click', navClick);
-	  navNext.addEventListener('click', navClick);
+		navBack.addEventListener('click', navClick);
+		navNext.addEventListener('click', navClick);
 
-	  let currentQuery;
-
-	  function search(query, offset = 0, limit = pageSize) {
-	  	currentQuery = query;
+		function search(query, offset = 0, limit = pageSize) {
+			currentQuery = query;
 			window.history.replaceState(null, null, "?q=" + query);
 
 			while (results.childNodes.length > 0) results.removeChild(results.childNodes[0]);
@@ -71,11 +71,21 @@
 					return response.json();
 				})
 				.then((data) => {
-					console.log("got results", data.totalResults);
-					data.docs.forEach(d => addResult(d));
+					if (data.totalResults === 0) {
+						noResult();
+		  		} else {
+			  		data.docs.forEach(d => addResult(d));
+		  		}
 
 					navigation(data.totalResults, data.offset, data.limit);
 				});
+		}
+
+		function noResult() {
+			while (results.childNodes.length > 0) results.removeChild(results.childNodes[0]);
+			const loading = document.createElement("h2");
+			loading.innerText = "No results matching your search";
+			results.append(loading);
 		}
 
 		function addResult(result) {
@@ -123,21 +133,21 @@
 			navBack.disabled = offset === 0;
 			navNext.disabled = (totalResults <= limit) || (offset + limit > totalResults);
 			navText.innerText = totalResults === 0
-					? "-"
-					: `Showing ${"$"}{offset + 1} to ${"$"}{Math.min(offset + limit, totalResults)} of ${"$"}{totalResults} results`;
+				? "-"
+				: `Showing ${"$"}{offset + 1} to ${"$"}{Math.min(offset + limit, totalResults)} of ${"$"}{totalResults} results`;
 			if (!navBack.disabled) navBack.dataset.offset = offset - limit;
 			if (!navNext.disabled) navNext.dataset.offset = offset + limit;
 		}
 
 		// initialise based on passed-in query string
-	  const urlParams = new URLSearchParams(window.location.search);
-	  const searchString = urlParams.get('q');
-	  if (searchString && searchString !== '') {
+		const urlParams = new URLSearchParams(window.location.search);
+		const searchString = urlParams.get('q');
+		if (searchString && searchString !== '') {
 			searchQ.value = searchString;
 			search(searchString);
 		} else {
-	  	// initialise navigation buttons in disabled state
-	  	navigation();
+			// initialise navigation buttons in disabled state
+			navigation();
 		}
 	});
 
