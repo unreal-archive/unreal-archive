@@ -25,7 +25,7 @@ import net.shrimpworks.unreal.archive.Util;
  * During the sync process, unsynced local files will be published to
  * remote storage, and may then be discarded.
  */
-public class Managed {
+public class Managed implements Comparable<Managed> {
 
 	public enum Platform {
 		ANY,
@@ -56,6 +56,11 @@ public class Managed {
 		String path = Arrays.stream(this.path.split("/")).map(Util::slug).collect(Collectors.joining("/"));
 		String name = Util.slug(this.title);
 		return root.resolve(game).resolve(path).resolve(name);
+	}
+
+	@Override
+	public int compareTo(Managed managed) {
+		return releaseDate.compareTo(managed.releaseDate);
 	}
 
 	@Override

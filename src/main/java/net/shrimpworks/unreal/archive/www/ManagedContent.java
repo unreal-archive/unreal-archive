@@ -5,11 +5,13 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.managed.Managed;
@@ -40,6 +42,8 @@ public class ManagedContent implements PageGenerator {
 
 		content.all().stream()
 			   .filter(d -> d.published)
+			   .sorted(Comparator.reverseOrder())
+			   .collect(Collectors.toList())
 			   .forEach(d -> {
 				   ContentGroup group = groups.computeIfAbsent(d.game, g -> new ContentGroup(null, g));
 				   group.add(d);

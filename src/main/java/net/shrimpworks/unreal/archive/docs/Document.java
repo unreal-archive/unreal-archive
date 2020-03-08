@@ -7,8 +7,9 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import net.shrimpworks.unreal.archive.Util;
+import net.shrimpworks.unreal.archive.content.Content;
 
-public class Document {
+public class Document implements Comparable<Document> {
 
 	public LocalDate createdDate;
 	public LocalDate updatedDate;
@@ -27,6 +28,11 @@ public class Document {
 		String path = Arrays.stream(this.path.split("/")).map(Util::slug).collect(Collectors.joining("/"));
 		String name = Util.slug(this.title);
 		return root.resolve(game).resolve(path).resolve(name);
+	}
+
+	@Override
+	public int compareTo(Document document) {
+		return createdDate.compareTo(document.createdDate);
 	}
 
 	@Override

@@ -5,6 +5,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,7 @@ public class Documents implements PageGenerator {
 
 		documents.all().stream()
 				 .filter(d -> d.published)
+				 .sorted(Comparator.reverseOrder())
 				 .forEach(d -> {
 					 DocumentGroup group = groups.computeIfAbsent(d.game, g -> new DocumentGroup(null, g));
 					 group.add(d);
