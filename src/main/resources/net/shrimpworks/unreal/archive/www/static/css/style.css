@@ -45,6 +45,7 @@ h2 {
 h2 img {
 	vertical-align: middle;
 	padding: 3px 7px 5px 0;
+	height: 26px;
 }
 
 .page {
@@ -487,6 +488,10 @@ section.latest table td {
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
+}
+
+section.report {
+	text-align: center;
 }
 
 /*

@@ -93,7 +93,7 @@
 
 			<#if mutator.variations?size gt 0>
 				<section class="variations">
-					<h2><img src="${staticPath()}/images/icons/black/px22/variant.png" alt="Variations"/>Variations</h2>
+					<h2><img src="${staticPath()}/images/icons/variant.svg" alt="Variations"/>Variations</h2>
 					<table>
 						<thead>
 						<tr>
@@ -120,6 +120,8 @@
 			<@files files=mutator.mutator.files alsoIn=mutator.alsoIn otherFiles=mutator.mutator.otherFiles/>
 
 			<@downloads downloads=mutator.mutator.downloads/>
+
+      <@ghIssue text="Report a problem" repoUrl="${dataProjectUrl}" title="[Mutator] ${mutator.mutator.name}" hash="${mutator.mutator.hash}" name="${mutator.mutator.name}"/>
 
 		</div>
 

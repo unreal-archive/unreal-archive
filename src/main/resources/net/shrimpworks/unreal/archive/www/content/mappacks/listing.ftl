@@ -35,7 +35,7 @@
 					<td class="nomobile">${p.pack.maps?size}</td>
 					<td class="meta nomobile">
 						<#if p.pack.attachments?size gt 0>
-							<img src="${staticPath()}/images/icons/black/px22/ico-images-grey.png" alt="Has images"/>
+							<img src="${staticPath()}/images/icons/image.svg" alt="Has images" height="22"/>
 						</#if>
 					</td>
 				</tr>

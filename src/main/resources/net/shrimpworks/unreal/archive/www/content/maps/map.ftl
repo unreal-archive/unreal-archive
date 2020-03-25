@@ -78,7 +78,7 @@
 
 			<#if map.variations?size gt 0>
 				<section class="variations">
-					<h2><img src="${staticPath()}/images/icons/black/px22/variant.png" alt="Variations"/>Variations</h2>
+					<h2><img src="${staticPath()}/images/icons/variant.svg" alt="Variations"/>Variations</h2>
 					<table>
 						<thead>
 						<tr>
@@ -105,6 +105,8 @@
 			<@files files=map.map.files alsoIn=map.alsoIn otherFiles=map.map.otherFiles/>
 
 			<@downloads downloads=map.map.downloads/>
+
+			<@ghIssue text="Report a problem" repoUrl="${dataProjectUrl}" title="[Map] ${map.map.name}" hash="${map.map.hash}" name="${map.map.name}"/>
 
 		</div>
 

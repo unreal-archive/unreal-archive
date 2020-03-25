@@ -61,7 +61,7 @@
 
 			<#if model.variations?size gt 0>
 				<section class="variations">
-					<h2><img src="${staticPath()}/images/icons/black/px22/variant.png" alt="Variations"/>Variations</h2>
+					<h2><img src="${staticPath()}/images/icons/variant.svg" alt="Variations"/>Variations</h2>
 					<table>
 						<thead>
 						<tr>
@@ -88,6 +88,8 @@
 			<@files files=model.model.files alsoIn=model.alsoIn otherFiles=model.model.otherFiles/>
 
 			<@downloads downloads=model.model.downloads/>
+
+      <@ghIssue text="Report a problem" repoUrl="${dataProjectUrl}" title="[Model] ${model.model.name}" hash="${model.model.hash}" name="${model.model.name}"/>
 
 		</div>
 

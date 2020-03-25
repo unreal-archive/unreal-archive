@@ -58,7 +58,7 @@
 
 			<#if voice.variations?size gt 0>
 				<section class="variations">
-					<h2><img src="${staticPath()}/images/icons/black/px22/variant.png" alt="Variations"/>Variations</h2>
+					<h2><img src="${staticPath()}/images/icons/variant.svg" alt="Variations"/>Variations</h2>
 					<table>
 						<thead>
 						<tr>
@@ -85,6 +85,8 @@
 			<@files files=voice.voice.files alsoIn=voice.alsoIn otherFiles=voice.voice.otherFiles/>
 
 			<@downloads downloads=voice.voice.downloads/>
+
+      <@ghIssue text="Report a problem" repoUrl="${dataProjectUrl}" title="[Voice] ${voice.voice.name}" hash="${voice.voice.hash}" name="${voice.voice.name}"/>
 
 		</div>
 

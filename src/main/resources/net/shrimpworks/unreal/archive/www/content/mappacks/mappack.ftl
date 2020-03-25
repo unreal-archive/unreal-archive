@@ -75,7 +75,7 @@
 
 			<#if pack.variations?size gt 0>
 				<section class="variations">
-					<h2><img src="${staticPath()}/images/icons/black/px22/variant.png" alt="Variations"/>Variations</h2>
+					<h2><img src="${staticPath()}/images/icons/variant.svg" alt="Variations"/>Variations</h2>
 					<table>
 						<thead>
 						<tr>
@@ -100,7 +100,7 @@
 			</#if>
 
 			<section class="maps">
-				<h2><img src="${staticPath()}/images/icons/black/px22/list.png" alt="Maps"/>Maps</h2>
+				<h2><img src="${staticPath()}/images/icons/list.svg" alt="Maps"/>Maps</h2>
 				<table>
 					<thead>
 					<tr>
@@ -124,6 +124,8 @@
 			<@files files=pack.pack.files alsoIn=pack.alsoIn otherFiles=pack.pack.otherFiles/>
 
 			<@downloads downloads=pack.pack.downloads/>
+
+      <@ghIssue text="Report a problem" repoUrl="${dataProjectUrl}" title="[Map Pack] ${pack.pack.name}" hash="${pack.pack.hash}" name="${pack.pack.name}"/>
 
 		</div>
 

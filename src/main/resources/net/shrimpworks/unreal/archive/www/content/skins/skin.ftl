@@ -63,7 +63,7 @@
 
 			<#if skin.variations?size gt 0>
 				<section class="variations">
-					<h2><img src="${staticPath()}/images/icons/black/px22/variant.png" alt="Variations"/>Variations</h2>
+					<h2><img src="${staticPath()}/images/icons/variant.svg" alt="Variations"/>Variations</h2>
 					<table>
 						<thead>
 						<tr>
@@ -91,6 +91,8 @@
 			<@files files=skin.skin.files alsoIn=skin.alsoIn otherFiles=skin.skin.otherFiles/>
 
 			<@downloads downloads=skin.skin.downloads/>
+
+      <@ghIssue text="Report a problem" repoUrl="${dataProjectUrl}" title="[Skin] ${skin.skin.name}" hash="${skin.skin.hash}" name="${skin.skin.name}"/>
 
 		</div>
 

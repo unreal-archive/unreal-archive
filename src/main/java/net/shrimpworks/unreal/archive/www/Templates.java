@@ -47,6 +47,7 @@ public class Templates {
 
 	private static final String SITE_NAME = System.getenv().getOrDefault("SITE_NAME", "Unreal Archive");
 	private static final String STATIC_ROOT = System.getenv().getOrDefault("STATIC_ROOT", "");
+	private static final String DATA_PROJECT_URL = System.getenv().getOrDefault("DATA_PROJECT_URL", "https://github.com/unreal-archive/unreal-archive-data");
 
 	private static final Map<String, String> HOST_REMAP = new HashMap<>();
 
@@ -145,6 +146,7 @@ public class Templates {
 			TPL_VARS.put("dateFmtShort", new FormatLocalDateMethod(true));
 			TPL_VARS.put("trunc", new TruncateStringMethod());
 			TPL_VARS.put("siteName", SITE_NAME);
+			TPL_VARS.put("dataProjectUrl", DATA_PROJECT_URL);
 		}
 
 		private final Template template;
@@ -222,7 +224,7 @@ public class Templates {
 		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
 			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a URL to encode");
 
-			return args.get(0).toString();
+			return args.get(0).toString().replaceAll("\n", "%0A");
 		}
 	}
 

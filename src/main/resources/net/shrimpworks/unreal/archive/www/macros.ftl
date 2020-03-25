@@ -57,8 +57,8 @@
 </#macro>
 
 <#macro meta title labels values styles={}>
-	<section class="files">
-		<h2><img src="${staticPath()}/images/icons/black/px22/info.png" alt="Info"/>${title}</h2>
+	<section class="meta">
+		<h2><img src="${staticPath()}/images/icons/info.svg" alt="Info"/>${title}</h2>
 		<#list labels as l>
 			<#if values[l?index]??>
 				<div class="label-value <#if styles[l?index?string]??>${styles[l?index?string]}</#if>">
@@ -71,7 +71,7 @@
 
 <#macro files files alsoIn otherFiles>
 	<section class="files">
-		<h2><img src="${staticPath()}/images/icons/black/px22/package.png" alt="Files"/>Packaged Files</h2>
+		<h2><img src="${staticPath()}/images/icons/package.svg" alt="Files"/>Packaged Files</h2>
 		<table>
 			<thead>
 			<tr>
@@ -110,7 +110,7 @@
 
 <#macro downloads downloads>
 	<section class="downloads">
-		<h2><img src="${staticPath()}/images/icons/black/px22/download.png" alt="Download"/> Downloads</h2>
+		<h2><img src="${staticPath()}/images/icons/download.svg" alt="Download"/> Downloads</h2>
 		<div class="links">
 			<#list downloads as d>
 				<#if d.state == 'OK'>
@@ -120,5 +120,23 @@
 				</#if>
 			</#list>
 		</div>
+	</section>
+</#macro>
+
+<#macro ghIssue text repoUrl title name hash labels=[]>
+	<#outputformat "plainText"><#assign sbody>
+		Your description here
+
+
+		---
+		Hash: ${hash}
+		Current name: ${name}
+	</#assign></#outputformat>
+	<#assign stitle><#if title??>${title}</#if></#assign>
+	<#assign slabels><#if labels?? && labels?size gt 0>${labels?join(",")}</#if></#assign>
+	<#assign url="${repoUrl}/issues/new?title=${stitle}&labels=${slabels}&body=${urlEncode(sbody)}">
+
+	<section class="report">
+		<a href="${url}"><img src="${staticPath()}/images/icons/alert.svg" align="absmiddle" alt="Alert Icon"/> ${text}</a>
 	</section>
 </#macro>

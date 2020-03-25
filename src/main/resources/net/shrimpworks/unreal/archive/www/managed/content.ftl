@@ -20,7 +20,7 @@
 
 	<@content class="managed document">
 		<section class="meta">
-			<h2><img src="${staticPath()}/images/icons/black/px22/info.png" alt="Information"/>Information</h2>
+			<h2><img src="${staticPath()}/images/icons/info.svg" alt="Information"/>Information</h2>
 			<div class="label-value">
 				<label>Author</label><span>${managed.managed.author}</span>
 			</div>
@@ -43,12 +43,12 @@
 			</div>
 
 			<section class="downloads">
-				<h2><img src="${staticPath()}/images/icons/black/px22/download.png" alt="Downloads"/> Downloads</h2>
+				<h2><img src="${staticPath()}/images/icons/download.svg" alt="Downloads"/> Downloads</h2>
 				<#list managed.managed.downloads as d>
 					<#if !d.deleted && d.downloads?size gt 0>
 						<div class="download">
 							<div class="title">
-								<img src="${staticPath()}/images/icons/black/px22/os-${d.platform?lower_case}.png" title="${d.platform}" align="absmiddle" alt="${d.platform}"/>
+								<img src="${staticPath()}/images/icons/os-${d.platform?lower_case}.svg" title="${d.platform}" align="absmiddle" alt="${d.platform}"/>
 								${d.title} ver ${d.version}
 							</div>
 							<div class="info">
