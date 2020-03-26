@@ -48,7 +48,7 @@
 					<#if !d.deleted && d.downloads?size gt 0>
 						<div class="download">
 							<div class="title">
-								<img src="${staticPath()}/images/icons/os-${d.platform?lower_case}.svg" title="${d.platform}" align="absmiddle" alt="${d.platform}"/>
+								<img src="${staticPath()}/images/icons/os-${d.platform?lower_case}.svg" title="${d.platform}" alt="${d.platform}"/>
 								${d.title} ver ${d.version}
 							</div>
 							<div class="info">

@@ -136,10 +136,15 @@ header .heading a {
 	text-decoration: none;
 }
 
-header img {
+header .header img {
 	align-self: start;
 	vertical-align: top;
 	margin-bottom: -10px;
+}
+
+.heading .menu img[src$="svg"] {
+	filter: invert(1);
+	vertical-align: middle;
 }
 
 .readable {
@@ -472,6 +477,10 @@ article.managed section.downloads .download .links a:hover {
 	background-color: lawngreen;
 }
 
+article.managed section.downloads .download .title img {
+	vertical-align: middle;
+}
+
 section.latest table tr th:nth-child(1) {
 	width: 25%;
 }
@@ -492,6 +501,14 @@ section.latest table td {
 
 section.report {
 	text-align: center;
+}
+
+section.report img {
+	vertical-align: middle;
+}
+
+button img {
+	vertical-align: middle;
 }
 
 /*

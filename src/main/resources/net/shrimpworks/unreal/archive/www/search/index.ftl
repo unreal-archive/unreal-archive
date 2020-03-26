@@ -1,4 +1,4 @@
-<#assign extraCss="search.css"/>
+<#assign extraCss="search.css?v=2"/>
 <#include "../_header.ftl">
 <#include "../macros.ftl">
 
@@ -10,16 +10,16 @@
 
 	<form id="search-form">
 		<input type="text" id="q"/>
-		<button>Search</button>
+		<button><img src="${staticPath()}/images/icons/search.svg" alt="Search"/> Search</button>
 	</form>
 
 	<div id="search-results">
 	</div>
 
 	<div id="search-nav">
-		<button id="nav-back">Previous</button>
+		<button id="nav-back"><img src="${staticPath()}/images/icons/chevron-left.svg" alt="Previous"/> Previous</button>
 		<span id="nav-text"></span>
-		<button id="nav-next">Next</button>
+		<button id="nav-next">Next <img src="${staticPath()}/images/icons/chevron-right.svg" alt="Next"/> </button>
 	</div>
 
 </@content>

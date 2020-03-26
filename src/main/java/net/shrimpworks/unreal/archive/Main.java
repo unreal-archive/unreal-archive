@@ -205,7 +205,7 @@ public class Main {
 
 		List<Path> diskPaths = Arrays.stream(cli.commands(), fromOffset, cli.commands().length)
 									 .filter(s -> !s.matches("^https?://.*"))
-									 .map(s -> Paths.get(s))
+									 .map(s -> Paths.get(s).toAbsolutePath())
 									 .peek(p -> {
 										 if (!Files.exists(p)) {
 											 System.err.println("Input path does not exist: " + p.toString());

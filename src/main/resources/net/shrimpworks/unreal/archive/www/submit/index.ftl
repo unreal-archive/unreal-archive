@@ -23,13 +23,13 @@
 
 				<div id="upload" class="display-block">
 					<input type="file" id="files" accept=".zip,.rar,.7z,.ace,.gz,.bz2,.tar,.tgz,.exe,.umod,.ut2mod,.ut4mod" multiple style="display:none">
-					<button id="select-files">Select Files</button>
-					<button id="upload-files">Upload!</button>
+					<button id="select-files"><img src="${staticPath()}/images/icons/file-plus.svg" alt="Add files"/> Select Files</button>
+					<button id="upload-files"><img src="${staticPath()}/images/icons/upload.svg" alt="Upload"/> Upload!</button>
 				</div>
 
 				<div id="url">
 					<input type="text" id="link" placeholder="paste link here"/>
-					<button id="upload-url">Submit!</button>
+					<button id="upload-url"><img src="${staticPath()}/images/icons/upload.svg" alt="Upload"/> Submit!</button>
 				</div>
 			</div>
 

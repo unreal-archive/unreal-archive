@@ -21,7 +21,7 @@ public class ArchiveUtil {
 	private static final Duration KILL_WAIT = Duration.ofSeconds(1);
 
 	private static final Set<String> ARCHIVES = new HashSet<>(Arrays.asList(
-			"zip", "z", "gz", "7z", "rar", "lzh", "exe"
+			"zip", "z", "gz", "7z", "lzh", "lza", "exe", "rar"
 	));
 
 	private static final boolean IS_WINDOWS = System.getProperty("os.name", "").toLowerCase(Locale.ROOT).startsWith("windows");
@@ -65,6 +65,8 @@ public class ArchiveUtil {
 		String ext = Util.extension(source).toLowerCase();
 		switch (ext) {
 			case "zip":
+			case "z":
+			case "gz":
 			case "7z":
 			case "lzh":
 			case "lza":
@@ -127,7 +129,8 @@ public class ArchiveUtil {
 			if (Files.exists(WIN_SEVENZIP_BIN)) {
 				sevenZip = WIN_SEVENZIP_BIN.toString();
 			} else {
-				throw new RuntimeException("Could not find 7-Zip. Please install it.", new FileNotFoundException(WIN_SEVENZIP_BIN.toString()));
+				throw new RuntimeException("Could not find 7-Zip. Please install it.",
+										   new FileNotFoundException(WIN_SEVENZIP_BIN.toString()));
 			}
 		} else {
 			// find 7z executable on *nix
@@ -152,7 +155,8 @@ public class ArchiveUtil {
 			if (Files.exists(WIN_UNRAR_BIN)) {
 				unrar = WIN_UNRAR_BIN.toString();
 			} else {
-				throw new RuntimeException("Could not find WinRAR. Please install it.", new FileNotFoundException(WIN_UNRAR_BIN.toString()));
+				throw new RuntimeException("Could not find WinRAR. Please install it.",
+										   new FileNotFoundException(WIN_UNRAR_BIN.toString()));
 			}
 		} else {
 			// find unrar executable on *nix
@@ -207,7 +211,7 @@ public class ArchiveUtil {
 		if (process.exitValue() != 0) {
 			// cleanup
 			cleanPath(destination);
-			throw new BadArchiveException(String.format("File %s was not unpacked successfully", source));
+			throw new BadArchiveException(String.format("File %s was not unpacked successfully (%d)", source, process.exitValue()));
 		}
 
 		return destination;

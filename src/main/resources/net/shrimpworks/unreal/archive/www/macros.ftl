@@ -137,6 +137,6 @@
 	<#assign url="${repoUrl}/issues/new?title=${stitle}&labels=${slabels}&body=${urlEncode(sbody)}">
 
 	<section class="report">
-		<a href="${url}"><img src="${staticPath()}/images/icons/alert.svg" align="absmiddle" alt="Alert Icon"/> ${text}</a>
+		<a href="${url}"><img src="${staticPath()}/images/icons/alert.svg" alt="Alert Icon"/> ${text}</a>
 	</section>
 </#macro>

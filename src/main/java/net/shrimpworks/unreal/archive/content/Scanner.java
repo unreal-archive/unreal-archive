@@ -145,11 +145,12 @@ public class Scanner {
 		@Override
 		public String toString() {
 			return String.format("ScanResult [filePath=%s, known=%s, oldType=%s, newType=%s, failed=%s]",
-								 filePath, known, oldType, newType,failed);
+								 filePath, known, oldType, newType, failed);
 		}
 	}
 
 	public interface ScannerEvents {
+
 		public void starting(int foundFiles, Pattern included, Pattern excluded);
 
 		public void progress(int scanned, int total, Path currentFile);
@@ -188,7 +189,8 @@ public class Scanner {
 							  scanned.known ? "KNOWN" : "NEW",
 							  scanned.oldType != null ? scanned.oldType.name() : "-",
 							  scanned.newType.name(),
-							  scanned.failed != null ? scanned.failed.getClass().getSimpleName() : "-");
+							  scanned.failed != null ? (String.format("%s(%s)", scanned.failed.getClass().getSimpleName(),
+																	  scanned.failed.getMessage())) : "-");
 		}
 
 		@Override

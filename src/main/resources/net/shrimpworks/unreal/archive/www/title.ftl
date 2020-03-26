@@ -12,9 +12,9 @@
 				<input type="checkbox" id="hamburger"/>
 				<ul>
 					<#if features??>
-							<#if features.search><li><a href="${relPath(siteRoot + "/search/index.html")}">Search</a></li></#if>
-							<#if features.latest><li><a href="${relPath(siteRoot + "/latest/index.html")}">Latest Additions</a></li></#if>
-							<#if features.submit><li><a href="${relPath(siteRoot + "/submit/index.html")}">Submit Content</a></li></#if>
+							<#if features.search><li><a href="${relPath(siteRoot + "/search/index.html")}"><img src="${staticPath()}/images/icons/search.svg" alt="Search"/> Search</a></li></#if>
+							<#if features.latest><li><a href="${relPath(siteRoot + "/latest/index.html")}"><img src="${staticPath()}/images/icons/bulb.svg" alt="Bulb"/> Latest Additions</a></li></#if>
+							<#if features.submit><li><a href="${relPath(siteRoot + "/submit/index.html")}"><img src="${staticPath()}/images/icons/upload.svg" alt="Upload"/> Submit Content</a></li></#if>
 					</#if>
 				</ul>
 			</div>
