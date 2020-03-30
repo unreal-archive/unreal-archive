@@ -77,33 +77,28 @@ public class B2Store implements DataStore {
 	public void store(Path path, String name, Consumer<String> stored) throws IOException {
 		if (Files.size(path) > MAX_SIZE) throw new IllegalArgumentException(path + " exceeds maximum size " + MAX_SIZE);
 
-		try {
-			checkAccount();
-
-			// first, check if file exists; if it does, just return existing file
-			try {
-				B2FileVersion fileInfo = client.getFileInfoByName(bucketInfo.getBucketName(), name);
+		// first, check if file exists; if it does, just return existing file
+		exists(name, exists -> {
+			if (exists instanceof B2FileVersion) {
 				stored.accept(Util.toUriString(
-						String.format(DOWNLOAD_URL, account.getDownloadUrl(), bucketInfo.getBucketName(), fileInfo.getFileName())
+						String.format(DOWNLOAD_URL, account.getDownloadUrl(), bucketInfo.getBucketName(),
+									  ((B2FileVersion)exists).getFileName())
 				));
-				return;
-			} catch (B2Exception ex) {
-				if (ex.getStatus() != 404) {
-					throw new IOException("File existence check failed", ex);
+			} else {
+				try {
+					final B2FileVersion upload = this.client.uploadSmallFile(
+							B2UploadFileRequest.builder(bucket, name, Util.mimeType(Util.extension(path)),
+														B2FileContentSource.build(path.toFile())).build()
+					);
+					stored.accept(Util.toUriString(
+							String.format(DOWNLOAD_URL, account.getDownloadUrl(), bucketInfo.getBucketName(), upload.getFileName())
+					));
+				} catch (B2Exception e) {
+					// TODO fixme
+//					throw new IOException("Failed to process Backblaze upload", e);
 				}
 			}
-
-			final B2FileVersion upload = this.client.uploadSmallFile(
-					B2UploadFileRequest.builder(bucket, name, Util.mimeType(Util.extension(path)),
-												B2FileContentSource.build(path.toFile())).build()
-			);
-
-			stored.accept(Util.toUriString(
-					String.format(DOWNLOAD_URL, account.getDownloadUrl(), bucketInfo.getBucketName(), upload.getFileName())
-			));
-		} catch (B2Exception e) {
-			throw new IOException("Failed to process Backblaze upload", e);
-		}
+		});
 	}
 
 	@Override
@@ -117,7 +112,7 @@ public class B2Store implements DataStore {
 			client.deleteFileVersion(m.group(2), fileInfo.getFileId());
 			deleted.accept(true);
 		} catch (B2Exception e) {
-			throw new IOException("Failed to process Backblaze download", e);
+			throw new IOException("Failed to delete Backblaze file", e);
 		}
 	}
 
@@ -135,6 +130,26 @@ public class B2Store implements DataStore {
 			});
 		} catch (B2Exception e) {
 			throw new IOException("Failed to process Backblaze download", e);
+		}
+	}
+
+	@Override
+	public void exists(String name, Consumer<Object> result) throws IOException {
+		try {
+			checkAccount();
+			try {
+				B2FileVersion fileInfo = client.getFileInfoByName(bucketInfo.getBucketName(), name);
+				result.accept(fileInfo);
+				return;
+			} catch (B2Exception ex) {
+				if (ex.getStatus() != 404) {
+					throw new IOException("File existence check failed", ex);
+				}
+			}
+
+			result.accept(null);
+		} catch (B2Exception e) {
+			throw new IOException("Failed to check Backblaze file", e);
 		}
 	}
 

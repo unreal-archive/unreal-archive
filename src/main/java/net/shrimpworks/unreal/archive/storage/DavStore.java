@@ -65,4 +65,9 @@ public class DavStore implements DataStore {
 		downloaded.accept(tempFile);
 	}
 
+	@Override
+	public void exists(String name, Consumer<Object> result) {
+		result.accept(false);
+	}
+
 }

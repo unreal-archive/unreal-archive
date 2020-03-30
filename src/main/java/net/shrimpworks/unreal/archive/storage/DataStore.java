@@ -12,6 +12,7 @@ public interface DataStore extends Closeable {
 	enum StoreType {
 		DAV(new DavStore.Factory()),
 		B2(new B2Store.Factory()),
+		S3(new S3Store.Factory()),
 		NOP(new NopStore.NopStoreFactory()),
 		;
 
@@ -33,20 +34,53 @@ public interface DataStore extends Closeable {
 		;
 	}
 
-	public static final DataStore NOP = new NopStore();
+	DataStore NOP = new NopStore();
 
-	public interface DataStoreFactory {
+	interface DataStoreFactory {
 
 		public DataStore newStore(StoreContent type, CLI cli);
 	}
 
+	/**
+	 * Store the file at <code>path</code> under the provided name in the
+	 * store.
+	 *
+	 * @param path   local file to store
+	 * @param name   name and path of the stored file
+	 * @param stored callback for completion, containing the full URL to the stored file
+	 * @throws IOException storage failure
+	 */
 	public void store(Path path, String name, Consumer<String> stored) throws IOException;
 
+	/**
+	 * Remove the file at <code>url</code> from storage.
+	 *
+	 * @param url     url of file to delete
+	 * @param deleted callback for completion, true if successful
+	 * @throws IOException deletion failure
+	 */
 	public void delete(String url, Consumer<Boolean> deleted) throws IOException;
 
+	/**
+	 * Retrieve the file from the remote URL and write it to a local
+	 * temporary file.
+	 *
+	 * @param url        file to download
+	 * @param downloaded callback for completion, containing path to downloaded file
+	 * @throws IOException download failure
+	 */
 	public void download(String url, Consumer<Path> downloaded) throws IOException;
 
-	static class NopStore implements DataStore {
+	/**
+	 * Check if the given file exists in this store.
+	 *
+	 * @param name   file to check
+	 * @param result callback for completion, contains implementation-specific file information
+	 * @throws IOException check failure
+	 */
+	public void exists(String name, Consumer<Object> result) throws IOException;
+
+	class NopStore implements DataStore {
 
 		static class NopStoreFactory implements DataStoreFactory {
 
@@ -69,6 +103,11 @@ public interface DataStore extends Closeable {
 		@Override
 		public void download(String url, Consumer<Path> downloaded) {
 			downloaded.accept(null);
+		}
+
+		@Override
+		public void exists(String name, Consumer<Object> result) {
+			result.accept(false);
 		}
 
 		@Override

@@ -64,6 +64,9 @@ dependencies {
     implementation 'com.backblaze.b2:b2-sdk-core:1.4.0'
     implementation 'com.backblaze.b2:b2-sdk-httpclient:1.4.0'
 
+    // S3 compatible storage client
+    implementation 'io.minio:minio:7.0.0'
+
     implementation 'com.github.rjeschke:txtmark:0.13'
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.4.2'
