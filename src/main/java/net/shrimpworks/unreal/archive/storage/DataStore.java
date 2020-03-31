@@ -2,6 +2,7 @@ package net.shrimpworks.unreal.archive.storage;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
@@ -52,6 +53,8 @@ public interface DataStore extends Closeable {
 	 */
 	public void store(Path path, String name, Consumer<String> stored) throws IOException;
 
+	public void store(InputStream stream, long dataSize, String name, Consumer<String> stored) throws IOException;
+
 	/**
 	 * Remove the file at <code>url</code> from storage.
 	 *
@@ -96,6 +99,11 @@ public interface DataStore extends Closeable {
 		}
 
 		@Override
+		public void store(InputStream stream, long dataSize, String name, Consumer<String> stored) {
+			stored.accept("nop://" + name);
+		}
+
+		@Override
 		public void delete(String url, Consumer<Boolean> deleted) {
 			deleted.accept(true);
 		}
@@ -113,6 +121,11 @@ public interface DataStore extends Closeable {
 		@Override
 		public void close() {
 
+		}
+
+		@Override
+		public String toString() {
+			return "NopStore";
 		}
 	}
 }

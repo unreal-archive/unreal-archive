@@ -1,6 +1,7 @@
 package net.shrimpworks.unreal.archive.storage;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Consumer;
@@ -53,6 +54,11 @@ public class DavStore implements DataStore {
 	}
 
 	@Override
+	public void store(InputStream stream, long dataSize, String name, Consumer<String> stored) {
+		throw new UnsupportedOperationException("Uploading streams not supported yet");
+	}
+
+	@Override
 	public void delete(String url, Consumer<Boolean> deleted) throws IOException {
 		deleted.accept(Util.deleteRemote(Util.toUriString(url)));
 	}
@@ -70,4 +76,8 @@ public class DavStore implements DataStore {
 		result.accept(false);
 	}
 
+	@Override
+	public String toString() {
+		return String.format("DavStore [baseUrl=%s]", baseUrl);
+	}
 }

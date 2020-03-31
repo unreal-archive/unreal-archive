@@ -1,6 +1,7 @@
 package net.shrimpworks.unreal.archive.storage;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -102,6 +103,11 @@ public class B2Store implements DataStore {
 	}
 
 	@Override
+	public void store(InputStream stream, long dataSize, String name, Consumer<String> stored) {
+		throw new UnsupportedOperationException("Uploading streams not supported yet");
+	}
+
+	@Override
 	public void delete(String url, Consumer<Boolean> deleted) throws IOException {
 		Matcher m = DOWNLOAD_MATCHER.matcher(url);
 		if (!m.matches()) throw new IllegalArgumentException("URL does not seem to be a Backblaze URL");
@@ -163,5 +169,10 @@ public class B2Store implements DataStore {
 				}
 			}
 		}
+	}
+
+	@Override
+	public String toString() {
+		return String.format("B2Store [bucket=%s]", bucket);
 	}
 }

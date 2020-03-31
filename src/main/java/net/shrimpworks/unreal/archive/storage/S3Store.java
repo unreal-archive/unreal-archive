@@ -6,6 +6,7 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.util.function.Consumer;
 
 import io.minio.MinioClient;
@@ -50,7 +51,7 @@ public class S3Store implements DataStore {
 			}
 
 			String publicUrl = cli.option("s3-url-" + type.name().toLowerCase(), System.getenv("S3_URL_" + type.name()));
-			if (publicUrl == null || publicUrl.isEmpty()) endpoint = cli.option("s3-url", System.getenv("S3_URL"));
+			if (publicUrl == null || publicUrl.isEmpty()) publicUrl = cli.option("s3-url", System.getenv("S3_URL"));
 			if (publicUrl == null || publicUrl.isEmpty()) throw new IllegalArgumentException(
 					"Missing public URL for S3 store; --s3-url or S3_URL"
 			);
@@ -80,12 +81,17 @@ public class S3Store implements DataStore {
 
 	@Override
 	public void store(Path path, String name, Consumer<String> stored) throws IOException {
+		store(Files.newInputStream(path, StandardOpenOption.READ), Files.size(path), name, stored);
+	}
+
+	@Override
+	public void store(InputStream stream, long dataSize, String name, Consumer<String> stored) throws IOException {
 		exists(name, (exits) -> {
 			if (exits instanceof ObjectStat) {
 				stored.accept(Util.toUriString(makePublicUrl(((ObjectStat)exits).bucketName(), ((ObjectStat)exits).name())));
 			}
 			try {
-				client.putObject(bucket, name, path.toAbsolutePath().toString(), new PutObjectOptions(Files.size(path), -1));
+				client.putObject(bucket, name, stream, new PutObjectOptions(dataSize, -1));
 				stored.accept(Util.toUriString(makePublicUrl(bucket, name)));
 			} catch (Exception e) {
 				// TODO fail this
@@ -140,6 +146,11 @@ public class S3Store implements DataStore {
 
 	@Override
 	public void close() throws IOException {
+		// no-op
+	}
 
+	@Override
+	public String toString() {
+		return String.format("S3Store [bucket=%s]", bucket);
 	}
 }
