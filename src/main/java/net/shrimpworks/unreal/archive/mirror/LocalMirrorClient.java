@@ -98,7 +98,7 @@ public class LocalMirrorClient implements Consumer<LocalMirrorClient.Downloader>
 
 	@Override
 	public void accept(Downloader downloader) {
-		progress.progress(totalCount, LocalMirrorClient.this.content.size(), downloader.content);
+		progress.progress(totalCount, this.content.size(), downloader.content);
 
 		// finally, countdown
 		counter.countDown();
@@ -108,14 +108,8 @@ public class LocalMirrorClient implements Consumer<LocalMirrorClient.Downloader>
 	}
 
 	private void next() {
-		final Content c = LocalMirrorClient.this.content.poll();
+		final Content c = this.content.poll();
 		if (c != null) executor.submit(new Downloader(c, output, this, this.retryQueue));
-	}
-
-	@FunctionalInterface
-	public interface Progress {
-
-		public void progress(long total, long remaining, Content last);
 	}
 
 	public static class Downloader implements Runnable {

@@ -4,6 +4,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import net.shrimpworks.unreal.archive.CLI;
@@ -51,9 +52,9 @@ public interface DataStore extends Closeable {
 	 * @param stored callback for completion, containing the full URL to the stored file
 	 * @throws IOException storage failure
 	 */
-	public void store(Path path, String name, Consumer<String> stored) throws IOException;
+	public void store(Path path, String name, BiConsumer<String, IOException> stored) throws IOException;
 
-	public void store(InputStream stream, long dataSize, String name, Consumer<String> stored) throws IOException;
+	public void store(InputStream stream, long dataSize, String name, BiConsumer<String, IOException> stored) throws IOException;
 
 	/**
 	 * Remove the file at <code>url</code> from storage.
@@ -94,13 +95,13 @@ public interface DataStore extends Closeable {
 		}
 
 		@Override
-		public void store(Path path, String name, Consumer<String> stored) {
-			stored.accept("nop://" + name);
+		public void store(Path path, String name, BiConsumer<String, IOException> stored) {
+			stored.accept("nop://" + name, null);
 		}
 
 		@Override
-		public void store(InputStream stream, long dataSize, String name, Consumer<String> stored) {
-			stored.accept("nop://" + name);
+		public void store(InputStream stream, long dataSize, String name, BiConsumer<String, IOException> stored) {
+			stored.accept("nop://" + name, null);
 		}
 
 		@Override

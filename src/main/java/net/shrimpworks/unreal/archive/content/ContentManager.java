@@ -176,11 +176,11 @@ public class ContentManager {
 				try {
 					String uploadPath = path.relativize(next.resolve(file.name)).toString();
 					if (file.type == Content.AttachmentType.IMAGE) {
-						imageStore.store(file.path, uploadPath,
-										 s -> indexed.content.attachments.add(new Content.Attachment(file.type, file.name, s)));
+						imageStore.store(file.path, uploadPath, (fileUrl, ex) ->
+								indexed.content.attachments.add(new Content.Attachment(file.type, file.name, fileUrl)));
 					} else {
-						attachmentStore.store(file.path, uploadPath,
-											  s -> indexed.content.attachments.add(new Content.Attachment(file.type, file.name, s)));
+						attachmentStore.store(file.path, uploadPath, (fileUrl, ex) ->
+								indexed.content.attachments.add(new Content.Attachment(file.type, file.name, fileUrl)));
 					}
 				} finally {
 					// cleanup file once uploaded
@@ -208,8 +208,8 @@ public class ContentManager {
 
 			if (submission != null && indexed.content.downloads.stream().noneMatch(d -> d.main)) {
 				String uploadPath = path.relativize(next.resolve(submission.filePath.getFileName())).toString();
-				contentStore.store(submission.filePath, uploadPath,
-								   s -> indexed.content.downloads.add(new Content.Download(s, true, false, Content.DownloadState.OK))
+				contentStore.store(submission.filePath, uploadPath, (fileUrl, ex) ->
+						indexed.content.downloads.add(new Content.Download(fileUrl, true, false, Content.DownloadState.OK))
 				);
 			}
 

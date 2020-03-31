@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import io.minio.MinioClient;
@@ -80,22 +81,21 @@ public class S3Store implements DataStore {
 	}
 
 	@Override
-	public void store(Path path, String name, Consumer<String> stored) throws IOException {
+	public void store(Path path, String name, BiConsumer<String, IOException> stored) throws IOException {
 		store(Files.newInputStream(path, StandardOpenOption.READ), Files.size(path), name, stored);
 	}
 
 	@Override
-	public void store(InputStream stream, long dataSize, String name, Consumer<String> stored) throws IOException {
+	public void store(InputStream stream, long dataSize, String name, BiConsumer<String, IOException> stored) throws IOException {
 		exists(name, (exits) -> {
 			if (exits instanceof ObjectStat) {
-				stored.accept(Util.toUriString(makePublicUrl(((ObjectStat)exits).bucketName(), ((ObjectStat)exits).name())));
+				stored.accept(Util.toUriString(makePublicUrl(((ObjectStat)exits).bucketName(), ((ObjectStat)exits).name())), null);
 			}
 			try {
 				client.putObject(bucket, name, stream, new PutObjectOptions(dataSize, -1));
-				stored.accept(Util.toUriString(makePublicUrl(bucket, name)));
+				stored.accept(Util.toUriString(makePublicUrl(bucket, name)), null);
 			} catch (Exception e) {
-				// TODO fail this
-//				throw new IOException(e.getMessage(), e);
+				stored.accept(null, new IOException("Failed to store file " + name, e));
 			}
 		});
 	}

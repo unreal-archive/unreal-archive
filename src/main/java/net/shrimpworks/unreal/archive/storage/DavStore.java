@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import net.shrimpworks.unreal.archive.CLI;
@@ -46,15 +47,15 @@ public class DavStore implements DataStore {
 	}
 
 	@Override
-	public void store(Path path, String name, Consumer<String> stored) throws IOException {
+	public void store(Path path, String name, BiConsumer<String, IOException> stored) throws IOException {
 		String url = Util.toUriString(baseUrl + name);
 		Util.uploadTo(path, url);
 
-		stored.accept(url);
+		stored.accept(url, null);
 	}
 
 	@Override
-	public void store(InputStream stream, long dataSize, String name, Consumer<String> stored) {
+	public void store(InputStream stream, long dataSize, String name, BiConsumer<String, IOException> stored) {
 		throw new UnsupportedOperationException("Uploading streams not supported yet");
 	}
 

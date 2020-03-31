@@ -31,7 +31,7 @@ public class S3StoreTest {
 
 		Path file = Files.write(Files.createTempFile("upload", ".tmp"), Long.toString(System.nanoTime()).getBytes());
 		try (S3Store s3 = new S3Store(endpoint, key, secret, bucket, publicUrl)) {
-			s3.store(file, file.getFileName().toString(), s -> {
+			s3.store(file, file.getFileName().toString(), (s, ex) -> {
 				try {
 					s3.download(s, dl -> {
 						try {

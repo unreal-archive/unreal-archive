@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -75,35 +76,39 @@ public class B2Store implements DataStore {
 	}
 
 	@Override
-	public void store(Path path, String name, Consumer<String> stored) throws IOException {
+	public void store(Path path, String name, BiConsumer<String, IOException> stored) throws IOException {
 		if (Files.size(path) > MAX_SIZE) throw new IllegalArgumentException(path + " exceeds maximum size " + MAX_SIZE);
 
 		// first, check if file exists; if it does, just return existing file
 		exists(name, exists -> {
 			if (exists instanceof B2FileVersion) {
-				stored.accept(Util.toUriString(
-						String.format(DOWNLOAD_URL, account.getDownloadUrl(), bucketInfo.getBucketName(),
-									  ((B2FileVersion)exists).getFileName())
-				));
+				stored.accept(
+						Util.toUriString(String.format(DOWNLOAD_URL,
+													   account.getDownloadUrl(), bucketInfo.getBucketName(),
+													   ((B2FileVersion)exists).getFileName())
+						),
+						null
+				);
 			} else {
 				try {
 					final B2FileVersion upload = this.client.uploadSmallFile(
 							B2UploadFileRequest.builder(bucket, name, Util.mimeType(Util.extension(path)),
 														B2FileContentSource.build(path.toFile())).build()
 					);
-					stored.accept(Util.toUriString(
-							String.format(DOWNLOAD_URL, account.getDownloadUrl(), bucketInfo.getBucketName(), upload.getFileName())
-					));
+					stored.accept(
+							Util.toUriString(String.format(DOWNLOAD_URL,
+														   account.getDownloadUrl(), bucketInfo.getBucketName(), upload.getFileName())
+							),
+							null);
 				} catch (B2Exception e) {
-					// TODO fixme
-//					throw new IOException("Failed to process Backblaze upload", e);
+					stored.accept(null, new IOException("Failed to process Backblaze upload", e));
 				}
 			}
 		});
 	}
 
 	@Override
-	public void store(InputStream stream, long dataSize, String name, Consumer<String> stored) {
+	public void store(InputStream stream, long dataSize, String name, BiConsumer<String, IOException> stored) {
 		throw new UnsupportedOperationException("Uploading streams not supported yet");
 	}
 
