@@ -36,9 +36,9 @@ public interface DataStore extends Closeable {
 		;
 	}
 
-	DataStore NOP = new NopStore();
+	public static final DataStore NOP = new NopStore();
 
-	interface DataStoreFactory {
+	public interface DataStoreFactory {
 
 		public DataStore newStore(StoreContent type, CLI cli);
 	}
