@@ -84,7 +84,7 @@ public interface DataStore extends Closeable {
 	 */
 	public void exists(String name, Consumer<Object> result) throws IOException;
 
-	class NopStore implements DataStore {
+	static class NopStore implements DataStore {
 
 		static class NopStoreFactory implements DataStoreFactory {
 
