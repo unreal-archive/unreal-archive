@@ -94,9 +94,6 @@ public class Main {
 			case "sync":
 				sync(cli);
 				break;
-			case "mirror":
-				mirror(contentManager(cli), cli);
-				break;
 			case "local-mirror":
 				localMirror(contentManager(cli), cli);
 				break;
@@ -386,32 +383,6 @@ public class Main {
 		}
 	}
 
-	private static void mirror(ContentManager contentManager, CLI cli) throws IOException {
-		if (cli.commands().length < 2) {
-			System.err.println("An output path should be provided!");
-			System.exit(2);
-		}
-
-		Path output = Files.createDirectories(Paths.get(cli.commands()[1])).toAbsolutePath();
-
-		System.out.printf("Writing files to %s with concurrency of %s%n",
-						  output.toString(), cli.option("concurrency", "3"));
-
-		LocalMirrorClient mirror = new LocalMirrorClient(
-				contentManager,
-				output,
-				Integer.parseInt(cli.option("concurrency", "3")),
-				((total, remaining, last) -> System.out.printf("\r[ %-6s / %-6s ] Processed %-40s",
-															   total - remaining, total, last.originalFilename))
-		);
-		mirror.mirror();
-
-		System.out.println("Mirror completed");
-
-		// cleanup executor
-		mirror.cancel();
-	}
-
 	private static void localMirror(ContentManager contentManager, CLI cli) throws IOException {
 		if (cli.commands().length < 2) {
 			System.err.println("An output path should be provided!");
@@ -432,7 +403,7 @@ public class Main {
 		);
 		mirror.mirror();
 
-		System.out.println("Mirror completed");
+		System.out.println("Local mirror completed");
 
 		// cleanup executor
 		mirror.cancel();
