@@ -41,21 +41,20 @@ public class B2Store implements DataStore {
 		@Override
 		public DataStore newStore(StoreContent type, CLI cli) {
 			// acc is actually the key id
-			String accId = cli.option("b2-acc-" + type.name().toLowerCase(), System.getenv("B2_ACC_" + type.name()));
-			if (accId == null || accId.isEmpty()) accId = cli.option("b2-acc", System.getenv("B2_ACC"));
-			if (accId == null || accId.isEmpty()) throw new IllegalArgumentException("Missing Account ID for B2 store; --b2-acc or B2_ACC");
-
-			String key = cli.option("b2-key-" + type.name().toLowerCase(), System.getenv("B2_KEY_" + type.name()));
-			if (key == null || key.isEmpty()) key = cli.option("b2-key", System.getenv("B2_KEY"));
-			if (key == null || key.isEmpty()) throw new IllegalArgumentException("Missing App Key for B2 store; --b2-key or B2_KEY");
-
-			String bucket = cli.option("b2-bucket-" + type.name().toLowerCase(), System.getenv("B2_BUCKET_" + type.name()));
-			if (bucket == null || bucket.isEmpty()) bucket = cli.option("b2-bucket", System.getenv("B2_BUCKET"));
-			if (bucket == null || bucket.isEmpty()) {
-				throw new IllegalArgumentException("Missing bucket for B2 store; --b2-bucket or B2_BUCKET");
-			}
+			String accId = optionOrEnvVar("b2-acc", "B2_ACC", type, cli);
+			String key = optionOrEnvVar("b2-key", "B2_KEY", type, cli);
+			String bucket = optionOrEnvVar("b2-bucket", "B2_BUCKET", type, cli);
 
 			return new B2Store(accId, key, bucket);
+		}
+
+		private String optionOrEnvVar(String option, String envVar, StoreContent type, CLI cli) {
+			String value = cli.option(option + "-" + type.name().toLowerCase(), System.getenv(envVar + "_" + type.name()));
+			if (value == null || value.isEmpty()) value = cli.option(option, System.getenv(envVar));
+			if (value == null || value.isEmpty()) throw new IllegalArgumentException(
+					String.format("Missing B2 store property; --%s or %s", option, envVar)
+			);
+			return value;
 		}
 	}
 

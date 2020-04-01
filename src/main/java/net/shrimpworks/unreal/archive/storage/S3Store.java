@@ -21,47 +21,35 @@ import io.minio.errors.MinioException;
 import net.shrimpworks.unreal.archive.CLI;
 import net.shrimpworks.unreal.archive.Util;
 
+/**
+ * Amazon S3 and compatible storage implementation.
+ */
 public class S3Store implements DataStore {
 
 	public static class Factory implements DataStoreFactory {
 
 		@Override
 		public DataStore newStore(StoreContent type, CLI cli) {
-			String endpoint = cli.option("s3-endpoint-" + type.name().toLowerCase(), System.getenv("S3_ENDPOINT_" + type.name()));
-			if (endpoint == null || endpoint.isEmpty()) endpoint = cli.option("s3-endpoint", System.getenv("S3_ENDPOINT"));
-			if (endpoint == null || endpoint.isEmpty()) throw new IllegalArgumentException(
-					"Missing endpoint for S3 store; --s3-endpoint or S3_ENDPOINT"
-			);
-
-			String keyId = cli.option("s3-key-id-" + type.name().toLowerCase(), System.getenv("S3_KEY_ID_" + type.name()));
-			if (keyId == null || keyId.isEmpty()) keyId = cli.option("s3-key", System.getenv("S3_KEY"));
-			if (keyId == null || keyId.isEmpty()) throw new IllegalArgumentException(
-					"Missing access key ID for S3 store; --s3-key or S3_KEY"
-			);
-
-			String secret = cli.option("s3-secret-" + type.name().toLowerCase(), System.getenv("S3_SECRET_" + type.name()));
-			if (secret == null || secret.isEmpty()) secret = cli.option("s3-secret", System.getenv("S3_SECRET"));
-			if (secret == null || secret.isEmpty()) throw new IllegalArgumentException(
-					"Missing secret key for S3 store; --s3-secret or S3_SECRET"
-			);
-
-			String bucket = cli.option("s3-bucket-" + type.name().toLowerCase(), System.getenv("S3_BUCKET_" + type.name()));
-			if (bucket == null || bucket.isEmpty()) bucket = cli.option("s3-bucket", System.getenv("S3_BUCKET"));
-			if (bucket == null || bucket.isEmpty()) {
-				throw new IllegalArgumentException("Missing bucket for S3 store; --s3-bucket or S3_BUCKET");
-			}
-
-			String publicUrl = cli.option("s3-url-" + type.name().toLowerCase(), System.getenv("S3_URL_" + type.name()));
-			if (publicUrl == null || publicUrl.isEmpty()) publicUrl = cli.option("s3-url", System.getenv("S3_URL"));
-			if (publicUrl == null || publicUrl.isEmpty()) throw new IllegalArgumentException(
-					"Missing public URL for S3 store; --s3-url or S3_URL"
-			);
+			String endpoint = optionOrEnvVar("s3-endpoint", "S3_ENDPOINT", type, cli);
+			String keyId = optionOrEnvVar("s3-key", "S3_KEY", type, cli);
+			String secret = optionOrEnvVar("s3-secret", "S3_SECRET", type, cli);
+			String bucket = optionOrEnvVar("s3-bucket", "S3_BUCKET", type, cli);
+			String publicUrl = optionOrEnvVar("s3-url", "S3_URL", type, cli);
 
 			try {
 				return new S3Store(endpoint, keyId, secret, bucket, publicUrl);
 			} catch (MinioException e) {
 				throw new IllegalArgumentException(e.getMessage(), e);
 			}
+		}
+
+		private String optionOrEnvVar(String option, String envVar, StoreContent type, CLI cli) {
+			String value = cli.option(option + "-" + type.name().toLowerCase(), System.getenv(envVar + "_" + type.name()));
+			if (value == null || value.isEmpty()) value = cli.option(option, System.getenv(envVar));
+			if (value == null || value.isEmpty()) throw new IllegalArgumentException(
+					String.format("Missing S3 store property; --%s or %s", option, envVar)
+			);
+			return value;
 		}
 	}
 
