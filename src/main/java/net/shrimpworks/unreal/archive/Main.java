@@ -36,6 +36,7 @@ import net.shrimpworks.unreal.archive.docs.DocumentManager;
 import net.shrimpworks.unreal.archive.managed.Managed;
 import net.shrimpworks.unreal.archive.managed.ManagedContentManager;
 import net.shrimpworks.unreal.archive.mirror.LocalMirrorClient;
+import net.shrimpworks.unreal.archive.mirror.Mirror;
 import net.shrimpworks.unreal.archive.scraper.AutoIndexPHPScraper;
 import net.shrimpworks.unreal.archive.scraper.Downloader;
 import net.shrimpworks.unreal.archive.scraper.FPSNetwork;
@@ -93,6 +94,9 @@ public class Main {
 				break;
 			case "sync":
 				sync(cli);
+				break;
+			case "mirror":
+				mirror(contentManager(cli), cli);
 				break;
 			case "local-mirror":
 				localMirror(contentManager(cli), cli);
@@ -381,6 +385,26 @@ public class Main {
 				System.out.println("No changes!");
 			}
 		}
+	}
+
+	private static void mirror(ContentManager contentManager, CLI cli) throws IOException {
+		final DataStore mirrorStore = store(DataStore.StoreContent.CONTENT, cli);
+
+		System.out.printf("Mirroring files to %s with concurrency of %s%n", mirrorStore, cli.option("concurrency", "3"));
+
+		Mirror mirror = new Mirror(
+				contentManager,
+				mirrorStore,
+				Integer.parseInt(cli.option("concurrency", "3")),
+				((total, remaining, last) -> System.out.printf("\r[ %-6s / %-6s ] Processed %-40s",
+															   total - remaining, total, last.originalFilename))
+		);
+		mirror.mirror();
+
+		System.out.println("Mirror completed");
+
+		// cleanup executor
+		mirror.cancel();
 	}
 
 	private static void localMirror(ContentManager contentManager, CLI cli) throws IOException {
