@@ -21,7 +21,7 @@ import net.shrimpworks.unreal.archive.content.ContentManager;
  * to monitor progress (overall file counts, not individual file
  * progress).
  */
-public class MirrorClient implements Consumer<MirrorClient.Downloader> {
+public class LocalMirrorClient implements Consumer<LocalMirrorClient.Downloader> {
 
 	private static final int RETRY_LIMIT = 4;
 	private Deque<Content> content;
@@ -37,7 +37,7 @@ public class MirrorClient implements Consumer<MirrorClient.Downloader> {
 	private volatile CountDownLatch counter;
 	private volatile Thread mirrorThread;
 
-	public MirrorClient(ContentManager content, Path output, int concurrency, Progress progress) {
+	public LocalMirrorClient(ContentManager content, Path output, int concurrency, Progress progress) {
 		this.content = new ConcurrentLinkedDeque<>(content.search(null, null, null, null));
 		this.retryQueue = new ConcurrentLinkedDeque<>();
 		this.output = output;
@@ -98,7 +98,7 @@ public class MirrorClient implements Consumer<MirrorClient.Downloader> {
 
 	@Override
 	public void accept(Downloader downloader) {
-		progress.progress(totalCount, MirrorClient.this.content.size(), downloader.content);
+		progress.progress(totalCount, this.content.size(), downloader.content);
 
 		// finally, countdown
 		counter.countDown();
@@ -108,14 +108,8 @@ public class MirrorClient implements Consumer<MirrorClient.Downloader> {
 	}
 
 	private void next() {
-		final Content c = MirrorClient.this.content.poll();
+		final Content c = this.content.poll();
 		if (c != null) executor.submit(new Downloader(c, output, this, this.retryQueue));
-	}
-
-	@FunctionalInterface
-	public interface Progress {
-
-		public void progress(long total, long remaining, Content last);
 	}
 
 	public static class Downloader implements Runnable {

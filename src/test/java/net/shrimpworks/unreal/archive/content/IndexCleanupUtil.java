@@ -26,7 +26,7 @@ import net.shrimpworks.unreal.archive.YAML;
 import net.shrimpworks.unreal.archive.content.mappacks.MapPack;
 import net.shrimpworks.unreal.archive.content.maps.GameTypes;
 import net.shrimpworks.unreal.archive.content.maps.Map;
-import net.shrimpworks.unreal.archive.mirror.MirrorClient;
+import net.shrimpworks.unreal.archive.mirror.LocalMirrorClient;
 import net.shrimpworks.unreal.archive.storage.DataStore;
 
 import org.junit.jupiter.api.Disabled;
@@ -434,7 +434,7 @@ public class IndexCleanupUtil {
 
 		grouped.forEach((k, contents) -> {
 			System.out.println(k);
-			contents.forEach(c -> new MirrorClient.Downloader(c, tmpDir, d -> {
+			contents.forEach(c -> new LocalMirrorClient.Downloader(c, tmpDir, d -> {
 				// remove images from content
 				System.out.println("downloaded " + d.destination);
 				try {
@@ -599,7 +599,7 @@ public class IndexCleanupUtil {
 					e.printStackTrace();
 				}
 			} else {
-				new MirrorClient.Downloader(c, tmpDir, d -> {
+				new LocalMirrorClient.Downloader(c, tmpDir, d -> {
 					System.out.printf("Downloaded %s%n", d.destination);
 					try {
 						indexer.index(true, null, d.destination);

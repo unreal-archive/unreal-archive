@@ -1,9 +1,11 @@
 package net.shrimpworks.unreal.archive.storage;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -39,21 +41,20 @@ public class B2Store implements DataStore {
 		@Override
 		public DataStore newStore(StoreContent type, CLI cli) {
 			// acc is actually the key id
-			String accId = cli.option("b2-acc-" + type.name().toLowerCase(), System.getenv("B2_ACC_" + type.name()));
-			if (accId == null || accId.isEmpty()) accId = cli.option("b2-acc", System.getenv("B2_ACC"));
-			if (accId == null || accId.isEmpty()) throw new IllegalArgumentException("Missing Account ID for B2 store; --b2-acc or B2_ACC");
-
-			String key = cli.option("b2-key-" + type.name().toLowerCase(), System.getenv("B2_KEY_" + type.name()));
-			if (key == null || key.isEmpty()) key = cli.option("b2-key", System.getenv("B2_KEY"));
-			if (key == null || key.isEmpty()) throw new IllegalArgumentException("Missing App Key for B2 store; --b2-key or B2_KEY");
-
-			String bucket = cli.option("b2-bucket-" + type.name().toLowerCase(), System.getenv("B2_BUCKET_" + type.name()));
-			if (bucket == null || bucket.isEmpty()) bucket = cli.option("b2-bucket", System.getenv("B2_BUCKET"));
-			if (bucket == null || bucket.isEmpty()) {
-				throw new IllegalArgumentException("Missing bucket for B2 store; --b2-bucket or B2_BUCKET");
-			}
+			String accId = optionOrEnvVar("b2-acc", "B2_ACC", type, cli);
+			String key = optionOrEnvVar("b2-key", "B2_KEY", type, cli);
+			String bucket = optionOrEnvVar("b2-bucket", "B2_BUCKET", type, cli);
 
 			return new B2Store(accId, key, bucket);
+		}
+
+		private String optionOrEnvVar(String option, String envVar, StoreContent type, CLI cli) {
+			String value = cli.option(option + "-" + type.name().toLowerCase(), System.getenv(envVar + "_" + type.name()));
+			if (value == null || value.isEmpty()) value = cli.option(option, System.getenv(envVar));
+			if (value == null || value.isEmpty()) throw new IllegalArgumentException(
+					String.format("Missing B2 store property; --%s or %s", option, envVar)
+			);
+			return value;
 		}
 	}
 
@@ -74,36 +75,40 @@ public class B2Store implements DataStore {
 	}
 
 	@Override
-	public void store(Path path, String name, Consumer<String> stored) throws IOException {
+	public void store(Path path, String name, BiConsumer<String, IOException> stored) throws IOException {
 		if (Files.size(path) > MAX_SIZE) throw new IllegalArgumentException(path + " exceeds maximum size " + MAX_SIZE);
 
-		try {
-			checkAccount();
-
-			// first, check if file exists; if it does, just return existing file
-			try {
-				B2FileVersion fileInfo = client.getFileInfoByName(bucketInfo.getBucketName(), name);
-				stored.accept(Util.toUriString(
-						String.format(DOWNLOAD_URL, account.getDownloadUrl(), bucketInfo.getBucketName(), fileInfo.getFileName())
-				));
-				return;
-			} catch (B2Exception ex) {
-				if (ex.getStatus() != 404) {
-					throw new IOException("File existence check failed", ex);
+		// first, check if file exists; if it does, just return existing file
+		exists(name, exists -> {
+			if (exists instanceof B2FileVersion) {
+				stored.accept(
+						Util.toUriString(String.format(DOWNLOAD_URL,
+													   account.getDownloadUrl(), bucketInfo.getBucketName(),
+													   ((B2FileVersion)exists).getFileName())
+						),
+						null
+				);
+			} else {
+				try {
+					final B2FileVersion upload = this.client.uploadSmallFile(
+							B2UploadFileRequest.builder(bucket, name, Util.mimeType(Util.extension(path)),
+														B2FileContentSource.build(path.toFile())).build()
+					);
+					stored.accept(
+							Util.toUriString(String.format(DOWNLOAD_URL,
+														   account.getDownloadUrl(), bucketInfo.getBucketName(), upload.getFileName())
+							),
+							null);
+				} catch (B2Exception e) {
+					stored.accept(null, new IOException("Failed to process Backblaze upload", e));
 				}
 			}
+		});
+	}
 
-			final B2FileVersion upload = this.client.uploadSmallFile(
-					B2UploadFileRequest.builder(bucket, name, Util.mimeType(Util.extension(path)),
-												B2FileContentSource.build(path.toFile())).build()
-			);
-
-			stored.accept(Util.toUriString(
-					String.format(DOWNLOAD_URL, account.getDownloadUrl(), bucketInfo.getBucketName(), upload.getFileName())
-			));
-		} catch (B2Exception e) {
-			throw new IOException("Failed to process Backblaze upload", e);
-		}
+	@Override
+	public void store(InputStream stream, long dataSize, String name, BiConsumer<String, IOException> stored) {
+		throw new UnsupportedOperationException("Uploading streams not supported yet");
 	}
 
 	@Override
@@ -117,7 +122,7 @@ public class B2Store implements DataStore {
 			client.deleteFileVersion(m.group(2), fileInfo.getFileId());
 			deleted.accept(true);
 		} catch (B2Exception e) {
-			throw new IOException("Failed to process Backblaze download", e);
+			throw new IOException("Failed to delete Backblaze file", e);
 		}
 	}
 
@@ -138,6 +143,26 @@ public class B2Store implements DataStore {
 		}
 	}
 
+	@Override
+	public void exists(String name, Consumer<Object> result) throws IOException {
+		try {
+			checkAccount();
+			try {
+				B2FileVersion fileInfo = client.getFileInfoByName(bucketInfo.getBucketName(), name);
+				result.accept(fileInfo);
+				return;
+			} catch (B2Exception ex) {
+				if (ex.getStatus() != 404) {
+					throw new IOException("File existence check failed", ex);
+				}
+			}
+
+			result.accept(null);
+		} catch (B2Exception e) {
+			throw new IOException("Failed to check Backblaze file", e);
+		}
+	}
+
 	private void checkAccount() throws B2Exception {
 		if (this.account == null) this.account = this.client.getAccountAuthorization();
 		if (this.bucketInfo == null) {
@@ -148,5 +173,10 @@ public class B2Store implements DataStore {
 				}
 			}
 		}
+	}
+
+	@Override
+	public String toString() {
+		return String.format("B2Store [bucket=%s]", bucket);
 	}
 }

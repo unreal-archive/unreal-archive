@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import io.minio.errors.InvalidEndpointException;
+import io.minio.errors.InvalidPortException;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -12,23 +15,25 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Disabled
-public class B2StoreTest {
+public class S3StoreTest {
 
 	@Test
-	public void uploadDownload() throws IOException {
-		String keyId = System.getenv("B2_ACC");
-		String appId = System.getenv("B2_KEY");
-		String bucket = System.getenv("B2_BUCKET");
+	public void uploadDownload() throws IOException, InvalidPortException, InvalidEndpointException {
+		String endpoint = System.getenv("S3_ENDPOINT");
+		String key = System.getenv("S3_KEY");
+		String secret = System.getenv("S3_SECRET");
+		String bucket = System.getenv("S3_BUCKET");
+		String publicUrl = System.getenv("S3_URL");
 
-		if (keyId == null || appId == null || bucket == null) {
-			fail("This test requires B2 bucket properties set as environment variables");
+		if (endpoint == null || key == null || secret == null || bucket == null || publicUrl == null) {
+			fail("This test requires S3 bucket properties set as environment variables");
 		}
 
 		Path file = Files.write(Files.createTempFile("upload", ".tmp"), Long.toString(System.nanoTime()).getBytes());
-		try (B2Store b2 = new B2Store(keyId, appId, bucket)) {
-			b2.store(file, file.getFileName().toString(), (s, ex) -> {
+		try (S3Store s3 = new S3Store(endpoint, key, secret, bucket, publicUrl)) {
+			s3.store(file, file.getFileName().toString(), (s, ex) -> {
 				try {
-					b2.download(s, dl -> {
+					s3.download(s, dl -> {
 						try {
 							assertEquals(Files.readString(file), Files.readString(dl));
 						} catch (IOException e) {
@@ -45,7 +50,7 @@ public class B2StoreTest {
 					fail(e.toString());
 				} finally {
 					try {
-						b2.delete(s, Assertions::assertTrue);
+						s3.delete(s, Assertions::assertTrue);
 					} catch (IOException e) {
 						fail(e.getMessage());
 					}

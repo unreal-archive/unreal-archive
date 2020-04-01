@@ -125,9 +125,9 @@ public class ManagedContentManager {
 				if (!Files.exists(f)) throw new IllegalArgumentException(String.format("Local file %s not found!", d.localFile));
 
 				try {
-					contentStore.store(f, String.join("/", remotePath(m.managed), f.getFileName().toString()), u -> {
+					contentStore.store(f, String.join("/", remotePath(m.managed), f.getFileName().toString()), (url, ex) -> {
 						try {
-							if (!d.downloads.contains(u)) d.downloads.add(u);
+							if (!d.downloads.contains(url)) d.downloads.add(url);
 							d.fileSize = Files.size(f);
 							d.synced = true;
 

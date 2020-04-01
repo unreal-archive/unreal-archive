@@ -35,7 +35,7 @@ import net.shrimpworks.unreal.archive.content.Scanner;
 import net.shrimpworks.unreal.archive.docs.DocumentManager;
 import net.shrimpworks.unreal.archive.managed.Managed;
 import net.shrimpworks.unreal.archive.managed.ManagedContentManager;
-import net.shrimpworks.unreal.archive.mirror.MirrorClient;
+import net.shrimpworks.unreal.archive.mirror.LocalMirrorClient;
 import net.shrimpworks.unreal.archive.scraper.AutoIndexPHPScraper;
 import net.shrimpworks.unreal.archive.scraper.Downloader;
 import net.shrimpworks.unreal.archive.scraper.FPSNetwork;
@@ -94,8 +94,8 @@ public class Main {
 			case "sync":
 				sync(cli);
 				break;
-			case "mirror":
-				mirror(contentManager(cli), cli);
+			case "local-mirror":
+				localMirror(contentManager(cli), cli);
 				break;
 			case "www":
 				www(contentManager(cli), documentManager(cli), managedContent(cli, "updates"), cli);
@@ -383,7 +383,7 @@ public class Main {
 		}
 	}
 
-	private static void mirror(ContentManager contentManager, CLI cli) throws IOException {
+	private static void localMirror(ContentManager contentManager, CLI cli) throws IOException {
 		if (cli.commands().length < 2) {
 			System.err.println("An output path should be provided!");
 			System.exit(2);
@@ -394,7 +394,7 @@ public class Main {
 		System.out.printf("Writing files to %s with concurrency of %s%n",
 						  output.toString(), cli.option("concurrency", "3"));
 
-		MirrorClient mirror = new MirrorClient(
+		LocalMirrorClient mirror = new LocalMirrorClient(
 				contentManager,
 				output,
 				Integer.parseInt(cli.option("concurrency", "3")),
@@ -403,7 +403,7 @@ public class Main {
 		);
 		mirror.mirror();
 
-		System.out.println("Mirror completed");
+		System.out.println("Local mirror completed");
 
 		// cleanup executor
 		mirror.cancel();
@@ -675,7 +675,7 @@ public class Main {
 		System.out.println("    Dry-run scan the contents of files or paths, comparing to known content where possible.");
 		System.out.println("  edit <hash> --content-path=<path>");
 		System.out.println("    Edit the metadata for the <hash> provided. Relies on `sensible-editor` on Linux.");
-		System.out.println("  mirror <output-path> --content-path=<path> [--concurrency=<count>]");
+		System.out.println("  local-mirror <output-path> --content-path=<path> [--concurrency=<count>]");
 		System.out.println("    Create a local mirror of the content in <content-path> in local directory <output-path>.");
 		System.out.println("    Optionally specify the number of concurrent downloads via <count>, defaults to 3.");
 		System.out.println("  www <output-path> [docs|content] --content-path=<path>");

@@ -132,3 +132,40 @@ specified, the default no-op store (`--store=nop`) will be used.
 
 Environment variables may be used, eg.: replace `--b2-key-images=key` with 
 `B2_KEY_IMAGES=key`.
+
+### S3 Bucket Storage
+
+Supports S3-compatible storage implementations.
+
+- `--store=s3`
+  - `--store-[images|attachments|content]=bs3`
+- `--s3-key=key-id`
+  - `--s3-key-[images|attachments|content]=key-id`
+- `--s3-secret=secret`
+  - `--s3-secret-[images|attachments|content]=secret`
+- `--s3-bucket=bucket-id`
+  - `--s3-bucket-[images|attachments|content]=bucket-id`
+- `--s3-endpoint=https://s3.amazonaws.com/`
+  -  (provide the root of your storage API)
+  - `--s3-endpoint-[images|attachments|content]=https://s3.amazonaws.com/`
+- `--s3-url=https://__BUCKET__.s3.eu-west-2.amazonaws.com/__NAME__`
+  -  (provide the public URL of your storage bucket in the appropriate region. 
+     `__BUCKET__` and `__NAME__`  will be replaced by the bucket and uploaded
+     filenames respectively
+
+Note: Amazon S3 bucket policy to allow public downloads:
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "PublicRead",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": "s3:GetObject",
+            "Resource": "arn:aws:s3:::testing-unreal-archive-mirror/*"
+        }
+    ]
+}
+```
