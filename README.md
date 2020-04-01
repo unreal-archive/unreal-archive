@@ -66,6 +66,10 @@ java -jar build\libs\unreal-archive-exec.jar
 - `edit`: Edit the metadata for the <hash> provided.
 - `sync`: Sync managed files' local files to remote storage.
 
+**Mirrors:**
+- `local-mirror`: Create a local mirror of all file content.
+- `mirror`: Create a remote mirror of all file content and add mirror links.
+
 **Utilities and Tools:**
 - `unpack`: Unpack the contents of a umod file to a directory.
 
@@ -103,6 +107,33 @@ Most of this process uses `Consumer<>`s for providing feedback, with the
 intention of eventually being able to make this process more parallelised for
 better performance. Currently the performance is "good enough" that such
 parallel behaviour is not quite worth the implementation time.
+
+
+## Mirroring
+
+If you have storage capacity available and would like to contribute some of it
+as a public mirror for archive content, the following steps may be taken.
+
+1. Fork and clone the [`unreal-archive-data`](https://gitbug.com/unreal-archive/unreal-archive-data)
+   repository.
+   - This dataset will be updated during the mirroring process.
+2. Download or [build](#building) the `unreal-archive` project binary
+3. Execute `unreal-archive mirror` with the following command-line options:
+   - `--content-path=/path/to/unreal-archive-data`
+   - `--store=[dav|s3|b2]` and appropriate 
+      [configuration and credentials](#storage-configuration).
+   - `--concurrency=3` with an appropriate concurrency value for your bandwidth
+     and processing power (3 is default)
+4. Wait while the mirror process completes. If you want to abort, just `Ctrl+C`
+   the process and whatever content has been mirrored so far can be used as-is
+   or resumed later.
+5. Ensure that the URLs added to the data files are publicly accessible by 
+   doing a spot-check on some of them. 
+6. Once the mirror is complete (or partially complete if you're only doing a
+   partial mirror) and some URLs have been eyeballed, `git commit` your
+   changes to the `unreal-archive-data` repository and push to your fork,
+   then use GitHub to open a Pull Request to the main repository `master`
+   branch. 
 
 
 ## Storage Configuration
