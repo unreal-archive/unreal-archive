@@ -20,9 +20,12 @@ public class Themes {
 
 	static {
 		THEMES = java.util.Map.<String, String>ofEntries(
+				/*
+				  Unreal Tournament
+				*/
 				java.util.Map.entry("ancient", TH_NALI_TEMPLE),
 				java.util.Map.entry("arenatex", TH_TECH),
-				java.util.Map.entry("coret fx", TH_TECH),
+				java.util.Map.entry("coret_fx", TH_TECH),
 				java.util.Map.entry("city", TH_CITY),
 				java.util.Map.entry("crypt_fx", TH_SKAARJ_CRYPT),
 				java.util.Map.entry("crypt2", TH_SKAARJ_CRYPT),
@@ -95,7 +98,73 @@ public class Themes {
 
 				java.util.Map.entry("hourdinoratex", TH_INDUSTRIAL),
 				java.util.Map.entry("r3tex", TH_ANCIENT),
-				java.util.Map.entry("bentropical01", TH_NATURAL)
+				java.util.Map.entry("bentropical01", TH_NATURAL),
+
+				/*
+				  Unreal Tournament 2004
+				*/
+				java.util.Map.entry("humanoidarchitecture", TH_INDUSTRIAL),
+				java.util.Map.entry("humanoidarchitecture2", TH_INDUSTRIAL),
+				java.util.Map.entry("abaddonarchitecture", TH_INDUSTRIAL),
+				java.util.Map.entry("abaddonarchitecture-tech", TH_INDUSTRIAL),
+				java.util.Map.entry("shiptech", TH_TECH),
+				java.util.Map.entry("shiptech2", TH_TECH),
+				java.util.Map.entry("alleriaarchitecture", TH_TECH),
+				java.util.Map.entry("barrensarchitecture", TH_EGYPTIAN),
+				java.util.Map.entry("barrensarchitecture-epic", TH_EGYPTIAN),
+				java.util.Map.entry("barrensarchitecture-scion", TH_EGYPTIAN),
+				java.util.Map.entry("h_e_l_ltx", TH_ANCIENT),
+				java.util.Map.entry("arboreaarchitecture", TH_ANCIENT),
+				java.util.Map.entry("albatross_architecture", TH_ANCIENT),
+				java.util.Map.entry("alleriaterrain", TH_NATURAL),
+				java.util.Map.entry("phobos2_cp", TH_TECH),
+				java.util.Map.entry("abaddonterrain", TH_NATURAL),
+				java.util.Map.entry("barrensterrain", TH_NATURAL),
+				java.util.Map.entry("cp_evil1", TH_TECH),
+				java.util.Map.entry("cp_evil2", TH_TECH),
+				java.util.Map.entry("cp_evil3", TH_TECH),
+				java.util.Map.entry("sc_volcano_t", TH_NATURAL),
+				java.util.Map.entry("antalustextures", TH_NATURAL),
+				java.util.Map.entry("x_cp_evil1", TH_TECH),
+				java.util.Map.entry("x_cp_evil2", TH_TECH),
+				java.util.Map.entry("x_cp_evil3", TH_TECH),
+				java.util.Map.entry("fareast", TH_ANCIENT),
+				java.util.Map.entry("skyline-epic", TH_CITY),
+				java.util.Map.entry("aw-metals", TH_INDUSTRIAL),
+				java.util.Map.entry("aw-metals2", TH_INDUSTRIAL),
+				java.util.Map.entry("aw-stone", TH_CITY),
+				java.util.Map.entry("x_mechcity1_cp", TH_CITY),
+				java.util.Map.entry("x_mechstandard", TH_TECH),
+				java.util.Map.entry("towerterrain", TH_INDUSTRIAL),
+				java.util.Map.entry("davestextures", TH_NATURAL),
+				java.util.Map.entry("mech_decayed", TH_INDUSTRIAL),
+				java.util.Map.entry("jwdecemberarchitecture", TH_INDUSTRIAL),
+				java.util.Map.entry("c_sc-city", TH_CITY),
+				java.util.Map.entry("despfallencity", TH_CITY),
+				java.util.Map.entry("cp_ut2k3_techset1", TH_TECH),
+				java.util.Map.entry("mechstandard", TH_TECH),
+				java.util.Map.entry("cf_tex01", TH_TECH),
+				java.util.Map.entry("cf_tex02", TH_TECH),
+				java.util.Map.entry("cp_evilmetal", TH_TECH),
+				java.util.Map.entry("hourmoria", TH_NATURAL),
+				java.util.Map.entry("x_mech_decayed", TH_TECH),
+				java.util.Map.entry("gaciertextures", TH_TECH),
+				java.util.Map.entry("x_futuretech1", TH_TECH),
+				java.util.Map.entry("futuretech1", TH_TECH),
+				java.util.Map.entry("x_aw-convert", TH_NATURAL),
+				java.util.Map.entry("pc_urbantex", TH_CITY),
+				java.util.Map.entry("pipe_set", TH_INDUSTRIAL),
+				java.util.Map.entry("2k4reducedtextures", TH_INDUSTRIAL),
+				java.util.Map.entry("village", TH_ANCIENT),
+				java.util.Map.entry("alientex", TH_TECH),
+				java.util.Map.entry("xceptone", TH_TECH),
+				java.util.Map.entry("xcepttwo", TH_TECH),
+				java.util.Map.entry("xceptthree", TH_TECH),
+				java.util.Map.entry("aw-citystuff", TH_CITY),
+				java.util.Map.entry("industrial", TH_INDUSTRIAL),
+				java.util.Map.entry("cp_forestswamp", TH_NATURAL),
+				java.util.Map.entry("terrain", TH_NATURAL),
+				java.util.Map.entry("cp_junkyard", TH_INDUSTRIAL)
 		);
 	}
 
