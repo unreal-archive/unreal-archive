@@ -52,14 +52,14 @@ publishing {
 }
 
 dependencies {
-    implementation 'net.shrimpworks:unreal-package-lib:1.4.47'
+    implementation 'net.shrimpworks:unreal-package-lib:1.4.49'
 
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.6'
-    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.6'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.10.3'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.10.3'
 
-    implementation 'org.jsoup:jsoup:1.9.+'
+    implementation 'org.jsoup:jsoup:1.13.1'
 
-    implementation 'org.freemarker:freemarker:2.+'
+    implementation 'org.freemarker:freemarker:2.3.30'
 
     implementation 'com.backblaze.b2:b2-sdk-core:1.4.0'
     implementation 'com.backblaze.b2:b2-sdk-httpclient:1.4.0'
