@@ -14,6 +14,8 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.FileTime;
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -392,10 +394,19 @@ public class Main {
 
 		System.out.printf("Mirroring files to %s with concurrency of %s%n", mirrorStore, cli.option("concurrency", "3"));
 
+		LocalDate since = LocalDate.MIN;
+		try {
+			if (!cli.option("since", "").isBlank()) since = LocalDate.parse(cli.option("since", ""));
+		} catch (DateTimeParseException e) {
+			System.err.println("Failed to parse date input " + cli.option("since", ""));
+			System.exit(-1);
+		}
+
 		Mirror mirror = new Mirror(
 				contentManager,
 				mirrorStore,
 				Integer.parseInt(cli.option("concurrency", "3")),
+				since,
 				((total, remaining, last) -> System.out.printf("\r[ %-6s / %-6s ] Processed %-40s",
 															   total - remaining, total, last.originalFilename))
 		);

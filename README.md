@@ -124,6 +124,8 @@ as a public mirror for archive content, the following steps may be taken.
       [configuration and credentials](#storage-configuration).
    - `--concurrency=3` with an appropriate concurrency value for your bandwidth
      and processing power (3 is default)
+   - `--since=yyyy-mm-dd` _[optional]_ - only mirror content added after the
+     date specified
 4. Wait while the mirror process completes. If you want to abort, just `Ctrl+C`
    the process and whatever content has been mirrored so far can be used as-is
    or resumed later.

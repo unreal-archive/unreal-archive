@@ -3,6 +3,7 @@ package net.shrimpworks.unreal.archive.mirror;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.concurrent.ConcurrentLinkedDeque;
@@ -10,6 +11,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.content.Content;
@@ -36,11 +38,13 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 	private volatile CountDownLatch counter;
 	private volatile Thread mirrorThread;
 
-	public Mirror(ContentManager cm, DataStore mirrorStore, int concurrency, Progress progress) {
+	public Mirror(ContentManager cm, DataStore mirrorStore, int concurrency, LocalDate since, Progress progress) {
 		this.cm = cm;
 		this.mirrorStore = mirrorStore;
 
-		this.content = new ConcurrentLinkedDeque<>(cm.search(null, null, null, null));
+		this.content = cm.search(null, null, null, null).stream()
+						 .filter(c -> c.firstIndex.toLocalDate().isAfter(since.minusDays(1)))
+						 .collect(Collectors.toCollection(ConcurrentLinkedDeque::new));
 		this.retryQueue = new ConcurrentLinkedDeque<>();
 		this.concurrency = concurrency;
 
