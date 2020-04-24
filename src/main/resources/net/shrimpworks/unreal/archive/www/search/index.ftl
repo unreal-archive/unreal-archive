@@ -63,7 +63,7 @@
 			results.append(loading);
 
 			// allows for searching by map literal names, such as "DM-MapName", without RediSearch excluding "-MapName" from the results
-			let q = query.replace(/([A-Za-z])-/, "$1\\-");
+			let q = query.replace(/([A-Za-z])-/g, "$1%5C-");
 
 			const url = searchRoot + "/search?q=" + q + "&offset=" + offset + "&limit=" + limit;
 			console.log("Query URL is ", url);
@@ -98,7 +98,7 @@
 			} else {
 				image.setAttribute("src", result.fields.image);
 			}
-			image.setAttribute("alt", result.fields.name.replace(/\\-/, "-"));
+			image.setAttribute("alt", result.fields.name.replace(/\\-/g, "-"));
 
 			const imageDiv = document.createElement("div");
 			imageDiv.classList.add('image');
@@ -110,7 +110,7 @@
 			game.setAttribute("title", result.fields.game);
 			const link = document.createElement("a");
 			link.setAttribute("href", result.fields.url);
-			link.innerText = result.fields.name.replace(/\\-/, "-");
+			link.innerText = result.fields.name.replace(/\\-/g, "-");
 			const title = document.createElement("h2");
 			title.append(game, link);
 
