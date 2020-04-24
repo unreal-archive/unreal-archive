@@ -7,11 +7,11 @@ public enum Games {
 
 	UNKNOWN("Unknown", "Unknown", "Unknown", List.of()),
 
-	UNREAL("Unreal", "Unreal", "Unreal", List.of("unreal", "u1")),
-	UNREAL_TOURNAMENT("Unreal Tournament", "UT99", "Unreal Tournament (UT99)", List.of("ut", "ut99", "unreal tournament")),
+	UNREAL("Unreal", "Unreal", "Unreal", List.of("unreal", "u1", "gold")),
+	UNREAL_TOURNAMENT("Unreal Tournament", "UT99", "Unreal Tournament (UT99)", List.of("ut", "ut99", "unreal tournament", "goty")),
 	UNREAL_2("Unreal 2", "Unreal 2", "Unreal II", List.of("unreal 2", "u2", "uii")),
 	UNREAL_TOURNAMENT_2004("Unreal Tournament 2004", "UT2004", "Unreal Tournament 2004 (UT2004)",
-						   List.of("ut2004", "ut2k4", "ut2003", "ut2k3"));
+						   List.of("ut2004", "ut2k4", "ut2003", "ut2k3", "ece"));
 
 	public final String name;
 	public final String shortName;

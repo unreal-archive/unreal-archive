@@ -43,8 +43,11 @@
 					<td>${m.map.author}</td>
 					<td class="nomobile">${m.map.playerCount}</td>
 					<td class="meta nomobile">
+						<#if m.map.bots>
+							<img src="${staticPath()}/images/icons/bots.svg" alt="AI/Bot support" title="AI/Bot support" height="22"/>
+						</#if>
 						<#if m.map.attachments?size gt 0>
-							<img src="${staticPath()}/images/icons/image.svg" alt="Has images" height="22"/>
+							<img src="${staticPath()}/images/icons/image.svg" alt="Has images" title="Has images" height="22"/>
 						</#if>
 					</td>
 				</tr>

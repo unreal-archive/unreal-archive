@@ -28,6 +28,7 @@ import net.shrimpworks.unreal.packages.entities.Import;
 import net.shrimpworks.unreal.packages.entities.Named;
 import net.shrimpworks.unreal.packages.entities.objects.Object;
 import net.shrimpworks.unreal.packages.entities.objects.Polys;
+import net.shrimpworks.unreal.packages.entities.properties.ArrayProperty;
 import net.shrimpworks.unreal.packages.entities.properties.IntegerProperty;
 import net.shrimpworks.unreal.packages.entities.properties.Property;
 import net.shrimpworks.unreal.packages.entities.properties.StringProperty;
@@ -36,6 +37,8 @@ public class MapIndexHandler implements IndexHandler<Map> {
 
 	private static final Pattern SP_MATCH = Pattern.compile("(.+)?(single ?player|cooperative)([\\s:]+)?yes(\\s+)?",
 															Pattern.CASE_INSENSITIVE);
+
+	private static final int BOT_PATH_MIN = 5; // minimum number fo connected PathNodes to assume whether this map has bot support
 
 	public static class MapIndexHandlerFactory implements IndexHandlerFactory<Map> {
 
@@ -139,6 +142,8 @@ public class MapIndexHandler implements IndexHandler<Map> {
 			// Find map themes
 			m.themes.clear();
 			m.themes.putAll(themes(map));
+
+			m.bots = botSupport(map);
 		} catch (IOException e) {
 			log.log(IndexLog.EntryType.CONTINUE, "Failed to read map package", e);
 		} catch (Exception e) {
@@ -182,8 +187,8 @@ public class MapIndexHandler implements IndexHandler<Map> {
 
 	private boolean maybeSingleplayer(Incoming incoming) {
 
-		if (incoming.submission.filePath.toString().toLowerCase().contains("SinglePlayer")
-			|| incoming.submission.filePath.toString().toLowerCase().contains("COOP")) {
+		if (incoming.submission.filePath.toString().toLowerCase().contains("singleplayer")
+			|| incoming.submission.filePath.toString().toLowerCase().contains("coop")) {
 			return true;
 		}
 
@@ -257,6 +262,13 @@ public class MapIndexHandler implements IndexHandler<Map> {
 												  v -> BigDecimal.valueOf((double)v.getValue() / totalScore)
 																 .setScale(1, RoundingMode.HALF_UP).doubleValue()
 						));
+	}
+
+	public static boolean botSupport(Package pkg) {
+		return pkg.objectsByClassName("PathNode").stream()
+				  .filter(n -> pkg.object(n).property("Paths") instanceof ArrayProperty &&
+							   !((ArrayProperty)pkg.object(n).property("Paths")).values.isEmpty())
+				  .count() > BOT_PATH_MIN;
 	}
 
 }

@@ -59,7 +59,7 @@ public class MESSubmitter {
 					"id", content.hash,
 					"score", 1.0d,
 					"fields", Map.of(
-							"name", content.name,
+							"name", content.name.replaceAll("-", "\\\\-"),
 							"game", content.game,
 							"type", content.friendlyContentType(),
 							"author", content.author,

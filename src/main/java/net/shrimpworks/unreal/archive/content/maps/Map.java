@@ -20,6 +20,7 @@ public class Map extends Content {
 	public String title = "Unknown";                // My Map
 	public String playerCount = "Unknown";          // 2 - 4 Players
 	public java.util.Map<String, Double> themes = new HashMap<>(); // "Industrial": 0.75, "Tech": 0.25
+	public boolean bots = false;                    // true if the map seems to have bot pathing built
 
 	@Override
 	public String subGrouping() {
@@ -86,11 +87,12 @@ public class Map extends Content {
 		return Objects.equals(gametype, map.gametype)
 			   && Objects.equals(title, map.title)
 			   && Objects.equals(playerCount, map.playerCount)
-			   && Objects.equals(themes, map.themes);
+			   && Objects.equals(themes, map.themes)
+			   && Objects.equals(bots, map.bots);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(super.hashCode(), gametype, title, playerCount, themes);
+		return Objects.hash(super.hashCode(), gametype, title, playerCount, themes, bots);
 	}
 }
