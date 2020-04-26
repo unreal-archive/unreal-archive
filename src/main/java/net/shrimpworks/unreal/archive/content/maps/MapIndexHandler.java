@@ -265,10 +265,13 @@ public class MapIndexHandler implements IndexHandler<Map> {
 	}
 
 	public static boolean botSupport(Package pkg) {
-		return pkg.objectsByClassName("PathNode").stream()
-				  .filter(n -> pkg.object(n).property("Paths") instanceof ArrayProperty &&
-							   !((ArrayProperty)pkg.object(n).property("Paths")).values.isEmpty())
-				  .count() > BOT_PATH_MIN;
+		return pkg.version < 117
+				? pkg.objectsByClassName("PathNode").stream()
+					 .filter(n -> pkg.object(n).property("Paths") instanceof ArrayProperty &&
+								  !((ArrayProperty)pkg.object(n).property("Paths")).values.isEmpty())
+					 .count() > BOT_PATH_MIN
+				: pkg.objectsByClassName("PathNode").size() > BOT_PATH_MIN
+				  && pkg.objectsByClassName("ReachSpec").size() > BOT_PATH_MIN;
 	}
 
 }

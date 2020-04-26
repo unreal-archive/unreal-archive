@@ -552,7 +552,12 @@ public class Main {
 			byType.forEach((type, count) -> System.out.printf(" > %s: %d%n", type.getSimpleName(), count));
 
 			System.out.println("Current content by Game:");
-			contentManager.countByGame().forEach((game, count) -> System.out.printf(" > %s: %d%n", game, count));
+			contentManager.countByGame().forEach((game, count) -> {
+				System.out.printf(" > %s: %d%n", game, count);
+				contentManager.countByType(game).forEach(
+						(type, typeCount) -> System.out.printf("   > %s: %d%n", type.getSimpleName(), typeCount)
+				);
+			});
 		} else {
 			System.out.println("No content stored yet");
 		}
