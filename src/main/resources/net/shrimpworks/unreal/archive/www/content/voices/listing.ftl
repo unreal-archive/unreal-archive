@@ -45,6 +45,7 @@
 						<#if v.voice.attachments?size gt 0>
 							<img src="${staticPath()}/images/icons/image.svg" alt="Has images" height="22"/>
 						</#if>
+						<@dependencyIcon v.voice.dependencies/>
 					</td>
 				</tr>
 				</#list>

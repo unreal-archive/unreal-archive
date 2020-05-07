@@ -202,6 +202,9 @@ public class Indexer {
 						}
 					}
 
+					// add dependencies
+					result.content.dependencies = IndexUtils.dependencies(result.content, incoming);
+
 					postProcessor.indexed(sub, current, result);
 
 					if (result.content.name.isEmpty()) {

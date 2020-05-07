@@ -86,6 +86,8 @@
 
 			<@downloads downloads=voice.voice.downloads/>
 
+      <@dependencies deps=voice.voice.dependencies/>
+
       <@ghIssue text="Report a problem" repoUrl="${dataProjectUrl}" title="[Voice] ${voice.voice.name}" hash="${voice.voice.hash}" name="${voice.voice.name}"/>
 
 		</div>

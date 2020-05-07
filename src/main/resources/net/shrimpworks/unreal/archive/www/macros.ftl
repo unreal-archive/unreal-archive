@@ -140,3 +140,63 @@
 		<a href="${url}"><img src="${staticPath()}/images/icons/alert.svg" alt="Alert Icon"/> ${text}</a>
 	</section>
 </#macro>
+
+<#macro dependencies deps>
+	<#if deps?size gt 0>
+		<section class="dependencies">
+			<h2><img src="${staticPath()}/images/icons/file-check.svg" alt="Required Files"/> Required Files</h2>
+			<table>
+				<thead>
+				<tr>
+					<th>&nbsp;</th>
+					<th align="left">Requires</th>
+					<th align="left">Status</th>
+					<th>&nbsp;</th>
+				</tr>
+				</thead>
+				<tbody>
+				<#list deps as name, value>
+					<tr>
+						<td colspan="4"><b>${name}</b></td>
+					</tr>
+					<#list value as dep>
+						<tr>
+							<td>&nbsp;</td>
+							<td>${dep.name}</td>
+							<td>${dep.status}</td>
+							<td>
+								<#if dep.status == "OK">
+									File is included
+								</#if>
+								<#if dep.status == "PARTIAL">
+									Included file is missing required content
+								</#if>
+								<#if dep.status == "MISSING">
+									File is not included
+								</#if>
+							</td>
+						</tr>
+					</#list>
+				</#list>
+				</tbody>
+			</table>
+		</section>
+	</#if>
+</#macro>
+
+<#macro dependencyIcon deps>
+	<#assign status=true/>
+	<#list deps as name, value>
+		<#list value as dep>
+				<#if status && dep.status != "OK">
+					<#assign status=false/>
+					<#break >
+				</#if>
+   	</#list>
+  </#list>
+	<#if status>
+		<img src="${staticPath()}/images/icons/file-check.svg" alt="No dependencies" title="No dependencies" height="22"/>
+	<#else>
+		<img src="${staticPath()}/images/icons/file-x.svg" alt="Missing dependencies" title="Missing dependencies" height="22"/>
+	</#if>
+</#macro>

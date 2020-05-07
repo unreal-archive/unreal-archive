@@ -1,3 +1,70 @@
+:root {
+	--body-bg: none;
+	--body-color: initial;
+	--body-font-family: 'Dosis', sans-serif;
+	--article-font-family: 'Nobile', sans-serif;
+
+	--link-color: mediumblue;
+	--link-color-visited: rebeccapurple;
+
+	--header-font-family: 'PassionOne', serif;
+	--header-bg-color: black;
+	--header-text-color: white;
+	--header-border-color: #f73;
+	--header-logo-color-a: white;
+	--header-logo-color-b: #aaa;
+
+	--header-outline-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
+
+	--footer-border-color: #aaa;
+
+	--menu-font-family: 'Nobile', sans-serif;
+	--menu-text-color: white;
+	--menu-trim-color: 1px dotted white;
+
+	--section-header-bg: gray;
+	--section-header-shadow: inset 0 0 100px 0 rgba(0, 0, 0, 0.75);
+	--section-header-title-bg: rgba(255, 255, 255, 0.4);
+	--section-header-title-shadow: -1px -6px 10px -4px rgba(0, 0, 0, 0.55);
+	--section-header-title-color: white;
+	--section-header-title-color-hover: lightyellow;
+
+	--section-subheader-bg: #d0d9e0;
+	--section-subheader-color: inherit;
+
+	--biglist-shadow: inset 0 0 80px 0 rgba(0, 0, 0, 0.75);
+	--biglist-bg-color: gray;
+	--biglist-bg-color-hover: rgba(255, 255, 200, 0.5);
+	--biglist-text-color: white;
+	--biglist-meta-color: rgba(255, 255, 255, 0.5);
+
+	--paginate-bg-inactive: #dee3e9;
+	--paginate-bg-hover: lightyellow;
+	--paginate-bg-active: white;
+	--paginate-shadow-active: inset 0 -3px 0 0 #f73;
+	--paginate-border: #4d7a97;
+
+	--download-button-bg: lightgreen;
+	--download-button-bg-main: greenyellow;
+	--download-button-bg-hover: lawngreen;
+	--download-info-bg-hover: white;
+
+	--table-header-bg: #4d7a97;
+	--table-header-color: white;
+	--table-row-alt-bg: #f0f0f5;
+	--table-row-hover: lightyellow;
+
+	--document-meta-border: #dee3e9;
+	--document-meta-bg: #f0f0f5;
+
+  --theme-bg-0: khaki;
+	--theme-bg-1: lightskyblue;
+	--theme-bg-2: lightgreen;
+	--theme-bg-3: bisque;
+	--theme-bg-4: lemonchiffon;
+	--theme-bg-5: lightpink;
+}
+
 html {
 	height: 100%;
 	box-sizing: border-box;
@@ -11,25 +78,28 @@ body, body:before, body:after {
 body {
 	margin: 0;
 
-	font-family: 'Dosis', sans-serif;
+	font-family: var(--body-font-family);
 	font-size: 1.075em;
 
 	/* footer-bottom hax */
 	min-height: 100%;
 	position: relative;
 	padding: 0 0 180px 0;
+
+	background: var(--body-bg);
+	color: var(--body-color);
 }
 
 a {
-	color: mediumblue;
+	color: var(--link-color);
 }
 
 a:visited {
-	color: rebeccapurple;
+	color: var(--link-color-visited);
 }
 
 h1, h2 {
-	font-family: 'PassionOne', serif;
+	font-family: var(--header-font-family);
 	font-weight: normal;
 	margin: 10px auto;
 }
@@ -55,14 +125,14 @@ h2 img {
 }
 
 header {
-	background-color: black;
-	color: white;
-	border-bottom: 4px solid #f73
+	background-color: var(--header-bg-color);
+	color: var(--header-text-color);
+	border-bottom: 4px solid var(--header-border-color);
 }
 
 footer {
 	padding: 20px 0;
-	border-top: 4px solid #aaa;
+	border-top: 4px solid var(--footer-border-color);
 
 	position: absolute;
 	bottom: 0;
@@ -81,16 +151,17 @@ header .heading {
 
 header .heading .header {
 	grid-area: header;
-	font-family: 'PassionOne', sans-serif;
+	font-family: var(--header-font-family);
 	font-size: 4em;
 	font-weight: normal;
 }
 
 header .heading .menu {
 	grid-area: menu;
-	font-family: 'Nobile', sans-serif;
+	font-family: var(--menu-font-family);
 	align-self: center;
 	text-align: right;
+	color: var(--menu-text-color);
 }
 
 .heading .burger {
@@ -112,7 +183,7 @@ header .heading .menu {
 .heading .menu ul li {
 	display: inline-block;
 	box-sizing: border-box;
-	border-right: 1px dotted white;
+	border-right: var(--menu-trim-color);
 }
 
 .heading .menu a {
@@ -120,15 +191,15 @@ header .heading .menu {
 }
 
 .heading .menu ul li:first-child {
-	border-left: 1px dotted white;
+	border-left: var(--menu-trim-color);
 }
 
 header .heading .a {
-	color: white;
+	color: var(--header-logo-color-a);
 }
 
 header .heading .b {
-	color: #aaa;
+	color: var(--header-logo-color-b);
 }
 
 header .heading a {
@@ -148,7 +219,7 @@ header .header img {
 }
 
 .readable {
-	font-family: 'Nobile', sans-serif;
+	font-family: var(--article-font-family);
 	font-size: 1.0em;
 }
 
@@ -163,8 +234,8 @@ section.intro h1 {
 
 section.header {
 	height: 150px;
-	box-shadow: inset 0 0 100px 0 rgba(0, 0, 0, 0.75);
-	background: gray center;
+	box-shadow: var(--section-header-shadow);
+	background: var(--section-header-bg) center;
 	background-size: cover;
 	margin-bottom: 10px;
 }
@@ -178,22 +249,22 @@ section.header .page {
 section.header h1 {
 	font-size: 2.5em;
 	word-break: keep-all;
-	color: white;
-	text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
+	color: var(--section-header-title-color);
+	text-shadow: var(--header-outline-shadow);
 	padding: 10px;
 	margin: auto 0 0 0;
-	background-color: rgba(255, 255, 255, 0.4);
-	box-shadow: -1px -6px 10px -4px rgba(0,0,0,0.55);
+	background-color: var(--section-header-title-bg);
+	box-shadow: var(--section-header-title-shadow);
 	border-radius: 5px 5px 0 0;
 }
 
 section.header h1 a {
 	text-decoration: none;
-	color: white;
+	color: var(--section-header-title-color);
 }
 
 section.header h1 a:hover {
-	color: lightyellow;
+	color: var(--section-header-title-color-hover);
 }
 
 .biglist ul {
@@ -211,21 +282,21 @@ section.header h1 a:hover {
 	/*grid-area: block;*/
 	position: relative;
 	height: 100px;
-	box-shadow: inset 0 0 80px 0 rgba(0, 0, 0, 0.75);
-	background: gray center;
+	box-shadow: var(--biglist-shadow);
+	background: var(--biglist-bg-color) center;
 	background-size: cover;
 
 	font-size: 1.9em;
 	font-weight: bold;
-	color: white;
+	color: var(--biglist-text-color);
 
 	border-radius: 5px;
 }
 
 .biglist ul li a {
 	text-decoration: none;
-	color: white;
-	text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
+	color: var(--biglist-text-color);
+	text-shadow: var(--header-outline-shadow);
 
 	position: absolute;
 	top: 0;
@@ -238,12 +309,12 @@ section.header h1 a:hover {
 }
 
 .biglist ul li a:hover {
-	background-color: rgba(255, 255, 200, 0.5);
+	background-color: var(--biglist-bg-color-hover);
 	transition: all	0.2s;
 }
 
 .biglist ul li .meta {
-	color: rgba(255, 255, 255, 0.5);
+	color: var(--biglist-meta-color);
 	font-size: 1.5em;
 
 	position: absolute;
@@ -261,8 +332,8 @@ section.header h1 a:hover {
 }
 
 .list nav.letters a, .list nav.pages a {
-	background-color: #dee3e9;
-	border: 1px solid #4D7A97;
+	background-color: var(--paginate-bg-inactive);
+	border: 1px solid var(--paginate-border);
 	padding: 5px;
 	margin: 0 2px;
 	text-decoration: none;
@@ -270,17 +341,12 @@ section.header h1 a:hover {
 }
 
 .list nav.letters a:hover, .list nav.pages a:hover {
-	background-color: lightyellow;
+	background-color: var(--paginate-bg-hover);
 }
 
-.list nav.letters a.active {
-	background-color: white;
-	box-shadow: inset 0 -3px 0 0 #f73;
-}
-
-.list nav.pages a.active {
-	background-color: white;
-	box-shadow: inset 0 -3px 0 0 #f73;
+.list nav.letters a.active, .list nav.pages a.active {
+	background-color: var(--paginate-bg-active);
+	box-shadow: var(--paginate-shadow-active);
 }
 
 article.info {
@@ -311,7 +377,7 @@ article.info .info {
 }
 
 article.info .downloads .links a {
-	background-color: lightgreen;
+	background-color: var(--download-button-bg);
 	display: block;
 	padding: 10px;
 	margin: 5px 0;
@@ -319,11 +385,11 @@ article.info .downloads .links a {
 }
 
 article.info .downloads .links a.main {
-	background-color: greenyellow;
+	background-color: var(--download-button-bg-main);
 }
 
 article.info .downloads .links a:hover {
-	background-color: lawngreen;
+	background-color: var(--download-button-bg-hover);
 }
 
 article section {
@@ -332,7 +398,8 @@ article section {
 
 article section h2 {
 	font-size: 1.6em;
-	background-color: #d0d9e0;
+	background-color: var(--section-subheader-bg);
+	color: var(--section-subheader-color);
 	margin: 0;
 	padding: 5px 10px;
 }
@@ -366,16 +433,16 @@ table {
 }
 
 table thead {
-	background-color: #4D7A97;
-	color: white;
+	background-color: var(--table-header-bg);
+	color: var(--table-header-color);
 }
 
 table tbody tr:nth-child(odd) {
-	background-color: #f0f0f5;
+	background-color: var(--table-row-alt-bg);
 }
 
 table :not(thead) > tr:hover {
-	background-color: lightyellow;
+	background-color: var(--table-row-hover);
 }
 
 table td, table th {
@@ -412,24 +479,22 @@ article.document .meta {
 	float: right;
 	width: 400px;
 	margin: 0 0 10px 10px;
-	border: 1px solid #dee3e9;
-	background-color: #eeeeee;
+	border: 1px solid var(--document-meta-border);
+	background-color: var(--document-meta-bg);
 }
 
 article.document :not(pre) > code {
 	padding: 2px;
-	border: 1px solid #dee3e9;
-	background-color: #eeeeee;
+	border: 1px solid var(--document-meta-border);
+	background-color: var(--document-meta-bg);
 }
 
 article.document pre {
 	padding: 10px;
-	border: 1px solid #dee3e9;
-	background-color: #eeeeee;
 }
 
 article.document blockquote {
-	border-left: 5px solid #dee3e9;
+	border-left: 5px solid var(--document-meta-border);
 	padding-left: 10px;
 	font-style: italic;
 }
@@ -439,11 +504,11 @@ article.managed section.downloads .download {
 }
 
 article.managed section.downloads .download:hover {
-	background-color: white;
+	background-color: var(--download-info-bg-hover);
 }
 
 article.managed section.downloads .download:not(:last-child) {
-	border-bottom: 1px solid #dee3e9;
+	border-bottom: 1px solid var(--document-meta-border);
 }
 
 article.managed section.downloads .download .title {
@@ -469,12 +534,12 @@ article.managed section.downloads .download .links a {
 	padding: 5px;
 	margin: 5px;
 	text-align: center;
-	background-color: greenyellow;
+	background-color: var(--download-button-bg);
 	text-decoration: none;
 }
 
 article.managed section.downloads .download .links a:hover {
-	background-color: lawngreen;
+	background-color: var(--download-button-bg-hover);
 }
 
 article.managed section.downloads .download .title img {
@@ -521,12 +586,12 @@ div.theme-gauge .part {
 	overflow: visible;
 	white-space: nowrap;
 }
-div.theme-gauge .part.p0 { background-color: khaki; }
-div.theme-gauge .part.p1 { background-color: lightskyblue; }
-div.theme-gauge .part.p2 { background-color: lightgreen; }
-div.theme-gauge .part.p3 { background-color: bisque; }
-div.theme-gauge .part.p4 { background-color: lemonchiffon; }
-div.theme-gauge .part.p5 { background-color: lightpink; }
+div.theme-gauge .part.p0 { background: var(--theme-bg-0); }
+div.theme-gauge .part.p1 { background: var(--theme-bg-1); }
+div.theme-gauge .part.p2 { background: var(--theme-bg-2); }
+div.theme-gauge .part.p3 { background: var(--theme-bg-3); }
+div.theme-gauge .part.p4 { background: var(--theme-bg-4); }
+div.theme-gauge .part.p5 { background: var(--theme-bg-5); }
 
 @media screen and (max-width: 1024px) {
 

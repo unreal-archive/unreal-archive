@@ -89,6 +89,8 @@
 
 			<@downloads downloads=model.model.downloads/>
 
+      <@dependencies deps=model.model.dependencies/>
+
       <@ghIssue text="Report a problem" repoUrl="${dataProjectUrl}" title="[Model] ${model.model.name}" hash="${model.model.hash}" name="${model.model.name}"/>
 
 		</div>

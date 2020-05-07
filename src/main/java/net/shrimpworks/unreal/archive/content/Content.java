@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -67,6 +68,7 @@ public abstract class Content implements Comparable<Content> {
 	public int fileSize;
 	public List<ContentFile> files = new ArrayList<>();     // [DM-MyMap.unr, MyTex.utx]
 	public int otherFiles = 0;                              // count of non-content files (readme, html, etc)
+	public java.util.Map<String, List<Dependency>> dependencies = new HashMap<>();// packages this content depends on
 
 	public List<Download> downloads = new ArrayList<>();
 
@@ -173,13 +175,14 @@ public abstract class Content implements Comparable<Content> {
 			   && Objects.equals(originalFilename, content.originalFilename)
 			   && Objects.equals(hash, content.hash)
 			   && Objects.equals(files, content.files)
-			   && Objects.equals(downloads, content.downloads);
+			   && Objects.equals(downloads, content.downloads)
+			   && Objects.equals(dependencies, content.dependencies);
 	}
 
 	@Override
 	public int hashCode() {
 		return Objects.hash(contentType, firstIndex, variationOf, game, name, author, description, releaseDate, attachments,
-							originalFilename, hash, fileSize, files, otherFiles, downloads, deleted);
+							originalFilename, hash, fileSize, files, otherFiles, downloads, deleted, dependencies);
 	}
 
 	public static class ContentFile implements Comparable<ContentFile> {
@@ -211,6 +214,46 @@ public abstract class Content implements Comparable<Content> {
 		@Override
 		public int hashCode() {
 			return Objects.hash(hash);
+		}
+	}
+
+	public static enum DependencyStatus {
+		OK,            // all required elements are present within the package
+		MISSING,    // the package is not included at all
+		PARTIAL        // the package exists but does not contain required objects
+	}
+
+	public static class Dependency {
+
+		public final DependencyStatus status;
+		public final String name;
+		public final String providedBy;
+
+		@ConstructorProperties({ "status", "name", "providedBy" })
+		public Dependency(DependencyStatus status, String name, String providedBy) {
+			this.status = status;
+			this.name = name;
+			this.providedBy = providedBy;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) return true;
+			if (!(o instanceof Dependency)) return false;
+			Dependency that = (Dependency)o;
+			return status == that.status
+				   && Objects.equals(name, that.name)
+				   && Objects.equals(providedBy, that.providedBy);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(status, name, providedBy);
+		}
+
+		@Override
+		public String toString() {
+			return String.format("Dependency [status=%s, name=%s, providedBy=%s]", status, name, providedBy);
 		}
 	}
 

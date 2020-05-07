@@ -49,6 +49,7 @@
 						<#if m.model.attachments?size gt 0>
 							<img src="${staticPath()}/images/icons/image.svg" alt="Has images" height="22"/>
 						</#if>
+						<@dependencyIcon m.model.dependencies/>
 					</td>
 				</tr>
 				</#list>

@@ -125,6 +125,8 @@
 
 			<@downloads downloads=pack.pack.downloads/>
 
+      <@dependencies deps=pack.pack.dependencies/>
+
       <@ghIssue text="Report a problem" repoUrl="${dataProjectUrl}" title="[Map Pack] ${pack.pack.name}" hash="${pack.pack.hash}" name="${pack.pack.name}"/>
 
 		</div>

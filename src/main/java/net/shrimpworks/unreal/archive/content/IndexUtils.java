@@ -10,7 +10,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -20,6 +22,9 @@ import java.util.stream.Stream;
 import javax.imageio.ImageIO;
 
 import net.shrimpworks.unreal.archive.Util;
+import net.shrimpworks.unreal.dependencies.DependencyResolver;
+import net.shrimpworks.unreal.dependencies.Resolved;
+import net.shrimpworks.unreal.dependencies.ShippedPackages;
 import net.shrimpworks.unreal.packages.IntFile;
 import net.shrimpworks.unreal.packages.Package;
 import net.shrimpworks.unreal.packages.PackageReader;
@@ -31,6 +36,8 @@ import net.shrimpworks.unreal.packages.entities.objects.Object;
 import net.shrimpworks.unreal.packages.entities.objects.Texture;
 import net.shrimpworks.unreal.packages.entities.properties.ObjectProperty;
 import net.shrimpworks.unreal.packages.entities.properties.Property;
+
+import static net.shrimpworks.unreal.archive.content.Content.DependencyStatus.*;
 
 public class IndexUtils {
 
@@ -322,5 +329,59 @@ public class IndexUtils {
 		}
 
 		return String.join(" ", res);
+	}
+
+	public static Map<String, List<Content.Dependency>> dependencies(Content content, Incoming incoming) {
+		return dependencies(Games.byName(content.game), incoming);
+	}
+
+	public static Map<String, List<Content.Dependency>> dependencies(Games game, Incoming incoming) {
+		ShippedPackages shippedPackages = game == Games.UNREAL
+				? ShippedPackages.UNREAL_GOLD
+				: game == Games.UNREAL_TOURNAMENT
+						? ShippedPackages.UNREAL_TOURNAMENT
+						: ShippedPackages.UNREAL_TOURNAMENT_2004;
+
+		Map<String, List<Content.Dependency>> dependencies = new HashMap<>();
+		try {
+			DependencyResolver resolver = new DependencyResolver(incoming.contentRoot);
+			for (Incoming.IncomingFile file : incoming.files(Incoming.FileType.CODE, Incoming.FileType.MAP, Incoming.FileType.TEXTURE,
+															 Incoming.FileType.STATICMESH)) {
+				List<Content.Dependency> depList = new ArrayList<>();
+				try {
+					Map<String, Set<Resolved>> resolved = resolver.resolve(Util.plainName(file.fileName()));
+					resolved.forEach((k, v) -> {
+						if (!shippedPackages.contains(k)) {
+							depList.add(new Content.Dependency(resolveDependency(v), k, null));
+						}
+					});
+				} catch (Throwable e) {
+					incoming.log.log(IndexLog.EntryType.CONTINUE, "Dependency resolution error for " + file.fileName(), e);
+				}
+
+				if (!depList.isEmpty()) dependencies.put(file.fileName(), depList);
+			}
+		} catch (IOException e) {
+			incoming.log.log(IndexLog.EntryType.CONTINUE, "Dependency resolution failed for " + incoming.submission.filePath, e);
+		}
+		return dependencies;
+	}
+
+	private static Content.DependencyStatus resolveDependency(Set<Resolved> resolved) {
+		Content.DependencyStatus result = null;
+		for (Resolved r : resolved) {
+			if (!r.children.isEmpty()) {
+				Content.DependencyStatus childResult = resolveDependency(r.children);
+				if (result == null) result = childResult;
+				else if (result == OK && childResult == MISSING) result = PARTIAL;
+			}
+
+			if (r.resolved == null && result == null) result = MISSING;
+			else if (r.resolved != null && result == null) result = OK;
+			else if (r.resolved == null && result == OK) result = PARTIAL;
+			else if (r.resolved != null && result == MISSING) result = PARTIAL;
+			else if (r.resolved != null) result = OK;
+		}
+		return result == null ? MISSING : result;
 	}
 }

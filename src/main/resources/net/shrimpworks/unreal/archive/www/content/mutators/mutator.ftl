@@ -121,6 +121,8 @@
 
 			<@downloads downloads=mutator.mutator.downloads/>
 
+			<@dependencies deps=mutator.mutator.dependencies/>
+
       <@ghIssue text="Report a problem" repoUrl="${dataProjectUrl}" title="[Mutator] ${mutator.mutator.name}" hash="${mutator.mutator.hash}" name="${mutator.mutator.name}"/>
 
 		</div>

@@ -92,6 +92,8 @@
 
 			<@downloads downloads=skin.skin.downloads/>
 
+			<@dependencies deps=skin.skin.dependencies/>
+
       <@ghIssue text="Report a problem" repoUrl="${dataProjectUrl}" title="[Skin] ${skin.skin.name}" hash="${skin.skin.hash}" name="${skin.skin.name}"/>
 
 		</div>

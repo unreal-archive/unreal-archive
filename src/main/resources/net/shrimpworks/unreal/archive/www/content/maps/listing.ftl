@@ -49,6 +49,7 @@
 						<#if m.map.attachments?size gt 0>
 							<img src="${staticPath()}/images/icons/image.svg" alt="Has images" title="Has images" height="22"/>
 						</#if>
+						<@dependencyIcon m.map.dependencies/>
 					</td>
 				</tr>
 				</#list>

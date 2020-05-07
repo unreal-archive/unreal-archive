@@ -53,9 +53,10 @@ publishing {
 
 dependencies {
     implementation 'net.shrimpworks:unreal-package-lib:1.5.50'
+    implementation 'net.shrimpworks:package-dependency:1.0.5'
 
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.10.3'
-    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.10.3'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.11.0'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.11.0'
 
     implementation 'org.jsoup:jsoup:1.13.1'
 

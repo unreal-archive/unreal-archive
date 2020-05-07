@@ -49,6 +49,7 @@
 						<#if s.skin.attachments?size gt 0>
 							<img src="${staticPath()}/images/icons/image.svg" alt="Has images" height="22"/>
 						</#if>
+						<@dependencyIcon s.skin.dependencies/>
 					</td>
 				</tr>
 				</#list>
