@@ -314,6 +314,7 @@ public class Main {
 
 		boolean verbose = Boolean.parseBoolean(cli.option("verbose", "true"));
 		boolean force = Boolean.parseBoolean(cli.option("force", "false"));
+		boolean newOnly = Boolean.parseBoolean(cli.option("new-only", "false"));
 		ContentType forceType = (!cli.option("type", "").isEmpty()) ? ContentType.valueOf(cli.option("type", "").toUpperCase()) : null;
 
 		Indexer indexer = new Indexer(contentManager, new Indexer.CLIEventPrinter(verbose));
@@ -339,7 +340,7 @@ public class Main {
 			paths = cliPaths(cli, 1);
 		}
 
-		indexer.index(force, forceType, paths);
+		indexer.index(force, newOnly, forceType, paths);
 	}
 
 	private static void scan(ContentManager contentManager, CLI cli) throws IOException {

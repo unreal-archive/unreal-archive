@@ -75,13 +75,13 @@ public class Indexer {
 	 * @param inputPath directories or file paths to index
 	 * @throws IOException file access failure
 	 */
-	public void index(boolean force, ContentType forceType, Path... inputPath) throws IOException {
+	public void index(boolean force, boolean newOnly, ContentType forceType, Path... inputPath) throws IOException {
 		final List<IndexLog> indexLogs = new ArrayList<>();
 
 		// go through all the files in the input path and index them if new
 		List<Submission> all = new ArrayList<>();
 		for (Path p : inputPath) {
-			all.addAll(findFiles(p));
+			all.addAll(findFiles(p, newOnly));
 		}
 
 		events.starting(all.size());
@@ -108,7 +108,7 @@ public class Indexer {
 		events.completed(indexLogs.size(), errorCount);
 	}
 
-	private List<Submission> findFiles(Path inputPath) throws IOException {
+	private List<Submission> findFiles(Path inputPath, boolean newOnly) throws IOException {
 		List<Submission> all = new ArrayList<>();
 		if (Files.isDirectory(inputPath)) {
 			Files.walkFileTree(inputPath, new SimpleFileVisitor<>() {
@@ -119,6 +119,8 @@ public class Indexer {
 				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 					try {
 						if (INCLUDE_TYPES.contains(Util.extension(file).toLowerCase())) {
+							if (newOnly && contentManager.forHash(Util.hash(file)) != null) return FileVisitResult.CONTINUE;
+
 							Submission sub;
 							// if there's a submission file
 							if (Files.exists(Paths.get(file.toString() + ".yml"))) {
