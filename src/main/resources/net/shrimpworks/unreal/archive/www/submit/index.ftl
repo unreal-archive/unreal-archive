@@ -1,4 +1,4 @@
-<#assign extraCss="submit.css?v=3"/>
+<#assign extraCss="submit.css"/>
 <#include "../_header.ftl">
 <#include "../macros.ftl">
 

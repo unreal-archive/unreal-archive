@@ -1,4 +1,4 @@
-<#assign extraCss="search.css?v=2"/>
+<#assign extraCss="search.css"/>
 <#include "../_header.ftl">
 <#include "../macros.ftl">
 
