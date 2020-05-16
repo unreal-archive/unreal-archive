@@ -99,7 +99,7 @@ jar {
 
 task execJar(type: Jar) {
     archiveClassifier = "exec"
-    archiveName = "${baseName}-${classifier}.${extension}"
+    archiveFileName = "${archiveBaseName.get()}-${archiveClassifier.get()}.${archiveExtension.get()}"
     from sourceSets.main.output
 
     dependsOn configurations.runtimeClasspath
@@ -125,8 +125,8 @@ task execJar(type: Jar) {
                 commandLine(
                         "$projectDir/etc/build-launcher.sh",
                         "$projectDir/etc/launcher.sh",
-                        "$destinationDir/$archiveName",
-                        "$destinationDir/$baseName")
+                        "${destinationDirectory.get()}/${archiveFileName.get()}",
+                        "${destinationDirectory.get()}/${archiveBaseName.get()}")
             }
         }
     }
