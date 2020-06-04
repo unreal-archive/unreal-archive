@@ -4,6 +4,7 @@
 			 url('passionone-regular-webfont.woff') format('woff');
 	font-weight: normal;
 	font-style: normal;
+	font-display: swap;
 }
 
 @font-face {
@@ -12,6 +13,7 @@
 	url('nobile-regular-webfont.woff') format('woff');
 	font-weight: normal;
 	font-style: normal;
+	font-display: swap;
 }
 
 @font-face {
@@ -20,4 +22,5 @@
 	url('dosis-regular.woff') format('woff');
 	font-weight: normal;
 	font-style: normal;
+	font-display: swap;
 }
