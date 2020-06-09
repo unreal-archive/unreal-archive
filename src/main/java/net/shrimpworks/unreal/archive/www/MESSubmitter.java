@@ -54,7 +54,7 @@ public class MESSubmitter {
 		final List<Map<String, Object>> batchDocs = new ArrayList<>(batchSize);
 
 		for (Content content : contents) {
-			if (content.variationOf != null) continue;
+			if (content.variationOf != null || content.deleted) continue;
 			Map<String, Object> doc = Map.of(
 					"id", content.hash,
 					"score", 1.0d,
