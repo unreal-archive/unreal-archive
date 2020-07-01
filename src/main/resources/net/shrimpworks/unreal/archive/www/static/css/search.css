@@ -31,6 +31,7 @@
 }
 
 #search-results .result .image img {
+	min-width: 140px;
 	max-width: 140px;
 	max-height: 140px;
 	border-radius: 5px;
