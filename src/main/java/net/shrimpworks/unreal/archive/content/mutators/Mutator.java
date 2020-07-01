@@ -4,6 +4,7 @@ import java.beans.ConstructorProperties;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import net.shrimpworks.unreal.archive.content.Content;
@@ -64,6 +65,24 @@ public class Mutator extends Content {
 		return tags;
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof Mutator)) return false;
+		if (!super.equals(o)) return false;
+		Mutator mutator = (Mutator)o;
+		return hasConfigMenu == mutator.hasConfigMenu &&
+			   hasKeybinds == mutator.hasKeybinds &&
+			   Objects.equals(mutators, mutator.mutators) &&
+			   Objects.equals(weapons, mutator.weapons) &&
+			   Objects.equals(vehicles, mutator.vehicles);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(super.hashCode(), mutators, weapons, vehicles, hasConfigMenu, hasKeybinds);
+	}
+
 	public static class NameDescription {
 
 		public final String name;
@@ -83,6 +102,20 @@ public class Mutator extends Content {
 				name = source;
 				description = "";
 			}
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) return true;
+			if (!(o instanceof NameDescription)) return false;
+			NameDescription that = (NameDescription)o;
+			return Objects.equals(name, that.name) &&
+				   Objects.equals(description, that.description);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(name, description);
 		}
 	}
 }

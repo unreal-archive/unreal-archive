@@ -42,6 +42,9 @@ public class SkinIndexHandler implements IndexHandler<Skin> {
 
 		Set<IndexResult.NewAttachment> attachments = new HashSet<>();
 
+		s.skins = new ArrayList<>();
+		s.faces = new ArrayList<>();
+
 		String origName = s.name;
 
 		try {
@@ -71,7 +74,7 @@ public class SkinIndexHandler implements IndexHandler<Skin> {
 					if (d.containsKey("Description") && Skin.NAME_MATCH.matcher(d.get("Name")).matches()) {
 						if (s.name == null || s.name.equals(origName)) s.name = d.get("Description");
 						s.skins.add(d.get("Description").trim());
-					} else if (Skin.TEAM_MATCH.matcher(d.get("Name")).matches()) {
+					} else if (!s.teamSkins && Skin.TEAM_MATCH.matcher(d.get("Name")).matches()) {
 						s.teamSkins = true;
 					} else if (d.containsKey("Description") && Skin.FACE_MATCH.matcher(d.get("Name")).matches()) {
 						s.faces.add(d.get("Description"));

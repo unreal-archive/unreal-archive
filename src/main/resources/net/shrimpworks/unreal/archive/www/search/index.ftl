@@ -116,7 +116,7 @@
 
 			const author = document.createElement("div");
 			author.classList.add('author');
-			author.innerText = result.fields.type + " by " + result.fields.author;
+			author.innerText = result.fields.type + " by " + result.fields.author.replace(/\\-/g, "-");;
 
 			const description = document.createElement("div");
 			description.classList.add('description');

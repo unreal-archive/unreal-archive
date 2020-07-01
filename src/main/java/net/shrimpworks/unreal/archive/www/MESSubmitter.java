@@ -62,7 +62,7 @@ public class MESSubmitter {
 							"name", content.name.replaceAll("-", "\\\\-"),
 							"game", content.game,
 							"type", content.friendlyContentType(),
-							"author", content.author,
+							"author", content.author.replaceAll("-", "\\\\-"),
 							"url", rootUrl + "/" + content.slugPath(root).toString() + ".html",
 							"date", content.releaseDate,
 							"description", content.autoDescription(),

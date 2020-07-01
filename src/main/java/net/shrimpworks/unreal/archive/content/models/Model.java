@@ -3,6 +3,7 @@ package net.shrimpworks.unreal.archive.content.models;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -54,4 +55,18 @@ public class Model extends Content {
 		return tags;
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof Model)) return false;
+		if (!super.equals(o)) return false;
+		Model model = (Model)o;
+		return Objects.equals(models, model.models) &&
+			   Objects.equals(skins, model.skins);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(super.hashCode(), models, skins);
+	}
 }

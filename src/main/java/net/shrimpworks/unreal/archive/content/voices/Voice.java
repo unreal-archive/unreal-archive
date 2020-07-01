@@ -3,6 +3,7 @@ package net.shrimpworks.unreal.archive.content.voices;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -48,4 +49,17 @@ public class Voice extends Content {
 		return tags;
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof Voice)) return false;
+		if (!super.equals(o)) return false;
+		Voice voice = (Voice)o;
+		return Objects.equals(voices, voice.voices);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(super.hashCode(), voices);
+	}
 }
