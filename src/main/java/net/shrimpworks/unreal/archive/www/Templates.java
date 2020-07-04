@@ -70,7 +70,7 @@ public class Templates {
 		TPL_CONFIG.setOutputFormat(HTMLOutputFormat.INSTANCE);
 
 		HOST_REMAP.put(CDN_HOST, SITE_NAME);
-		HOST_REMAP.put("utarchive.s3.eu-central-1.wasabisys.com", "Sabre");
+		HOST_REMAP.put("files.vohzd.com", "vohzd");
 	}
 
 	public static class PageSet {
