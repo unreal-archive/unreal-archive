@@ -68,7 +68,7 @@
 	<p>
 		You're also welcome and encouraged to download entire local mirrors of the
 		Archive content and website, as spreading it around helps to ensure the
-		longevity of the content and reduce the changes of it being permanently lost.
+		longevity of the content and reduce the chances of it being permanently lost.
 		See the <a href="documents/general/archive-mirroring-guide/index.html">mirroring guide</a>
 		for more information.
 	</p>
