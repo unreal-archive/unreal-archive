@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -25,7 +26,10 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
-import com.github.rjeschke.txtmark.Processor;
+import com.vladsch.flexmark.html.HtmlRenderer;
+import com.vladsch.flexmark.parser.Parser;
+import com.vladsch.flexmark.util.ast.Node;
+import com.vladsch.flexmark.util.data.MutableDataSet;
 import freemarker.core.Environment;
 import freemarker.core.HTMLOutputFormat;
 import freemarker.template.Configuration;
@@ -46,8 +50,10 @@ public class Templates {
 	private static final String CDN_HOST = "f002.backblazeb2.com";
 
 	private static final String SITE_NAME = System.getenv().getOrDefault("SITE_NAME", "Unreal Archive");
+	private static final String SITE_URL = System.getenv().getOrDefault("SITE_URL", "");
 	private static final String STATIC_ROOT = System.getenv().getOrDefault("STATIC_ROOT", "");
-	private static final String DATA_PROJECT_URL = System.getenv().getOrDefault("DATA_PROJECT_URL", "https://github.com/unreal-archive/unreal-archive-data");
+	private static final String DATA_PROJECT_URL = System.getenv().getOrDefault("DATA_PROJECT_URL",
+																				"https://github.com/unreal-archive/unreal-archive-data");
 
 	private static final Map<String, String> HOST_REMAP = new HashMap<>();
 
@@ -55,11 +61,9 @@ public class Templates {
 
 	private static final Configuration TPL_CONFIG = new Configuration(Configuration.VERSION_2_3_27);
 
-	private static final com.github.rjeschke.txtmark.Configuration MD_CONFIG = com.github.rjeschke.txtmark.Configuration
-			.builder()
-			.forceExtentedProfile()
-			.setEncoding(StandardCharsets.UTF_8.name())
-			.build();
+	private static final MutableDataSet MD_OPTIONS = new MutableDataSet();
+	private static final Parser MD_PARSER = Parser.builder(MD_OPTIONS).build();
+	private static final HtmlRenderer MD_RENDERER = HtmlRenderer.builder(MD_OPTIONS).build();
 
 	static {
 		TPL_CONFIG.setClassForTemplateLoading(Templates.class, "");
@@ -126,8 +130,9 @@ public class Templates {
 	}
 
 	public static String renderMarkdown(ReadableByteChannel document) throws IOException {
-		try (InputStream is = Channels.newInputStream(document)) {
-			return Processor.process(is, MD_CONFIG);
+		try (Reader reader = Channels.newReader(document, StandardCharsets.UTF_8.name())) {
+			Node node = MD_PARSER.parseReader(reader);
+			return MD_RENDERER.render(node);
 		}
 	}
 
@@ -147,6 +152,7 @@ public class Templates {
 			TPL_VARS.put("dateFmtShort", new FormatLocalDateMethod(true));
 			TPL_VARS.put("trunc", new TruncateStringMethod());
 			TPL_VARS.put("siteName", SITE_NAME);
+			TPL_VARS.put("siteUrl", SITE_URL);
 			TPL_VARS.put("dataProjectUrl", DATA_PROJECT_URL);
 		}
 

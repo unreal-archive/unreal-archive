@@ -62,8 +62,10 @@ public class Map extends Content {
 
 	@Override
 	public String autoDescription() {
-		return String.format("%s, a %s player %s map for %s, created by %s",
-							 title, playerCount, gametype, Games.byName(game).bigName, author);
+		String playerString = playerCount.equalsIgnoreCase("unknown") ? "" : String.format(" %s player", playerCount);
+		String authorString = author.equalsIgnoreCase("unknown") ? "" : String.format(", created by %s", author);
+		return String.format("%s, a%s %s map for %s%s",
+							 title, playerString, gametype, Games.byName(game).bigName, authorString);
 	}
 
 	@Override

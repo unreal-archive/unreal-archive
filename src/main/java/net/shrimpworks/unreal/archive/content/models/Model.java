@@ -35,7 +35,7 @@ public class Model extends Content {
 
 	@Override
 	public String autoDescription() {
-		return String.format("%s, a custom player model for %s with %s and %s, created by %s",
+		return String.format("%s, a custom player model for %s with %s and %s%s",
 							 name, Games.byName(game).bigName,
 							 models.isEmpty()
 									 ? "no characters"
@@ -43,7 +43,7 @@ public class Model extends Content {
 							 skins.isEmpty()
 									 ? "no skins"
 									 : skins.size() > 1 ? skins.size() + " skins" : skins.size() + " skin",
-							 author);
+							 author.equalsIgnoreCase("unknown") ? "" : ", created by " + author);
 	}
 
 	@Override

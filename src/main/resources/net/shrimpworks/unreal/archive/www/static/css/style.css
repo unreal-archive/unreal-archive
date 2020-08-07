@@ -491,6 +491,8 @@ article.document :not(pre) > code {
 
 article.document pre {
 	padding: 10px;
+	border: 1px solid var(--document-meta-border);
+	background-color: var(--document-meta-bg);
 }
 
 article.document blockquote {

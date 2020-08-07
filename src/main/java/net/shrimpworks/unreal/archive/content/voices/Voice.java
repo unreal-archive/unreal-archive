@@ -33,12 +33,12 @@ public class Voice extends Content {
 
 	@Override
 	public String autoDescription() {
-		return String.format("%s, a custom voice pack for %s with %s, created by %s",
+		return String.format("%s, a custom voice pack for %s with %s%s",
 							 name, Games.byName(game).bigName,
 							 voices.isEmpty()
 									 ? "no voices"
 									 : voices.size() > 1 ? voices.size() + " voices" : voices.size() + " voice",
-							 author);
+							 author.equalsIgnoreCase("unknown") ? "" : ", created by " + author);
 	}
 
 	@Override

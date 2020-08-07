@@ -19,6 +19,10 @@
 
 	<link rel="favicon" type="image/png" href="${staticPath()}/images/logo-32.png">
 
+	<#if features.latest>
+	<link rel="alternate" type="application/rss+xml" title="Unreal Archive Latest Additions" href="${relPath(siteRoot + "/latest/feed.xml")}" />
+  </#if>
+
 	<meta property="og:title" content="${title}">
 	<meta property="og:site_name" content="${siteName}">
 

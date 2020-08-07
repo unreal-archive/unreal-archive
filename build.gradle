@@ -12,7 +12,7 @@ plugins {
 }
 
 group = 'net.shrimpworks'
-version = "1.4"
+version = "1.5"
 
 mainClassName = 'net.shrimpworks.unreal.archive.Main'
 
@@ -68,7 +68,7 @@ dependencies {
     // S3 compatible storage client
     implementation 'io.minio:minio:7.0.0'
 
-    implementation 'com.github.rjeschke:txtmark:0.13'
+    implementation 'com.vladsch.flexmark:flexmark:0.62.2'
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.4.2'
 }

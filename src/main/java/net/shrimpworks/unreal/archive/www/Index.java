@@ -42,7 +42,7 @@ public class Index implements PageGenerator {
 			 .put("count", contentCount)
 			 .write(root.resolve("index.html"));
 
-		pages.add("404.ftl", SiteMap.Page.of(1f, SiteMap.ChangeFrequency.never), "Not Found")
+		pages.add("404.ftl", SiteMap.Page.of(0f, SiteMap.ChangeFrequency.never), "Not Found")
 			 .write(root.resolve("404.html"));
 
 		return pages.pages;

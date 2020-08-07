@@ -39,7 +39,7 @@ public class Skin extends Content {
 
 	@Override
 	public String autoDescription() {
-		return String.format("%s, a custom player skin for %s with %s and %s, created by %s",
+		return String.format("%s, a custom player skin for %s with %s and %s%s",
 							 name, Games.byName(game).bigName,
 							 skins.isEmpty()
 									 ? "no skins"
@@ -47,7 +47,7 @@ public class Skin extends Content {
 							 faces.isEmpty()
 									 ? "no faces"
 									 : faces.size() > 1 ? faces.size() + " faces" : faces.size() + " face",
-							 author);
+							 author.equalsIgnoreCase("unknown") ? "" : ", created by " + author);
 	}
 
 	@Override

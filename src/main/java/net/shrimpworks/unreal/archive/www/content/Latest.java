@@ -34,6 +34,10 @@ public class Latest extends ContentPageGenerator {
 			 .put("latest", contentFiles.descendingMap())
 			 .write(root.resolve("index.html"));
 
+		pages.add("feed.ftl", SiteMap.Page.weekly(0f), "Latest Content Additions")
+			 .put("latest", contentFiles.descendingMap())
+			 .write(root.resolve("feed.xml"));
+
 		return pages.pages;
 	}
 
