@@ -2,15 +2,16 @@ package net.shrimpworks.unreal.archive.managed;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
 
-import com.github.rjeschke.txtmark.Processor;
+import com.vladsch.flexmark.html.HtmlRenderer;
+import com.vladsch.flexmark.parser.Parser;
 
 import net.shrimpworks.unreal.archive.ArchiveUtil;
 import net.shrimpworks.unreal.archive.YAML;
@@ -60,10 +61,12 @@ public class ManagedContentTest {
 			final ManagedContentManager cm = new ManagedContentManager(tmpRoot, "tests");
 			assertTrue(cm.all().contains(man));
 
-			try (ReadableByteChannel docChan = cm.document(man)) {
-				assertNotNull(docChan);
+			try (Reader reader = Channels.newReader(cm.document(man), StandardCharsets.UTF_8.name())) {
+				assertNotNull(reader);
 
-				String markdown = Processor.process(Channels.newInputStream(docChan));
+				Parser parser = Parser.builder().build();
+				HtmlRenderer renderer = HtmlRenderer.builder().build();
+				String markdown = renderer.render(parser.parseReader(reader));
 				assertNotNull(markdown);
 				assertTrue(markdown.contains("Testing Document"));
 			}

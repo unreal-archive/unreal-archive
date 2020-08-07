@@ -2,15 +2,16 @@ package net.shrimpworks.unreal.archive.docs;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
 
-import com.github.rjeschke.txtmark.Processor;
+import com.vladsch.flexmark.html.HtmlRenderer;
+import com.vladsch.flexmark.parser.Parser;
 
 import net.shrimpworks.unreal.archive.ArchiveUtil;
 import net.shrimpworks.unreal.archive.YAML;
@@ -67,10 +68,12 @@ public class DocumentTest {
 			DocumentManager dm = new DocumentManager(tmpRoot);
 			assertTrue(dm.all().contains(doc));
 
-			try (ReadableByteChannel docChan = dm.document(doc)) {
-				assertNotNull(docChan);
+			try (Reader reader = Channels.newReader(dm.document(doc), StandardCharsets.UTF_8.name())) {
+				assertNotNull(reader);
 
-				String markdown = Processor.process(Channels.newInputStream(docChan));
+				Parser parser = Parser.builder().build();
+				HtmlRenderer renderer = HtmlRenderer.builder().build();
+				String markdown = renderer.render(parser.parseReader(reader));
 				assertNotNull(markdown);
 				assertTrue(markdown.contains("Testing Document"));
 			}
