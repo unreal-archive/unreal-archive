@@ -9,7 +9,7 @@
 			<#t/>'
 		<#t/></#if>
 	<#t/></#assign>
-	<section class="header" ${style!""}>
+	<section class="page header" ${style!""}>
 		<div class="page">
 			<h1>
 				<#nested/>
@@ -19,7 +19,7 @@
 </#macro>
 
 <#macro content class="">
-	<div class="page">
+	<div class="page contentpage">
 		<article <#if class?length gt 0>class="${class}"</#if>>
 			<#nested>
 		</article>
