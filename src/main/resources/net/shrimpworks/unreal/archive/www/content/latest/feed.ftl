@@ -27,9 +27,10 @@
 					<#if titleimg??>
 						<enclosure url="${titleimg}" type="image/png" />
 					</#if>
-					<description>
-							${c.autoDescription()}
-					</description>
+					<description><![CDATA[
+						<#if titleimg??><img src="${titleimg}" alt="${c.name}"/></#if>
+						<p>${c.autoDescription()}</p>
+					]]></description>
 					<pubDate>${c.firstIndex}</pubDate>
 					<link>${siteUrl}${relPath(c.slugPath(siteRoot))[2..]}.html</link>
 					<guid isPermaLink="true">${siteUrl}${relPath(c.slugPath(siteRoot))[2..]}.html</guid>
