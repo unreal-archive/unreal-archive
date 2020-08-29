@@ -74,8 +74,6 @@ public class VoiceIndexHandler implements IndexHandler<Voice> {
 		return IndexUtils.readIntFiles(incoming, incoming.files(Incoming.FileType.INT))
 						 .filter(Objects::nonNull)
 						 .map(intFile -> {
-							 List<IntFile.MapValue> vals = new ArrayList<>();
-
 							 IntFile.Section section = intFile.section("public");
 							 if (section == null) return null;
 

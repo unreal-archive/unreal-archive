@@ -218,7 +218,7 @@ public class ContentManager {
 				);
 			}
 
-			Path newYml = next.resolve(String.format("%s_[%s].yml", indexed.content.name, indexed.content.hash.substring(0, 8)));
+			Path newYml = next.resolve(String.format("%s_[%s].yml", Util.slug(indexed.content.name), indexed.content.hash.substring(0, 8)));
 			Files.write(Util.safeFileName(newYml), YAML.toString(indexed.content).getBytes(StandardCharsets.UTF_8),
 						StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 
