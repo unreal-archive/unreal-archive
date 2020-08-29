@@ -51,11 +51,6 @@ public class Incoming implements Closeable {
 		IMAGE(false, "jpg", "jpeg", "bmp", "png", "gif"),
 		;
 
-		public static final FileType[] IMPORTANT = Arrays.stream(values())
-														 .filter(t -> t.important)
-														 .collect(Collectors.toSet())
-														 .toArray(new FileType[0]);
-
 		public static final FileType[] PACKAGES = { CODE, MAP, TEXTURE, SOUNDS, ANIMATION, STATICMESH };
 
 		public static final FileType[] ALL = FileType.values();
@@ -105,17 +100,18 @@ public class Incoming implements Closeable {
 	}
 
 	public Incoming prepare() throws IOException {
-		this.contentRoot = getRoot(submission.filePath);
-		this.files = listFiles(submission.filePath, contentRoot);
+		this.contentRoot = Files.createTempDirectory("archive-incoming-");
+		unpackFiles(submission.filePath, this.contentRoot);
+		this.files = listFiles(this.contentRoot);
 		return this;
 	}
 
 	@Override
-	public void close() throws IOException {
+	public void close() {
 		for (Umod v : umods) {
 			try {
 				v.close();
-			} catch (IOException e) {
+			} catch (Exception e) {
 				log.log(IndexLog.EntryType.INFO, "Failed cleaning up Umod file " + v, e);
 			}
 		}
@@ -126,11 +122,19 @@ public class Incoming implements Closeable {
 
 		// clean up contentRoot
 		if (contentRoot != null) {
-			ArchiveUtil.cleanPath(contentRoot);
+			try {
+				ArchiveUtil.cleanPath(contentRoot);
+			} catch (Exception e) {
+				log.log(IndexLog.EntryType.INFO, "Failed cleaning up content path " + contentRoot, e);
+			}
 		}
 
 		if (repackPath != null) {
-			ArchiveUtil.cleanPath(repackPath);
+			try {
+				ArchiveUtil.cleanPath(repackPath);
+			} catch (Exception e) {
+				log.log(IndexLog.EntryType.INFO, "Failed cleaning up repack path " + repackPath, e);
+			}
 		}
 	}
 
@@ -159,10 +163,10 @@ public class Incoming implements Closeable {
 		return Collections.unmodifiableSet(res);
 	}
 
-	private Map<String, Object> listFiles(Path filePath, Path contentRoot) throws IOException {
+	private Map<String, Object> listFiles(Path contentRoot) throws IOException {
 		Map<String, Object> files = new HashMap<>();
 		if (contentRoot != null && Files.exists(contentRoot)) {
-			Files.walkFileTree(contentRoot, new SimpleFileVisitor<Path>() {
+			Files.walkFileTree(contentRoot, new SimpleFileVisitor<>() {
 				@Override
 				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 					if (file.toString().toLowerCase().endsWith(".umod")
@@ -192,24 +196,31 @@ public class Incoming implements Closeable {
 		return fileList;
 	}
 
-	private Path getRoot(Path incoming) throws IOException, UnsupportedOperationException {
-		Path tempDir = Files.createTempDirectory("archive-incoming-");
-
+	private void unpackFiles(Path incoming, Path destination) throws IOException, UnsupportedOperationException {
 		if (ArchiveUtil.isArchive(incoming)) {
 			// its an archive of files of some sort, unpack it to the root
-			try {
-				return ArchiveUtil.extract(incoming, tempDir, EXTRACT_TIMEOUT, true);
-			} catch (InterruptedException e) {
-				throw new IOException("Extract took too long", e);
-			}
-		} else {
+			extract(incoming, destination);
+		} else if (FileType.important(incoming)) {
 			// its simply an loose file of a type we're interested in
-			if (FileType.important(incoming)) {
-				return Files.copy(incoming, tempDir.resolve(incoming.getFileName()), StandardCopyOption.REPLACE_EXISTING);
-			}
+			Files.copy(incoming, destination.resolve(incoming.getFileName()), StandardCopyOption.REPLACE_EXISTING);
+		} else {
+			throw new UnsupportedFileTypeException("Can't unpack file " + incoming);
 		}
+	}
 
-		throw new UnsupportedFileTypeException("Can't unpack file " + incoming);
+	private void extract(Path archive, Path destination) throws IOException, UnsupportedOperationException {
+		try {
+			Path rootExtracted = ArchiveUtil.extract(archive, destination, EXTRACT_TIMEOUT, true);
+			Files.walkFileTree(rootExtracted, new SimpleFileVisitor<>() {
+				@Override
+				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+					if (ArchiveUtil.isArchive(file)) extract(file, destination.resolve(file.getFileName().toString() + ".ex"));
+					return FileVisitResult.CONTINUE;
+				}
+			});
+		} catch (InterruptedException e) {
+			throw new IOException("Extract took too long", e);
+		}
 	}
 
 	@Override

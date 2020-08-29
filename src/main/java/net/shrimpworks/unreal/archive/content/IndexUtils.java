@@ -324,7 +324,7 @@ public class IndexUtils {
 		String[] res = new String[words.length];
 
 		for (int i = 0; i < words.length; i++) {
-			if (words[i].length() == 1) res[i] = words[i];
+			if (words[i].length() <= 1) res[i] = words[i];
 			else res[i] = Character.toUpperCase(words[i].charAt(0)) + words[i].substring(1);
 		}
 

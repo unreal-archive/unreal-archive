@@ -8,6 +8,8 @@ import net.shrimpworks.unreal.archive.content.Incoming;
 
 public class MapClassifier implements Classifier {
 
+	private static final Set<String> IGNORED_FILES = Set.of("Screen.int", "CTFScreen.int");
+
 	@Override
 	public boolean classify(Incoming incoming) {
 		Set<Incoming.IncomingFile> maps = incoming.files(Incoming.FileType.MAP);
@@ -21,7 +23,7 @@ public class MapClassifier implements Classifier {
 		}
 
 		// a map definitely probably won't have any associated .int files
-		if (!ints.isEmpty()) return false;
+		if (ints.stream().anyMatch(i -> !IGNORED_FILES.contains(i.fileName()))) return false;
 
 		// a bit naive, if there's a one-map mod, it would pass here
 		if (maps.size() == 1) return true;

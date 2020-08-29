@@ -22,11 +22,13 @@ public class Scanner {
 	private final boolean newOnly;
 	private final Pattern nameMatch;
 	private final Pattern nameExclude;
+	private final long maxFileSize;
 
 	public Scanner(ContentManager contentManager, CLI cli) {
 		this.contentManager = contentManager;
 
 		this.newOnly = cli.option("new-only", "").equalsIgnoreCase("true") || cli.option("new-only", "").equalsIgnoreCase("1");
+		this.maxFileSize = Long.parseLong(cli.option("max-size", "0"));
 
 		if (cli.option("match", "").isEmpty()) {
 			this.nameMatch = null;
@@ -67,10 +69,18 @@ public class Scanner {
 	private List<Path> findFiles(Path inputPath) throws IOException {
 		List<Path> all = new ArrayList<>();
 		if (Files.isDirectory(inputPath)) {
-			Files.walkFileTree(inputPath, new SimpleFileVisitor<Path>() {
+			Files.walkFileTree(inputPath, new SimpleFileVisitor<>() {
 				@Override
 				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
 					if (Indexer.INCLUDE_TYPES.contains(Util.extension(file).toLowerCase())) {
+
+						try {
+							if (maxFileSize > 0 && Files.size(file) > maxFileSize) {
+								return FileVisitResult.CONTINUE;
+							}
+						} catch (Exception ignored) {
+							//
+						}
 
 						if (nameMatch != null && !nameMatch.matcher(file.getFileName().toString()).matches()) {
 							return FileVisitResult.CONTINUE;

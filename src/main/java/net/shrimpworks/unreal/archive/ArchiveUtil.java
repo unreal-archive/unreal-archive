@@ -107,14 +107,22 @@ public class ArchiveUtil {
 	public static void cleanPath(Path path) throws IOException {
 		Files.walkFileTree(path, new SimpleFileVisitor<>() {
 			@Override
-			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-				Files.delete(file);
+			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+				try {
+					Files.deleteIfExists(file);
+				} catch (IOException ex) {
+					// pass - allow failure so we can continue safely
+				}
 				return FileVisitResult.CONTINUE;
 			}
 
 			@Override
 			public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-				Files.delete(dir);
+				try {
+					Files.deleteIfExists(dir);
+				} catch (IOException ex) {
+					// pass - allow failure so we can continue safely
+				}
 				return FileVisitResult.CONTINUE;
 			}
 		});
