@@ -312,7 +312,7 @@ public class Main {
 			System.exit(2);
 		}
 
-		boolean verbose = Boolean.parseBoolean(cli.option("verbose", "true"));
+		boolean verbose = Boolean.parseBoolean(cli.option("verbose", "false"));
 		boolean force = Boolean.parseBoolean(cli.option("force", "false"));
 		boolean newOnly = Boolean.parseBoolean(cli.option("new-only", "false"));
 		ContentType forceType = (!cli.option("type", "").isEmpty()) ? ContentType.valueOf(cli.option("type", "").toUpperCase()) : null;

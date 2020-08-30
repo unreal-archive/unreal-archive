@@ -2,7 +2,6 @@ package net.shrimpworks.unreal.archive.content.voices;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -84,7 +83,7 @@ public class VoiceIndexHandler implements IndexHandler<Voice> {
 								 if (!mapVal.containsKey("MetaClass")) return null;
 
 								 String[] voiceClass = mapVal.getOrDefault("Name", "Package.Unknown").split("\\.");
-								 String maybeName = voiceClass[1];
+								 String maybeName = voiceClass[voiceClass.length - 1];
 
 								 // UT2003/4 check
 								 if (mapVal.get("MetaClass").equalsIgnoreCase(Voice.UT2_VOICE_CLASS)) {

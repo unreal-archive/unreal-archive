@@ -36,6 +36,9 @@ public class ArchiveUtil {
 	private static final Path WIN_SEVENZIP_BIN = PROGRAM_FILES.resolve("7-Zip").resolve("7z.exe");
 	private static final Path WIN_UNRAR_BIN = PROGRAM_FILES.resolve("WinRAR").resolve("UnRAR.exe");
 
+	private static final Set<Integer> ALLOWED_EXT_SEVENZIP = Set.of(0, 1);
+	private static final Set<Integer> ALLOWED_EXT_UNRAR = Set.of(0, 1);
+
 	// these will be populated at runtime and remembered after resolving OS-specific command paths
 	private static String unrar = null;
 	private static String sevenZip = null;
@@ -71,10 +74,10 @@ public class ArchiveUtil {
 			case "lzh":
 			case "lza":
 			case "exe":
-				result = exec(sevenZipCmd(source, destination), source, destination, timeout);
+				result = exec(sevenZipCmd(source, destination), source, destination, timeout, ALLOWED_EXT_SEVENZIP);
 				break;
 			case "rar":
-				result = exec(rarCmd(source, destination), source, destination, timeout);
+				result = exec(rarCmd(source, destination), source, destination, timeout, ALLOWED_EXT_UNRAR);
 				break;
 			default:
 				throw new UnsupportedArchiveException(String.format("Format %s not supported for archive %s", ext, source));
@@ -105,6 +108,8 @@ public class ArchiveUtil {
 	}
 
 	public static void cleanPath(Path path) throws IOException {
+		if (!Files.exists(path)) return;
+
 		Files.walkFileTree(path, new SimpleFileVisitor<>() {
 			@Override
 			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
@@ -203,7 +208,7 @@ public class ArchiveUtil {
 		};
 	}
 
-	private static Path exec(String[] cmd, Path source, Path destination, Duration timeout)
+	private static Path exec(String[] cmd, Path source, Path destination, Duration timeout, Set<Integer> expectedResults)
 			throws IOException, InterruptedException, BadArchiveException {
 
 		Process process = new ProcessBuilder()
@@ -216,7 +221,7 @@ public class ArchiveUtil {
 			throw new IllegalStateException(String.format("Timed out unpacking file %s", source));
 		}
 
-		if (process.exitValue() != 0) {
+		if (!expectedResults.contains(process.exitValue())) {
 			// cleanup
 			cleanPath(destination);
 			throw new BadArchiveException(String.format("File %s was not unpacked successfully (%d)", source, process.exitValue()));
