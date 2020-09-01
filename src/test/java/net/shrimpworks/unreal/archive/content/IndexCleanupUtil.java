@@ -357,7 +357,7 @@ public class IndexCleanupUtil {
 								|| content.description.length() < 50)
 						)) {
 						System.out.printf("Map missing things: %s (%s)%n", file.getFileName(), content.name);
-						indexer.index(true, false, null, file);
+						indexer.index(true, false, 2, null, file);
 					}
 				}
 
@@ -438,7 +438,7 @@ public class IndexCleanupUtil {
 				// remove images from content
 				System.out.println("downloaded " + d.destination);
 				try {
-					indexer.index(true, false, null, d.destination);
+					indexer.index(true, false, 2, null, d.destination);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -594,7 +594,7 @@ public class IndexCleanupUtil {
 			if (existing != null) {
 				System.out.printf("Indexing %s%n", existing);
 				try {
-					indexer.index(true, false, null, existing);
+					indexer.index(true, false, 2, null, existing);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -602,7 +602,7 @@ public class IndexCleanupUtil {
 				new LocalMirrorClient.Downloader(c, tmpDir, d -> {
 					System.out.printf("Downloaded %s%n", d.destination);
 					try {
-						indexer.index(true, false, null, d.destination);
+						indexer.index(true, false, 2, null, d.destination);
 					} catch (IOException e) {
 						e.printStackTrace();
 					} finally {
