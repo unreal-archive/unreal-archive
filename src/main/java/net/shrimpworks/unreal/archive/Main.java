@@ -315,6 +315,7 @@ public class Main {
 		boolean verbose = Boolean.parseBoolean(cli.option("verbose", "false"));
 		boolean force = Boolean.parseBoolean(cli.option("force", "false"));
 		boolean newOnly = Boolean.parseBoolean(cli.option("new-only", "false"));
+		int concurrency = Integer.parseInt(cli.option("concurrency", "1"));
 		ContentType forceType = (!cli.option("type", "").isEmpty()) ? ContentType.valueOf(cli.option("type", "").toUpperCase()) : null;
 
 		Indexer indexer = new Indexer(contentManager, new Indexer.CLIEventPrinter(verbose));
@@ -340,7 +341,7 @@ public class Main {
 			paths = cliPaths(cli, 1);
 		}
 
-		indexer.index(force, newOnly, forceType, paths);
+		indexer.index(force, newOnly, concurrency, forceType, paths);
 	}
 
 	private static void scan(ContentManager contentManager, CLI cli) throws IOException {

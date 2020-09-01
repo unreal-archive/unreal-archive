@@ -8,6 +8,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
@@ -23,12 +24,14 @@ public class Scanner {
 	private final Pattern nameMatch;
 	private final Pattern nameExclude;
 	private final long maxFileSize;
+	private final int concurrency;
 
 	public Scanner(ContentManager contentManager, CLI cli) {
 		this.contentManager = contentManager;
 
 		this.newOnly = cli.option("new-only", "").equalsIgnoreCase("true") || cli.option("new-only", "").equalsIgnoreCase("1");
 		this.maxFileSize = Long.parseLong(cli.option("max-size", "0"));
+		this.concurrency = Integer.parseInt(cli.option("concurrency", "1"));
 
 		if (cli.option("match", "").isEmpty()) {
 			this.nameMatch = null;
@@ -54,14 +57,16 @@ public class Scanner {
 
 		AtomicInteger done = new AtomicInteger();
 
-		all.stream().sorted().forEach(path -> {
-			events.progress(done.incrementAndGet(), all.size(), path);
+		ForkJoinPool fjPool = new ForkJoinPool(concurrency);
+		fjPool.submit(() -> all.parallelStream().sorted().forEach(path -> {
+						  events.progress(done.incrementAndGet(), all.size(), path);
 
-			Submission sub = new Submission(path);
-			IndexLog log = new IndexLog(sub);
+						  Submission sub = new Submission(path);
+						  IndexLog log = new IndexLog(sub);
 
-			scanFile(sub, log, events::scanned);
-		});
+						  scanFile(sub, log, events::scanned);
+					  })
+		).join();
 
 		events.completed(done.get());
 	}

@@ -8,7 +8,7 @@ import net.shrimpworks.unreal.archive.content.Incoming;
 
 public class MapClassifier implements Classifier {
 
-	private static final Set<String> IGNORED_FILES = Set.of("Screen.int", "CTFScreen.int");
+	private static final Set<String> IGNORED_FILES = Set.of("Screen.int", "CTFScreen.int", "XMaps.int");
 
 	@Override
 	public boolean classify(Incoming incoming) {

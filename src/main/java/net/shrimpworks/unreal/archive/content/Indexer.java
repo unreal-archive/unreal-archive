@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
@@ -75,7 +76,7 @@ public class Indexer {
 	 * @param inputPath directories or file paths to index
 	 * @throws IOException file access failure
 	 */
-	public void index(boolean force, boolean newOnly, ContentType forceType, Path... inputPath) throws IOException {
+	public void index(boolean force, boolean newOnly, int concurrency, ContentType forceType, Path... inputPath) throws IOException {
 		final List<IndexLog> indexLogs = new ArrayList<>();
 
 		// go through all the files in the input path and index them if new
@@ -88,16 +89,18 @@ public class Indexer {
 
 		AtomicInteger done = new AtomicInteger();
 
-		all.stream().sorted().forEach(sub -> {
-			IndexLog log = new IndexLog(sub);
-			indexLogs.add(log);
+		ForkJoinPool fjPool = new ForkJoinPool(concurrency);
+		fjPool.submit(() -> all.parallelStream().sorted().forEach(sub -> {
+						  IndexLog log = new IndexLog(sub);
+						  indexLogs.add(log);
 
-			indexFile(sub, log, force, forceType, result -> {
-				events.indexed(sub, result, log);
+						  indexFile(sub, log, force, forceType, result -> {
+							  events.indexed(sub, result, log);
 
-				events.progress(done.incrementAndGet(), all.size(), sub.filePath);
-			});
-		});
+							  events.progress(done.incrementAndGet(), all.size(), sub.filePath);
+						  });
+					  })
+		).join();
 
 		int errorCount = 0;
 
