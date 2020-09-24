@@ -46,7 +46,7 @@
 
 	--paginate-bg-inactive: #202023;
 	--paginate-bg-hover: #95074080;
-	--paginate-bg-active: #202023;
+	--paginate-bg-active: var(--section-header-title-bg);
 	--paginate-shadow-active: inset 0 -3px 0 0 var(--p2);
 	--paginate-border: none;
 

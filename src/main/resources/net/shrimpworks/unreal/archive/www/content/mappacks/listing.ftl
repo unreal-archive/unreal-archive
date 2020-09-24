@@ -43,6 +43,8 @@
 				</#list>
 			</tbody>
 		</table>
+
+		<@paginator pages=gametype.pages currentPage=page />
 	</@content>
 
 <#include "../../_footer.ftl">

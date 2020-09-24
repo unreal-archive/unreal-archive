@@ -51,6 +51,11 @@
 				</#list>
 			</tbody>
 		</table>
-	</@content>
+
+		<#if page??>
+			<@paginator pages=page.letter.pages currentPage=page />
+		</#if>
+
+  </@content>
 
 <#include "../../_footer.ftl">
