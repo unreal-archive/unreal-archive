@@ -39,7 +39,7 @@ public class Skin extends Content {
 
 	@Override
 	public String autoDescription() {
-		return String.format("%s, a custom player skin for %s with %s and %s%s",
+		return String.format("%s, a player skin for %s with %s and %s%s",
 							 name, Games.byName(game).bigName,
 							 skins.isEmpty()
 									 ? "no skins"

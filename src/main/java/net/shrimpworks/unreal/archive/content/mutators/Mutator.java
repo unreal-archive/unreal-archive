@@ -43,7 +43,7 @@ public class Mutator extends Content {
 
 	@Override
 	public String autoDescription() {
-		return String.format("%s, a custom %s mutator for %s%s",
+		return String.format("%s, a %s mutator for %s%s",
 							 name,
 							 vehicles.isEmpty() && weapons.isEmpty() ? "" :
 									 !weapons.isEmpty() && !vehicles.isEmpty()

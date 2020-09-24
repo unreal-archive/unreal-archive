@@ -35,7 +35,7 @@ public class Model extends Content {
 
 	@Override
 	public String autoDescription() {
-		return String.format("%s, a custom player model for %s with %s and %s%s",
+		return String.format("%s, a player model for %s with %s and %s%s",
 							 name, Games.byName(game).bigName,
 							 models.isEmpty()
 									 ? "no characters"
