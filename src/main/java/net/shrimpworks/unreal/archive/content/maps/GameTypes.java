@@ -12,7 +12,7 @@ public class GameTypes {
 			new GameType("Infiltration", "INF", "CTF-INF-", "DM-INF-", "DOM-INF-", "AS-INF-", "EAS-INF-"),
 			new GameType("DeathMatch", "DM"),
 			new GameType("BunnyTrack", "CTF-BT", "BT"),
-			new GameType("Multi-Team CTF", "CTF4", "CTFM"),
+			new GameType("Multi-Team CTF", "CTF4", "CTFM", "MCTF"),
 			new GameType("Capture The Flag", "CTF"),
 			new GameType("Domination", "DOM"),
 			new GameType("Assault", "AS"),
@@ -42,7 +42,9 @@ public class GameTypes {
 			new GameType("Air Buccaneers", "ABU"),
 			new GameType("Clone Bandits", "CLN"),
 			new GameType("Red Orchestra", "RO-"),
-			new GameType("Fraghouse Invasion", "FHI")
+			new GameType("Fraghouse Invasion", "FHI"),
+			new GameType("SoldatUT", "2DDM", "2DDOM", "2DONS", "2DCTF", "2DBR"),
+			new GameType("Dodge Professional Modification", "DPM")
 	);
 
 	public static GameType forMap(String mapName) {

@@ -216,59 +216,6 @@ public class IndexCleanupUtil {
 //		}
 	}
 
-	/**
-	 * Originally, indexed map packs did not contain gametype information,
-	 * so this quick "test" will run through existing ones and apply a
-	 * gametype.
-	 */
-	@Test
-	@Disabled
-	public void setMapPackGametypes() throws IOException {
-		ContentManager cm = new ContentManager(Paths.get("unreal-archive-data/content/"), DataStore.NOP, DataStore.NOP, DataStore.NOP);
-		Collection<MapPack> search = cm.get(MapPack.class);
-		for (MapPack mp : search) {
-			if (!mp.gametype.equalsIgnoreCase("unknown")) continue;
-
-			MapPack mapPack = (MapPack)cm.checkout(mp.hash);
-
-			mapPack.gametype = UNKNOWN;
-			for (MapPack.PackMap map : mapPack.maps) {
-				GameTypes.GameType gt = GameTypes.forMap(map.name);
-				if (gt == null) continue;
-
-				if (mapPack.gametype.equals(UNKNOWN)) {
-					mapPack.gametype = gt.name;
-				} else if (!mapPack.gametype.equalsIgnoreCase(gt.name)) {
-					mapPack.gametype = "Mixed";
-					break;
-				}
-			}
-
-			if (cm.checkin(new IndexResult<>(mapPack, Collections.emptySet()), null)) {
-				System.out.printf("Set gametype for %s to %s%n", mapPack.name, mapPack.gametype);
-			} else {
-				System.out.println("Failed to apply");
-			}
-		}
-	}
-
-	@Test
-	@Disabled
-	public void fixMapGametypes() throws IOException {
-		ContentManager cm = new ContentManager(Paths.get("unreal-archive-data/content/"), DataStore.NOP, DataStore.NOP, DataStore.NOP);
-		Collection<Content> search = cm.search(null, "MAP", "FHI-", null);
-		for (Content c : search) {
-			if (c instanceof Map && ((Map)c).gametype.equalsIgnoreCase("unknown")) {
-				Map map = (Map)cm.checkout(c.hash);
-				map.gametype = "Fraghouse Invasion";
-				if (cm.checkin(new IndexResult<>(map, Collections.emptySet()), null)) {
-					System.out.println("Stored changes for " + String.join(" / ", map.game, map.gametype, map.name));
-				} else {
-					System.out.println("Failed to apply");
-				}
-			}
-		}
-	}
 
 	@Test
 	@Disabled
