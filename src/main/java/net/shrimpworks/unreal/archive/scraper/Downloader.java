@@ -19,7 +19,7 @@ import net.shrimpworks.unreal.archive.content.Submission;
 
 public class Downloader {
 
-	static final String USER_AGENT = "unreal-archiver/1.0";
+	public static final String USER_AGENT = "unreal-archiver/1.0";
 
 	private static final Pattern AUTOINDEXPHP_PATTERN = Pattern.compile("(.+)/index.php\\?dir=([^&]+)&file=(.+)");
 	private static final String AUTOINDEXPHP_REWRITE = "%s/%s%s"; // host/dur/file

@@ -142,7 +142,7 @@ public class LocalMirrorClient implements Consumer<LocalMirrorClient.Downloader>
 			try {
 				// only consider "main" URLs
 				// TODO if main 404s, try others
-				Content.Download dl = content.downloads.stream().filter(d -> d.main).findFirst().orElse(null);
+				Content.Download dl = content.mainDownload();
 				if (dl == null) return;
 
 				// file already downloaded

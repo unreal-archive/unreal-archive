@@ -24,15 +24,12 @@ import java.util.stream.Collectors;
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.YAML;
 import net.shrimpworks.unreal.archive.content.mappacks.MapPack;
-import net.shrimpworks.unreal.archive.content.maps.GameTypes;
 import net.shrimpworks.unreal.archive.content.maps.Map;
 import net.shrimpworks.unreal.archive.mirror.LocalMirrorClient;
 import net.shrimpworks.unreal.archive.storage.DataStore;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-
-import static net.shrimpworks.unreal.archive.content.IndexUtils.UNKNOWN;
 
 public class IndexCleanupUtil {
 
@@ -215,7 +212,6 @@ public class IndexCleanupUtil {
 //			}
 //		}
 	}
-
 
 	@Test
 	@Disabled
@@ -426,11 +422,7 @@ public class IndexCleanupUtil {
 			System.out.println("finding duplicate urls for " + contentType.name());
 			// first, find the duplicate download URLs
 			java.util.Map<String, List<Content>> collect = cm.search(null, contentType.name(), null, null).stream()
-															 .collect(Collectors.groupingBy(s -> {
-																 Content.Download dl = s.downloads.stream().filter(d -> d.main)
-																								  .findFirst().get();
-																 return dl.url;
-															 }))
+															 .collect(Collectors.groupingBy(s -> s.mainDownload().url))
 															 .entrySet().stream()
 															 .filter(m -> m.getValue().size() > 1)
 															 .collect(Collectors.toMap(java.util.Map.Entry::getKey,

@@ -143,7 +143,7 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 		public void run() {
 			try {
 				// only consider "main" URLs
-				Content.Download dl = content.downloads.stream().filter(d -> d.main).findFirst().orElse(null);
+				Content.Download dl = content.mainDownload();
 				if (dl == null) return;
 
 				Util.urlRequest(dl.url, (httpConn) -> {

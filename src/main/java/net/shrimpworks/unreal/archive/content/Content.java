@@ -151,6 +151,10 @@ public abstract class Content implements Comparable<Content> {
 		return false;
 	}
 
+	public Download mainDownload() {
+		return downloads.stream().filter(d -> d.main).findFirst().orElse(null);
+	}
+
 	@Override
 	public int compareTo(Content o) {
 		return name.compareToIgnoreCase(o.name);
