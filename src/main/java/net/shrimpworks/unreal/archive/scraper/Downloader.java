@@ -66,9 +66,14 @@ public class Downloader {
 			Path dir = output.resolve(url.path);
 			if (!Files.isDirectory(dir)) Files.createDirectories(dir);
 
-			final Path ymlFile = dir.resolve(url.name + ".yml");
+			final String safeName = url.name.trim();
 
-			if (Files.exists(ymlFile)) return false;
+			final Path ymlFile = dir.resolve(safeName + ".yml");
+
+			if (Files.exists(ymlFile)) {
+				System.out.println("Skipping " + ymlFile);
+				return false;
+			}
 
 			String dl = url.url;
 			Matcher m = AUTOINDEXPHP_PATTERN.matcher(dl);
@@ -80,8 +85,8 @@ public class Downloader {
 
 			Util.urlRequest(Util.toUriString(dl), http -> {
 				try {
-					Path ymlOutFile = dir.resolve(url.name);
-					Path outFile = dir.resolve(url.name);
+					Path ymlOutFile = ymlFile;
+					Path outFile = dir.resolve(safeName);
 
 					String disposition = http.getHeaderField("Content-Disposition");
 					if (disposition != null) {
@@ -92,6 +97,8 @@ public class Downloader {
 						}
 					}
 
+					System.out.println("  to " + outFile);
+
 					Files.createDirectories(outFile.getParent());
 					Files.copy(http.getInputStream(), outFile);
 
@@ -100,8 +107,11 @@ public class Downloader {
 								StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 
 					System.out.println("Wrote file to " + outFile.toString());
+					System.out.println("Wrote YML file to " + ymlOutFile.toString());
 				} catch (IOException e) {
 					System.out.println("HTTP Failure: " + e.toString());
+				} catch (Exception e) {
+					System.out.println("Oops: " + e.toString());
 				}
 			});
 
@@ -123,8 +133,9 @@ public class Downloader {
 //
 //			httpResponse.getEntity().writeTo(Files.newOutputStream(outFile, StandardOpenOption.CREATE, StandardOpenOption.WRITE));
 		} catch (Exception e) {
-			System.err.printf("Failed to download %s: %s%n", url.name, e.toString());
+			System.out.printf("Failed to download %s: %s%n", url.name, e.toString());
 		}
+		System.out.println("wtf");
 
 		return true;
 	}
