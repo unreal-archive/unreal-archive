@@ -17,7 +17,7 @@ public class Model extends Content {
 
 	static final String UT_PLAYER_CLASS = "Botpack.TournamentPlayer";
 
-	static final Pattern NAME_MATCH = Pattern.compile(".+?\\..+?\\d");
+	static final Pattern NAME_MATCH = Pattern.compile(".+?\\..+?");
 
 	public List<String> models = new ArrayList<>();
 	public List<String> skins = new ArrayList<>();

@@ -17,6 +17,7 @@ import net.shrimpworks.unreal.archive.content.IndexHandler;
 import net.shrimpworks.unreal.archive.content.IndexLog;
 import net.shrimpworks.unreal.archive.content.IndexResult;
 import net.shrimpworks.unreal.archive.content.IndexUtils;
+import net.shrimpworks.unreal.archive.content.skins.Skin;
 import net.shrimpworks.unreal.archive.content.skins.SkinIndexHandler;
 import net.shrimpworks.unreal.packages.IntFile;
 
@@ -65,8 +66,8 @@ public class ModelIndexHandler implements IndexHandler<Model> {
 			});
 
 			SkinIndexHandler.skinDescriptors(incoming).forEach(d -> {
-				if (d.containsKey("Description") && Model.NAME_MATCH.matcher(d.get("Name")).matches()) {
-					if (m.name == null || m.name.equals(origName)) m.name = d.get("Description");
+				if (d.containsKey("Description") && Skin.NAME_MATCH.matcher(d.get("Name")).matches()) {
+					if (m.name == null) m.name = d.get("Description");
 					m.skins.add(d.get("Description").trim());
 				}
 			});
