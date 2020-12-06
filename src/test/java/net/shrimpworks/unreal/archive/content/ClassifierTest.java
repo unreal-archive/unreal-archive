@@ -20,7 +20,7 @@ public class ClassifierTest {
 			Files.write(tmp, "hello".getBytes(StandardCharsets.UTF_8));
 
 			Submission sub = new Submission(tmp);
-			IndexLog log = new IndexLog(sub);
+			IndexLog log = new IndexLog();
 
 			// will fail to process text file as a valid content file
 			assertThrows(UnsupportedOperationException.class, () -> new Incoming(sub, log).prepare());
@@ -36,7 +36,7 @@ public class ClassifierTest {
 			Files.copy(is, tmpMap, StandardCopyOption.REPLACE_EXISTING);
 
 			Submission sub = new Submission(tmpMap);
-			IndexLog log = new IndexLog(sub);
+			IndexLog log = new IndexLog();
 			Incoming incoming = new Incoming(sub, log).prepare();
 
 			assertEquals(ContentType.MAP, ContentType.classify(incoming));
@@ -51,8 +51,7 @@ public class ClassifierTest {
 		try (InputStream is = getClass().getResourceAsStream("maps/dm-longestyard.zip")) {
 			Files.copy(is, tmpMap, StandardCopyOption.REPLACE_EXISTING);
 
-			Submission sub = new Submission(tmpMap);
-			IndexLog log = new IndexLog(sub);
+			IndexLog log = new IndexLog();
 
 			assertTrue(log.ok());
 

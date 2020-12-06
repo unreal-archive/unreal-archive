@@ -5,18 +5,23 @@ import java.util.List;
 
 public class IndexLog {
 
+	public static final IndexLog NOP = new IndexLog() {
+		@Override
+		public void log(EntryType type, String message) {}
+
+		@Override
+		public void log(EntryType type, String message, Throwable e) {}
+	};
+
 	public enum EntryType {
 		INFO,
 		CONTINUE,
 		FATAL
 	}
 
-	public final Submission submission;
-
 	public final List<LogEntry> log;
 
-	public IndexLog(Submission submission) {
-		this.submission = submission;
+	public IndexLog() {
 		this.log = new ArrayList<>();
 	}
 
@@ -34,7 +39,7 @@ public class IndexLog {
 
 	@Override
 	public String toString() {
-		return String.format("IndexLog [submission=%s, log=%s]", submission, log);
+		return String.format("IndexLog [log=%s]", log);
 	}
 
 	public static class LogEntry {

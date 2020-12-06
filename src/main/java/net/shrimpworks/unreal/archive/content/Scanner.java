@@ -62,7 +62,7 @@ public class Scanner {
 						  events.progress(done.incrementAndGet(), all.size(), path);
 
 						  Submission sub = new Submission(path);
-						  IndexLog log = new IndexLog(sub);
+						  IndexLog log = new IndexLog();
 
 						  scanFile(sub, log, events::scanned);
 					  })

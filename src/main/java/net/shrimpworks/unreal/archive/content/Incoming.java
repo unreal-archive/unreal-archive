@@ -91,6 +91,10 @@ public class Incoming implements Closeable {
 
 	private Path repackPath;
 
+	public Incoming(Submission submission) throws IOException, UnsupportedOperationException {
+		this(submission, IndexLog.NOP);
+	}
+
 	public Incoming(Submission submission, IndexLog log) throws IOException, UnsupportedOperationException {
 		this.submission = submission;
 		this.hash = Util.hash(submission.filePath);

@@ -91,7 +91,7 @@ public class Indexer {
 
 		ForkJoinPool fjPool = new ForkJoinPool(concurrency);
 		fjPool.submit(() -> all.parallelStream().sorted().forEach(sub -> {
-						  IndexLog log = new IndexLog(sub);
+						  IndexLog log = new IndexLog();
 						  indexLogs.add(log);
 
 						  indexFile(sub, log, force, forceType, result -> {

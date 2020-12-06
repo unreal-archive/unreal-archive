@@ -24,7 +24,7 @@ public class SkinIndexerTest {
 			Files.copy(is, tmpSkin, StandardCopyOption.REPLACE_EXISTING);
 
 			Submission sub = new Submission(tmpSkin);
-			IndexLog log = new IndexLog(sub);
+			IndexLog log = new IndexLog();
 			Incoming incoming = new Incoming(sub, log).prepare();
 
 			SkinIndexHandler indexer = new SkinIndexHandler();

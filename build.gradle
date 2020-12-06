@@ -5,10 +5,10 @@ import java.nio.file.Files
 import java.nio.file.StandardOpenOption
 
 plugins {
-    id 'java'
-    id 'application'
-    id 'maven-publish'
-    id 'jacoco'
+	id 'java'
+	id 'application'
+	id 'maven-publish'
+	id 'jacoco'
 }
 
 group = 'net.shrimpworks'
@@ -16,128 +16,129 @@ version = "1.5"
 
 mainClassName = 'net.shrimpworks.unreal.archive.Main'
 
-sourceCompatibility = '11'
-targetCompatibility = '11'
+compileJava {
+	options.release = 11
+}
 
 if (System.getenv().containsKey("TRAVIS_BUILD_NUMBER")) {
-    version = "${version}.${System.env.TRAVIS_BUILD_NUMBER}"
+	version = "${version}.${System.env.TRAVIS_BUILD_NUMBER}"
 }
 
 repositories {
-    mavenCentral()
-    maven {
-        url "https://code.shrimpworks.za.net/artefacts"
-    }
+	mavenCentral()
+	maven {
+		url "https://code.shrimpworks.za.net/artefacts"
+	}
 }
 
 publishing {
-    repositories {
-        maven {
-            name = "ShrimpWorks"
-            url = 'https://code.shrimpworks.za.net/artefacts/'
-            authentication {
-                basic(BasicAuthentication)
-            }
-            credentials(PasswordCredentials) {
-                username = "${System.env.ARTEFACTS_USER}"
-                password = "${System.env.ARTEFACTS_PASSWORD}"
-            }
-        }
-    }
-    publications {
-        maven(MavenPublication) {
-            from components.java
-        }
-    }
+	repositories {
+		maven {
+			name = "ShrimpWorks"
+			url = 'https://code.shrimpworks.za.net/artefacts/'
+			authentication {
+				basic(BasicAuthentication)
+			}
+			credentials(PasswordCredentials) {
+				username = "${System.env.ARTEFACTS_USER}"
+				password = "${System.env.ARTEFACTS_PASSWORD}"
+			}
+		}
+	}
+	publications {
+		maven(MavenPublication) {
+			from components.java
+		}
+	}
 }
 
 dependencies {
-    implementation 'net.shrimpworks:unreal-package-lib:1.5.50'
-    implementation 'net.shrimpworks:package-dependency:1.0.6'
+	implementation 'net.shrimpworks:unreal-package-lib:1.5.50'
+	implementation 'net.shrimpworks:package-dependency:1.1.7'
 
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.11.0'
-    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.11.0'
+	implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.0'
+	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.0'
 
-    implementation 'org.jsoup:jsoup:1.13.1'
+	implementation 'org.jsoup:jsoup:1.13.1'
 
-    implementation 'org.freemarker:freemarker:2.3.30'
+	implementation 'org.freemarker:freemarker:2.3.30'
 
-    implementation 'com.backblaze.b2:b2-sdk-core:1.4.0'
-    implementation 'com.backblaze.b2:b2-sdk-httpclient:1.4.0'
+	implementation 'com.backblaze.b2:b2-sdk-core:1.4.0'
+	implementation 'com.backblaze.b2:b2-sdk-httpclient:1.4.0'
 
-    // S3 compatible storage client
-    implementation 'io.minio:minio:7.0.0'
+	// S3 compatible storage client
+	implementation 'io.minio:minio:7.0.0'
 
-    implementation 'com.vladsch.flexmark:flexmark:0.62.2'
+	implementation 'com.vladsch.flexmark:flexmark:0.62.2'
 
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.4.2'
+	testImplementation 'org.junit.jupiter:junit-jupiter:5.4.2'
 }
 
 /**
  * Create list of static files, used for later extraction from the jar to disk.
  */
 processResources.doLast {
-    def wwwStaticDir = projectDir.toPath().resolve('src/main/resources/net/shrimpworks/unreal/archive/www/static')
-    def destFile = buildDir.toPath().resolve('resources/main/net/shrimpworks/unreal/archive/www/static.list')
-    def staticList = new StringBuilder()
-    files { fileTree(wwwStaticDir) }.each {
-        staticList.append(wwwStaticDir.getParent().relativize(it.toPath())).append("\n")
-    }
-    Files.write(destFile, staticList.toString().replaceAll("\\\\", "/").getBytes(StandardCharsets.UTF_8),
-            StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
+	def wwwStaticDir = projectDir.toPath().resolve('src/main/resources/net/shrimpworks/unreal/archive/www/static')
+	def destFile = buildDir.toPath().resolve('resources/main/net/shrimpworks/unreal/archive/www/static.list')
+	def staticList = new StringBuilder()
+	files { fileTree(wwwStaticDir) }.each {
+		staticList.append(wwwStaticDir.getParent().relativize(it.toPath())).append("\n")
+	}
+	Files.write(destFile, staticList.toString().replaceAll("\\\\", "/").getBytes(StandardCharsets.UTF_8),
+			StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
 }
 
 jar {
-    manifest {
-        attributes(
-                'Implementation-Title': project.name,
-                'Implementation-Version': project.version,
-                'Main-Class': mainClassName,
-        )
-    }
+	manifest {
+		attributes(
+				'Implementation-Title': project.name,
+				'Implementation-Version': project.version,
+				'Main-Class': mainClassName,
+		)
+	}
 }
 
 task execJar(type: Jar) {
-    archiveClassifier = "exec"
-    archiveFileName = "${archiveBaseName.get()}-${archiveClassifier.get()}.${archiveExtension.get()}"
-    from sourceSets.main.output
+	archiveClassifier = "exec"
+	archiveFileName = "${archiveBaseName.get()}-${archiveClassifier.get()}.${archiveExtension.get()}"
+	from sourceSets.main.output
 
-    dependsOn configurations.runtimeClasspath
+	dependsOn configurations.runtimeClasspath
 
-    manifest {
-        attributes (
-                'Implementation-Title': project.name,
-                'Implementation-Version': project.version,
-                'Main-Class': mainClassName,
-                'Class-Path': configurations.runtimeClasspath.files.collect { it.getName() }.join(' ')
-        )
-    }
+	manifest {
+		attributes(
+				'Implementation-Title': project.name,
+				'Implementation-Version': project.version,
+				'Main-Class': mainClassName,
+				'Class-Path': configurations.runtimeClasspath.files.collect { it.getName() }.join(' ')
+		)
+	}
 
-    // build the fat executable jar file
-    from {
-        configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
-    }
+	// build the fat executable jar file
+	from {
+		configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
+	}
 
-    // run the script which builds the executable
-    if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
-        doLast {
-            project.exec {
-                commandLine(
-                        "$projectDir/etc/build-launcher.sh",
-                        "$projectDir/etc/launcher.sh",
-                        "${destinationDirectory.get()}/${archiveFileName.get()}",
-                        "${destinationDirectory.get()}/${archiveBaseName.get()}")
-            }
-        }
-    }
+	// run the script which builds the executable
+	if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
+		doLast {
+			project.exec {
+				commandLine(
+						"$projectDir/etc/build-launcher.sh",
+						"$projectDir/etc/launcher.sh",
+						"${destinationDirectory.get()}/${archiveFileName.get()}",
+						"${destinationDirectory.get()}/${archiveBaseName.get()}")
+			}
+		}
+	}
 }
 
 test {
-    useJUnitPlatform()
+	useJUnitPlatform()
 }
 
 jacocoTestReport {
-    reports {
-        xml.enabled = true
-    }
+	reports {
+		xml.enabled = true
+	}
 }

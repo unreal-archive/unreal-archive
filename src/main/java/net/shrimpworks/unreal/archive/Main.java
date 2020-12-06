@@ -31,6 +31,8 @@ import java.util.stream.Stream;
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.ContentManager;
 import net.shrimpworks.unreal.archive.content.ContentType;
+import net.shrimpworks.unreal.archive.content.GameTypeManager;
+import net.shrimpworks.unreal.archive.content.Games;
 import net.shrimpworks.unreal.archive.content.IndexResult;
 import net.shrimpworks.unreal.archive.content.Indexer;
 import net.shrimpworks.unreal.archive.content.Scanner;
@@ -71,6 +73,7 @@ public class Main {
 
 	private static final String CONTENT_DIR = "content";
 	private static final String DOCUMENTS_DIR = "documents";
+	private static final String GAMETYPES_DIR = "gametypes";
 
 	private static final Path TMP = Paths.get(System.getProperty("java.io.tmpdir"));
 	private static final String CONTENT_URL = System.getenv().getOrDefault("UA_CONTENT_URL",
@@ -93,6 +96,9 @@ public class Main {
 				break;
 			case "edit":
 				edit(contentManager(cli), cli);
+				break;
+			case "gametype":
+				gametype(cli);
 				break;
 			case "sync":
 				sync(cli);
@@ -190,7 +196,7 @@ public class Main {
 			System.exit(3);
 		}
 
-		return contentPath;
+		return contentPath.toAbsolutePath();
 	}
 
 	private static Path[] cliPaths(CLI cli, int fromOffset) throws IOException {
@@ -391,7 +397,48 @@ public class Main {
 		}
 	}
 
-	private static void mirror(ContentManager contentManager, CLI cli) throws IOException {
+	private static void gametype(CLI cli) throws IOException {
+		if (cli.commands().length < 2) {
+			System.err.println("A gametype operation is required:");
+			System.err.println("  init <game> <game type name>");
+			System.err.println("    initialises a new game type structure under the specified game");
+			System.err.println("  locate <game> <game type name>");
+			System.err.println("    returns the content directory for the specified game type");
+			System.err.println("  sync");
+			System.err.println("    synchronises downloads, files, and dependencies for unsynced items");
+			System.exit(2);
+		}
+
+		Path path = contentPath(cli).resolve(GAMETYPES_DIR);
+		GameTypeManager gametypes = new GameTypeManager(path);
+
+		switch (cli.commands()[1]) {
+			case "init":
+				if (cli.commands().length < 3) {
+					System.err.println("A game name is required");
+				}
+				if (cli.commands().length < 4) {
+					System.err.println("A game type name is required");
+				}
+
+				Games game = Games.byName(cli.commands()[2]);
+				Path gametypePath = gametypes.init(game, String.join(" ", Arrays.copyOfRange(cli.commands(), 3, cli.commands().length)));
+				System.out.println("Gametype initialised in directory:");
+				System.out.printf("  - %s%n", gametypePath.toAbsolutePath().toString());
+				System.out.println("\nPopulate the appropriate files, add images, etc.");
+				System.out.println("To upload gametype files, execute the `sync` command.");
+				break;
+			case "sync":
+				final DataStore dataStore = store(DataStore.StoreContent.CONTENT, cli);
+				gametypes.sync(contentManager(cli), dataStore);
+				break;
+			default:
+				System.err.println("Unknown game type command" + cli.commands()[1]);
+				System.exit(3);
+		}
+	}
+
+	private static void mirror(ContentManager contentManager, CLI cli) {
 		final DataStore mirrorStore = store(DataStore.StoreContent.CONTENT, cli);
 
 		System.out.printf("Mirroring files to %s with concurrency of %s%n", mirrorStore, cli.option("concurrency", "3"));
