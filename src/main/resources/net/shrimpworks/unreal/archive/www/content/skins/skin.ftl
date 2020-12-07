@@ -41,7 +41,7 @@
 					"Faces",
 					"File Size",
 					"File Name",
-					"Hash"
+					"SHA1 Hash"
 			]
 
 			values=[

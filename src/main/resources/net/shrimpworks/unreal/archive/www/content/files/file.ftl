@@ -19,7 +19,7 @@
 					<label>File Size</label><span>${fileSize(file.fileSize)}</span>
 				</div>
 				<div class="label-value">
-					<label>Hash</label><span>${file.hash}</span>
+					<label>SHA1 Hash</label><span>${file.hash}</span>
 				</div>
 			</section>
 
