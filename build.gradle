@@ -12,7 +12,7 @@ plugins {
 }
 
 group = 'net.shrimpworks'
-version = "1.5"
+version = "1.6"
 
 mainClassName = 'net.shrimpworks.unreal.archive.Main'
 
@@ -20,8 +20,8 @@ compileJava {
 	options.release = 11
 }
 
-if (System.getenv().containsKey("TRAVIS_BUILD_NUMBER")) {
-	version = "${version}.${System.env.TRAVIS_BUILD_NUMBER}"
+if (System.getenv().containsKey("DRONE_BUILD_NUMBER")) {
+	version = "${version}.${System.env.DRONE_BUILD_NUMBER}"
 }
 
 repositories {
@@ -53,7 +53,7 @@ publishing {
 }
 
 dependencies {
-	implementation 'net.shrimpworks:unreal-package-lib:1.5.50'
+	implementation 'net.shrimpworks:unreal-package-lib:1.6.2'
 	implementation 'net.shrimpworks:package-dependency:1.1.7'
 
 	implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.0'

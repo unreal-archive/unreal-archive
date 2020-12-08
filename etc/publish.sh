@@ -15,17 +15,17 @@
 ##
 ##   ARTEFACTS_USER     : basic auth username, if required
 ##   ARTEFACTS_PASSWORD : basic auth password, if required
-##   TRAVIS_BUILD_NUMBER: artefact build number, will be appended to publish-
-##                        url, or SNAPSHOT will be used if not set
+##   CI_BUILD: artefact build name, will be appended to publish-url,
+##             or SNAPSHOT will be used if not set
 ##
 ###############################################################################
 
 set -e
 
-if [ -z ${TRAVIS_BUILD_NUMBER+x} ]; then
+if [ -z ${CI_BUILD+x} ]; then
 	BUILD="SNAPSHOT"
 else
-	BUILD=${TRAVIS_BUILD_NUMBER}
+	BUILD=${CI_BUILD}
 fi
 
 if [ -z ${ARTEFACTS_USER+x} ]; then
