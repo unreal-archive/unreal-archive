@@ -28,7 +28,7 @@ steps:
       DRONE_TOKEN:
         from_secret: DRONE_TOKEN
     commands:
-      - ./etc/rebuild-www
+      - ./etc/rebuild-www.sh
     when:
       branch:
         - master
