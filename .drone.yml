@@ -23,7 +23,7 @@ steps:
       branch:
         - master
   - name: www
-    image: plugins/downstream
+    image: gradle:6.7.1-jdk11
     environment:
       DRONE_TOKEN:
         from_secret: DRONE_TOKEN
