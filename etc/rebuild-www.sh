@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 ## Triggers a rebuild of the `unreal-archive-data` project
 
