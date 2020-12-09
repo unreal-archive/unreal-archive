@@ -475,10 +475,6 @@ article .docs .title-image, article .content .title-image {
 	width: 200px;
 }
 
-article .docs .title-image, article .content .title-image {
-	width: 200px;
-}
-
 article .docs .title-image img, article .content .title-image img {
 	margin-right: 10px;
 	max-height: 60px;
@@ -592,7 +588,6 @@ button img {
   special style for map themes
 */
 
-div.theme-gauge { }
 div.theme-gauge .part {
 	display: inline-block;
 	overflow: visible;
