@@ -4,6 +4,7 @@
 	--p3: #950740;
 	--p4: #4e4e50;
 	--p5: #6f2232;
+	--p6: #a3e312;
 
 	--body-bg: var(--p1);
 	--body-color: lightgray;
@@ -16,7 +17,7 @@
 	--header-font-family: 'PassionOne', serif;
 	--header-bg-color: var(--p1);
 	--header-text-color: white;
-	--header-border-color: var(--p2);
+	--header-border-color: var(--p6);
 	--header-logo-color-a: white;
 	--header-logo-color-b: var(--p2);
 
@@ -47,7 +48,7 @@
 	--paginate-bg-inactive: #202023;
 	--paginate-bg-hover: #95074080;
 	--paginate-bg-active: var(--section-header-title-bg);
-	--paginate-shadow-active: inset 0 -3px 0 0 var(--p2);
+	--paginate-shadow-active: inset 0 -3px 0 0 var(--p6);
 	--paginate-border: none;
 
 	--download-button-bg: darkgreen;
