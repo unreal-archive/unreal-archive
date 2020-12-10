@@ -1,0 +1,59 @@
+---
+# Template config for use with minimum-effort-search service (https://github.com/shrimpza/minimum-effort-search)
+# which provides full-text search for the www site.
+bindAddress: "127.0.0.1:8596"
+rootPath: "/search/api"
+index: "ua"
+redisearch: "127.0.0.1:6380"
+corsAllowOrigin: "*"
+submissionToken: "abc"
+schema:
+  fields:
+    - name: "name"
+      noIndex: false
+      noStem: false
+      sortable: true
+      type: "FullText"
+      weight: 4.0
+    - name: "description"
+      noIndex: false
+      noStem: false
+      sortable: false
+      type: "FullText"
+      weight: 3.0
+    - name: "author"
+      noIndex: false
+      noStem: true
+      sortable: true
+      type: "FullText"
+      weight: 2.5
+    - name: "type"
+      noIndex: false
+      noStem: true
+      sortable: true
+      type: "FullText"
+      weight: 1.5
+    - name: "game"
+      noIndex: false
+      noStem: true
+      sortable: true
+      type: "FullText"
+      weight: 1.5
+    - name: "keywords"
+      noIndex: false
+      noStem: false
+      sortable: false
+      type: "FullText"
+      weight: 2.5
+    - name: "url"
+      noIndex: true
+      noStem: true
+      sortable: false
+      type: "FullText"
+      weight: 1.0
+    - name: "date"
+      noIndex: true
+      noStem: true
+      sortable: true
+      type: "FullText"
+      weight: 1.0
