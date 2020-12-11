@@ -33,8 +33,37 @@
 			<#assign themes>
 				<#if map.map.themes?size gt 0>
 					<#list map.map.themes as theme, weight>
-						<div class="theme-gauge">
-							<div class="part p${theme?index}" style="width: ${weight * 100}%">${theme}</div>
+						<div class="themes">
+							<#if weight lt 0.2>
+								<img src="${staticPath()}/images/icons/circle.svg" alt="${weight * 100}%"/>
+								<#list 0..3 as n>
+									<img src="${staticPath()}/images/icons/circle-dotted.svg" alt="${weight * 100}%"/>
+								</#list>
+							<#elseif weight lt 0.4>
+								<#list 0..1 as n>
+									<img src="${staticPath()}/images/icons/circle.svg" alt="${weight * 100}%"/>
+								</#list>
+								<#list 0..2 as n>
+									<img src="${staticPath()}/images/icons/circle-dotted.svg" alt="${weight * 100}%"/>
+								</#list>
+							<#elseif weight lt 0.6>
+								<#list 0..2 as n>
+									<img src="${staticPath()}/images/icons/circle.svg" alt="${weight * 100}%"/>
+								</#list>
+								<#list 0..1 as n>
+									<img src="${staticPath()}/images/icons/circle-dotted.svg" alt="${weight * 100}%"/>
+								</#list>
+							<#elseif weight lt 0.8>
+								<#list 0..3 as n>
+									<img src="${staticPath()}/images/icons/circle.svg" alt="${weight * 100}%"/>
+								</#list>
+								<img src="${staticPath()}/images/icons/circle-dotted.svg" alt="${weight * 100}%"/>
+							<#else>
+								<#list 0..4 as n>
+									<img src="${staticPath()}/images/icons/circle.svg" alt="${weight * 100}%"/>
+								</#list>
+							</#if>
+							<span>${theme}</span>
 						</div>
 					</#list>
 				<#else>

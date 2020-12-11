@@ -56,13 +56,6 @@
 
 	--document-meta-border: #dee3e9;
 	--document-meta-bg: #f0f0f5;
-
-  --theme-bg-0: khaki;
-	--theme-bg-1: lightskyblue;
-	--theme-bg-2: lightgreen;
-	--theme-bg-3: bisque;
-	--theme-bg-4: lemonchiffon;
-	--theme-bg-5: lightpink;
 }
 
 html {
@@ -587,18 +580,10 @@ button img {
 /*
   special style for map themes
 */
-
-div.theme-gauge .part {
-	display: inline-block;
-	overflow: visible;
-	white-space: nowrap;
+div.themes img {
+	vertical-align: bottom;
+	height: 22px;
 }
-div.theme-gauge .part.p0 { background: var(--theme-bg-0); }
-div.theme-gauge .part.p1 { background: var(--theme-bg-1); }
-div.theme-gauge .part.p2 { background: var(--theme-bg-2); }
-div.theme-gauge .part.p3 { background: var(--theme-bg-3); }
-div.theme-gauge .part.p4 { background: var(--theme-bg-4); }
-div.theme-gauge .part.p5 { background: var(--theme-bg-5); }
 
 @media screen and (max-width: 1024px) {
 

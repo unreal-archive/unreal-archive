@@ -63,13 +63,6 @@
 
 	--document-meta-border: none;
 	--document-meta-bg: #202023;
-
-	--theme-bg-0: #403d25;
-	--theme-bg-1: #2c4352;
-	--theme-bg-2: #335533;
-	--theme-bg-3: #61574c;
-	--theme-bg-4: #63614f;
-	--theme-bg-5: #50383b;
 }
 
 h2 img[src$="svg"] {
@@ -81,5 +74,9 @@ td.meta img[src$="svg"], footer img[src$="svg"], .report img[src$="svg"] {
 }
 
 article.managed section.downloads .download .title img[src$="svg"] {
+	filter: invert(0.8);
+}
+
+div.themes img[src$="svg"] {
 	filter: invert(0.8);
 }
