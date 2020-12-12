@@ -17,33 +17,63 @@
 	</@heading>
 
 	<@content class="info-side">
-		<section class="info">
-			<h2><img src="${staticPath()}/images/icons/info.svg" alt="About"/>About</h2>
-			<div class="readable">${page?no_esc}</div>
-		</section>
+		<div class="info">
+			<section>
+				<h2><img src="${staticPath()}/images/icons/info.svg" alt="About"/>About</h2>
+				<div class="readable">${page?no_esc}</div>
+			</section>
 
-		<section class="side">
-			<h2><img src="${staticPath()}/images/icons/info.svg" alt="Information"/>Information</h2>
-			<div class="label-value">
-				<label>Author</label><span>${gametype.gametype.author}</span>
-			</div>
-			<div class="label-value">
-				<label>Summary</label><span>${gametype.gametype.description}</span>
-			</div>
-			<div class="label-value">
-				<label>Release Date</label><span>${gametype.gametype.releaseDate!"-"}</span>
-			</div>
-			<#if gametype.gametype.links?size gt 0>
-				<div class="label-value">
-					<label>Links</label><span>
-					<#list gametype.gametype.links as t, u>
-						<div>
-							<a href="${u}">${t}</a>
-						</div>
-					</#list>
-				</span>
-				</div>
+			<#if gametype.gallery?size gt 0>
+				<section class="gallery">
+					<h2><img src="${staticPath()}/images/icons/image.svg" alt="Screenshots"/>Screenshots</h2>
+					<div>
+						<#list gametype.gallery as img>
+							<img src="${img}" alt="screenshot" class="thumb"/>
+						</#list>
+					</div>
+				</section>
+      </#if>
+
+			<#if gametype.gametype.credits?size gt 0>
+				<section class="credits">
+					<h2><img src="${staticPath()}/images/icons/list.svg" alt="Credits"/>Credits</h2>
+					<div>
+							<ul>
+								<#list gametype.gametype.credits as t, l>
+									<li class="group">${t}</li>
+									<ul class="names">
+										<#list l as n><li>${n}</li></#list>
+									</ul>
+								</#list>
+							</ul>
+					</div>
+				</section>
 			</#if>
+		</div>
+
+		<div class="side">
+			<section>
+				<h2><img src="${staticPath()}/images/icons/info.svg" alt="Information"/>Information</h2>
+				<div class="label-value">
+					<label>Author</label><span>${gametype.gametype.author}</span>
+				</div>
+				<div class="label-value">
+					<label>Summary</label><span>${gametype.gametype.description}</span>
+				</div>
+				<div class="label-value">
+					<label>Release Date</label><span>${gametype.gametype.releaseDate!"-"}</span>
+				</div>
+				<#if gametype.gametype.links?size gt 0>
+					<div class="label-value">
+						<label>Links</label><span>
+						<#list gametype.gametype.links as t, u>
+							<div>
+								<a href="${u}">${t}</a>
+							</div>
+						</#list>
+					</span>
+					</div>
+				</#if>
 <#--			<#if gametype.gametype.homepage??>-->
 <#--				<div class="label-value">-->
 <#--					<label> </label><span><a href="${gametype.gametype.homepage}">Homepage</a></span>-->
@@ -79,7 +109,8 @@
 <#--					</#if>-->
 <#--				</#list>-->
 <#--			</section>-->
-		</section>
+			</section>
+		</div>
 
 	</@content>
 

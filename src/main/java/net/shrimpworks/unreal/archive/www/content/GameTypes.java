@@ -25,6 +25,8 @@ public class GameTypes implements PageGenerator {
 
 	private static final String SECTION = "Game Types & Mods";
 
+	private static final Set<String> IMGS = Set.of("png", "bmp", "gif", "jpg", "jpeg");
+
 	private final GameTypeManager gametypes;
 	private final Path siteRoot;
 	private final Path root;
@@ -96,37 +98,10 @@ public class GameTypes implements PageGenerator {
 
 			pages.add("gametype.ftl", SiteMap.Page.weekly(0.97f),
 					  String.join(" / ", SECTION, gametype.gametype.game, gametype.gametype.name))
-//				 .put("groupPath", groupPath)
 				 .put("gametype", gametype)
 				 .put("page", page)
 				 .write(outPath.resolve("index.html"));
 		}
-
-//		try (ReadableByteChannel docChan = this.gametypes.document(content.managed)) {
-//
-//			// we have to compute the path here, since a template can't do a while loop up its group tree itself
-//			List<ManagedContent.ContentGroup> groupPath = new ArrayList<>();
-//			ManagedContent.ContentGroup grp = content.group;
-//			while (grp != null) {
-//				groupPath.add(0, grp);
-//				grp = grp.parent;
-//			}
-//
-//			// copy content of directory to www output
-//			final Path path = Files.createDirectories(content.path);
-//			final Path docRoot = this.gametypes.contentRoot(content.managed);
-//			Util.copyTree(docRoot, path);
-//
-//			final String page = Templates.renderMarkdown(docChan);
-//
-//			pages.add("content.ftl", SiteMap.Page.monthly(0.85f, content.managed.updatedDate),
-//					  String.join(" / ", section, content.managed.game, String.join(" / ", content.managed.path.split("/")),
-//								  content.managed.title))
-//				 .put("groupPath", groupPath)
-//				 .put("managed", content)
-//				 .put("page", page)
-//				 .write(path.resolve("index.html"));
-//		}
 	}
 
 	public class Game {
@@ -160,13 +135,25 @@ public class GameTypes implements PageGenerator {
 		public final String slug;
 		public final Path path;
 
+		public final List<String> gallery;
+
 		public GameTypeInfo(GameType gametype, Game game) {
 			this.gametype = gametype;
 			this.game = game;
 
 			this.slug = slug(gametype.name);
 			this.path = gametype.slugPath(root);
+
+			this.gallery = new ArrayList<>();
+			try {
+				Path gametypePath = gametypes.path(gametype).getParent().toAbsolutePath();
+				this.gallery.addAll(Files.list(gametypePath.resolve("gallery"))
+										 .filter(f -> Files.isRegularFile(f) && IMGS.contains(Util.extension(f).toLowerCase()))
+										 .map(f -> gametypePath.relativize(f).toString())
+										 .collect(Collectors.toList()));
+			} catch (IOException e) {
+				// pass
+			}
 		}
 	}
-
 }

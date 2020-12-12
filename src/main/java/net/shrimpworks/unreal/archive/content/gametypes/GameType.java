@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import org.jetbrains.annotations.NotNull;
 
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.content.Content;
@@ -81,7 +80,7 @@ public class GameType implements Comparable<GameType> {
 	}
 
 	@Override
-	public int compareTo(@NotNull GameType o) {
+	public int compareTo(GameType o) {
 		return name.compareTo(o.name);
 	}
 

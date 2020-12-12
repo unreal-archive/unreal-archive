@@ -386,6 +386,16 @@ article.info .screenshots .thumb {
 	vertical-align: middle;
 }
 
+section.gallery {
+	text-align: center;
+	padding: 0 5px;
+}
+
+section.gallery .thumb {
+	width: 300px;
+	margin: 2px;
+}
+
 article.info .info {
 	grid-area: info;
 }
@@ -586,6 +596,17 @@ section.report img {
 
 button img {
 	vertical-align: middle;
+}
+
+/*
+  special styling for gametypes
+ */
+.credits li.group {
+	font-weight: bold;
+}
+
+.credits .names {
+	font-weight: normal;
 }
 
 /*
