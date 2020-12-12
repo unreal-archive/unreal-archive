@@ -1,6 +1,7 @@
 package net.shrimpworks.unreal.archive.content;
 
 import java.io.IOException;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,6 +25,7 @@ import net.shrimpworks.unreal.archive.storage.DataStore;
 public class GameTypeManager {
 
 	private static final String REMOTE_ROOT = "gametypes";
+	private static final String DOCUMENT_FILE = "gametype.md";
 
 	private final Path path;
 
@@ -53,6 +55,36 @@ public class GameTypeManager {
 		}
 	}
 
+	public int size() {
+		return gameTypes.size();
+	}
+
+	public Set<GameType> all() {
+		return gameTypes.stream().filter(g -> !g.gametype.deleted).map(g -> g.gametype).collect(Collectors.toSet());
+	}
+
+	public Path path(GameType gameType) {
+		return gameTypes.stream().filter(g -> gameType.equals(g.gametype)).findFirst().get().path;
+	}
+
+	/**
+	 * Get the raw text content of the associated description document as a channel.
+	 *
+	 * @param gameType gametype to retrieve document for
+	 * @return document content
+	 * @throws IOException failed to open the document
+	 */
+	public ReadableByteChannel document(GameType gameType) throws IOException {
+		GameTypeHolder holder = getGameType(gameType);
+		if (holder == null) return null;
+
+		Path docPath = holder.path.resolveSibling(DOCUMENT_FILE);
+
+		if (!Files.exists(docPath)) return null;
+
+		return Files.newByteChannel(docPath, StandardOpenOption.READ);
+	}
+
 	public Path init(Games game, String gameType) throws IOException {
 		// create path
 		final Path path = Files.createDirectories(gameTypePath(game, gameType));
@@ -65,6 +97,7 @@ public class GameTypeManager {
 		gt.name = neatName;
 		gt.author = neatName + " Team";
 		gt.description = "Short description about " + neatName;
+		gt.titleImage = "title.png";
 		gt.links = Map.of("Homepage", "https://" + Util.slug(gameType) + ".com");
 		gt.credits = Map.of("Programming", List.of("Joe 'Programmer' Soap"), "Maps", List.of("MapGuy"));
 
@@ -80,7 +113,7 @@ public class GameTypeManager {
 		gt.releases.add(release);
 
 		Path yml = Util.safeFileName(path.resolve("gametype.yml"));
-		Path md = Util.safeFileName(path.resolve("gametype.md"));
+		Path md = Util.safeFileName(path.resolve(DOCUMENT_FILE));
 
 		if (!Files.exists(yml)) {
 			Files.write(yml, YAML.toString(gt).getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE);
@@ -101,6 +134,12 @@ public class GameTypeManager {
 		System.out.println(YAML.toString(gameTypes.stream().map(e -> e.gametype).collect(Collectors.toList())));
 
 		syncReleases(contentStore);
+	}
+
+	private GameTypeHolder getGameType(GameType gameType) {
+		return gameTypes.stream()
+						.filter(g -> gameType.equals(g.gametype))
+						.findFirst().orElseThrow(() -> new IllegalArgumentException("GameType was not found: " + gameType.name));
 	}
 
 	private void syncReleases(DataStore contentStore) {

@@ -34,7 +34,7 @@
 				<tbody>
 					<#list group.documents as d>
 						<tr>
-							<td class="title-image nomobile" rowspan="2">
+							<td class="title-image nomobile">
 								<a href="${relPath(d.path + "/index.html")}">
 									<#if d.document.titleImage??>
 										<img src="${relPath(d.path + "/" + d.document.titleImage)}"/>
@@ -43,14 +43,17 @@
 									</#if>
 								</a>
 							</td>
-							<td nowrap="nowrap"><a href="${relPath(d.path + "/index.html")}">${d.document.title}</a></td>
-							<td>${d.document.author}</td>
-							<td class="nomobile">${d.document.createdDate}</td>
-							<td>${d.document.updatedDate}</td>
+							<td>
+								<div><a href="${relPath(d.path + "/index.html")}">${d.document.title}</a></div>
+								<div>${d.document.description}</div>
+							</td>
+							<td nowrap="nowrap">${d.document.author}</td>
+							<td nowrap="nowrap" class="nomobile">${d.document.createdDate}</td>
+							<td nowrap="nowrap">${d.document.updatedDate}</td>
 						</tr>
-						<tr>
-							<td colspan="4">${d.document.description}</td>
-						</tr>
+<#--						<tr>-->
+<#--							<td colspan="4"></td>-->
+<#--						</tr>-->
 					</#list>
 				</tbody>
 			</table>

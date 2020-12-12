@@ -60,6 +60,7 @@ import net.shrimpworks.unreal.archive.www.SiteMap;
 import net.shrimpworks.unreal.archive.www.Submit;
 import net.shrimpworks.unreal.archive.www.Templates;
 import net.shrimpworks.unreal.archive.www.content.FileDetails;
+import net.shrimpworks.unreal.archive.www.content.GameTypes;
 import net.shrimpworks.unreal.archive.www.content.Latest;
 import net.shrimpworks.unreal.archive.www.content.MapPacks;
 import net.shrimpworks.unreal.archive.www.content.Maps;
@@ -98,7 +99,7 @@ public class Main {
 				edit(contentManager(cli), cli);
 				break;
 			case "gametype":
-				gametype(cli);
+				gametype(gameTypeManager(cli), cli);
 				break;
 			case "sync":
 				sync(cli);
@@ -110,7 +111,7 @@ public class Main {
 				localMirror(contentManager(cli), cli);
 				break;
 			case "www":
-				www(contentManager(cli), documentManager(cli), managedContent(cli, "updates"), cli);
+				www(contentManager(cli), documentManager(cli), managedContent(cli, "updates"), gameTypeManager(cli), cli);
 				break;
 			case "search-submit":
 				searchSubmit(contentManager(cli), documentManager(cli), managedContent(cli, "updates"), cli);
@@ -285,6 +286,17 @@ public class Main {
 		return managedContentManager;
 	}
 
+	private static GameTypeManager gameTypeManager(CLI cli) throws IOException {
+		Path contentPath = contentPath(cli);
+
+		final long start = System.currentTimeMillis();
+		final GameTypeManager gametypes = new GameTypeManager(contentPath.resolve(GAMETYPES_DIR));
+		System.err.printf("Loaded gametypes index with %d items in %.2fs%n",
+						  gametypes.size(), (System.currentTimeMillis() - start) / 1000f);
+
+		return gametypes;
+	}
+
 	private static void sync(CLI cli) throws IOException {
 		ManagedContentManager managedContent = managedContent(cli, cli.commands()[1]);
 
@@ -397,7 +409,7 @@ public class Main {
 		}
 	}
 
-	private static void gametype(CLI cli) throws IOException {
+	private static void gametype(GameTypeManager gametypes, CLI cli) throws IOException {
 		if (cli.commands().length < 2) {
 			System.err.println("A gametype operation is required:");
 			System.err.println("  init <game> <game type name>");
@@ -408,9 +420,6 @@ public class Main {
 			System.err.println("    synchronises downloads, files, and dependencies for unsynced items");
 			System.exit(2);
 		}
-
-		Path path = contentPath(cli).resolve(GAMETYPES_DIR);
-		GameTypeManager gametypes = new GameTypeManager(path);
 
 		switch (cli.commands()[1]) {
 			case "init":
@@ -493,7 +502,8 @@ public class Main {
 		mirror.cancel();
 	}
 
-	private static void www(ContentManager contentManager, DocumentManager documentManager, ManagedContentManager updates, CLI cli)
+	private static void www(ContentManager contentManager, DocumentManager documentManager, ManagedContentManager updates,
+							GameTypeManager gameTypeManager, CLI cli)
 			throws IOException {
 		if (cli.commands().length < 2) {
 			System.err.println("An output path must be specified!");
@@ -552,6 +562,12 @@ public class Main {
 			// generate updates pages
 			System.out.println("Generating Updates pages");
 			allPages.addAll(new ManagedContent(updates, outputPath, staticOutput, features, "Patches & Updates").generate());
+		}
+
+		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("gametypes"))) {
+			// generate updates pages
+			System.out.println("Generating GameType pages");
+			allPages.addAll(new GameTypes(gameTypeManager, outputPath, staticOutput, features).generate());
 		}
 
 		// generate index

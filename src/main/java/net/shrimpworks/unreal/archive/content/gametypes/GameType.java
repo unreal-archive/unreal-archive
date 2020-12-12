@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.jetbrains.annotations.NotNull;
 
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.content.Content;
@@ -22,7 +23,7 @@ import net.shrimpworks.unreal.archive.managed.Managed;
  * patches, and other downloads.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, visible = true, property = "contentType")
-public class GameType {
+public class GameType implements Comparable<GameType> {
 
 	// Game/Type/GameType/A/[hash]
 	private static final String PATH_STRING = "%s/%s/%s/%s/";
@@ -35,6 +36,8 @@ public class GameType {
 	public String name;                                     // Bunny Hunt
 	public String author = "Unknown";                       // Joe Soap
 	public String description = "None";                     // Game mode for jumping and hunting
+	public String titleImage = "title.png";                 // title.jpg - shown on browse page
+	public String bannerImage = "banner.png";               // banner.jpg - shown on detail page
 
 	public String releaseDate = "Unknown";                  // 2001-05
 
@@ -58,6 +61,12 @@ public class GameType {
 		));
 	}
 
+	public Path slugPath(Path root) {
+		String game = Util.slug(this.game);
+		String name = Util.slug(this.name);
+		return root.resolve(game).resolve(subGrouping()).resolve(name);
+	}
+
 	/**
 	 * Grouping for pagination and directory partitioning.
 	 * <p>
@@ -72,6 +81,11 @@ public class GameType {
 	}
 
 	@Override
+	public int compareTo(@NotNull GameType o) {
+		return name.compareTo(o.name);
+	}
+
+	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (!(o instanceof GameType)) return false;
@@ -83,6 +97,8 @@ public class GameType {
 			   Objects.equals(name, gameType.name) &&
 			   Objects.equals(author, gameType.author) &&
 			   Objects.equals(description, gameType.description) &&
+			   Objects.equals(titleImage, gameType.titleImage) &&
+			   Objects.equals(bannerImage, gameType.bannerImage) &&
 			   Objects.equals(releaseDate, gameType.releaseDate) &&
 			   Objects.equals(links, gameType.links) &&
 			   Objects.equals(credits, gameType.credits) &&
@@ -91,7 +107,8 @@ public class GameType {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(contentType, addedDate, game, name, author, description, releaseDate, links, credits, releases, deleted);
+		return Objects.hash(contentType, addedDate, game, name, author, description, titleImage, bannerImage, releaseDate, links, credits,
+							releases, deleted);
 	}
 
 	/**

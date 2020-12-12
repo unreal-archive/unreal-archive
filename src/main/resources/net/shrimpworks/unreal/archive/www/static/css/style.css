@@ -135,7 +135,7 @@ header {
 
 footer {
 	padding: 20px 0;
-	border-top: 4px solid var(--footer-border-color);
+	/*border-top: 4px solid var(--footer-border-color);*/
 
 	position: absolute;
 	bottom: 0;
@@ -308,12 +308,12 @@ section.header h1 a:hover {
 	right: 0;
 	padding: 10px;
 
-	background-color: rgba(255, 255, 255, 0);
+	border-radius: 5px;
 }
 
 .biglist ul li a:hover {
-	background-color: var(--biglist-bg-color-hover);
-	transition: all	0.2s;
+	background: linear-gradient(0deg, var(--biglist-bg-color-hover) 0%, #00000000 100%);
+	border-radius: 5px;
 }
 
 .biglist ul li .meta {
@@ -359,6 +359,17 @@ article.info {
 	grid-template-columns: auto 310px;
 	grid-template-rows: auto auto;
 	grid-template-areas: 'info screenshots';
+	grid-column-gap: 10px;
+	align-content: start;
+}
+
+article.info-side {
+	margin-top: 10px;
+
+	display: grid;
+	grid-template-columns: auto 500px;
+	grid-template-rows: auto auto;
+	grid-template-areas: 'info side';
 	grid-column-gap: 10px;
 	align-content: start;
 }

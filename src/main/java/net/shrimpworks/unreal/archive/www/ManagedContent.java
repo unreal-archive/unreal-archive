@@ -104,6 +104,7 @@ public class ManagedContent implements PageGenerator {
 				grp = grp.parent;
 			}
 
+			// copy content of directory to www output
 			final Path path = Files.createDirectories(content.path);
 			final Path docRoot = this.content.contentRoot(content.managed);
 			Util.copyTree(docRoot, path);
