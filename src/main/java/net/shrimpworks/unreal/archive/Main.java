@@ -567,7 +567,7 @@ public class Main {
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("gametypes"))) {
 			// generate updates pages
 			System.out.println("Generating GameType pages");
-			allPages.addAll(new GameTypes(gameTypeManager, outputPath, staticOutput, features).generate());
+			allPages.addAll(new GameTypes(gameTypeManager, contentManager, outputPath, staticOutput, features).generate());
 		}
 
 		// generate index

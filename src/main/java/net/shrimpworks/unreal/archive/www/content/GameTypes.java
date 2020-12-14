@@ -5,6 +5,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import net.shrimpworks.unreal.archive.Util;
+import net.shrimpworks.unreal.archive.content.Content;
+import net.shrimpworks.unreal.archive.content.ContentManager;
 import net.shrimpworks.unreal.archive.content.GameTypeManager;
 import net.shrimpworks.unreal.archive.content.gametypes.GameType;
 import net.shrimpworks.unreal.archive.www.PageGenerator;
@@ -28,6 +31,7 @@ public class GameTypes implements PageGenerator {
 	private static final Set<String> IMGS = Set.of("png", "bmp", "gif", "jpg", "jpeg");
 
 	private final GameTypeManager gametypes;
+	private final ContentManager content;
 	private final Path siteRoot;
 	private final Path root;
 	private final Path staticRoot;
@@ -35,8 +39,10 @@ public class GameTypes implements PageGenerator {
 
 	private final Map<String, Game> games;
 
-	public GameTypes(GameTypeManager gametypes, Path root, Path staticRoot, SiteFeatures features) {
+	public GameTypes(GameTypeManager gametypes, ContentManager content, Path root, Path staticRoot,
+					 SiteFeatures features) {
 		this.gametypes = gametypes;
+		this.content = content;
 		this.siteRoot = root;
 		this.root = root.resolve(slug("gametypes"));
 		this.staticRoot = staticRoot;
@@ -101,7 +107,23 @@ public class GameTypes implements PageGenerator {
 				 .put("gametype", gametype)
 				 .put("page", page)
 				 .write(outPath.resolve("index.html"));
+
+			for (GameType.Release release : gametype.gametype.releases) {
+				generateRelease(pages, gametype, release, outPath.resolve(slug(release.title)));
+			}
 		}
+	}
+
+	private void generateRelease(Templates.PageSet pages, GameTypeInfo gametype, GameType.Release release, Path path)
+			throws IOException {
+
+		final Path outPath = Files.isDirectory(path) ? path : Files.createDirectories(path);
+
+		pages.add("release.ftl", SiteMap.Page.monthly(0.9f),
+				  String.join(" / ", SECTION, gametype.gametype.game, gametype.gametype.name, release.title))
+			 .put("gametype", gametype)
+			 .put("release", release)
+			 .write(outPath.resolve("index.html"));
 	}
 
 	public class Game {
@@ -137,12 +159,29 @@ public class GameTypes implements PageGenerator {
 
 		public final List<String> gallery;
 
+		public final Map<String, Map<String, Integer>> filesAlsoIn;
+
 		public GameTypeInfo(GameType gametype, Game game) {
 			this.gametype = gametype;
 			this.game = game;
 
 			this.slug = slug(gametype.name);
 			this.path = gametype.slugPath(root);
+
+			this.filesAlsoIn = new HashMap<>();
+
+			for (GameType.Release release : gametype.releases) {
+				for (GameType.ReleaseFile file : release.files) {
+					if (file.deleted) continue;
+					Map<String, Integer> fileMap = filesAlsoIn.computeIfAbsent(slug(file.originalFilename), s -> new HashMap<>());
+					for (Content.ContentFile cf : file.files) {
+						Collection<Content> containing = content.containingFile(cf.hash);
+						if (!containing.isEmpty()) {
+							fileMap.put(cf.hash, containing.size());
+						}
+					}
+				}
+			}
 
 			this.gallery = new ArrayList<>();
 			try {

@@ -160,7 +160,7 @@ public class GameType implements Comparable<GameType> {
 
 		public String originalFilename;             // dm-mymap.zip
 		public String hash;
-		public long fileSize = 0;                    // filesize, we'll determine when synced
+		public long fileSize = 0;                   // filesize, we'll determine when synced
 		public boolean synced = false;              // if false, localFile will be uploaded and turned into a download upon sync
 		public boolean deleted = false;             // if deleted, prevents from syncing and will not publish
 

@@ -56,9 +56,9 @@
 	</#if>
 </#macro>
 
-<#macro meta title labels values styles={}>
+<#macro meta title labels values styles={} h="h2">
 	<section class="meta">
-		<h2><img src="${staticPath()}/images/icons/info.svg" alt="Info"/>${title}</h2>
+		<${h}><img src="${staticPath()}/images/icons/info.svg" alt="Info"/>${title}</${h}>
 		<#list labels as l>
 			<#if values[l?index]??>
 				<div class="label-value <#if styles[l?index?string]??>${styles[l?index?string]}</#if>">
@@ -69,9 +69,9 @@
 	</section>
 </#macro>
 
-<#macro files files alsoIn otherFiles>
+<#macro files files alsoIn otherFiles h="h2">
 	<section class="files">
-		<h2><img src="${staticPath()}/images/icons/package.svg" alt="Files"/>Packaged Files</h2>
+		<${h}><img src="${staticPath()}/images/icons/package.svg" alt="Files"/>Packaged Files</${h}>
 		<table>
 			<thead>
 			<tr>
@@ -108,9 +108,9 @@
 	</section>
 </#macro>
 
-<#macro downloads downloads>
+<#macro downloads downloads h="h2">
 	<section class="downloads">
-		<h2><img src="${staticPath()}/images/icons/download.svg" alt="Download"/> Downloads</h2>
+		<${h}><img src="${staticPath()}/images/icons/download.svg" alt="Download"/> Downloads</${h}>
 		<div class="links">
 			<#list downloads as d>
 				<#if d.state == 'OK'>
@@ -141,10 +141,10 @@
 	</section>
 </#macro>
 
-<#macro dependencies deps>
+<#macro dependencies deps h="h2">
 	<#if deps?size gt 0>
 		<section class="dependencies">
-			<h2><img src="${staticPath()}/images/icons/file-check.svg" alt="Required Files"/> Required Files</h2>
+			<${h}><img src="${staticPath()}/images/icons/file-check.svg" alt="Required Files"/> Required Files</${h}>
 			<table>
 				<thead>
 				<tr>

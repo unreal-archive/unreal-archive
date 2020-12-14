@@ -151,6 +151,7 @@ public class Templates {
 			TPL_VARS.put("dateFmt", new FormatLocalDateMethod(false));
 			TPL_VARS.put("dateFmtShort", new FormatLocalDateMethod(true));
 			TPL_VARS.put("trunc", new TruncateStringMethod());
+			TPL_VARS.put("slug", new SlugMethod());
 			TPL_VARS.put("siteName", SITE_NAME);
 			TPL_VARS.put("siteUrl", SITE_URL);
 			TPL_VARS.put("dataProjectUrl", DATA_PROJECT_URL);
@@ -268,6 +269,16 @@ public class Templates {
 					: string.substring(0, Math.min(maxLength, string.length())) + ELLIPSIS;
 
 			return string;
+		}
+	}
+
+	private static class SlugMethod implements TemplateMethodModelEx {
+
+		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
+			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a string");
+
+			String string = args.get(0).toString();
+			return Util.slug(string);
 		}
 	}
 

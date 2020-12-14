@@ -65,7 +65,7 @@
 	--document-meta-bg: #202023;
 }
 
-h2 img[src$="svg"] {
+h2 img[src$="svg"], h3 img[src$="svg"] {
 	filter: invert(0.85);
 }
 

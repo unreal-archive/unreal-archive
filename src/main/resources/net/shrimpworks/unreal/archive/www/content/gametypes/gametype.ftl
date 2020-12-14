@@ -16,8 +16,8 @@
 			/ ${gametype.gametype.name}
 	</@heading>
 
-	<@content class="info-side">
-		<div class="info">
+	<@content class="split split6040">
+		<div class="left">
 			<section>
 				<h2><img src="${staticPath()}/images/icons/info.svg" alt="About"/>About</h2>
 				<div class="readable">${page?no_esc}</div>
@@ -51,7 +51,7 @@
 			</#if>
 		</div>
 
-		<div class="side">
+		<div class="right">
 			<section>
 				<h2><img src="${staticPath()}/images/icons/info.svg" alt="Information"/>Information</h2>
 				<div class="label-value">
@@ -74,42 +74,34 @@
 					</span>
 					</div>
 				</#if>
-<#--			<#if gametype.gametype.homepage??>-->
-<#--				<div class="label-value">-->
-<#--					<label> </label><span><a href="${gametype.gametype.homepage}">Homepage</a></span>-->
-<#--				</div>-->
-<#--			</#if>-->
-<#--			<div class="label-value">-->
-<#--				<label>Date Added</label><span>${gametype.gametype.createdDate}</span>-->
-<#--			</div>-->
-<#--			<div class="label-value">-->
-<#--				<label>Last Updated</label><span>${gametype.gametype.updatedDate}</span>-->
-<#--			</div>-->
-
-<#--			<section class="downloads">-->
-<#--				<h2><img src="${staticPath()}/images/icons/download.svg" alt="Downloads"/> Downloads</h2>-->
-<#--				<#list gametype.gametype.downloads as d>-->
-<#--					<#if !d.deleted && d.downloads?size gt 0>-->
-<#--						<div class="download">-->
-<#--							<div class="title">-->
-<#--								<img src="${staticPath()}/images/icons/os-${d.platform?lower_case}.svg" title="${d.platform}" alt="${d.platform}"/>-->
-<#--								${d.title} ver ${d.version}-->
-<#--							</div>-->
-<#--							<div class="info">-->
-<#--								<div>${fileName(d.localFile)}</div>-->
-<#--								<div>${fileSize(d.fileSize)}</div>-->
-<#--								<div>${d.description}</div>-->
-<#--							</div>-->
-<#--							<div class="links">-->
-<#--								<#list d.downloads as l>-->
-<#--									<a href="${urlEncode(l)}">${urlHost(l)}</a>-->
-<#--								</#list>-->
-<#--							</div>-->
-<#--						</div>-->
-<#--					</#if>-->
-<#--				</#list>-->
-<#--			</section>-->
 			</section>
+
+			<section class="releases">
+				<h2><img src="${staticPath()}/images/icons/download.svg" alt="Releases"/>Releases</h2>
+				<#list gametype.gametype.releases as r>
+					<#if !r.deleted && r.files?size gt 0>
+						<div class="release">
+							<div class="title">
+								${r.title} ver ${r.version}
+							</div>
+							<div class="info">
+								<div>Released: ${r.releaseDate}</div>
+								<div>${r.description}</div>
+							</div>
+							<div class="links">
+								<a href="${slug(r.title)}/index.html">${r.files?size} Download<#if r.files?size gt 1>s</#if></a>
+							</div>
+						</div>
+					</#if>
+				</#list>
+			</section>
+
+			<@ghIssue
+        text="Report a problem"
+        repoUrl="${dataProjectUrl}"
+        title="[GameType] ${gametype.gametype.name}"
+        hash="None"
+        name="${gametype.gametype.name}"/>
 		</div>
 
 	</@content>
