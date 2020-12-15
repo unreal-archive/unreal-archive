@@ -407,12 +407,20 @@ section.gallery div {
 }
 
 section.gallery .thumb {
-	width: 329px;
-	margin: 5px 2px 0;
+	width: 343px;
+	margin: 4px 3px 0;
 }
 
 article.info .info {
 	grid-area: info;
+}
+
+article.split img {
+	max-width: 100%;
+}
+
+article.split img.full {
+	width: 100%;
 }
 
 section.downloads .links a {
@@ -609,6 +617,7 @@ section.latest table td {
 }
 
 section.report {
+	margin-top: 40px;
 	text-align: center;
 }
 

@@ -20,6 +20,9 @@
 		<div class="left">
 			<section>
 				<h2><img src="${staticPath()}/images/icons/info.svg" alt="About"/>About</h2>
+				<#if gametype.gametype.titleImage?? && gametype.gametype.titleImage?length gt 0>
+					<img src="${relPath(gametype.path + "/" + gametype.gametype.titleImage)}" class="full"/>
+				</#if>
 				<div class="readable">${page?no_esc}</div>
 			</section>
 
@@ -27,9 +30,7 @@
 				<section class="gallery">
 					<h2><img src="${staticPath()}/images/icons/image.svg" alt="Screenshots"/>Screenshots</h2>
 					<div>
-						<#list gametype.gallery as img>
-							<img src="${img}" alt="screenshot" class="thumb"/>
-						</#list>
+						<#list gametype.gallery as img><a href="${img}"><img src="${img}" alt="screenshot" class="thumb"/></a></#list>
 					</div>
 				</section>
       </#if>

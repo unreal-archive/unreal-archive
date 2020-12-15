@@ -131,8 +131,6 @@ public class GameTypeManager {
 	}
 
 	public void sync(ContentManager content, DataStore contentStore) throws IOException {
-		System.out.println(YAML.toString(gameTypes.stream().map(e -> e.gametype).collect(Collectors.toList())));
-
 		syncReleases(contentStore);
 	}
 
