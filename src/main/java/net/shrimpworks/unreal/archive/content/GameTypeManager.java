@@ -120,7 +120,7 @@ public class GameTypeManager {
 		}
 
 		if (!Files.exists(md)) {
-			Files.copy(getClass().getResourceAsStream("template.md"), md);
+			Files.copy(GameType.class.getResourceAsStream("template.md"), md);
 		}
 
 		return path;

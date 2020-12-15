@@ -1,5 +1,7 @@
 package net.shrimpworks.unreal.archive.www.content;
 
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
@@ -11,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.imageio.ImageIO;
 
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.content.Content;
@@ -29,6 +32,7 @@ public class GameTypes implements PageGenerator {
 	private static final String SECTION = "Game Types & Mods";
 
 	private static final Set<String> IMGS = Set.of("png", "bmp", "gif", "jpg", "jpeg");
+	private static final int THUMB_WIDTH = 350;
 
 	private final GameTypeManager gametypes;
 	private final ContentManager content;
@@ -100,6 +104,9 @@ public class GameTypes implements PageGenerator {
 			// copy contents to output directory
 			Util.copyTree(sourcePath, outPath);
 
+			// create gallery thumbnails
+			gametype.buildGallery();
+
 			final String page = Templates.renderMarkdown(docChan);
 
 			pages.add("gametype.ftl", SiteMap.Page.weekly(0.97f),
@@ -157,7 +164,7 @@ public class GameTypes implements PageGenerator {
 		public final String slug;
 		public final Path path;
 
-		public final List<String> gallery;
+		public final Map<String, String> gallery; // map of { image -> thumbnail }
 
 		public final Map<String, Map<String, Integer>> filesAlsoIn;
 
@@ -183,16 +190,42 @@ public class GameTypes implements PageGenerator {
 				}
 			}
 
-			this.gallery = new ArrayList<>();
+			this.gallery = new HashMap<>();
+		}
+
+		protected void buildGallery() {
 			try {
 				Path gametypePath = gametypes.path(gametype).getParent().toAbsolutePath();
-				this.gallery.addAll(Files.list(gametypePath.resolve("gallery"))
+				this.gallery.putAll(Files.list(gametypePath.resolve("gallery"))
 										 .filter(f -> Files.isRegularFile(f) && IMGS.contains(Util.extension(f).toLowerCase()))
-										 .map(f -> gametypePath.relativize(f).toString())
-										 .collect(Collectors.toList()));
+										 .collect(Collectors.toMap(f -> gametypePath.relativize(f).toString(), f -> {
+											 try {
+												 Path thumb = makeThumb(f, path.resolve("gallery"), THUMB_WIDTH);
+												 return path.relativize(thumb).toString();
+											 } catch (Exception e) {
+												 return "";
+											 }
+										 })));
 			} catch (IOException e) {
 				// pass
 			}
+		}
+
+		private Path makeThumb(Path source, Path dest, int width) throws IOException {
+			Path thumbPath = dest.resolve("t_" + Util.fileName(source));
+			if (Files.exists(thumbPath)) return thumbPath;
+
+			BufferedImage image = ImageIO.read(source.toFile());
+			double scale = (double)width / image.getWidth();
+			BufferedImage thumb = new BufferedImage((int)(image.getWidth() * scale),
+													(int)(image.getHeight() * scale),
+													BufferedImage.TYPE_INT_RGB);
+			Graphics2D graphics = thumb.createGraphics();
+			graphics.drawImage(image.getScaledInstance(thumb.getWidth(), thumb.getHeight(), Image.SCALE_FAST), 0, 0, null);
+
+			ImageIO.write(thumb, Util.extension(source), thumbPath.toFile());
+
+			return thumbPath;
 		}
 	}
 }

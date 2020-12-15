@@ -30,7 +30,7 @@
 				<section class="gallery">
 					<h2><img src="${staticPath()}/images/icons/image.svg" alt="Screenshots"/>Screenshots</h2>
 					<div>
-						<#list gametype.gallery as img><a href="${img}"><img src="${img}" alt="screenshot" class="thumb"/></a></#list>
+						<#list gametype.gallery as img, thumb><a href="${img}"><img src="${thumb}" alt="screenshot" class="thumb"/></a></#list>
 					</div>
 				</section>
       </#if>
