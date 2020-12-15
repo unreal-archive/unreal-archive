@@ -572,19 +572,21 @@ public class Main {
 
 		// generate index
 		System.out.println("Generating index page");
-		allPages.addAll(new Index(contentManager, documentManager, updates, outputPath, staticOutput, features).generate());
+		allPages.addAll(
+				new Index(contentManager, gameTypeManager, documentManager, updates, outputPath, staticOutput, features).generate()
+		);
 
-		if (withSubmit) {
+		if (features.submit) {
 			System.out.println("Generating submit page");
 			allPages.addAll(new Submit(outputPath, staticOutput, features).generate());
 		}
 
-		if (withSearch) {
+		if (features.search) {
 			System.out.println("Generating search page");
 			allPages.addAll(new Search(outputPath, staticOutput, features).generate());
 		}
 
-		if (withLatest) {
+		if (features.latest) {
 			System.out.println("Generating latest files");
 			allPages.addAll(new Latest(contentManager, outputPath, staticOutput, features).generate());
 		}

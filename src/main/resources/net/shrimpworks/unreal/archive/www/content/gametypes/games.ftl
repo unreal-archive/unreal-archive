@@ -1,5 +1,5 @@
 <#assign ogDescription="GameTypes and mods for Unreal, Unreal Tournament, and Unreal Tournament 2004">
-<#assign ogImage="${staticPath()}/images/contents/mappacks.png">
+<#assign ogImage="${staticPath()}/images/contents/mods.png">
 
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">

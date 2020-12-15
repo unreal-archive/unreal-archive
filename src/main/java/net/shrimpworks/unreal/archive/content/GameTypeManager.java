@@ -164,11 +164,10 @@ public class GameTypeManager {
 				if (!Files.exists(f)) throw new IllegalArgumentException(String.format("Local file %s not found!", r.localFile));
 
 				// populate files and dependencies
-				try {
+				try (Incoming incoming = new Incoming(new Submission(f))) {
 					System.out.println(" - get file details for " + f.getFileName());
 
 					// reuse Incoming implementation, capable of unpacking various files and formats
-					Incoming incoming = new Incoming(new Submission(f));
 					incoming.prepare();
 
 					// gather files

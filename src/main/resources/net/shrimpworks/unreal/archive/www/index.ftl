@@ -14,9 +14,9 @@
 			<span class="meta">${count.Updates}</span>
 			<a href="patches-updates/index.html">Patches & Updates</a>
 		</li>
-		<li>
-			<span class="meta">coming soon</span>
-			<a href="#">Game Types</a>
+		<li style='background-image: url("${staticPath()}/images/contents/mods.png")'>
+			<span class="meta">${count.GameTypes}</span>
+			<a href="gametypes/index.html">Game Types &amp; Mods</a>
 		</li>
 		<li style='background-image: url("${staticPath()}/images/contents/maps.png")'>
 			<span class="meta">${count.Map}</span>

@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import net.shrimpworks.unreal.archive.content.ContentManager;
+import net.shrimpworks.unreal.archive.content.GameTypeManager;
 import net.shrimpworks.unreal.archive.docs.DocumentManager;
 import net.shrimpworks.unreal.archive.managed.ManagedContentManager;
 
@@ -14,13 +15,15 @@ public class Index implements PageGenerator {
 	private final DocumentManager documents;
 	private final ManagedContentManager updates;
 	private final ContentManager content;
+	private final GameTypeManager gametypes;
 	private final Path root;
 	private final Path staticRoot;
 	private final SiteFeatures features;
 
-	public Index(ContentManager content, DocumentManager documents, ManagedContentManager updates, Path output, Path staticRoot,
-				 SiteFeatures features) {
+	public Index(ContentManager content, GameTypeManager gametypes, DocumentManager documents, ManagedContentManager updates,
+				 Path output, Path staticRoot, SiteFeatures features) {
 		this.content = content;
+		this.gametypes = gametypes;
 		this.documents = documents;
 		this.updates = updates;
 
@@ -35,6 +38,7 @@ public class Index implements PageGenerator {
 		content.countByType().forEach((k, v) -> contentCount.put(k.getSimpleName(), v));
 		contentCount.put("Documents", documents.all().stream().filter(d -> d.published).count());
 		contentCount.put("Updates", updates.all().stream().filter(d -> d.published).count());
+		contentCount.put("GameTypes", gametypes.all().stream().filter(d -> !d.deleted).count());
 
 		Templates.PageSet pages = new Templates.PageSet("", features, root, staticRoot, root);
 
