@@ -231,6 +231,18 @@ header .header img {
 	padding: 0;
 }
 
+.readable blockquote {
+	background-color: var(--document-meta-bg);
+	border-left: 4px solid var(--table-header-bg);
+	padding: 10px 20px;
+	font-style: italic;
+}
+
+.readable blockquote p {
+	padding: 0;
+	margin: 0;
+}
+
 section.intro h1 {
 	margin: 0;
 }

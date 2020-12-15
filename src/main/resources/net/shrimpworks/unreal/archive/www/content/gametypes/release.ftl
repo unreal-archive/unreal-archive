@@ -94,30 +94,6 @@
           name="${gametype.gametype.name}"/>
 
 			</section>
-
-        <#--			<section class="downloads">-->
-<#--				<h2><img src="${staticPath()}/images/icons/download.svg" alt="Downloads"/> Downloads</h2>-->
-<#--          <#list release.files as f>-->
-<#--              <#if !f.deleted>-->
-<#--								<div class="download">-->
-<#--									<div class="title">-->
-<#--										<img src="${staticPath()}/images/icons/os-${f.platform?lower_case}.svg" title="${f.platform}" alt="${f.platform}"/>-->
-<#--                      ${f.title} ver ${f.version}-->
-<#--									</div>-->
-<#--									<div class="info">-->
-<#--										<div>${fileName(f.localFile)}</div>-->
-<#--										<div>${fileSize(f.fileSize)}</div>-->
-<#--										<div>${f.description}</div>-->
-<#--									</div>-->
-<#--									<div class="links">-->
-<#--                      <#list f.downloads as l>-->
-<#--												<a href="${urlEncode(l)}">${urlHost(l)}</a>-->
-<#--                      </#list>-->
-<#--									</div>-->
-<#--								</div>-->
-<#--              </#if>-->
-<#--          </#list>-->
-			</section>
 		</div>
 	</@content>
 

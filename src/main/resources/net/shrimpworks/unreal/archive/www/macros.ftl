@@ -70,42 +70,44 @@
 </#macro>
 
 <#macro files files alsoIn otherFiles h="h2">
-	<section class="files">
-		<${h}><img src="${staticPath()}/images/icons/package.svg" alt="Files"/>Packaged Files</${h}>
-		<table>
-			<thead>
-			<tr>
-				<th>Name</th>
-				<th>Size</th>
-				<th class="nomobile">Hash</th>
-				<th>Also In</th>
-			</tr>
-			</thead>
-			<tbody>
-			<#list files as f>
+	<#if files?size gt 0>
+		<section class="files">
+			<${h}><img src="${staticPath()}/images/icons/package.svg" alt="Files"/>Packaged Files</${h}>
+			<table>
+				<thead>
 				<tr>
-					<td>${f.name}</td>
-					<td>${fileSize(f.fileSize)}</td>
-					<td class="nomobile">${f.hash}</td>
-					<#if alsoIn[f.hash]??>
-						<td>
-							<a href="${relPath(siteRoot + "/files/" + f.hash[0..1] + "/" + f.hash + ".html")}">${alsoIn[f.hash]}</a>
-						</td>
-					<#else>
-						<td>-</td>
-					</#if>
+					<th>Name</th>
+					<th>Size</th>
+					<th class="nomobile">Hash</th>
+					<th>Also In</th>
 				</tr>
-			</#list>
-			</tbody>
-		</table>
-		<#if otherFiles gt 0>
-			<div class="otherFiles">
-				<div class="label-value">
-					<label>Misc Files</label><span>${otherFiles}</span>
+				</thead>
+				<tbody>
+				<#list files as f>
+					<tr>
+						<td>${f.name}</td>
+						<td>${fileSize(f.fileSize)}</td>
+						<td class="nomobile">${f.hash}</td>
+						<#if alsoIn[f.hash]??>
+							<td>
+								<a href="${relPath(siteRoot + "/files/" + f.hash[0..1] + "/" + f.hash + ".html")}">${alsoIn[f.hash]}</a>
+							</td>
+						<#else>
+							<td>-</td>
+						</#if>
+					</tr>
+				</#list>
+				</tbody>
+			</table>
+			<#if otherFiles gt 0>
+				<div class="otherFiles">
+					<div class="label-value">
+						<label>Misc Files</label><span>${otherFiles}</span>
+					</div>
 				</div>
-			</div>
-		</#if>
-	</section>
+			</#if>
+		</section>
+	</#if>
 </#macro>
 
 <#macro downloads downloads h="h2">
