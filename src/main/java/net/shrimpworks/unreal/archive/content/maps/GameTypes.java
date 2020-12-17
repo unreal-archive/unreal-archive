@@ -44,7 +44,9 @@ public class GameTypes {
 			new GameType("Red Orchestra", "RO-"),
 			new GameType("Fraghouse Invasion", "FHI"),
 			new GameType("SoldatUT", "2DDM", "2DDOM", "2DONS", "2DCTF", "2DBR"),
-			new GameType("Dodge Professional Modification", "DPM")
+			new GameType("Dodge Professional Modification", "DPM"),
+			new GameType("Scavenger Hunt", "SH"),
+			new GameType("Smashdroids", "SD")
 	);
 
 	public static GameType forMap(String mapName) {
