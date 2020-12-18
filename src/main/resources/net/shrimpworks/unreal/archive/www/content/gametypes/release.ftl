@@ -13,7 +13,10 @@
 	<@heading bg=[headerbg]>
 		<a href="${relPath(sectionPath + "/index.html")}">Game Types &amp; Mods</a>
 			/ <a href="${relPath(gametype.game.path + "/index.html")}">${gametype.game.name}</a>
-			/ <a href="../index.html">${gametype.gametype.name}</a>
+      <#if gametype.variationOf??>
+				/ <a href="../../index.html">${gametype.variationOf.name}</a>
+      </#if>
+		  / <a href="../index.html">${gametype.gametype.name}</a>
 			/ ${release.title} (${release.version})
 	</@heading>
 

@@ -37,17 +37,27 @@ public class GameTypeManager {
 		this.gameTypes = new HashSet<>();
 		this.contentFileMap = new HashMap<>();
 
-		try (Stream<Path> files = Files.walk(path).parallel().filter(file -> Util.extension(file).equalsIgnoreCase("yml"))) {
+		scanPath(path, null);
+	}
+
+	private void scanPath(Path root, GameTypeHolder parent) throws IOException {
+		try (Stream<Path> files = Files.find(root, 3, (file, attr) -> Util.extension(file).equalsIgnoreCase("yml")).parallel()) {
 			files.forEach(file -> {
 				try {
 					GameType g = YAML.fromFile(file, GameType.class);
-					gameTypes.add(new GameTypeHolder(file, g));
+					GameTypeHolder holder = new GameTypeHolder(file, g, parent);
+					gameTypes.add(holder);
 
 					// while reading this content, also index its individual files for later quick lookup
 					g.releases.stream().flatMap(r -> r.files.stream()).flatMap(f -> f.files.stream()).forEach(f -> {
 						Collection<GameType> fileSet = contentFileMap.computeIfAbsent(f.hash, h -> ConcurrentHashMap.newKeySet());
 						fileSet.add(g);
 					});
+
+					Path variations = file.resolveSibling("variations");
+					if (Files.isDirectory(variations)) {
+						scanPath(variations, holder);
+					}
 				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}
@@ -60,11 +70,26 @@ public class GameTypeManager {
 	}
 
 	public Set<GameType> all() {
-		return gameTypes.stream().filter(g -> !g.gametype.deleted).map(g -> g.gametype).collect(Collectors.toSet());
+		return gameTypes.stream()
+						.filter(g -> g.variationOf == null)
+						.filter(g -> !g.gametype.deleted)
+						.map(g -> g.gametype)
+						.collect(Collectors.toSet());
+	}
+
+	public Set<GameType> variations(GameType gameType) {
+		return gameTypes.stream()
+						.filter(g -> g.variationOf != null && g.variationOf.gametype.equals(gameType))
+						.filter(g -> !g.gametype.deleted)
+						.map(g -> g.gametype)
+						.collect(Collectors.toSet());
 	}
 
 	public Path path(GameType gameType) {
-		return gameTypes.stream().filter(g -> gameType.equals(g.gametype)).findFirst().get().path;
+		return gameTypes.stream()
+						.filter(g -> gameType.equals(g.gametype))
+						.findFirst()
+						.get().path;
 	}
 
 	/**
@@ -238,10 +263,17 @@ public class GameTypeManager {
 
 		private final Path path;
 		private final GameType gametype;
+		private final GameTypeHolder variationOf;
 
 		public GameTypeHolder(Path path, GameType gametype) {
+			this(path, gametype, null);
+		}
+
+		public GameTypeHolder(Path path, GameType gametype, GameTypeHolder variationOf) {
 			this.path = path;
 			this.gametype = gametype;
+			this.variationOf = variationOf;
 		}
+
 	}
 }

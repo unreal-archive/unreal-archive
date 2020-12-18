@@ -652,6 +652,18 @@ button img {
 	font-weight: normal;
 }
 
+.variations .variation {
+	padding: 5px 20px;
+}
+
+.variations .variation:hover {
+	background-color: var(--table-row-hover);
+}
+
+.variations .variation img {
+	vertical-align: middle;
+}
+
 section.releases .release {
 	padding-bottom: 10px;
 }

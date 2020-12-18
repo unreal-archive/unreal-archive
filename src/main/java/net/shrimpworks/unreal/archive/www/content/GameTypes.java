@@ -56,10 +56,9 @@ public class GameTypes implements PageGenerator {
 
 		gametypes.all().stream()
 				 .sorted()
-				 .collect(Collectors.toList())
 				 .forEach(d -> {
 					 Game game = games.computeIfAbsent(d.game, Game::new);
-					 game.add(d);
+					 game.add(d, gametypes.variations(d).stream().sorted().collect(Collectors.toList()));
 				 });
 	}
 
@@ -91,8 +90,12 @@ public class GameTypes implements PageGenerator {
 			 .put("game", game)
 			 .write(game.path.resolve("index.html"));
 
-		for (GameTypeInfo d : game.gametypes) {
-			generateGameType(pages, d);
+		for (GameTypeInfo g : game.gametypes) {
+			generateGameType(pages, g);
+
+			for (GameTypeInfo v : g.variations) {
+				generateGameType(pages, v);
+			}
 		}
 	}
 
@@ -150,8 +153,10 @@ public class GameTypes implements PageGenerator {
 			this.count = 0;
 		}
 
-		public void add(GameType g) {
-			gametypes.add(new GameTypeInfo(g, this));
+		public void add(GameType g, List<GameType> variations) {
+			gametypes.add(new GameTypeInfo(g, this, variations.stream()
+															  .map(v -> new GameTypeInfo(v, this, g))
+															  .collect(Collectors.toList())));
 			this.count++;
 		}
 	}
@@ -160,6 +165,8 @@ public class GameTypes implements PageGenerator {
 
 		public final GameType gametype;
 		public final Game game;
+		public final GameType variationOf;
+		public final List<GameTypeInfo> variations;
 
 		public final String slug;
 		public final Path path;
@@ -168,12 +175,24 @@ public class GameTypes implements PageGenerator {
 
 		public final Map<String, Map<String, Integer>> filesAlsoIn;
 
-		public GameTypeInfo(GameType gametype, Game game) {
+		public GameTypeInfo(GameType gametype, Game game, List<GameTypeInfo> variations) {
+			this(gametype, game, null, variations);
+		}
+
+		public GameTypeInfo(GameType gametype, Game game, GameType variationOf) {
+			this(gametype, game, variationOf, List.of());
+		}
+
+		public GameTypeInfo(GameType gametype, Game game, GameType variationOf, List<GameTypeInfo> variations) {
 			this.gametype = gametype;
 			this.game = game;
 
 			this.slug = slug(gametype.name);
-			this.path = gametype.slugPath(root);
+			this.path = variationOf == null
+					? gametype.slugPath(root)
+					: variationOf.slugPath(root).resolve(Util.slug(gametype.name));
+			this.variationOf = variationOf;
+			this.variations = variations;
 
 			this.filesAlsoIn = new HashMap<>();
 
