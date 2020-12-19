@@ -46,7 +46,9 @@ public class GameTypes {
 			new GameType("SoldatUT", "2DDM", "2DDOM", "2DONS", "2DCTF", "2DBR"),
 			new GameType("Dodge Professional Modification", "DPM"),
 			new GameType("Scavenger Hunt", "SH"),
-			new GameType("Smashdroids", "SD")
+			new GameType("Smashdroids", "SD"),
+			new GameType("ChaosUT", "KOTH", "DM-CUT", "CTF-CUT", "DOM-CUT"),
+			new GameType("Funnel", "FN")
 	);
 
 	public static GameType forMap(String mapName) {
