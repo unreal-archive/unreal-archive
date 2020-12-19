@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -209,7 +210,7 @@ public class GameTypes implements PageGenerator {
 				}
 			}
 
-			this.gallery = new HashMap<>();
+			this.gallery = new LinkedHashMap<>();
 		}
 
 		protected void buildGallery() {
@@ -217,6 +218,7 @@ public class GameTypes implements PageGenerator {
 				Path gametypePath = gametypes.path(gametype).getParent().toAbsolutePath();
 				this.gallery.putAll(Files.list(gametypePath.resolve("gallery"))
 										 .filter(f -> Files.isRegularFile(f) && IMGS.contains(Util.extension(f).toLowerCase()))
+										 .sorted()
 										 .collect(Collectors.toMap(f -> gametypePath.relativize(f).toString(), f -> {
 											 try {
 												 Path thumb = makeThumb(f, path.resolve("gallery"), THUMB_WIDTH);
@@ -224,7 +226,7 @@ public class GameTypes implements PageGenerator {
 											 } catch (Exception e) {
 												 return "";
 											 }
-										 })));
+										 }, (k, v) -> v, () -> new LinkedHashMap<>())));
 			} catch (IOException e) {
 				// pass
 			}
@@ -240,7 +242,7 @@ public class GameTypes implements PageGenerator {
 													(int)(image.getHeight() * scale),
 													BufferedImage.TYPE_INT_RGB);
 			Graphics2D graphics = thumb.createGraphics();
-			graphics.drawImage(image.getScaledInstance(thumb.getWidth(), thumb.getHeight(), Image.SCALE_FAST), 0, 0, null);
+			graphics.drawImage(image.getScaledInstance(thumb.getWidth(), thumb.getHeight(), Image.SCALE_SMOOTH), 0, 0, null);
 
 			ImageIO.write(thumb, Util.extension(source), thumbPath.toFile());
 
