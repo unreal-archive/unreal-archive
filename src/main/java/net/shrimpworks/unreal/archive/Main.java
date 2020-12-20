@@ -6,13 +6,11 @@ import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SeekableByteChannel;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.nio.file.attribute.FileTime;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -29,11 +27,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import net.shrimpworks.unreal.archive.content.Content;
+import net.shrimpworks.unreal.archive.content.ContentEditor;
 import net.shrimpworks.unreal.archive.content.ContentManager;
 import net.shrimpworks.unreal.archive.content.ContentType;
 import net.shrimpworks.unreal.archive.content.GameTypeManager;
 import net.shrimpworks.unreal.archive.content.Games;
-import net.shrimpworks.unreal.archive.content.IndexResult;
 import net.shrimpworks.unreal.archive.content.Indexer;
 import net.shrimpworks.unreal.archive.content.Scanner;
 import net.shrimpworks.unreal.archive.docs.DocumentManager;
@@ -80,7 +78,7 @@ public class Main {
 	private static final String CONTENT_URL = System.getenv().getOrDefault("UA_CONTENT_URL",
 																		   "https://github.com/unreal-archive/unreal-archive-data/archive/master.zip");
 
-	public static void main(String[] args) throws IOException, InterruptedException {
+	public static void main(String[] args) throws IOException, InterruptedException, ReflectiveOperationException {
 		final CLI cli = CLI.parse(Collections.emptyMap(), args);
 
 		if (cli.commands().length == 0) {
@@ -97,6 +95,9 @@ public class Main {
 				break;
 			case "edit":
 				edit(contentManager(cli), cli);
+				break;
+			case "set":
+				set(contentManager(cli), cli);
 				break;
 			case "gametype":
 				gametype(gameTypeManager(cli), cli);
@@ -381,32 +382,28 @@ public class Main {
 			System.exit(2);
 		}
 
-		Content content = contentManager.forHash(cli.commands()[1]);
-		if (content == null) {
-			System.err.println("Content for provided hash does not exist!");
-			System.exit(4);
+		ContentEditor editor = new ContentEditor(contentManager);
+		editor.edit(cli.commands()[1]);
+	}
+
+	private static void set(ContentManager contentManager, CLI cli) throws IOException, ReflectiveOperationException {
+		if (cli.commands().length < 2) {
+			System.err.println("A content hash should be provided!");
+			System.exit(2);
 		}
 
-		Path yaml = Files.write(Files.createTempFile(content.hash, ".yml"), YAML.toString(content).getBytes(StandardCharsets.UTF_8),
-								StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-
-		String editor = System.getenv().getOrDefault("UA_EDITOR", "sensible-editor");
-
-		FileTime fileTime = Files.getLastModifiedTime(yaml);
-		Process editorProcess = new ProcessBuilder(editor, yaml.toString()).inheritIO().start();
-		int res = editorProcess.waitFor();
-		if (res == 0) {
-			if (!fileTime.equals(Files.getLastModifiedTime(yaml))) {
-				Content updated = YAML.fromFile(yaml, Content.class);
-				if (contentManager.checkin(new IndexResult<>(updated, Collections.emptySet()), null)) {
-					System.out.println("Stored changes!");
-				} else {
-					System.out.println("Failed to apply");
-				}
-			} else {
-				System.out.println("No changes!");
-			}
+		if (cli.commands().length < 3) {
+			System.err.println("A field to set should be provided");
+			System.exit(2);
 		}
+
+		if (cli.commands().length < 4) {
+			System.err.println("A new value to set should be provided");
+			System.exit(2);
+		}
+
+		ContentEditor editor = new ContentEditor(contentManager);
+		editor.set(cli.commands()[1], cli.commands()[2], cli.commands()[3]);
 	}
 
 	private static void gametype(GameTypeManager gametypes, CLI cli) throws IOException {
