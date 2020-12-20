@@ -9,8 +9,21 @@
 	</h1>
 
 	<form id="search-form">
-		<input type="text" id="q"/>
-		<button><img src="${staticPath()}/images/icons/search.svg" alt="Search"/> Search</button>
+		<span>
+			<input type="text" id="q"/>
+			<button><img src="${staticPath()}/images/icons/search.svg" alt="Search"/> Search</button>
+		</span>
+		<span>
+			<label for="pageSize"> Results per page</label>
+			<select id="pageSize">
+				<option value="30">30</option>
+				<option value="50">50</option>
+				<option value="100">100</option>
+			</select>
+		</span>
+		<span>
+			<input type="checkbox" id="compact"> <label for="compact">Compact Results</label>
+		</span>
 	</form>
 
 	<div id="search-results">
@@ -19,20 +32,22 @@
 	<div id="search-nav">
 		<button id="nav-back"><img src="${staticPath()}/images/icons/chevron-left.svg" alt="Previous"/> Previous</button>
 		<span id="nav-text"></span>
-		<button id="nav-next">Next <img src="${staticPath()}/images/icons/chevron-right.svg" alt="Next"/> </button>
+		<button id="nav-next">Next <img src="${staticPath()}/images/icons/chevron-right.svg" alt="Next"/></button>
 	</div>
 
 </@content>
 
 <script type="application/javascript">
 	const searchRoot = "./api";
-	const pageSize = 30;
+	let pageSize = 30;
 
 	document.addEventListener("DOMContentLoaded", function() {
 		const searchForm = document.querySelector('#search-form');
 
 		const searchQ = document.querySelector('#q');
 		const results = document.querySelector('#search-results');
+		const pageSizeSelect = document.querySelector('#pageSize');
+		const compact = document.querySelector('#compact');
 
 		const navBack = document.querySelector('#nav-back');
 		const navNext = document.querySelector('#nav-next');
@@ -52,6 +67,19 @@
 
 		navBack.addEventListener('click', navClick);
 		navNext.addEventListener('click', navClick);
+
+		pageSizeSelect.addEventListener('change', (e) => {
+			pageSize = e.target.value;
+		});
+
+		compact.addEventListener('change', (e) => {
+			if (e.target.checked) results.classList.add("compact");
+			else results.classList.remove("compact");
+		});
+
+		// set initial values, on page load
+		compact.dispatchEvent(new Event('change'));
+		pageSizeSelect.dispatchEvent(new Event('change'));
 
 		function search(query, offset = 0, limit = pageSize) {
 			currentQuery = query;
@@ -76,9 +104,9 @@
 				.then((data) => {
 					if (data.totalResults === 0) {
 						noResult();
-		  		} else {
-			  		data.docs.forEach(d => addResult(d));
-		  		}
+					} else {
+						data.docs.forEach(d => addResult(d));
+					}
 
 					navigation(data.totalResults, data.offset, data.limit);
 				});
@@ -116,7 +144,7 @@
 
 			const author = document.createElement("div");
 			author.classList.add('author');
-			author.innerText = result.fields.type + " by " + result.fields.author.replace(/\\-/g, "-");;
+			author.innerText = result.fields.type + " by " + result.fields.author.replace(/\\-/g, "-");
 
 			const description = document.createElement("div");
 			description.classList.add('description');

@@ -9,6 +9,12 @@
 #search-form button {
 }
 
+#search-form span:not(:last-child) {
+	border-right: 1px dotted #aaa;
+	padding-right: 10px;
+	margin-right: 10px;
+}
+
 #search-nav {
 	text-align: center;
 	padding: 10px;
@@ -50,4 +56,33 @@
 }
 
 #search-results .result .info .description {
+}
+
+
+/* compact styling */
+
+#search-results.compact .result .image img {
+	min-width: 55px;
+	max-width: 55px;
+	max-height: 55px;
+}
+
+#search-results.compact .result .info h2 {
+	font-size: 1.2em;
+	margin: 0;
+	display: inline;
+}
+
+#search-results.compact .result .info .author {
+	font-size: 0.85em;
+	display: inline;
+	border-left: 1px dotted #aaa;
+	border-right: 1px dotted #aaa;
+	margin: 0 10px;
+	padding: 0 10px;
+}
+
+#search-results.compact .result .info .description {
+	font-size: 0.85em;
+	display: inline;
 }
