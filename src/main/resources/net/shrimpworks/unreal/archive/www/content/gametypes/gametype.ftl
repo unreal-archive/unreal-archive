@@ -29,27 +29,83 @@
 				<div class="readable">${page?no_esc}</div>
 			</section>
 
+			<#if gametype.gametype.gameTypes?size gt 0
+			     || gametype.gametype.mutators?size gt 0
+			     || gametype.gametype.maps?size gt 0>
+				<section class="contents">
+					<h2><img src="${staticPath()}/images/icons/package.svg" alt="Contents"/> Contents</h2>
+					<#if gametype.gametype.gameTypes?size gt 0>
+						<h3>Game Types (${gametype.gametype.gameTypes?size})</h3>
+						<ul>
+							<#list gametype.gametype.gameTypes as g>
+								<li>
+									${g.name}
+									<#if g.description?? && g.description?length gt 0>
+										<div class="meta">${g.description}</div>
+									</#if>
+								</li>
+							</#list>
+						</ul>
+					</#if>
+
+					<#if gametype.gametype.mutators?size gt 0>
+						<h3>Mutators (${gametype.gametype.mutators?size})</h3>
+						<ul>
+							<#list gametype.gametype.mutators as m>
+								<li>
+									${m.name}
+									<#if m.description?? && m.description?length gt 0>
+										<div class="meta">${m.description}</div>
+									</#if>
+								</li>
+							</#list>
+						</ul>
+					</#if>
+
+					<#if gametype.gametype.maps?size gt 0>
+						<h3>Maps (${gametype.gametype.maps?size})</h3>
+						<div class="maps">
+							<#list gametype.gametype.maps as m>
+								<div class="map">
+									<div class="image">
+										<#if m.screenshot??>
+											<img src="${m.screenshot.url}" alt="${m.name}"/>
+										<#else>
+											<img src="${staticPath()}/images/none.png" alt="no image"/>
+                    </#if>
+									</div>
+									<div class="info">
+										<div class="title">${m.name}</div>
+										<div class="description">${m.title} by ${m.author}</div>
+									</div>
+								</div>
+							</#list>
+						</div>
+					</#if>
+				</section>
+			</#if>
+
 			<#if gametype.gallery?size gt 0>
 				<section class="gallery">
 					<h2><img src="${staticPath()}/images/icons/image.svg" alt="Screenshots"/> Screenshots</h2>
 					<div>
-						<#list gametype.gallery as img, thumb><a href="${img}"><img src="${thumb}" alt="screenshot" class="thumb"/></a></#list>
+							<#list gametype.gallery as img, thumb><a href="${img}"><img src="${thumb}" alt="screenshot" class="thumb"/></a></#list>
 					</div>
 				</section>
-      </#if>
+			</#if>
 
 			<#if gametype.gametype.credits?size gt 0>
 				<section class="credits">
 					<h2><img src="${staticPath()}/images/icons/list.svg" alt="Credits"/> Credits</h2>
 					<div>
-							<ul>
-								<#list gametype.gametype.credits as t, l>
-									<li class="group">${t}</li>
-									<ul class="names">
-										<#list l as n><li>${n}</li></#list>
-									</ul>
-								</#list>
-							</ul>
+						<ul>
+							<#list gametype.gametype.credits as t, l>
+								<li class="group">${t}</li>
+								<ul class="names">
+									<#list l as n><li>${n}</li></#list>
+								</ul>
+							</#list>
+						</ul>
 					</div>
 				</section>
 			</#if>

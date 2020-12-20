@@ -710,6 +710,42 @@ section.releases .release .links a:hover {
 	background-color: var(--download-button-bg-hover);
 }
 
+section.contents .maps {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+section.contents .maps .map {
+	display: inline-flex;
+	padding: 10px 0 10px 0;
+	width: 49%;
+}
+
+section.contents .maps .map .image {
+	padding-right: 10px;
+}
+
+section.contents .maps .map .image img {
+	min-width: 80px;
+	max-width: 80px;
+	max-height: 80px;
+	border-radius: 5px;
+}
+
+section.contents .maps .map .info {
+}
+
+section.contents .maps .map .info .title {
+	font-size: 1.1em;
+	font-weight: bold;
+}
+
+section.contents .maps .map .info .description {
+	font-size: 0.9em;
+	font-style: italic;
+	padding-bottom: 5px;
+}
+
 /*
   special style for map themes
 */

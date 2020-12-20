@@ -415,11 +415,13 @@ public class Main {
 			System.err.println("    returns the content directory for the specified game type");
 			System.err.println("  sync");
 			System.err.println("    synchronises downloads, files, and dependencies for unsynced items");
+			System.err.println("  index <game> <game type name> <release name>");
+			System.err.println("    synchronises downloads, files, and dependencies for unsynced items");
 			System.exit(2);
 		}
 
 		switch (cli.commands()[1]) {
-			case "init":
+			case "init": {
 				if (cli.commands().length < 3) {
 					System.err.println("A game name is required");
 				}
@@ -434,10 +436,18 @@ public class Main {
 				System.out.println("\nPopulate the appropriate files, add images, etc.");
 				System.out.println("To upload gametype files, execute the `sync` command.");
 				break;
-			case "sync":
+			}
+			case "sync": {
 				final DataStore dataStore = store(DataStore.StoreContent.CONTENT, cli);
-				gametypes.sync(contentManager(cli), dataStore);
+				gametypes.sync(dataStore);
 				break;
+			}
+			case "index": {
+				final DataStore imageStore = store(DataStore.StoreContent.IMAGES, cli);
+				Games game = Games.byName(cli.commands()[2]);
+				gametypes.index(imageStore, game, cli.commands()[3], cli.commands()[4]);
+				break;
+			}
 			default:
 				System.err.println("Unknown game type command" + cli.commands()[1]);
 				System.exit(3);

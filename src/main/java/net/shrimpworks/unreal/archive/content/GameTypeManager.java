@@ -1,26 +1,39 @@
 package net.shrimpworks.unreal.archive.content;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.imageio.ImageIO;
 
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.YAML;
 import net.shrimpworks.unreal.archive.content.gametypes.GameType;
+import net.shrimpworks.unreal.archive.content.mutators.Mutator;
 import net.shrimpworks.unreal.archive.storage.DataStore;
+import net.shrimpworks.unreal.packages.IntFile;
+import net.shrimpworks.unreal.packages.Package;
+import net.shrimpworks.unreal.packages.PackageReader;
+import net.shrimpworks.unreal.packages.entities.ExportedObject;
+import net.shrimpworks.unreal.packages.entities.objects.Object;
+import net.shrimpworks.unreal.packages.entities.properties.Property;
+import net.shrimpworks.unreal.packages.entities.properties.StringProperty;
 
 public class GameTypeManager {
 
@@ -155,8 +168,12 @@ public class GameTypeManager {
 		return path.resolve(game.name).resolve(Util.slug(gameType));
 	}
 
-	public void sync(ContentManager content, DataStore contentStore) throws IOException {
+	public void sync(DataStore contentStore) {
 		syncReleases(contentStore);
+	}
+
+	public void index(DataStore imageStore, Games game, String gameType, String releaseFile) {
+		indexReleases(game, gameType, releaseFile, imageStore);
 	}
 
 	private GameTypeHolder getGameType(GameType gameType) {
@@ -253,6 +270,243 @@ public class GameTypeManager {
 				gameTypes.add(new GameTypeHolder(g.path, clone));
 			}
 		});
+	}
+
+	private void indexReleases(Games game, String gameType, String releaseFile, DataStore imagesStore) {
+		gameTypes.stream()
+				 .filter(g -> !g.gametype.deleted)
+				 .filter(g -> g.gametype.game.equals(game.name) && g.gametype.name.equalsIgnoreCase(gameType))
+				 .findFirst().ifPresentOrElse(g -> {
+
+			GameType clone;
+			try {
+				clone = YAML.fromString(YAML.toString(g.gametype), GameType.class);
+			} catch (IOException e) {
+				throw new IllegalStateException("Cannot clone gametype " + g.gametype);
+			}
+
+			clone.releases.stream()
+						  .filter(r -> !r.deleted && !r.files.isEmpty())
+						  .flatMap(r -> r.files.stream())
+						  .filter(r -> !r.deleted && r.originalFilename.equalsIgnoreCase(releaseFile))
+						  .findFirst().ifPresentOrElse(r -> {
+				Path[] f = { Paths.get(r.localFile) };
+				if (!Files.exists(f[0])) {
+					System.out.printf("Downloading %s (%dKB)%n", r.originalFilename, r.fileSize / 1024);
+					try {
+						f[0] = Util.downloadTo(r.downloads.stream().filter(m -> m.main).map(m -> m.url).findFirst().get(),
+											   Files.createTempDirectory("ua-gametype").resolve(r.originalFilename));
+					} catch (Exception e) {
+						throw new RuntimeException(String.format("Could not download file %s", releaseFile), e);
+					}
+				}
+
+				try (Incoming incoming = new Incoming(new Submission(f[0]))) {
+					// reuse Incoming implementation, capable of unpacking various files and formats
+					incoming.prepare();
+
+					// find gametypes
+					clone.gameTypes = findGameTypes(incoming);
+
+					// find mutators
+					clone.mutators = findMutators(incoming);
+
+					// find maps
+					clone.maps = findMaps(incoming, clone, imagesStore);
+
+					// replace existing with updated
+					Files.write(g.path, YAML.toString(clone).getBytes(StandardCharsets.UTF_8),
+								StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+				} catch (IOException e) {
+					System.err.printf("Could not read files and dependencies for release file %s%n", f);
+				}
+
+			}, () -> {
+				throw new RuntimeException(String.format("Could not find release file %s", releaseFile));
+			});
+
+			gameTypes.remove(g);
+			gameTypes.add(new GameTypeHolder(g.path, clone));
+		}, () -> {
+			throw new RuntimeException(String.format("Could not find game type %s", gameType));
+		});
+	}
+
+	/**
+	 * Find gametype definitions within .int (UT99) and .ucl (UT2004) files.
+	 *
+	 * @param incoming files to search for game types
+	 * @return list of found game types
+	 */
+	private List<NameDescription> findGameTypes(Incoming incoming) {
+		Set<Incoming.IncomingFile> uclFiles = incoming.files(Incoming.FileType.UCL);
+		Set<Incoming.IncomingFile> intFiles = incoming.files(Incoming.FileType.INT);
+
+		if (!uclFiles.isEmpty()) {
+			// find mutator information via .ucl files (mutator names, descriptions, weapons and vehicles)
+			return IndexUtils.readIntFiles(incoming, uclFiles, true)
+							 .filter(Objects::nonNull)
+							 .flatMap(intFile -> {
+								 IntFile.Section section = intFile.section("root");
+								 if (section == null) return null;
+								 IntFile.ListValue game = section.asList("Game");
+								 return game.values.stream();
+							 })
+							 .filter(Objects::nonNull)
+							 .filter(v -> v instanceof IntFile.MapValue && ((IntFile.MapValue)v).value.containsKey("FallbackName"))
+							 .map(v -> (IntFile.MapValue)v)
+							 .map(mapVal -> new NameDescription(mapVal.get("FallbackName"), mapVal.getOrDefault("FallbackDesc", "")))
+							 .sorted(Comparator.comparing(a -> a.name))
+							 .collect(Collectors.toList());
+		} else if (!intFiles.isEmpty()) {
+			// search int files for objects describing a mutator and related things
+			return IndexUtils.readIntFiles(incoming, intFiles)
+							 .filter(Objects::nonNull)
+							 .flatMap(intFile -> {
+								 IntFile.Section section = intFile.section("public");
+								 if (section == null) return null;
+								 IntFile.ListValue prefs = section.asList("Preferences");
+								 return prefs.values.stream();
+							 })
+							 .filter(Objects::nonNull)
+							 .filter(v -> v instanceof IntFile.MapValue
+										  && ((IntFile.MapValue)v).value.containsKey("Caption")
+										  && ((IntFile.MapValue)v).value.containsKey("Parent"))
+							 .map(v -> (IntFile.MapValue)v)
+							 .filter(mapVal -> mapVal.get("Parent").equalsIgnoreCase("Game Types"))
+							 .map(mapVal -> new NameDescription(mapVal.get("Caption")))
+							 .sorted(Comparator.comparing(a -> a.name))
+							 .collect(Collectors.toList());
+		}
+
+		return List.of();
+	}
+
+	/**
+	 * Find mutator definitions within .int (UT99) and .ucl (UT2004) files.
+	 * <p>
+	 * This only returns a small set of information, borrowed from the full
+	 * implementation in {@link net.shrimpworks.unreal.archive.content.mutators.MutatorIndexHandler}.
+	 *
+	 * @param incoming files to search for mutators
+	 * @return list of found mutators
+	 */
+	private List<NameDescription> findMutators(Incoming incoming) {
+		Set<Incoming.IncomingFile> uclFiles = incoming.files(Incoming.FileType.UCL);
+		Set<Incoming.IncomingFile> intFiles = incoming.files(Incoming.FileType.INT);
+
+		if (!uclFiles.isEmpty()) {
+			// find mutator information via .ucl files (mutator names, descriptions, weapons and vehicles)
+			return IndexUtils.readIntFiles(incoming, uclFiles, true)
+							 .filter(Objects::nonNull)
+							 .flatMap(intFile -> {
+								 IntFile.Section section = intFile.section("root");
+								 if (section == null) return null;
+								 IntFile.ListValue mutator = section.asList("Mutator");
+								 return mutator.values.stream();
+							 })
+							 .filter(Objects::nonNull)
+							 .filter(v -> v instanceof IntFile.MapValue && ((IntFile.MapValue)v).value.containsKey("FallbackName"))
+							 .map(v -> (IntFile.MapValue)v)
+							 .map(mapVal -> new NameDescription(mapVal.get("FallbackName"), mapVal.getOrDefault("FallbackDesc", "")))
+							 .sorted(Comparator.comparing(a -> a.name))
+							 .collect(Collectors.toList());
+		} else if (!intFiles.isEmpty()) {
+			// search int files for objects describing a mutator and related things
+			return IndexUtils.readIntFiles(incoming, intFiles)
+							 .filter(Objects::nonNull)
+							 .flatMap(intFile -> {
+								 IntFile.Section section = intFile.section("public");
+								 if (section == null) return null;
+								 IntFile.ListValue prefs = section.asList("Object");
+								 return prefs.values.stream();
+							 })
+							 .filter(Objects::nonNull)
+							 .filter(v -> v instanceof IntFile.MapValue && ((IntFile.MapValue)v).value.containsKey("MetaClass"))
+							 .map(v -> (IntFile.MapValue)v)
+							 .filter(mapVal -> Mutator.UT_MUTATOR_CLASS.equalsIgnoreCase(mapVal.get("MetaClass")))
+							 .map(mapVal -> new NameDescription(mapVal.get("Description")))
+							 .sorted(Comparator.comparing(a -> a.name))
+							 .collect(Collectors.toList());
+		}
+
+		return List.of();
+	}
+
+	private List<GameType.GameTypeMap> findMaps(Incoming incoming, GameType gameType, DataStore imageStore) {
+		Set<Incoming.IncomingFile> mapFiles = incoming.files(Incoming.FileType.MAP);
+
+		class FileAndPackage {
+
+			final Incoming.IncomingFile f;
+			final Package p;
+
+			public FileAndPackage(Incoming.IncomingFile f, Package p) {
+				this.f = f;
+				this.p = p;
+			}
+		}
+
+		return mapFiles.stream()
+					   .map(mf -> new FileAndPackage(mf, new Package(new PackageReader(mf.asChannel()))))
+					   .map(fp -> {
+						   final String mapName = Util.plainName(fp.f.file);
+						   String title = "";
+						   String author = "";
+
+						   Collection<ExportedObject> maybeLevelInfo = fp.p.objectsByClassName("LevelInfo");
+						   if (maybeLevelInfo == null || maybeLevelInfo.isEmpty()) {
+							   return null;
+						   }
+
+						   // if there are multiple LevelInfos in a map, try to find the right one...
+						   Object level = maybeLevelInfo.stream()
+														.map(ExportedObject::object)
+														.filter(l -> l.property("Title") != null || l.property("Author") != null)
+														.findFirst()
+														.orElse(maybeLevelInfo.iterator().next().object());
+
+						   // read some basic level info
+						   Property authorProp = level.property("Author");
+						   Property titleProp = level.property("Title");
+						   Property screenshot = level.property("Screenshot");
+
+						   if (authorProp != null) author = ((StringProperty)authorProp).value.trim();
+						   if (titleProp != null) title = ((StringProperty)titleProp).value.trim();
+
+						   if (author.isBlank()) author = "Unknown";
+						   if (title.isBlank()) title = mapName;
+
+						   Content.Attachment[] attachment = { null };
+
+						   try {
+							   List<BufferedImage> screenshots = IndexUtils.screenshots(incoming, fp.p, screenshot);
+							   if (!screenshots.isEmpty()) {
+								   System.out.printf("Storing screenshot for map %s%n", fp.f.fileName());
+								   Path imgPath = Files.createTempFile(Util.slug(mapName), ".png");
+								   ImageIO.write(screenshots.get(0), "png", imgPath.toFile());
+
+								   imageStore.store(imgPath,
+													Paths.get("").relativize(gameType.contentPath(Paths.get(""))).resolve("maps").resolve(
+															imgPath.getFileName().toString()).toString(),
+													(url, ex) -> {
+														if (ex == null && url != null) {
+															attachment[0] = new Content.Attachment(Content.AttachmentType.IMAGE,
+																								   imgPath.getFileName().toString(), url);
+															System.out.printf("Stored as %s%n", url);
+														}
+													});
+							   }
+						   } catch (Exception e) {
+							   System.err.printf("Failed to save screenshot for map %s%n", mapName);
+							   e.printStackTrace();
+						   }
+
+						   return new GameType.GameTypeMap(mapName, title, author, attachment[0]);
+					   })
+					   .filter(Objects::nonNull)
+					   .sorted(Comparator.comparing(a -> a.name))
+					   .collect(Collectors.toList());
 	}
 
 	private String remotePath(GameType gametype) {

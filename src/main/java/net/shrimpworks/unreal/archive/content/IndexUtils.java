@@ -69,6 +69,22 @@ public class IndexUtils {
 	 * @return list of images read from the map
 	 */
 	public static List<BufferedImage> screenshots(Incoming incoming, Package map, Property screenshot) {
+		return screenshots(incoming, map, screenshot, true);
+	}
+
+	/**
+	 * Extract preview images/screenshots from a map package.
+	 * <p>
+	 * It tries hard.
+	 *
+	 * @param incoming       the package being indexed
+	 * @param map            the map package
+	 * @param screenshot     screenshot property collected from the map
+	 * @param scrapeFallback if no screenshot is found within the map try to find associated graphics
+	 *                       files within the incoming files collection
+	 * @return list of images read from the map
+	 */
+	public static List<BufferedImage> screenshots(Incoming incoming, Package map, Property screenshot, boolean scrapeFallback) {
 		List<BufferedImage> images = new ArrayList<>();
 		if (screenshot != null) {
 			ObjectReference shotRef = ((ObjectProperty)screenshot).value;
@@ -113,7 +129,7 @@ public class IndexUtils {
 			}
 		} else {
 			// there's no Screenshot property, lets hunt through the package for possible screenshots
-			images.addAll(scrapeScreenshots(incoming, map));
+			if (scrapeFallback) images.addAll(scrapeScreenshots(incoming, map));
 		}
 
 		return images;

@@ -14,6 +14,7 @@ import net.shrimpworks.unreal.archive.content.IndexHandler;
 import net.shrimpworks.unreal.archive.content.IndexLog;
 import net.shrimpworks.unreal.archive.content.IndexResult;
 import net.shrimpworks.unreal.archive.content.IndexUtils;
+import net.shrimpworks.unreal.archive.content.NameDescription;
 import net.shrimpworks.unreal.packages.IntFile;
 
 public class MutatorIndexHandler implements IndexHandler<Mutator> {
@@ -97,8 +98,8 @@ public class MutatorIndexHandler implements IndexHandler<Mutator> {
 						  if (!(value instanceof IntFile.MapValue)) continue;
 						  IntFile.MapValue mapVal = (IntFile.MapValue)value;
 						  if (mapVal.containsKey("FallbackName")) {
-							  mutator.mutators.add(new Mutator.NameDescription(mapVal.get("FallbackName"),
-																			   mapVal.getOrDefault("FallbackDesc", "")));
+							  mutator.mutators.add(new NameDescription(mapVal.get("FallbackName"),
+																	   mapVal.getOrDefault("FallbackDesc", "")));
 						  }
 					  }
 
@@ -108,8 +109,8 @@ public class MutatorIndexHandler implements IndexHandler<Mutator> {
 						  if (!(value instanceof IntFile.MapValue)) continue;
 						  IntFile.MapValue mapVal = (IntFile.MapValue)value;
 						  if (mapVal.containsKey("FallbackName")) {
-							  mutator.weapons.add(new Mutator.NameDescription(mapVal.get("FallbackName"),
-																			  mapVal.getOrDefault("FallbackDesc", "")));
+							  mutator.weapons.add(new NameDescription(mapVal.get("FallbackName"),
+																	  mapVal.getOrDefault("FallbackDesc", "")));
 						  }
 					  }
 
@@ -119,8 +120,8 @@ public class MutatorIndexHandler implements IndexHandler<Mutator> {
 						  if (!(value instanceof IntFile.MapValue)) continue;
 						  IntFile.MapValue mapVal = (IntFile.MapValue)value;
 						  if (mapVal.containsKey("FallbackName")) {
-							  mutator.vehicles.add(new Mutator.NameDescription(mapVal.get("FallbackName"),
-																			   mapVal.getOrDefault("FallbackDesc", "")));
+							  mutator.vehicles.add(new NameDescription(mapVal.get("FallbackName"),
+																	   mapVal.getOrDefault("FallbackDesc", "")));
 						  }
 					  }
 				  });
@@ -160,9 +161,9 @@ public class MutatorIndexHandler implements IndexHandler<Mutator> {
 						  if (!mapVal.containsKey("MetaClass")) continue;
 
 						  if (Mutator.UT_MUTATOR_CLASS.equalsIgnoreCase(mapVal.get("MetaClass"))) {
-							  mutator.mutators.add(new Mutator.NameDescription(mapVal.get("Description")));
+							  mutator.mutators.add(new NameDescription(mapVal.get("Description")));
 						  } else if (Mutator.UT_WEAPON_CLASS.equalsIgnoreCase(mapVal.get("MetaClass"))) {
-							  mutator.weapons.add(new Mutator.NameDescription(mapVal.get("Description")));
+							  mutator.weapons.add(new NameDescription(mapVal.get("Description")));
 						  } else if (Mutator.UT_KEYBINDINGS_CLASS.equalsIgnoreCase(mapVal.get("MetaClass"))) {
 							  mutator.hasKeybinds = true;
 						  } else if (Mutator.UT_MENU_CLASS.equalsIgnoreCase(mapVal.get("MetaClass"))) {

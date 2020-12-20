@@ -1,5 +1,6 @@
 package net.shrimpworks.unreal.archive.content.gametypes;
 
+import java.beans.ConstructorProperties;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.content.Content;
+import net.shrimpworks.unreal.archive.content.NameDescription;
 import net.shrimpworks.unreal.archive.managed.Managed;
 
 /**
@@ -42,6 +44,10 @@ public class GameType implements Comparable<GameType> {
 
 	public Map<String, String> links = new HashMap<>();
 	public Map<String, List<String>> credits = new HashMap<>();
+
+	public List<NameDescription> gameTypes = new ArrayList<>();
+	public List<NameDescription> mutators = new ArrayList<>();
+	public List<GameTypeMap> maps = new ArrayList<>();
 
 	public List<Release> releases = new ArrayList<>();
 
@@ -192,6 +198,22 @@ public class GameType implements Comparable<GameType> {
 		public int hashCode() {
 			return Objects.hash(title, localFile, downloads, originalFilename, hash, fileSize, platform, synced, deleted, files, otherFiles,
 								dependencies);
+		}
+	}
+
+	public static class GameTypeMap {
+
+		public final String name;
+		public final String title;
+		public final String author;
+		public final Content.Attachment screenshot;
+
+		@ConstructorProperties({ "name", "title", "author", "screenshot" })
+		public GameTypeMap(String name, String title, String author, Content.Attachment screenshot) {
+			this.name = name;
+			this.title = title;
+			this.author = author;
+			this.screenshot = screenshot;
 		}
 	}
 }
