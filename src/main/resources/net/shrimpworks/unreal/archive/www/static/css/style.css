@@ -95,6 +95,7 @@ h1, h2, h3 {
 	font-family: var(--header-font-family);
 	font-weight: normal;
 	margin: 10px auto;
+	font-variant: small-caps;
 }
 
 h1 {
@@ -480,6 +481,7 @@ article section h3 {
 	padding-right: 10px;
 	text-align: right;
 	vertical-align: top;
+	font-variant: small-caps;
 }
 
 .label-value span {
@@ -501,6 +503,7 @@ table {
 table thead {
 	background-color: var(--table-header-bg);
 	color: var(--table-header-color);
+	font-variant: small-caps;
 }
 
 table tbody tr:nth-child(odd) {
