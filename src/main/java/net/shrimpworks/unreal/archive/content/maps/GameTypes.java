@@ -49,7 +49,8 @@ public class GameTypes {
 			new GameType("Smashdroids", "SD"),
 			new GameType("ChaosUT", "KOTH", "DM-CUT", "CTF-CUT", "DOM-CUT"),
 			new GameType("Funnel", "FN"),
-			new GameType("Survival", "SV")
+			new GameType("Survival", "SV"),
+			new GameType("Conquest", "CNQ")
 	);
 
 	public static GameType forMap(String mapName) {
