@@ -25,7 +25,7 @@
 			<section>
  				<h2><img src="${staticPath()}/images/icons/list.svg" alt="Release Files"/> ${gametype.gametype.name} ${release.title} ver ${release.version} Files</h2>
 				<div>${gametype.gametype.description}</div>
-				<ul>
+				<ul class="readable">
 					<#list release.files as f>
 						<#if f.deleted><#continue/></#if>
 						<li><a href="#${slug(f.title)}">${f.title}</a></li>

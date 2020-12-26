@@ -36,7 +36,7 @@
 					<h2><img src="${staticPath()}/images/icons/package.svg" alt="Contents"/> Contents</h2>
 					<#if gametype.gametype.gameTypes?size gt 0>
 						<h3>Game Types (${gametype.gametype.gameTypes?size})</h3>
-						<ul>
+						<ul class="readable">
 							<#list gametype.gametype.gameTypes as g>
 								<li>
 									${g.name}
@@ -50,7 +50,7 @@
 
 					<#if gametype.gametype.mutators?size gt 0>
 						<h3>Mutators (${gametype.gametype.mutators?size})</h3>
-						<ul>
+						<ul class="readable">
 							<#list gametype.gametype.mutators as m>
 								<li>
 									${m.name}
@@ -97,16 +97,14 @@
 			<#if gametype.gametype.credits?size gt 0>
 				<section class="credits">
 					<h2><img src="${staticPath()}/images/icons/list.svg" alt="Credits"/> Credits</h2>
-					<div>
-						<ul>
-							<#list gametype.gametype.credits as t, l>
-								<li class="group">${t}</li>
-								<ul class="names">
-									<#list l as n><li>${n}</li></#list>
-								</ul>
-							</#list>
-						</ul>
-					</div>
+					<ul class="readable">
+						<#list gametype.gametype.credits as t, l>
+							<li class="group">${t}</li>
+							<ul class="names">
+								<#list l as n><li>${n}</li></#list>
+							</ul>
+						</#list>
+					</ul>
 				</section>
 			</#if>
 		</div>

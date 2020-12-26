@@ -50,7 +50,8 @@ public class GameTypes {
 			new GameType("ChaosUT", "KOTH", "DM-CUT", "CTF-CUT", "DOM-CUT"),
 			new GameType("Funnel", "FN"),
 			new GameType("Survival", "SV"),
-			new GameType("Conquest", "CNQ")
+			new GameType("Conquest", "CNQ"),
+			new GameType("RealCTF", "Real_")
 	);
 
 	public static GameType forMap(String mapName) {
