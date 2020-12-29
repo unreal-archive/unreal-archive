@@ -16,6 +16,17 @@
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
 
+	<script type="application/ld+json">
+		{
+			"@context": "https://schema.org",
+			"@type": "CreativeWork",
+			"breadcrumb": "Maps > ${game.name} > ${gametype.name",
+			"author": "${map.map.author}",
+			"image": "${headerbg}",
+			"name": "${map.map.name}"
+		}
+	</script>
+
 	<@heading bg=[headerbg]>
 		<a href="${relPath(sectionPath + "/index.html")}">Maps</a>
 		/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
