@@ -20,7 +20,7 @@
 		{
 			"@context": "https://schema.org",
 			"@type": "CreativeWork",
-			"breadcrumb": "Maps > ${game.name} > ${gametype.name",
+			"breadcrumb": "Maps > ${game.name} > ${gametype.name}",
 			"author": "${map.map.author}",
 			"image": "${headerbg}",
 			"name": "${map.map.name}"
