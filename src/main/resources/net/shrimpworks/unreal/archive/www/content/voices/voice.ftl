@@ -12,6 +12,10 @@
 <#assign ogDescription="${voice.voice.autoDescription()}">
 <#assign ogImage=headerbg>
 
+<#assign schemaItemName="${voice.voice.name}">
+<#assign schemaItemAuthor="${voice.voice.author}">
+<#assign schemaItemDate="${voice.voice.releaseDate}-01">
+
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
 

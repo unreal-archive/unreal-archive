@@ -40,6 +40,20 @@
 	</#if>
 
 	<meta property="og:type" content="website">
+
+  <#if (schemaItemName!"")?length gt 0 && (schemaItemAuthor!"")?length gt 0>
+		<script type="application/ld+json">
+			{
+				"@context": "https://schema.org",
+				"@type": "DigitalDocument",
+				"abstract": "${schemaItemDesc!ogDescription}",
+				"author": "${schemaItemAuthor}",
+				"image": "${headerbg}",
+				"name": "${schemaItemName}",
+				"datePublished": "${schemaItemDate}"
+			}
+		</script>
+	</#if>
 </head>
 
 <body>

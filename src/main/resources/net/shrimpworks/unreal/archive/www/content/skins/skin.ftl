@@ -12,6 +12,10 @@
 <#assign ogDescription="${skin.skin.autoDescription()}">
 <#assign ogImage=headerbg>
 
+<#assign schemaItemName="${skin.skin.name}">
+<#assign schemaItemAuthor="${skin.skin.author}">
+<#assign schemaItemDate="${skin.skin.releaseDate}-01">
+
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
 

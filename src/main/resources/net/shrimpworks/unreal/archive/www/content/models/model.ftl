@@ -12,6 +12,10 @@
 <#assign ogDescription="${model.model.autoDescription()}">
 <#assign ogImage=headerbg>
 
+<#assign schemaItemName="${model.model.name}">
+<#assign schemaItemAuthor="${model.model.author}">
+<#assign schemaItemDate="${model.model.releaseDate}-01">
+
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
 

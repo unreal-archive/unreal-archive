@@ -12,6 +12,10 @@
 <#assign ogDescription="${mutator.mutator.autoDescription()}">
 <#assign ogImage=headerbg>
 
+<#assign schemaItemName="${mutator.mutator.name}">
+<#assign schemaItemAuthor="${mutator.mutator.author}">
+<#assign schemaItemDate="${mutator.mutator.releaseDate}-01">
+
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
 

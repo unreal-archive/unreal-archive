@@ -7,6 +7,10 @@
 <#assign ogDescription=gametype.gametype.description>
 <#assign ogImage=headerbg>
 
+<#assign schemaItemName="${gametype.gametype.name}">
+<#assign schemaItemAuthor="${gametype.gametype.author}">
+<#assign schemaItemDate="${gametype.gametype.releaseDate}-01">
+
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
 

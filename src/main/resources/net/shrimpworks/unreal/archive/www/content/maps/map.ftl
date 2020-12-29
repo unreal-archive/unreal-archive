@@ -13,19 +13,12 @@
 <#assign ogDescription="${map.map.autoDescription()}">
 <#assign ogImage=headerbg>
 
+<#assign schemaItemName="${map.map.name}">
+<#assign schemaItemAuthor="${map.map.author}">
+<#assign schemaItemDate="${map.map.releaseDate}-01">
+
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
-
-	<script type="application/ld+json">
-		{
-			"@context": "https://schema.org",
-			"@type": "CreativeWork",
-			"breadcrumb": "Maps > ${game.name} > ${gametype.name}",
-			"author": "${map.map.author}",
-			"image": "${headerbg}",
-			"name": "${map.map.name}"
-		}
-	</script>
 
 	<@heading bg=[headerbg]>
 		<a href="${relPath(sectionPath + "/index.html")}">Maps</a>
