@@ -44,7 +44,7 @@ public class IndexUtils {
 	public static final String UNKNOWN = "Unknown";
 	public static final String RELEASE_UT99 = "1999-11";
 
-	public static final Pattern AUTHOR_MATCH = Pattern.compile("(.+)?(author|by)([\\s:]+)?([A-Za-z0-9 _]{2,25})(\\s+)?",
+	public static final Pattern AUTHOR_MATCH = Pattern.compile("(.+)?(author|by)(\\(s\\))?([\\s:]+)?([A-Za-z0-9 _]{4,25})(\\s+)?",
 															   Pattern.CASE_INSENSITIVE);
 
 	public static final String SHOT_NAME = "%s_shot_%s_%d.png";
@@ -308,8 +308,8 @@ public class IndexUtils {
 
 		for (String s : lines) {
 			Matcher m = AUTHOR_MATCH.matcher(s);
-			if (m.matches() && !m.group(4).trim().isEmpty()) {
-				return m.group(4).trim();
+			if (m.matches() && !m.group(5).trim().isEmpty()) {
+				return m.group(5).trim();
 			}
 		}
 
