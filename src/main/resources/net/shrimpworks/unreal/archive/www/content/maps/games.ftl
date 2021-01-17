@@ -11,7 +11,7 @@
 	<@content class="biglist">
 		<ul>
 		<#list games.games as k, game>
-			<li style='background-image: url("${staticPath()}/images/games/${game.name}.png")'>
+			<li style='background-image: url("${staticPath()}/images/games/t_${game.name}.png")'>
 				<span class="meta">${game.maps}</span>
 				<a href="${relPath(game.path + "/index.html")}">${game.name}</a>
 			</li>

@@ -12,7 +12,7 @@
 	<@content class="biglist">
 		<ul>
 		<#list game.gametypes as k, gametype>
-			<li style='background-image: url("${staticPath()}/images/gametypes/${game.name}/${gametype.name}.png")'>
+			<li style='background-image: url("${staticPath()}/images/gametypes/${game.name}/t_${gametype.name}.png")'>
 				<span class="meta">${gametype.packs}</span>
 				<a href="${relPath(gametype.path + "/index.html")}">${gametype.name}</a>
 			</li>

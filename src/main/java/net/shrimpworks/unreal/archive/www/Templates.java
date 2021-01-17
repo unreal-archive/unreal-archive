@@ -1,8 +1,6 @@
 package net.shrimpworks.unreal.archive.www;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -17,9 +15,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -115,15 +115,38 @@ public class Templates {
 	}
 
 	public static boolean unpackResources(String resourceList, Path destination) throws IOException {
+		final Set<ThumbConfig> thumbConfig = new HashSet<>();
+
 		try (InputStream in = Templates.class.getResourceAsStream(resourceList);
 			 BufferedReader br = new BufferedReader(new InputStreamReader(in))) {
 
 			String resource;
 			while ((resource = br.readLine()) != null) {
-				Path destPath = destination.resolve(resource);
-				Files.createDirectories(destPath.getParent());
-				Files.copy(Templates.class.getResourceAsStream(resource), destPath, StandardCopyOption.REPLACE_EXISTING);
+				try (InputStream res = Templates.class.getResourceAsStream(resource)) {
+					Path destPath = destination.resolve(resource);
+					if (destPath.getFileName().toString().equals("thumbs")) {
+						try (BufferedReader thumbDef = new BufferedReader(new InputStreamReader(res))) {
+							thumbConfig.add(new ThumbConfig(destPath.getParent(), thumbDef.readLine()));
+						}
+					} else {
+						Files.createDirectories(destPath.getParent());
+						Files.copy(res, destPath, StandardCopyOption.REPLACE_EXISTING);
+					}
+				}
 			}
+		}
+
+		for (ThumbConfig conf : thumbConfig) {
+			Files.walk(conf.path)
+				 .filter(Util::image)
+				 .forEach(f -> {
+					 try {
+						 Util.thumbnail(f, f.getParent().resolve(String.format("%s_%s", conf.name, Util.fileName(f))),
+										conf.maxWidth);
+					 } catch (IOException e) {
+						 throw new RuntimeException("Failed to generate thumbnail for file " + f.toAbsolutePath().toString(), e);
+					 }
+				 });
 		}
 
 		return true;
@@ -134,6 +157,25 @@ public class Templates {
 			Node node = MD_PARSER.parseReader(reader);
 			return MD_RENDERER.render(node);
 		}
+	}
+
+	private static class ThumbConfig {
+
+		public final Path path;
+		public final String name;
+		public final int maxWidth;
+		public final int maxHeight;
+
+		public ThumbConfig(Path path, String config) {
+			String[] nameSize = config.split("=");
+			String[] widthHeight = nameSize[1].split("x");
+
+			this.path = path;
+			this.name = nameSize[0];
+			this.maxWidth = Integer.parseInt(widthHeight[0]);
+			this.maxHeight = Integer.parseInt(widthHeight[1]);
+		}
+
 	}
 
 	public static class Tpl {
@@ -193,9 +235,11 @@ public class Templates {
 
 		private Writer templateOut(Path target) throws IOException {
 			if (!Files.exists(target.getParent())) Files.createDirectories(target.getParent());
-			return new BufferedWriter(new FileWriter(target.toFile()));
+			return Channels.newWriter(
+					Files.newByteChannel(
+							target, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING
+					), StandardCharsets.UTF_8);
 		}
-
 	}
 
 	private static class RelPageMethod implements TemplateMethodModelEx {

@@ -81,7 +81,7 @@ processResources.doLast {
 	def wwwStaticDir = projectDir.toPath().resolve('src/main/resources/net/shrimpworks/unreal/archive/www/static')
 	def destFile = buildDir.toPath().resolve('resources/main/net/shrimpworks/unreal/archive/www/static.list')
 	def staticList = new StringBuilder()
-	files { fileTree(wwwStaticDir) }.each {
+	files { fileTree(wwwStaticDir).matching { exclude('**/*.xcf') } }.each {
 		staticList.append(wwwStaticDir.getParent().relativize(it.toPath())).append("\n")
 	}
 	Files.write(destFile, staticList.toString().replaceAll("\\\\", "/").getBytes(StandardCharsets.UTF_8),
@@ -99,6 +99,8 @@ jar {
 }
 
 task execJar(type: Jar) {
+	exclude('**/*.xcf')
+
 	archiveClassifier = "exec"
 	archiveFileName = "${archiveBaseName.get()}-${archiveClassifier.get()}.${archiveExtension.get()}"
 	from sourceSets.main.output

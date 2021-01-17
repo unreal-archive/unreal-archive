@@ -1,7 +1,5 @@
 package net.shrimpworks.unreal.archive.www.content;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
@@ -14,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.imageio.ImageIO;
 
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.content.Content;
@@ -32,7 +29,6 @@ public class GameTypes implements PageGenerator {
 
 	private static final String SECTION = "Game Types & Mods";
 
-	private static final Set<String> IMGS = Set.of("png", "bmp", "gif", "jpg", "jpeg");
 	private static final int THUMB_WIDTH = 350;
 
 	private final GameTypeManager gametypes;
@@ -217,11 +213,12 @@ public class GameTypes implements PageGenerator {
 			try {
 				Path gametypePath = gametypes.path(gametype).getParent().toAbsolutePath();
 				this.gallery.putAll(Files.list(gametypePath.resolve("gallery"))
-										 .filter(f -> Files.isRegularFile(f) && IMGS.contains(Util.extension(f).toLowerCase()))
+										 .filter(f -> Files.isRegularFile(f) && Util.image(f))
 										 .sorted()
 										 .collect(Collectors.toMap(f -> gametypePath.relativize(f).toString(), f -> {
 											 try {
-												 Path thumb = makeThumb(f, path.resolve("gallery"), THUMB_WIDTH);
+												 Path thumb = Util.thumbnail(f, path.resolve("gallery").resolve("t_" + Util.fileName(f)),
+																			 THUMB_WIDTH);
 												 return path.relativize(thumb).toString();
 											 } catch (Exception e) {
 												 return "";
@@ -232,21 +229,5 @@ public class GameTypes implements PageGenerator {
 			}
 		}
 
-		private Path makeThumb(Path source, Path dest, int width) throws IOException {
-			Path thumbPath = dest.resolve("t_" + Util.fileName(source));
-			if (Files.exists(thumbPath)) return thumbPath;
-
-			BufferedImage image = ImageIO.read(source.toFile());
-			double scale = (double)width / image.getWidth();
-			BufferedImage thumb = new BufferedImage((int)(image.getWidth() * scale),
-													(int)(image.getHeight() * scale),
-													BufferedImage.TYPE_INT_RGB);
-			Graphics2D graphics = thumb.createGraphics();
-			graphics.drawImage(image.getScaledInstance(thumb.getWidth(), thumb.getHeight(), Image.SCALE_SMOOTH), 0, 0, null);
-
-			ImageIO.write(thumb, Util.extension(source), thumbPath.toFile());
-
-			return thumbPath;
-		}
 	}
 }

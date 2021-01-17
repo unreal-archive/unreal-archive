@@ -1,5 +1,7 @@
 package net.shrimpworks.unreal.archive;
 
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -21,9 +23,11 @@ import java.text.Normalizer;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.imageio.ImageIO;
 
 public final class Util {
 
@@ -60,6 +64,8 @@ public final class Util {
 		put("zip", "application/zip");
 		put("7z", "application/x-7z-compressed");
 	}};
+
+	private static final Set<String> IMGS = Set.of("png", "bmp", "gif", "jpg", "jpeg");
 
 	private static final Pattern DISPOSITION_FILENAME = Pattern.compile(".*filename=\"?([^\"]*)\"?;?.*?");
 
@@ -120,6 +126,10 @@ public final class Util {
 
 	public static String capitalWords(String input) {
 		return UC_WORDS.matcher(input).replaceAll(match -> match.group(1).toUpperCase() + match.group(2));
+	}
+
+	public static boolean image(Path path) {
+		return IMGS.contains(extension(path).toLowerCase());
 	}
 
 	public static String hash(Path path) throws IOException {
@@ -266,5 +276,21 @@ public final class Util {
 					 }
 				 }
 			 });
+	}
+
+	public static Path thumbnail(Path source, Path dest, int width) throws IOException {
+		if (Files.exists(dest)) return dest;
+
+		BufferedImage image = ImageIO.read(source.toFile());
+		double scale = (double)width / image.getWidth();
+		BufferedImage thumb = new BufferedImage((int)(image.getWidth() * scale),
+												(int)(image.getHeight() * scale),
+												BufferedImage.TYPE_INT_RGB);
+		Graphics2D graphics = thumb.createGraphics();
+		graphics.drawImage(image.getScaledInstance(thumb.getWidth(), thumb.getHeight(), Image.SCALE_SMOOTH), 0, 0, null);
+
+		ImageIO.write(thumb, Util.extension(source), dest.toFile());
+
+		return dest;
 	}
 }

@@ -318,7 +318,7 @@ public class GameTypeManager {
 					Files.write(g.path, YAML.toString(clone).getBytes(StandardCharsets.UTF_8),
 								StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 				} catch (IOException e) {
-					System.err.printf("Could not read files and dependencies for release file %s%n", f);
+					System.err.printf("Could not read files and dependencies for release file %s%n", f[0]);
 				}
 
 			}, () -> {
