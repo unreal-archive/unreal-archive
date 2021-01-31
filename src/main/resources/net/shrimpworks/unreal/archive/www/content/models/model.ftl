@@ -1,15 +1,11 @@
 <#assign game=model.page.letter.game>
 
 <#assign headerbg>${staticPath()}/images/games/${game.name}.png</#assign>
+<#if model.model.leadImage?has_content>
+    <#assign headerbg=urlEncode(model.model.leadImage)>
+</#if>
 
-<#list model.model.attachments as a>
-	<#if a.type == "IMAGE">
-		<#assign headerbg=urlEncode(a.url)>
-		<#break>
-	</#if>
-</#list>
-
-<#assign ogDescription="${model.model.autoDescription()}">
+<#assign ogDescription="${model.model.autoDescription}">
 <#assign ogImage=headerbg>
 
 <#assign schemaItemName="${model.model.name}">

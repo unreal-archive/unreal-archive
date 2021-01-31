@@ -1,7 +1,6 @@
 package net.shrimpworks.unreal.archive.www.content;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -111,8 +110,7 @@ public class Maps extends ContentPageGenerator {
 																						 map.page.letter.gametype.name,
 																						 map.map.title))
 			 .put("map", map)
-			 .write(Paths.get(map.path.toString() + ".html"));
-
+			 .write(map.map.pagePath(siteRoot));
 		for (MapInfo variation : map.variations) {
 			this.mapPage(pages, variation);
 		}

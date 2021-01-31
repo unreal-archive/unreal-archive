@@ -32,7 +32,7 @@ import net.shrimpworks.unreal.archive.content.voices.Voice;
 		@JsonSubTypes.Type(value = Mutator.class, name = "MUTATOR"),
 		@JsonSubTypes.Type(value = UnknownContent.class, name = "UNKNOWN")
 })
-public abstract class Content implements Comparable<Content> {
+public abstract class Content implements ContentEntity<Content> {
 
 	public static final DateTimeFormatter RELEASE_DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM").withZone(ZoneId.systemDefault());
 
@@ -83,10 +83,83 @@ public abstract class Content implements Comparable<Content> {
 	 * @param root root directory
 	 * @return content directory
 	 */
+	@Override
 	public abstract Path contentPath(Path root);
 
 	protected String hashPath() {
 		return String.format("%s/%s/%s", hash.charAt(0), hash.charAt(1), hash.substring(2, 8));
+	}
+
+	/**
+	 * Create a URL-friendly file path for this content.
+	 *
+	 * @param root www output root path
+	 * @return a path to this content
+	 */
+	@Override
+	public Path slugPath(Path root) {
+		String type = Util.slug(this.contentType.toLowerCase().replaceAll("_", "") + "s");
+		String game = Util.slug(this.game);
+		String name = Util.slug(this.name + "_" + this.hash.substring(0, 8));
+		return root.resolve(type).resolve(game).resolve(subGrouping()).resolve(name);
+	}
+
+	@Override
+	public Path pagePath(Path root) {
+		Path slugPath = slugPath(root);
+		return slugPath.getParent().resolve(slugPath.getFileName().toString() + ".html");
+	}
+
+	@Override
+	public String game() {
+		return game;
+	}
+
+	@Override
+	public String name() {
+		return name;
+	}
+
+	@Override
+	public String author() {
+		return author;
+	}
+
+	@Override
+	public String autoDescription() {
+		return description;
+	}
+
+	@Override
+	public String releaseDate() {
+		return releaseDate;
+	}
+
+	@Override
+	public LocalDateTime addedDate() {
+		return firstIndex;
+	}
+
+	@Override
+	public String contentType() {
+		return contentType;
+	}
+
+	/**
+	 * Create a friendly name from the content type enum.
+	 * <p>
+	 * NOTE: This is _NOT_ unused; Freemarker templates make use of it in www output.
+	 *
+	 * @return "MAP_PACK" -> "Map Pack"
+	 */
+	@Override
+	public String friendlyType() {
+		return Util.capitalWords(this.contentType.toLowerCase().replaceAll("_", " "));
+	}
+
+	@Override
+	public String leadImage() {
+		return attachments.stream().filter(e -> e.type == AttachmentType.IMAGE).map(e -> e.url).findFirst().orElse("");
 	}
 
 	/**
@@ -100,34 +173,6 @@ public abstract class Content implements Comparable<Content> {
 		char first = name.toUpperCase().replaceAll("[^A-Z0-9]", "").charAt(0);
 		if (Character.isDigit(first)) first = '0';
 		return Character.toString(first);
-	}
-
-	/**
-	 * Create a URL-friendly file path for this content.
-	 *
-	 * @param root www output root path
-	 * @return a path to this content
-	 */
-	public Path slugPath(Path root) {
-		String type = Util.slug(this.contentType.toLowerCase().replaceAll("_", "") + "s");
-		String game = Util.slug(this.game);
-		String name = Util.slug(this.name + "_" + this.hash.substring(0, 8));
-		return root.resolve(type).resolve(game).resolve(subGrouping()).resolve(name);
-	}
-
-	/**
-	 * Create a friendly name from the content type enum.
-	 * <p>
-	 * NOTE: This is _NOT_ unused; Freemarker templates make use of it in www output.
-	 *
-	 * @return "MAP_PACK" -> "Map Pack"
-	 */
-	public String friendlyContentType() {
-		return Util.capitalWords(this.contentType.toLowerCase().replaceAll("_", " "));
-	}
-
-	public String autoDescription() {
-		return description;
 	}
 
 	public List<String> autoTags() {

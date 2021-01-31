@@ -109,11 +109,15 @@ public class GameTypes implements PageGenerator {
 
 			final String page = Templates.renderMarkdown(docChan);
 
+			Path indexPath = gametype.variationOf == null
+					? gametype.indexPath
+					: gametype.path.resolve("index.html");
+
 			pages.add("gametype.ftl", SiteMap.Page.weekly(0.97f),
 					  String.join(" / ", SECTION, gametype.gametype.game, gametype.gametype.name))
 				 .put("gametype", gametype)
 				 .put("page", page)
-				 .write(outPath.resolve("index.html"));
+				 .write(indexPath);
 
 			for (GameType.Release release : gametype.gametype.releases) {
 				generateRelease(pages, gametype, release, outPath.resolve(slug(release.title)));
@@ -167,6 +171,7 @@ public class GameTypes implements PageGenerator {
 
 		public final String slug;
 		public final Path path;
+		public final Path indexPath;
 
 		public final Map<String, String> gallery; // map of { image -> thumbnail }
 
@@ -186,8 +191,9 @@ public class GameTypes implements PageGenerator {
 
 			this.slug = slug(gametype.name);
 			this.path = variationOf == null
-					? gametype.slugPath(root)
-					: variationOf.slugPath(root).resolve(Util.slug(gametype.name));
+					? gametype.slugPath(siteRoot)
+					: variationOf.slugPath(siteRoot).resolve(Util.slug(gametype.name));
+			this.indexPath = gametype.pagePath(siteRoot);
 			this.variationOf = variationOf;
 			this.variations = variations;
 

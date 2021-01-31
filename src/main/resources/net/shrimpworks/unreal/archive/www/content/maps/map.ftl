@@ -2,15 +2,11 @@
 <#assign gametype=map.page.letter.gametype>
 
 <#assign headerbg>${staticPath()}/images/games/${game.name}.png</#assign>
+<#if map.map.leadImage?has_content>
+    <#assign headerbg=urlEncode(map.map.leadImage)>
+</#if>
 
-<#list map.map.attachments as a>
-	<#if a.type == "IMAGE">
-		<#assign headerbg=urlEncode(a.url)>
-		<#break>
-	</#if>
-</#list>
-
-<#assign ogDescription="${map.map.autoDescription()}">
+<#assign ogDescription="${map.map.autoDescription}">
 <#assign ogImage=headerbg>
 
 <#assign schemaItemName="${map.map.name}">

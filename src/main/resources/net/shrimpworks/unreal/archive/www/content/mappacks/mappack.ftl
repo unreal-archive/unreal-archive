@@ -2,15 +2,11 @@
 <#assign gametype=pack.page.gametype>
 
 <#assign headerbg>${staticPath()}/images/games/${game.name}.png</#assign>
+<#if pack.pack.leadImage?has_content>
+    <#assign headerbg=urlEncode(pack.pack.leadImage)>
+</#if>
 
-<#list pack.pack.attachments as a>
-	<#if a.type == "IMAGE">
-		<#assign headerbg=urlEncode(a.url)>
-		<#break>
-	</#if>
-</#list>
-
-<#assign ogDescription="${pack.pack.autoDescription()}">
+<#assign ogDescription="${pack.pack.autoDescription}">
 <#assign ogImage=headerbg>
 
 <#include "../../_header.ftl">

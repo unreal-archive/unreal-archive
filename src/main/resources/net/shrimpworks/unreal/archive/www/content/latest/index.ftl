@@ -23,9 +23,9 @@
 					<tbody>
           <#list content as c>
 						<tr>
-							<td>${c.game} ${c.friendlyContentType()}</td>
+							<td>${c.game} ${c.friendlyType}</td>
 							<td>
-								<a href="${relPath(c.slugPath(siteRoot) + ".html")}">${c.name}</a>
+								<a href="${relPath(c.pagePath(siteRoot))}">${c.name}</a>
 							</td>
 							<td class="nomobile">${trunc(c.author, 30)}</td>
 						</tr>

@@ -1,15 +1,11 @@
 <#assign game=mutator.page.letter.game>
 
 <#assign headerbg>${staticPath()}/images/games/${game.name}.png</#assign>
+<#if mutator.mutator.leadImage?has_content>
+    <#assign headerbg=urlEncode(mutator.mutator.leadImage)>
+</#if>
 
-<#list mutator.mutator.attachments as a>
-	<#if a.type == "IMAGE">
-		<#assign headerbg=urlEncode(a.url)>
-		<#break>
-	</#if>
-</#list>
-
-<#assign ogDescription="${mutator.mutator.autoDescription()}">
+<#assign ogDescription="${mutator.mutator.autoDescription}">
 <#assign ogImage=headerbg>
 
 <#assign schemaItemName="${mutator.mutator.name}">

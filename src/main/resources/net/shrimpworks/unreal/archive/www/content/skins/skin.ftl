@@ -1,15 +1,11 @@
 <#assign game=skin.page.letter.game>
 
 <#assign headerbg>${staticPath()}/images/games/${game.name}.png</#assign>
+<#if skin.skin.leadImage?has_content>
+    <#assign headerbg=urlEncode(skin.skin.leadImage)>
+</#if>
 
-<#list skin.skin.attachments as a>
-	<#if a.type == "IMAGE">
-		<#assign headerbg=urlEncode(a.url)>
-		<#break>
-	</#if>
-</#list>
-
-<#assign ogDescription="${skin.skin.autoDescription()}">
+<#assign ogDescription="${skin.skin.autoDescription}">
 <#assign ogImage=headerbg>
 
 <#assign schemaItemName="${skin.skin.name}">

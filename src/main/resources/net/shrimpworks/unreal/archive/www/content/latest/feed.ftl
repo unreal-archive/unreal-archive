@@ -15,25 +15,19 @@
 		<#list latest as date, content>
       <#list content as c>
 
-				<#assign titleimg="">
-				<#list c.attachments as a>
-					<#if a.type == "IMAGE">
-						<#assign titleimg=urlEncode(a.url)>
-						<#break>
-					</#if>
-				</#list>
+				<#assign titleimg=urlEncode(c.leadImage)>
 
 				<item>
-					<title>${c.game} ${c.friendlyContentType()} - ${c.name}</title>
+					<title>${c.game} ${c.friendlyType} - ${c.name}</title>
 					<#if titleimg?has_content>
 						<enclosure url="${titleimg}" type="image/png" />
 					</#if>
 					<description><![CDATA[
 						<#if titleimg?has_content><img src="${titleimg}" alt="${c.name}"/></#if>
-						<p>${c.autoDescription()}</p>
+						<p>${c.description}</p>
 					]]></description>
-					<pubDate>${c.firstIndex}</pubDate>
-					<link>${siteUrl}${relPath(c.slugPath(siteRoot))[2..]}.html</link>
+					<pubDate>${c.addedDate}</pubDate>
+					<link>${siteUrl}${relPath(c.pagePath(siteRoot))[2..]}</link>
 					<guid isPermaLink="true">${siteUrl}${relPath(c.slugPath(siteRoot))[2..]}.html</guid>
 				</item>
 

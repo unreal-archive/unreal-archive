@@ -595,7 +595,7 @@ public class Main {
 
 		if (features.latest) {
 			System.out.println("Generating latest files");
-			allPages.addAll(new Latest(contentManager, outputPath, staticOutput, features).generate());
+			allPages.addAll(new Latest(contentManager, gameTypeManager, outputPath, staticOutput, features).generate());
 		}
 
 		System.out.println("Generating sitemap");

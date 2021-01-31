@@ -61,7 +61,7 @@ public class MESSubmitter {
 					"fields", Map.of(
 							"name", content.name.replaceAll("-", "\\\\-"),
 							"game", content.game,
-							"type", content.friendlyContentType(),
+							"type", content.friendlyType(),
 							"author", content.author.replaceAll("-", "\\\\-"),
 							"url", rootUrl + "/" + content.slugPath(root).toString() + ".html",
 							"date", content.releaseDate,

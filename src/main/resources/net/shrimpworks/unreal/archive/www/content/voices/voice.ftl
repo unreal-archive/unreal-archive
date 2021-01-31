@@ -1,15 +1,11 @@
 <#assign game=voice.page.letter.game>
 
 <#assign headerbg>${staticPath()}/images/games/${game.name}.png</#assign>
+<#if voice.voice.leadImage?has_content>
+    <#assign headerbg=urlEncode(voice.voice.leadImage)>
+</#if>
 
-<#list voice.voice.attachments as a>
-	<#if a.type == "IMAGE">
-		<#assign headerbg=urlEncode(a.url)>
-		<#break>
-	</#if>
-</#list>
-
-<#assign ogDescription="${voice.voice.autoDescription()}">
+<#assign ogDescription="${voice.voice.autoDescription}">
 <#assign ogImage=headerbg>
 
 <#assign schemaItemName="${voice.voice.name}">

@@ -1,5 +1,7 @@
 package net.shrimpworks.unreal.archive.www;
 
+import java.beans.IntrospectionException;
+import java.beans.PropertyDescriptor;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -69,6 +71,23 @@ public class Templates {
 		TPL_CONFIG.setClassForTemplateLoading(Templates.class, "");
 		DefaultObjectWrapper ow = new DefaultObjectWrapper(TPL_CONFIG.getIncompatibleImprovements());
 		ow.setExposeFields(true);
+		ow.setMethodAppearanceFineTuner((in, out) -> {
+			out.setReplaceExistingProperty(false);
+			out.setMethodShadowsProperty(false);
+			try {
+				in.getContainingClass().getField(in.getMethod().getName());
+				// this did not throw a NoSuchFieldException, so we know there is a property named after the method - do not expose the method
+				out.setExposeMethodAs(null);
+			} catch (NoSuchFieldException e) {
+				try {
+					// we got a NoSuchFieldException, which means there's no property named after the method, so we can expose it
+					out.setExposeAsProperty(new PropertyDescriptor(in.getMethod().getName(), in.getContainingClass(), in.getMethod().getName(), null));
+				} catch (IntrospectionException ex) {
+					// pass
+				}
+				// pass
+			}
+		});
 		TPL_CONFIG.setObjectWrapper(ow);
 		TPL_CONFIG.setOutputEncoding(StandardCharsets.UTF_8.name());
 		TPL_CONFIG.setOutputFormat(HTMLOutputFormat.INSTANCE);

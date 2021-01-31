@@ -37,7 +37,7 @@
 					<tbody>
 						<#list packages as c>
 						<tr>
-							<td>${c.friendlyContentType()}</td>
+							<td>${c.friendlyType}</td>
 							<td>${c.game}</td>
 							<td>
 								<a href="${relPath(c.slugPath(siteRoot) + ".html")}">${c.name}</a>

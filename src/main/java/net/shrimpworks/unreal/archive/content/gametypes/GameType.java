@@ -2,7 +2,9 @@ package net.shrimpworks.unreal.archive.content.gametypes;
 
 import java.beans.ConstructorProperties;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,9 +12,11 @@ import java.util.Map;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.jetbrains.annotations.NotNull;
 
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.content.Content;
+import net.shrimpworks.unreal.archive.content.ContentEntity;
 import net.shrimpworks.unreal.archive.content.NameDescription;
 import net.shrimpworks.unreal.archive.managed.Managed;
 
@@ -24,7 +28,7 @@ import net.shrimpworks.unreal.archive.managed.Managed;
  * patches, and other downloads.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, visible = true, property = "contentType")
-public class GameType implements Comparable<GameType> {
+public class GameType implements ContentEntity<GameType> {
 
 	// Game/Type/GameType/A/[hash]
 	private static final String PATH_STRING = "%s/%s/%s/%s/";
@@ -40,8 +44,6 @@ public class GameType implements Comparable<GameType> {
 	public String titleImage = "title.png";                 // title.jpg - shown on browse page
 	public String bannerImage = "banner.png";               // banner.jpg - shown on detail page
 
-	public String releaseDate = "Unknown";                  // 2001-05
-
 	public Map<String, String> links = new HashMap<>();
 	public Map<String, List<String>> credits = new HashMap<>();
 
@@ -56,6 +58,7 @@ public class GameType implements Comparable<GameType> {
 	 */
 	public boolean deleted = false;
 
+	@Override
 	public Path contentPath(Path root) {
 		String namePrefix = subGrouping();
 		return root.resolve(String.format(PATH_STRING,
@@ -66,10 +69,17 @@ public class GameType implements Comparable<GameType> {
 		));
 	}
 
+	@Override
 	public Path slugPath(Path root) {
+		String type = Util.slug(this.contentType.toLowerCase().replaceAll("_", "") + "s");
 		String game = Util.slug(this.game);
 		String name = Util.slug(this.name);
-		return root.resolve(game).resolve(subGrouping()).resolve(name);
+		return root.resolve(type).resolve(game).resolve(subGrouping()).resolve(name);
+	}
+
+	@Override
+	public Path pagePath(Path root) {
+		return slugPath(root).resolve("index.html");
 	}
 
 	/**
@@ -83,6 +93,51 @@ public class GameType implements Comparable<GameType> {
 		char first = name.toUpperCase().replaceAll("[^A-Z0-9]", "").charAt(0);
 		if (Character.isDigit(first)) first = '0';
 		return Character.toString(first);
+	}
+
+	@Override
+	public String game() {
+		return game;
+	}
+
+	@Override
+	public String name() {
+		return name;
+	}
+
+	@Override
+	public String author() {
+		return author;
+	}
+
+	@Override
+	public String releaseDate() {
+		return releases.stream().map(r -> r.releaseDate).sorted().findFirst().orElse("Unknown");
+	}
+
+	@Override
+	public String autoDescription() {
+		return description;
+	}
+
+	@Override
+	public LocalDateTime addedDate() {
+		return addedDate.atStartOfDay();
+	}
+
+	@Override
+	public String contentType() {
+		return "GameType";
+	}
+
+	@Override
+	public String friendlyType() {
+		return "Game Type";
+	}
+
+	@Override
+	public String leadImage() {
+		return slugPath(Paths.get("")).resolve(titleImage).toString();
 	}
 
 	@Override
@@ -104,7 +159,6 @@ public class GameType implements Comparable<GameType> {
 			   Objects.equals(description, gameType.description) &&
 			   Objects.equals(titleImage, gameType.titleImage) &&
 			   Objects.equals(bannerImage, gameType.bannerImage) &&
-			   Objects.equals(releaseDate, gameType.releaseDate) &&
 			   Objects.equals(links, gameType.links) &&
 			   Objects.equals(credits, gameType.credits) &&
 			   Objects.equals(releases, gameType.releases);
@@ -112,7 +166,7 @@ public class GameType implements Comparable<GameType> {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(contentType, addedDate, game, name, author, description, titleImage, bannerImage, releaseDate, links, credits,
+		return Objects.hash(contentType, addedDate, game, name, author, description, titleImage, bannerImage, links, credits,
 							releases, deleted);
 	}
 
@@ -125,7 +179,7 @@ public class GameType implements Comparable<GameType> {
 	 * Aside from the title and version information, the properties will be
 	 * automatically managed by the indexer.
 	 */
-	public static class Release {
+	public static class Release implements Comparable<Release> {
 
 		// manually configured properties
 		public String title;
@@ -136,6 +190,11 @@ public class GameType implements Comparable<GameType> {
 		public List<ReleaseFile> files = new ArrayList<>();
 
 		public boolean deleted = false;             // if deleted, prevents from syncing and will not publish
+
+		@Override
+		public int compareTo(@NotNull GameType.Release o) {
+			return o.releaseDate.compareTo(releaseDate);
+		}
 
 		@Override
 		public boolean equals(Object o) {

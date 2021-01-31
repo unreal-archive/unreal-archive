@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -32,6 +33,8 @@ public class YAML {
 		MAPPER = new ObjectMapper(new YAMLFactory());
 		MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		MAPPER.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+		MAPPER.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+
 
 		SimpleModule module = new SimpleModule();
 
