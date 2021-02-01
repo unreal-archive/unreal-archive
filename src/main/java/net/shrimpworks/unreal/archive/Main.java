@@ -73,6 +73,7 @@ public class Main {
 	private static final String CONTENT_DIR = "content";
 	private static final String DOCUMENTS_DIR = "documents";
 	private static final String GAMETYPES_DIR = "gametypes";
+	private static final String MANAGED_DIR = "managed";
 
 	private static final Path TMP = Paths.get(System.getProperty("java.io.tmpdir"));
 	private static final String CONTENT_URL = System.getenv().getOrDefault("UA_CONTENT_URL",
@@ -102,8 +103,8 @@ public class Main {
 			case "gametype":
 				gametype(gameTypeManager(cli), cli);
 				break;
-			case "sync":
-				sync(cli);
+			case "managed":
+				managed(managedContent(cli), cli);
 				break;
 			case "mirror":
 				mirror(contentManager(cli), cli);
@@ -112,10 +113,10 @@ public class Main {
 				localMirror(contentManager(cli), cli);
 				break;
 			case "www":
-				www(contentManager(cli), documentManager(cli), managedContent(cli, "updates"), gameTypeManager(cli), cli);
+				www(contentManager(cli), documentManager(cli), managedContent(cli), gameTypeManager(cli), cli);
 				break;
 			case "search-submit":
-				searchSubmit(contentManager(cli), documentManager(cli), managedContent(cli, "updates"), cli);
+				searchSubmit(contentManager(cli), documentManager(cli), managedContent(cli), cli);
 				break;
 			case "summary":
 				summary(contentManager(cli));
@@ -270,19 +271,13 @@ public class Main {
 		return documentManager;
 	}
 
-	private static ManagedContentManager managedContent(CLI cli, String group) throws IOException {
+	private static ManagedContentManager managedContent(CLI cli) throws IOException {
 		Path contentPath = contentPath(cli);
 
-		Path managedPath = contentPath.resolve(group);
-		if (!Files.isDirectory(managedPath)) {
-			System.err.printf("Can't find content path for group %s!%n", group);
-			System.exit(3);
-		}
-
 		final long start = System.currentTimeMillis();
-		ManagedContentManager managedContentManager = new ManagedContentManager(managedPath, group);
-		System.err.printf("Loaded managed content [%s] index with %d items in %.2fs%n",
-						  group, managedContentManager.size(), (System.currentTimeMillis() - start) / 1000f);
+		ManagedContentManager managedContentManager = new ManagedContentManager(contentPath.resolve(MANAGED_DIR));
+		System.err.printf("Loaded managed content index with %d items in %.2fs%n",
+						  managedContentManager.size(), (System.currentTimeMillis() - start) / 1000f);
 
 		return managedContentManager;
 	}
@@ -298,8 +293,8 @@ public class Main {
 		return gametypes;
 	}
 
-	private static void sync(CLI cli) throws IOException {
-		ManagedContentManager managedContent = managedContent(cli, cli.commands()[1]);
+	private static void managedSync(ManagedContentManager managedContent, CLI cli) {
+		// FIXME move into managed content manager (see gametypes)
 
 		final DataStore contentStore = store(DataStore.StoreContent.CONTENT, cli);
 		Set<Managed> synced = managedContent.sync(contentStore);
@@ -449,7 +444,25 @@ public class Main {
 				break;
 			}
 			default:
-				System.err.println("Unknown game type command" + cli.commands()[1]);
+				System.err.println("Unknown game type operation" + cli.commands()[1]);
+				System.exit(3);
+		}
+	}
+
+	private static void managed(ManagedContentManager managedContent, CLI cli) throws IOException {
+		if (cli.commands().length < 2) {
+			System.err.println("A managed content operation is required:");
+			System.err.println("  sync");
+			System.err.println("    synchronises downloads, files, and dependencies for unsynced items");
+			System.exit(2);
+		}
+		switch (cli.commands()[1]) {
+			case "sync": {
+				managedSync(managedContent, cli);
+				break;
+			}
+			default:
+				System.err.println("Unknown managed content operation" + cli.commands()[1]);
 				System.exit(3);
 		}
 	}
@@ -509,7 +522,7 @@ public class Main {
 		mirror.cancel();
 	}
 
-	private static void www(ContentManager contentManager, DocumentManager documentManager, ManagedContentManager updates,
+	private static void www(ContentManager contentManager, DocumentManager documentManager, ManagedContentManager managed,
 							GameTypeManager gameTypeManager, CLI cli)
 			throws IOException {
 		if (cli.commands().length < 2) {
@@ -565,14 +578,14 @@ public class Main {
 			allPages.addAll(new Documents(documentManager, outputPath, staticOutput, features).generate());
 		}
 
-		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("updates"))) {
-			// generate updates pages
-			System.out.println("Generating Updates pages");
-			allPages.addAll(new ManagedContent(updates, outputPath, staticOutput, features, "Patches & Updates").generate());
+		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("managed"))) {
+			// generate managed constent pages
+			System.out.println("Generating Managed pages");
+			allPages.addAll(new ManagedContent(managed, outputPath, staticOutput, features).generate());
 		}
 
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("gametypes"))) {
-			// generate updates pages
+			// generate gametypes and mods pages
 			System.out.println("Generating GameType pages");
 			allPages.addAll(new GameTypes(gameTypeManager, contentManager, outputPath, staticOutput, features).generate());
 		}
@@ -580,7 +593,7 @@ public class Main {
 		// generate index
 		System.out.println("Generating index page");
 		allPages.addAll(
-				new Index(contentManager, gameTypeManager, documentManager, updates, outputPath, staticOutput, features).generate()
+				new Index(contentManager, gameTypeManager, documentManager, managed, outputPath, staticOutput, features).generate()
 		);
 
 		if (features.submit) {
@@ -595,7 +608,7 @@ public class Main {
 
 		if (features.latest) {
 			System.out.println("Generating latest files");
-			allPages.addAll(new Latest(contentManager, gameTypeManager, outputPath, staticOutput, features).generate());
+			allPages.addAll(new Latest(contentManager, gameTypeManager, managed, outputPath, staticOutput, features).generate());
 		}
 
 		System.out.println("Generating sitemap");
@@ -604,9 +617,9 @@ public class Main {
 		System.out.printf("Output %d pages in %.2fs%n", allPages.size(), (System.currentTimeMillis() - start) / 1000f);
 	}
 
-	private static void searchSubmit(ContentManager contentManager, DocumentManager documentManager, ManagedContentManager updates,
-									 CLI cli) throws IOException {
-		// TODO documents and updates
+	private static void searchSubmit(ContentManager contentManager, DocumentManager documentManager,
+									 ManagedContentManager managedContentManager, CLI cli) throws IOException {
+		// TODO documents, managed content, and gametypes
 
 		final long start = System.currentTimeMillis();
 

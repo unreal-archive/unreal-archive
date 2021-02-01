@@ -14,11 +14,11 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.jetbrains.annotations.NotNull;
 
+import net.shrimpworks.unreal.archive.ContentEntity;
+import net.shrimpworks.unreal.archive.Platform;
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.content.Content;
-import net.shrimpworks.unreal.archive.content.ContentEntity;
 import net.shrimpworks.unreal.archive.content.NameDescription;
-import net.shrimpworks.unreal.archive.managed.Managed;
 
 /**
  * Although Game Types live within the Content tree and do share some attributes,
@@ -141,6 +141,16 @@ public class GameType implements ContentEntity<GameType> {
 	}
 
 	@Override
+	public boolean deleted() {
+		return deleted;
+	}
+
+	@Override
+	public boolean isVariation() {
+		return false;
+	}
+
+	@Override
 	public int compareTo(GameType o) {
 		return name.compareTo(o.name);
 	}
@@ -218,7 +228,7 @@ public class GameType implements ContentEntity<GameType> {
 
 		public String title;
 		public String localFile;                    // local path to the file to be synced
-		public Managed.Platform platform = Managed.Platform.ANY;    // platform-specific files
+		public Platform platform = Platform.ANY;    // platform-specific files
 
 		// the results of syncing will be appended to this collection, or manually added mirrors can be added here
 		public List<Content.Download> downloads = new ArrayList<>();

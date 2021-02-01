@@ -14,6 +14,7 @@ import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 
 import net.shrimpworks.unreal.archive.ArchiveUtil;
+import net.shrimpworks.unreal.archive.Platform;
 import net.shrimpworks.unreal.archive.YAML;
 import net.shrimpworks.unreal.archive.www.ManagedContent;
 import net.shrimpworks.unreal.archive.www.SiteFeatures;
@@ -58,7 +59,7 @@ public class ManagedContentTest {
 				Files.copy(is, outPath.resolve(man.document));
 			}
 
-			final ManagedContentManager cm = new ManagedContentManager(tmpRoot, "tests");
+			final ManagedContentManager cm = new ManagedContentManager(tmpRoot);
 			assertTrue(cm.all().contains(man));
 
 			try (Reader reader = Channels.newReader(cm.document(man), StandardCharsets.UTF_8.name())) {
@@ -91,11 +92,11 @@ public class ManagedContentTest {
 				Files.copy(is, outPath.resolve(man.document));
 			}
 
-			final ManagedContentManager cm = new ManagedContentManager(tmpRoot, "tests");
+			final ManagedContentManager cm = new ManagedContentManager(tmpRoot);
 			assertTrue(cm.all().contains(man));
 
-			ManagedContent content = new ManagedContent(cm, wwwRoot, wwwRoot, SiteFeatures.ALL, "Testing Stuff");
-			assertEquals(4, content.generate().size());
+			ManagedContent content = new ManagedContent(cm, wwwRoot, wwwRoot, SiteFeatures.ALL);
+			assertEquals(5, content.generate().size());
 		} finally {
 			// cleanup temp files
 			ArchiveUtil.cleanPath(tmpRoot);
@@ -107,6 +108,7 @@ public class ManagedContentTest {
 		final Managed man = new Managed();
 		man.createdDate = LocalDate.now().minusDays(3);
 		man.updatedDate = LocalDate.now();
+		man.group = "Testing & Stuff";
 		man.game = "General";
 		man.path = "Tests";
 		man.title = "Testing Things";
@@ -116,7 +118,7 @@ public class ManagedContentTest {
 		man.document = "readme.md";
 
 		final Managed.ManagedFile file = new Managed.ManagedFile();
-		file.platform = Managed.Platform.WINDOWS;
+		file.platform = Platform.WINDOWS;
 		file.localFile = "file.exe";
 		file.synced = false;
 		file.title = "The File";

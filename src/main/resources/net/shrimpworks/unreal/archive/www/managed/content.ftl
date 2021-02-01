@@ -11,9 +11,9 @@
 <#include "../macros.ftl">
 
 	<@heading bg=[headerbg]>
-		<a href="${relPath(sectionPath + "/index.html")}">Patches & Updates</a>
 		<#list groupPath as p>
-			/ <a href="${relPath(p.path + "/index.html")}">${p.name}</a>
+			<a href="${relPath(p.path + "/index.html")}">${p.name}</a>
+			<#if p?has_next>/</#if>
 		</#list>
 		/ ${managed.managed.title}
 	</@heading>

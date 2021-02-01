@@ -2,12 +2,16 @@ package net.shrimpworks.unreal.archive.managed;
 
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import net.shrimpworks.unreal.archive.ContentEntity;
+import net.shrimpworks.unreal.archive.Platform;
 import net.shrimpworks.unreal.archive.Util;
 
 /**
@@ -25,19 +29,15 @@ import net.shrimpworks.unreal.archive.Util;
  * During the sync process, unsynced local files will be published to
  * remote storage, and may then be discarded.
  */
-public class Managed implements Comparable<Managed> {
+public class Managed implements ContentEntity<Managed> {
 
-	public enum Platform {
-		ANY,
-		WINDOWS,
-		LINUX,
-		MACOS
-	}
+	private static final DateTimeFormatter RELEASE_DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM");
 
 	public LocalDate createdDate;
 	public LocalDate updatedDate;
 
 	public String game = "Unreal Tournament";
+	public String group = "Patches & Updates";      // root level grouping
 	public String document = "readme.md";           // file name of an associated markdown document
 	public String path = "";                        // defines a path-like structure for navigation; "Tools/Editor"
 	public String title;                            // Brush Importer for UnrealED
@@ -51,11 +51,82 @@ public class Managed implements Comparable<Managed> {
 
 	public boolean published = true;                // false will hide it
 
+	public String fullPath() {
+		return String.join("/", group, game, path);
+	}
+
+	@Override
+	public Path contentPath(Path root) {
+		return slugPath(root);
+	}
+
+	@Override
 	public Path slugPath(Path root) {
+		String group = Util.slug(this.group);
 		String game = Util.slug(this.game);
 		String path = Arrays.stream(this.path.split("/")).map(Util::slug).collect(Collectors.joining("/"));
 		String name = Util.slug(this.title);
-		return root.resolve(game).resolve(path).resolve(name);
+		return root.resolve(group).resolve(game).resolve(path).resolve(name);
+	}
+
+	@Override
+	public Path pagePath(Path root) {
+		return slugPath(root).resolve("index.html");
+	}
+
+	@Override
+	public String game() {
+		return game;
+	}
+
+	@Override
+	public String name() {
+		return title;
+	}
+
+	@Override
+	public String author() {
+		return author;
+	}
+
+	@Override
+	public String releaseDate() {
+		return releaseDate != null ? releaseDate.format(RELEASE_DATE_FMT) : createdDate.format(RELEASE_DATE_FMT);
+	}
+
+	@Override
+	public String autoDescription() {
+		return description;
+	}
+
+	@Override
+	public LocalDateTime addedDate() {
+		return createdDate.atStartOfDay();
+	}
+
+	@Override
+	public String contentType() {
+		return Util.slug(this.group);
+	}
+
+	@Override
+	public String friendlyType() {
+		return group;
+	}
+
+	@Override
+	public String leadImage() {
+		return titleImage;
+	}
+
+	@Override
+	public boolean deleted() {
+		return !published;
+	}
+
+	@Override
+	public boolean isVariation() {
+		return false;
 	}
 
 	@Override

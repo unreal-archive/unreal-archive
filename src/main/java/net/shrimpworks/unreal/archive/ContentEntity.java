@@ -1,4 +1,4 @@
-package net.shrimpworks.unreal.archive.content;
+package net.shrimpworks.unreal.archive;
 
 import java.nio.file.Path;
 import java.time.LocalDateTime;
@@ -28,4 +28,8 @@ public interface ContentEntity<T extends ContentEntity<T>> extends Comparable<T>
 	public String friendlyType();
 
 	public String leadImage();
+
+	public boolean deleted();
+
+	public boolean isVariation();
 }

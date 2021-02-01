@@ -24,11 +24,9 @@ import net.shrimpworks.unreal.archive.storage.DataStore;
 public class ManagedContentManager {
 
 	private final Map<Managed, ManagedContentHolder> content;
-	private final String name;
 
-	public ManagedContentManager(Path path, String groupName) throws IOException {
+	public ManagedContentManager(Path path) throws IOException {
 		this.content = new HashMap<>();
-		this.name = groupName;
 
 		// load contents from path into content
 		Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
@@ -41,10 +39,6 @@ public class ManagedContentManager {
 				return FileVisitResult.CONTINUE;
 			}
 		});
-	}
-
-	public String name() {
-		return name;
 	}
 
 	/**
@@ -158,7 +152,7 @@ public class ManagedContentManager {
 	}
 
 	private String remotePath(Managed managed) {
-		return String.join("/", name, managed.game, managed.path);
+		return String.join("/", managed.contentType(), managed.game, managed.path);
 	}
 
 	private static class ManagedContentHolder {

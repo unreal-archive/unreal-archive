@@ -8,11 +8,12 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import net.shrimpworks.unreal.archive.ContentEntity;
 import net.shrimpworks.unreal.archive.Util;
-import net.shrimpworks.unreal.archive.content.ContentEntity;
 import net.shrimpworks.unreal.archive.content.ContentManager;
 import net.shrimpworks.unreal.archive.content.GameTypeManager;
 import net.shrimpworks.unreal.archive.content.Games;
+import net.shrimpworks.unreal.archive.managed.ManagedContentManager;
 import net.shrimpworks.unreal.archive.www.SiteFeatures;
 import net.shrimpworks.unreal.archive.www.SiteMap;
 import net.shrimpworks.unreal.archive.www.Templates;
@@ -21,12 +22,15 @@ public class Latest extends ContentPageGenerator {
 
 	private final Set<ContentEntity<?>> allContent;
 
-	public Latest(ContentManager content, GameTypeManager gameTypes, Path output, Path staticRoot, SiteFeatures features) {
+	public Latest(ContentManager content, GameTypeManager gameTypes, ManagedContentManager managed, Path output, Path staticRoot,
+				  SiteFeatures features) {
 		super(content, output, output.resolve("latest"), staticRoot, features);
 
-		this.allContent = Stream.concat(content.search(null, null, null, null).stream()
-											   .filter(c -> !c.deleted)
-											   .filter(c -> c.variationOf == null), gameTypes.all().stream())
+		this.allContent = Stream.concat(Stream.concat(content.search(null, null, null, null).stream(),
+													  gameTypes.all().stream()),
+										managed.all().stream())
+								.filter(c -> !c.deleted())
+								.filter(c -> !c.isVariation())
 								.collect(Collectors.toSet());
 	}
 

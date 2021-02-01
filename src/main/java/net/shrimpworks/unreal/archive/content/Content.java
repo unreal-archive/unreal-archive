@@ -13,6 +13,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import net.shrimpworks.unreal.archive.ContentEntity;
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.content.mappacks.MapPack;
 import net.shrimpworks.unreal.archive.content.maps.Map;
@@ -160,6 +161,16 @@ public abstract class Content implements ContentEntity<Content> {
 	@Override
 	public String leadImage() {
 		return attachments.stream().filter(e -> e.type == AttachmentType.IMAGE).map(e -> e.url).findFirst().orElse("");
+	}
+
+	@Override
+	public boolean deleted() {
+		return deleted;
+	}
+
+	@Override
+	public boolean isVariation() {
+		return variationOf == null;
 	}
 
 	/**

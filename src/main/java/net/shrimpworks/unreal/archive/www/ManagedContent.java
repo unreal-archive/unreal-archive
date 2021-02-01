@@ -23,19 +23,15 @@ public class ManagedContent implements PageGenerator {
 
 	private final ManagedContentManager content;
 	private final Path siteRoot;
-	private final Path root;
 	private final Path staticRoot;
-	private final String section;
 	private final SiteFeatures features;
 
 	private final Map<String, ContentGroup> groups;
 
-	public ManagedContent(ManagedContentManager content, Path root, Path staticRoot, SiteFeatures features, String section) {
+	public ManagedContent(ManagedContentManager content, Path root, Path staticRoot, SiteFeatures features) {
 		this.content = content;
 		this.siteRoot = root;
-		this.root = root.resolve(slug(section));
 		this.staticRoot = staticRoot;
-		this.section = section;
 		this.features = features;
 
 		this.groups = new HashMap<>();
@@ -45,7 +41,7 @@ public class ManagedContent implements PageGenerator {
 			   .sorted(Comparator.reverseOrder())
 			   .collect(Collectors.toList())
 			   .forEach(d -> {
-				   ContentGroup group = groups.computeIfAbsent(d.game, g -> new ContentGroup(null, g));
+				   ContentGroup group = groups.computeIfAbsent(d.group, g -> new ContentGroup(null, g, 0));
 				   group.add(d);
 			   });
 	}
@@ -57,10 +53,10 @@ public class ManagedContent implements PageGenerator {
 	 */
 	@Override
 	public Set<SiteMap.Page> generate() {
-		Templates.PageSet pages = new Templates.PageSet("managed", features, siteRoot, staticRoot, root);
+		Templates.PageSet pages = new Templates.PageSet("managed", features, siteRoot, staticRoot, siteRoot);
 		try {
 			// create the root landing page, for reasons
-			ContentGroup rootGroup = new ContentGroup(null, "");
+			ContentGroup rootGroup = new ContentGroup(null, "", 0);
 			rootGroup.groups.putAll(groups);
 			generateGroup(pages, rootGroup);
 		} catch (IOException e) {
@@ -79,7 +75,7 @@ public class ManagedContent implements PageGenerator {
 			grp = grp.parent;
 		}
 
-		pages.add("group.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", section, String.join(" / ", group.parentPath.split("/"))))
+		pages.add("group.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", group.parentPath.split("/")))
 			 .put("groupPath", groupPath)
 			 .put("group", group)
 			 .write(group.path.resolve("index.html"));
@@ -112,12 +108,11 @@ public class ManagedContent implements PageGenerator {
 			final String page = Templates.renderMarkdown(docChan);
 
 			pages.add("content.ftl", SiteMap.Page.monthly(0.85f, content.managed.updatedDate),
-					  String.join(" / ", section, content.managed.game, String.join(" / ", content.managed.path.split("/")),
-								  content.managed.title))
+					  String.join(" / ", String.join(" / ", content.managed.fullPath().split("/")), content.managed.title))
 				 .put("groupPath", groupPath)
 				 .put("managed", content)
 				 .put("page", page)
-				 .write(path.resolve("index.html"));
+				 .write(content.managed.pagePath(siteRoot));
 		}
 	}
 
@@ -134,30 +129,34 @@ public class ManagedContent implements PageGenerator {
 		public final List<ContentInfo> content = new ArrayList<>();
 
 		public int count;
+		private final int depth;
 
-		public ContentGroup(ContentGroup parent, String name) {
+		public ContentGroup(ContentGroup parent, String name, int depth) {
+			this.depth = depth;
 			this.parentPath = parent != null ? parent.parentPath.isEmpty() ? name : String.join("/", parent.parentPath, name) : "";
 
 			this.parent = parent;
 
 			this.name = name;
 			this.slug = slug(name);
-			this.path = parent != null ? parent.path.resolve(slug) : root.resolve(slug);
+			this.path = parent != null ? parent.path.resolve(slug) : siteRoot.resolve(slug);
 			this.count = 0;
 		}
 
 		public void add(Managed m) {
-			Path docPath = m.slugPath(root);
+			Path docPath = m.slugPath(siteRoot);
+
+			// TODO REVIEW fragile
 
 			if (docPath.getParent().equals(this.path)) {
 				// reached leaf of path tree for this content, place it here
 				content.add(new ContentInfo(m, this));
 			} else {
 				// this content lives further down the tree, keep adding paths
-				String[] next = (parentPath.isEmpty() ? m.path : m.path.replaceFirst(parentPath + "/", "")).split("/");
-				String nextName = (next.length > 0 && !next[0].isEmpty()) ? next[0] : "";
+				String[] next = m.fullPath().split("/");
+				String nextName = next[depth + 1];
 
-				ContentGroup group = groups.computeIfAbsent(nextName, g -> new ContentGroup(this, g));
+				ContentGroup group = groups.computeIfAbsent(nextName, g -> new ContentGroup(this, g, depth + 1));
 				group.add(m);
 			}
 			this.count++;
@@ -171,13 +170,15 @@ public class ManagedContent implements PageGenerator {
 
 		public final String slug;
 		public final Path path;
+		public final Path indexPath;
 
 		public ContentInfo(Managed managed, ContentGroup group) {
 			this.managed = managed;
 			this.group = group;
 
 			this.slug = slug(managed.title);
-			this.path = managed.slugPath(root);
+			this.path = managed.slugPath(siteRoot);
+			this.indexPath = managed.pagePath(siteRoot);
 		}
 	}
 

@@ -2,9 +2,9 @@
 <#include "../macros.ftl">
 
 	<@heading bg=["${staticPath()}/images/contents/patches.png"]>
-		<a href="${relPath(sectionPath + "/index.html")}">Patches & Updates</a>
 		<#list groupPath as p>
-			/ <a href="${relPath(p.path + "/index.html")}">${p.name}</a>
+			<a href="${relPath(p.path + "/index.html")}">${p.name}</a>
+			<#if p?has_next>/</#if>
 		</#list>
 	</@heading>
 
