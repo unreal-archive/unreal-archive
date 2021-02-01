@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -168,6 +169,7 @@ public abstract class Content implements ContentEntity<Content> {
 		return deleted;
 	}
 
+	@JsonIgnore
 	@Override
 	public boolean isVariation() {
 		return variationOf != null;

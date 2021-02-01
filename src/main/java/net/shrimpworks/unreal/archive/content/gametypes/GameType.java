@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.jetbrains.annotations.NotNull;
 
@@ -145,6 +146,7 @@ public class GameType implements ContentEntity<GameType> {
 		return deleted;
 	}
 
+	@JsonIgnore
 	@Override
 	public boolean isVariation() {
 		return false;

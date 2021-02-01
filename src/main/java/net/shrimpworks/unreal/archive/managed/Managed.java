@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import net.shrimpworks.unreal.archive.ContentEntity;
 import net.shrimpworks.unreal.archive.Platform;
 import net.shrimpworks.unreal.archive.Util;
@@ -124,6 +126,7 @@ public class Managed implements ContentEntity<Managed> {
 		return !published;
 	}
 
+	@JsonIgnore
 	@Override
 	public boolean isVariation() {
 		return false;
