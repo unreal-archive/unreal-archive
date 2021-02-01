@@ -170,7 +170,7 @@ public abstract class Content implements ContentEntity<Content> {
 
 	@Override
 	public boolean isVariation() {
-		return variationOf == null;
+		return variationOf != null;
 	}
 
 	/**
