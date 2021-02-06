@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">\
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 	<channel>
 		<title>Unreal Archive</title>
 		<description>Downloads and guides for maps, mutators, skins, voices, models and mods, for the original classic Unreal, Unreal Tournament (UT99), and Unreal Tournament 2004 (UT2004) games</description>
@@ -24,7 +24,7 @@
 					</#if>
 					<description><![CDATA[
 						<#if titleimg?has_content><img src="${titleimg}" alt="${c.name}"/></#if>
-						<p>${c.description}</p>
+						<p>${c.autoDescription}</p>
 					]]></description>
 					<pubDate>${c.addedDate}</pubDate>
 					<link>${siteUrl}${relPath(c.pagePath(siteRoot))[2..]}</link>
