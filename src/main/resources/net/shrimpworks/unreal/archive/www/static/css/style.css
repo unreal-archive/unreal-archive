@@ -7,7 +7,7 @@
 	--link-color: mediumblue;
 	--link-color-visited: rebeccapurple;
 
-	--header-font-family: 'PassionOne', serif;
+	--header-font-family: 'PassionOne', sans-serif;
 	--header-bg-color: black;
 	--header-text-color: white;
 	--header-border-color: #f73;
@@ -854,5 +854,12 @@ div.themes img {
 
 	footer {
 		position: relative;
+	}
+
+	article.split {
+		grid-template-columns: auto;
+		grid-template-areas:
+						'right'
+						'left';
 	}
 }
