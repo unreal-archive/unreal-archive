@@ -294,8 +294,12 @@ section.header h1 a:hover {
 	grid-gap: 15px;
 }
 
+.biglist.bigger ul {
+	grid-template-columns: 50%;
+	grid-template-areas: 'block block';
+}
+
 .biglist ul li {
-	/*grid-area: block;*/
 	position: relative;
 	height: 100px;
 	box-shadow: var(--biglist-shadow);
@@ -307,6 +311,10 @@ section.header h1 a:hover {
 	color: var(--biglist-text-color);
 
 	border-radius: 5px;
+}
+
+.biglist.bigger ul li, .biglist.taller ul li {
+	height: 150px;
 }
 
 .biglist ul li a {
@@ -338,7 +346,7 @@ section.header h1 a:hover {
 	right: 0;
 }
 
-.list nav {
+.list nav, .biglist nav {
 	display: grid;
 	grid-gap: 2px;
 	grid-auto-flow: column;
@@ -347,7 +355,7 @@ section.header h1 a:hover {
 	margin: 10px 0;
 }
 
-.list nav.letters a, .list nav.pages a {
+nav.letters a, nav.pages a {
 	background-color: var(--paginate-bg-inactive);
 	border: 1px solid var(--paginate-border);
 	padding: 5px;
@@ -356,11 +364,11 @@ section.header h1 a:hover {
 	text-align: center;
 }
 
-.list nav.letters a:hover, .list nav.pages a:hover {
+nav.letters a:hover, nav.pages a:hover {
 	background-color: var(--paginate-bg-hover);
 }
 
-.list nav.letters a.active, .list nav.pages a.active {
+nav.letters a.active, nav.pages a.active {
 	background-color: var(--paginate-bg-active);
 	box-shadow: var(--paginate-shadow-active);
 }
@@ -820,12 +828,12 @@ div.themes img {
 		grid-template-areas: 'block';
 	}
 
-	.list nav {
+	.list nav, .biglist nav {
 		display: inherit;
 		word-wrap: break-word;
 	}
 
-	.list nav.letters a, .list nav.pages a {
+	nav.letters a, nav.pages a {
 		padding: 4px 8px;
 		line-height: 2;
 	}

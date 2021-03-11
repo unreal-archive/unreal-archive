@@ -43,6 +43,11 @@
 			<a href="voices/index.html">Voices</a>
 		</li>
 	</ul>
+	<ul style="grid-template-columns: 100%; grid-template-areas: 'block'; padding-top: 15px">
+		<li style='background-image: url("${staticPath()}/images/games/All.png")'>
+			<a href="authors/index.html">Browse Authors</a>
+		</li>
+	</ul>
 </@content>
 
 <@content class="intro readable">

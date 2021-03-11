@@ -57,6 +57,7 @@ import net.shrimpworks.unreal.archive.www.SiteFeatures;
 import net.shrimpworks.unreal.archive.www.SiteMap;
 import net.shrimpworks.unreal.archive.www.Submit;
 import net.shrimpworks.unreal.archive.www.Templates;
+import net.shrimpworks.unreal.archive.www.content.Authors;
 import net.shrimpworks.unreal.archive.www.content.FileDetails;
 import net.shrimpworks.unreal.archive.www.content.GameTypes;
 import net.shrimpworks.unreal.archive.www.content.Latest;
@@ -570,6 +571,12 @@ public class Main {
 				System.out.printf("Generating %s pages%n", g.getClass().getSimpleName());
 				allPages.addAll(g.generate());
 			});
+		}
+
+		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("authors"))) {
+			// generate author pages
+			System.out.println("Generating Authors pages");
+			allPages.addAll(new Authors(contentManager, gameTypeManager, managed, outputPath, staticOutput, features).generate());
 		}
 
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("docs"))) {
