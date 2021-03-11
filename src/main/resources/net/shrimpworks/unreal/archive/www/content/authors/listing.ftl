@@ -22,16 +22,13 @@
 		<div class="authors">
 			<ul>
 				<#list authors as a>
-					<#list a.contents as content>
-            <#assign bg="">
-            <#if content.leadImage?has_content>
-                <#assign bg=urlEncode(content.leadImage)>
-								<#break>
-            </#if>
-					</#list>
+					<#assign bg="">
+					<#if a.leadImage??>
+						<#assign bg=urlEncode(a.leadImage)>
+					</#if>
 
 					<li style='background-image: url("${bg}")'>
-						<span class="meta">${a.contents?size}</span>
+						<span class="meta">${a.count}</span>
 						<a href="${relPath(a.path + "/index.html")}">${a.author}</a>
 					</li>
 				</#list>

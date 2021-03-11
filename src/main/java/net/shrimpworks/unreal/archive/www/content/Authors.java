@@ -5,8 +5,10 @@ import java.nio.file.Paths;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
@@ -162,17 +164,30 @@ public class Authors extends ContentPageGenerator {
 
 		public final Page page;
 		public final String author;
-		public final List<ContentEntity<?>> contents;
+		public final Map<String, List<ContentEntity<?>>> contents;
 		public final String slug;
 		public final Path path;
+
+		public final int count;
+		public final String leadImage;
 
 		public AuthorInfo(Page page, String author, List<ContentEntity<?>> contents) {
 			this.page = page;
 			this.author = author;
-			this.contents = contents;
+			this.contents = new HashMap<>(contents.stream().sorted().collect(Collectors.groupingBy(ContentEntity::friendlyType)));
 			this.slug = slug(author);
 
 			this.path = root.resolve(slug);
+
+			this.count = contents.size();
+
+			List<ContentEntity<?>> shuffled = new ArrayList<>(contents);
+			Collections.shuffle(shuffled);
+			leadImage = shuffled.stream()
+								.filter(e -> e.leadImage() != null && !e.leadImage().isBlank())
+								.map(ContentEntity::leadImage)
+								.findAny()
+								.orElse(null);
 		}
 
 		@Override

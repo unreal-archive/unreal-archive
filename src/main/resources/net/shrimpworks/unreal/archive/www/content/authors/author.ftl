@@ -1,12 +1,9 @@
 <#assign headerbg>${staticPath()}/images/games/All.png</#assign>
-<#list author.contents as content>
-	<#if content.leadImage?has_content>
-		<#assign headerbg=urlEncode(content.leadImage)>
-		<#break>
-	</#if>
-</#list>
+<#if author.leadImage??>
+	<#assign headerbg=urlEncode(author.leadImage)>
+</#if>
 
-<#assign ogDescription="Unreal series content by ${author.author}">
+<#assign ogDescription="Unreal series content created by ${author.author}">
 <#assign ogImage=headerbg>
 
 <#include "../../_header.ftl">
@@ -19,19 +16,21 @@
 
 <@content class="biglist taller">
 
-	<ul>
-		<#list author.contents as c>
-			<#assign bg="">
-			<#if c.leadImage?has_content>
-				<#assign bg=urlEncode(c.leadImage)>
-			</#if>
+	<#list author.contents as group, contents>
+		<h2>${group}</h2>
+		<ul>
+			<#list contents as c>
+				<#assign bg="">
+				<#if c.leadImage?has_content>
+					<#assign bg=urlEncode(c.leadImage)>
+				</#if>
 
-			<li style='background-image: url("${bg}")'>
-				<span class="meta">${c.friendlyType}</span>
-				<a href="${relPath(c.slugPath(siteRoot) + ".html")}">${c.name}</a>
-			</li>
-		</#list>
-	</ul>
+				<li style='background-image: url("${bg}")'>
+					<a href="${relPath(c.slugPath(siteRoot) + ".html")}">${c.name}</a>
+				</li>
+			</#list>
+		</ul>
+	</#list>
 
 </@content>
 

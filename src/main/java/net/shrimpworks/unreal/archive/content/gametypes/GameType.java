@@ -153,11 +153,6 @@ public class GameType implements ContentEntity<GameType> {
 	}
 
 	@Override
-	public int compareTo(GameType o) {
-		return name.compareTo(o.name);
-	}
-
-	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (!(o instanceof GameType)) return false;

@@ -133,11 +133,6 @@ public class Managed implements ContentEntity<Managed> {
 	}
 
 	@Override
-	public int compareTo(Managed managed) {
-		return releaseDate.compareTo(managed.releaseDate);
-	}
-
-	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (!(o instanceof Managed)) return false;

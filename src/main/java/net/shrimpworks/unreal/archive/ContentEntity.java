@@ -3,7 +3,7 @@ package net.shrimpworks.unreal.archive;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 
-public interface ContentEntity<T extends ContentEntity<T>> extends Comparable<T> {
+public interface ContentEntity<T extends ContentEntity<T>> extends Comparable<ContentEntity<?>> {
 
 	public Path contentPath(Path root);
 
@@ -32,4 +32,10 @@ public interface ContentEntity<T extends ContentEntity<T>> extends Comparable<T>
 	public boolean deleted();
 
 	public boolean isVariation();
+
+	@Override
+	default int compareTo(ContentEntity<?> o) {
+		return name().compareToIgnoreCase(o.name());
+	}
+
 }
