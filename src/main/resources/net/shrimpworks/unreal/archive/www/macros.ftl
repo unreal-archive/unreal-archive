@@ -197,7 +197,7 @@
    	</#list>
   </#list>
 	<#if status>
-		<img src="${staticPath()}/images/icons/file-check.svg" alt="No dependencies" title="No dependencies" height="22"/>
+		<img src="${staticPath()}/images/icons/file-check.svg" alt="No dependencies" title="No dependency problems" height="22"/>
 	<#else>
 		<img src="${staticPath()}/images/icons/file-x.svg" alt="Missing dependencies" title="Missing dependencies" height="22"/>
 	</#if>

@@ -46,10 +46,10 @@
 			{
 				"@context": "https://schema.org",
 				"@type": "DigitalDocument",
-				"abstract": "${schemaItemDesc!ogDescription}",
-				"author": "${schemaItemAuthor}",
+				"abstract": "${(schemaItemDesc!ogDescription)?replace("\"", "\\\"")?replace("\\", "\\\\")}",
+				"author": "${schemaItemAuthor?replace("\"", "\\\"")?replace("\\", "\\\\")}",
 				"image": "${headerbg}",
-				"name": "${schemaItemName}",
+				"name": "${schemaItemName?replace("\"", "\\\"")?replace("\\", "\\\\")}",
 				"datePublished": "${schemaItemDate}"
 			}
 		</script>

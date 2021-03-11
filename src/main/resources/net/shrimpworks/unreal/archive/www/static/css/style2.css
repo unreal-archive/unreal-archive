@@ -14,7 +14,7 @@
 	--link-color: white;
 	--link-color-visited: lightgray;
 
-	--header-font-family: 'PassionOne', serif;
+	--header-font-family: 'PassionOne', sans-serif;
 	--header-bg-color: var(--p1);
 	--header-text-color: white;
 	--header-border-color: var(--p6);
