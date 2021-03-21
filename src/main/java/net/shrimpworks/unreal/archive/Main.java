@@ -75,6 +75,7 @@ public class Main {
 	private static final String DOCUMENTS_DIR = "documents";
 	private static final String GAMETYPES_DIR = "gametypes";
 	private static final String MANAGED_DIR = "managed";
+	private static final String AUTHORS_DIR = "authors";
 
 	private static final Path TMP = Paths.get(System.getProperty("java.io.tmpdir"));
 	private static final String CONTENT_URL = System.getenv().getOrDefault("UA_CONTENT_URL",
@@ -576,7 +577,9 @@ public class Main {
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("authors"))) {
 			// generate author pages
 			System.out.println("Generating Authors pages");
-			allPages.addAll(new Authors(contentManager, gameTypeManager, managed, outputPath, staticOutput, features).generate());
+			Path authorPath = contentPath(cli).resolve(AUTHORS_DIR);
+			AuthorNames names = new AuthorNames(authorPath);
+			allPages.addAll(new Authors(names, contentManager, gameTypeManager, managed, outputPath, staticOutput, features).generate());
 		}
 
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("docs"))) {

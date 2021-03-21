@@ -5,17 +5,16 @@ import java.nio.file.Paths;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import net.shrimpworks.unreal.archive.AuthorNames;
 import net.shrimpworks.unreal.archive.ContentEntity;
 import net.shrimpworks.unreal.archive.content.ContentManager;
 import net.shrimpworks.unreal.archive.content.GameTypeManager;
@@ -30,15 +29,9 @@ public class Authors extends ContentPageGenerator {
 
 	private static final String SECTION = "Authors";
 
-	private static final Pattern EMAIL = Pattern.compile("([^@ \\t\\r\\n]+@[^@ \\t\\r\\n]+\\.[^@ \\t\\r\\n]+)");
-	private static final Pattern URL = Pattern.compile(
-			"((https?://)?(www\\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()!@:%_+.~#?&/=]*))"
-	);
-	private static final Pattern BY = Pattern.compile("(([Mm]ade).+)?\\s?([Bb]y)");
-
 	public final TreeMap<String, LetterGroup> letters = new TreeMap<>();
 
-	public Authors(ContentManager content, GameTypeManager gameTypes, ManagedContentManager managed, Path output, Path staticRoot,
+	public Authors(AuthorNames names, ContentManager content, GameTypeManager gameTypes, ManagedContentManager managed, Path output, Path staticRoot,
 				   SiteFeatures features) {
 		super(content, output, output.resolve("authors"), staticRoot, features);
 
@@ -48,29 +41,14 @@ public class Authors extends ContentPageGenerator {
 			  .filter(c -> !c.isVariation())
 			  .filter(c -> c.author().length() > 2)
 			  .filter(c -> !c.author().equalsIgnoreCase("Unknown"))
-			  .collect(Collectors.groupingBy(c -> cleanName(c.author()).toLowerCase())).entrySet().stream()
+			  .collect(Collectors.groupingBy(c -> names.cleanName(c.author()).toLowerCase())).entrySet().stream()
 			  .filter(e -> e.getValue().size() > 1)
 			  .sorted(Map.Entry.comparingByKey())
 			  .forEach(e -> {
-				  String authorName = cleanName(e.getValue().get(0).author());
+				  String authorName = names.cleanName(e.getValue().get(0).author());
 				  LetterGroup letter = letters.computeIfAbsent(pageSelection(authorName), LetterGroup::new);
 				  letter.add(authorName, e.getValue());
 			  });
-	}
-
-	private String cleanName(String author) {
-		String noEmail = EMAIL.matcher(author).replaceAll("");
-		if (noEmail.isBlank()) noEmail = author.substring(0, author.indexOf('@'));
-
-		String noUrl = URL.matcher(noEmail).replaceAll("");
-		if (noUrl.isBlank()) noUrl = noEmail;
-
-		String noMadeBy = BY.matcher(noUrl).replaceAll("");
-		if (noMadeBy.isBlank()) noMadeBy = noUrl;
-
-		while (noMadeBy.trim().endsWith("-")) noMadeBy = noMadeBy.substring(0, noMadeBy.length() - 2);
-
-		return noMadeBy.trim();
 	}
 
 	private String pageSelection(String author) {
