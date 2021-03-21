@@ -5,6 +5,7 @@ import java.nio.file.Paths;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -33,6 +34,7 @@ public class Authors extends ContentPageGenerator {
 	private static final Pattern URL = Pattern.compile(
 			"((https?://)?(www\\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()!@:%_+.~#?&/=]*))"
 	);
+	private static final Pattern BY = Pattern.compile("(([Mm]ade).+)?\\s?([Bb]y)");
 
 	public final TreeMap<String, LetterGroup> letters = new TreeMap<>();
 
@@ -48,6 +50,7 @@ public class Authors extends ContentPageGenerator {
 			  .filter(c -> !c.author().equalsIgnoreCase("Unknown"))
 			  .collect(Collectors.groupingBy(c -> cleanName(c.author()).toLowerCase())).entrySet().stream()
 			  .filter(e -> e.getValue().size() > 1)
+			  .sorted(Map.Entry.comparingByKey())
 			  .forEach(e -> {
 				  String authorName = cleanName(e.getValue().get(0).author());
 				  LetterGroup letter = letters.computeIfAbsent(pageSelection(authorName), LetterGroup::new);
@@ -62,9 +65,12 @@ public class Authors extends ContentPageGenerator {
 		String noUrl = URL.matcher(noEmail).replaceAll("");
 		if (noUrl.isBlank()) noUrl = noEmail;
 
-		if (noUrl.endsWith("- ")) noUrl = noUrl.substring(0, noUrl.length() - 3);
+		String noMadeBy = BY.matcher(noUrl).replaceAll("");
+		if (noMadeBy.isBlank()) noMadeBy = noUrl;
 
-		return noUrl.trim();
+		while (noMadeBy.trim().endsWith("-")) noMadeBy = noMadeBy.substring(0, noMadeBy.length() - 2);
+
+		return noMadeBy.trim();
 	}
 
 	private String pageSelection(String author) {
