@@ -108,6 +108,7 @@ public class Authors extends ContentPageGenerator {
 		public final String letter;
 		public final Path path;
 		public final List<Page> pages = new ArrayList<>();
+		public int count = 0;
 
 		public LetterGroup(String letter) {
 			this.letter = letter;
@@ -123,6 +124,8 @@ public class Authors extends ContentPageGenerator {
 			}
 
 			page.add(author, contents);
+
+			if (page.count > 0) count++;
 		}
 	}
 
@@ -144,7 +147,8 @@ public class Authors extends ContentPageGenerator {
 		public void add(String author, List<ContentEntity<?>> contents) {
 			this.authors.add(new AuthorInfo(this, author, contents));
 			Collections.sort(authors);
-			this.count = count + contents.size();
+
+			if (contents.size() > 1) this.count++;
 		}
 	}
 

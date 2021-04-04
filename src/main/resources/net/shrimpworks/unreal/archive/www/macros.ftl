@@ -29,7 +29,7 @@
 <#macro letterPages letters currentLetter pages currentPage>
 	<#if letters?? && letters?size gt 1 && currentLetter??>
 		<nav class="letters">
-			<#list letters as k, letter><a href="${relPath(letter.path + "/index.html")}"<#if letter.letter == currentLetter>class="active"</#if>>${letter.letter}</a></#list>
+			<#list letters as k, letter><#if letter.count?? && letter.count gt 0><a href="${relPath(letter.path + "/index.html")}"<#if letter.letter == currentLetter>class="active"</#if>>${letter.letter}</a></#if></#list>
 		</nav>
 	</#if>
 
