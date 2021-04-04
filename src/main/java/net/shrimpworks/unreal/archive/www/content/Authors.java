@@ -39,11 +39,11 @@ public class Authors extends ContentPageGenerator {
 									gameTypes.all().stream()), managed.all().stream())
 			  .filter(c -> !c.deleted())
 			  .filter(c -> !c.isVariation())
-//			  .filter(c -> c.author().length() > 2)
+			  .filter(c -> c.author().length() > 2)
 			  .filter(c -> !c.author().equalsIgnoreCase("Unknown"))
 			  .filter(c -> !c.author().equalsIgnoreCase("Various"))
 			  .collect(Collectors.groupingBy(c -> names.cleanName(c.author()).toLowerCase())).entrySet().stream()
-			  .filter(e -> e.getValue().size() > 1)
+//			  .filter(e -> e.getValue().size() > 1)
 			  .sorted(Map.Entry.comparingByKey())
 			  .forEach(e -> {
 				  String authorName = names.cleanName(e.getValue().get(0).author());
