@@ -52,7 +52,7 @@ public class Mutator extends Content {
 													 ? "weapon"
 													 : "vehicle",
 							 Games.byName(game).bigName,
-							 author.equalsIgnoreCase("unknown") ? "" : ", created by " + author);
+							 authorName().equalsIgnoreCase("unknown") ? "" : ", created by " + authorName());
 	}
 
 	@Override

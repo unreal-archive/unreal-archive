@@ -22,6 +22,10 @@
 		<div class="authors">
 			<ul>
 				<#list authors as a>
+					<#if a.count lt 2>
+							<#continue />
+					</#if>
+
 					<#assign bg="">
 					<#if a.leadImage??>
 						<#assign bg=urlEncode(a.leadImage)>
@@ -29,7 +33,7 @@
 
 					<li style='background-image: url("${bg}")'>
 						<span class="meta">${a.count}</span>
-						<a href="${relPath(a.path + "/index.html")}">${a.author}</a>
+						<a href="${relPath(a.path + ".html")}">${a.author}</a>
 					</li>
 				</#list>
 			</ul>

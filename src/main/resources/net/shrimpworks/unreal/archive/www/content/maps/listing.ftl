@@ -40,7 +40,7 @@
 				<tr>
 					<td nowrap="nowrap"><a href="${relPath(m.path + ".html")}">${m.map.name}</a></td>
 					<td class="nomobile">${m.map.title}</td>
-					<td>${m.map.author}</td>
+					<td><@authorLink m.map.authorName /></td>
 					<td class="nomobile">${m.map.playerCount}</td>
 					<td class="meta nomobile">
 						<#if m.map.bots>

@@ -15,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import net.shrimpworks.unreal.archive.AuthorNames;
 import net.shrimpworks.unreal.archive.ContentEntity;
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.content.mappacks.MapPack;
@@ -126,6 +127,11 @@ public abstract class Content implements ContentEntity<Content> {
 	@Override
 	public String author() {
 		return author;
+	}
+
+	@Override
+	public String authorName() {
+		return AuthorNames.nameFor(author);
 	}
 
 	@Override

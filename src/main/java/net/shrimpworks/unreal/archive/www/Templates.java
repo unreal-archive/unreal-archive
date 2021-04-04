@@ -81,7 +81,9 @@ public class Templates {
 			} catch (NoSuchFieldException e) {
 				try {
 					// we got a NoSuchFieldException, which means there's no property named after the method, so we can expose it
-					out.setExposeAsProperty(new PropertyDescriptor(in.getMethod().getName(), in.getContainingClass(), in.getMethod().getName(), null));
+					out.setExposeAsProperty(
+							new PropertyDescriptor(in.getMethod().getName(), in.getContainingClass(), in.getMethod().getName(), null)
+					);
 				} catch (IntrospectionException ex) {
 					// pass
 				}
@@ -213,6 +215,7 @@ public class Templates {
 			TPL_VARS.put("dateFmtShort", new FormatLocalDateMethod(true));
 			TPL_VARS.put("trunc", new TruncateStringMethod());
 			TPL_VARS.put("slug", new SlugMethod());
+			TPL_VARS.put("authorSlug", new AuthorSlugMethod());
 			TPL_VARS.put("siteName", SITE_NAME);
 			TPL_VARS.put("siteUrl", SITE_URL);
 			TPL_VARS.put("dataProjectUrl", DATA_PROJECT_URL);
@@ -342,6 +345,16 @@ public class Templates {
 
 			String string = args.get(0).toString();
 			return Util.slug(string);
+		}
+	}
+
+	private static class AuthorSlugMethod implements TemplateMethodModelEx {
+
+		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
+			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a string");
+
+			String string = args.get(0).toString();
+			return Util.authorSlug(string);
 		}
 	}
 

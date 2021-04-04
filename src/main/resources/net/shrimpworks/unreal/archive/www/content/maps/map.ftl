@@ -71,6 +71,7 @@
 				</#if>
 			</#assign>
 
+			<#assign author><span title="${map.map.author}"><@authorLink map.map.authorName /></span></#assign>
 			<#assign
 			labels=[
 				  "Name",
@@ -91,7 +92,7 @@
 					'${map.map.name}',
 					'<a href="${relPath(gametype.path + "/index.html")}">${map.map.gametype}</a>'?no_esc,
 					'${map.map.title}',
-					'${map.map.author}',
+					'${author}',
 					'${map.map.playerCount}',
 					'${map.map.bots?string("Yes", "No")}',
 					'${dateFmtShort(map.map.releaseDate)}',

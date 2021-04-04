@@ -202,3 +202,11 @@
 		<img src="${staticPath()}/images/icons/file-x.svg" alt="Missing dependencies" title="Missing dependencies" height="22"/>
 	</#if>
 </#macro>
+
+<#macro authorLink author display=author>
+	<#if author?lower_case == "unknown" || author?lower_case == "various">
+    ${display!author}
+	<#else>
+		<a href="${relPath(siteRoot + "/authors/" + authorSlug(author) + ".html")}">${display!author}</a>
+	</#if>
+</#macro>

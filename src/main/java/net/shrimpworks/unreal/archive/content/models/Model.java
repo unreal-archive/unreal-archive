@@ -43,7 +43,7 @@ public class Model extends Content {
 							 skins.isEmpty()
 									 ? "no skins"
 									 : skins.size() > 1 ? skins.size() + " skins" : skins.size() + " skin",
-							 author.equalsIgnoreCase("unknown") ? "" : ", created by " + author);
+							 authorName().equalsIgnoreCase("unknown") ? "" : ", created by " + authorName());
 	}
 
 	@Override

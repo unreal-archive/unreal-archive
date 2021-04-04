@@ -35,7 +35,7 @@
 				<#list skins as s>
 				<tr>
 					<td nowrap="nowrap"><a href="${relPath(s.path + ".html")}">${s.skin.name}</a></td>
-					<td>${s.skin.author}</td>
+					<td><@authorLink s.skin.authorName /></td>
 					<td class="nomobile">
 						<#if s.skin.skins?size gt 0>
 							${s.skin.skins?size} skin<#if s.skin.skins?size gt 1>s</#if>

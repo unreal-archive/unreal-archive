@@ -8,7 +8,7 @@
 <#assign ogImage=headerbg>
 
 <#assign schemaItemName="${gametype.gametype.name}">
-<#assign schemaItemAuthor="${gametype.gametype.author}">
+<#assign schemaItemAuthor="${gametype.gametype.authorName}">
 <#assign schemaItemDate="${gametype.gametype.releaseDate}-01">
 
 <#include "../../_header.ftl">
@@ -133,7 +133,7 @@
 			<section>
 				<h2><img src="${staticPath()}/images/icons/info.svg" alt="Information"/> Information</h2>
 				<div class="label-value">
-					<label>Author</label><span>${gametype.gametype.author}</span>
+					<label>Author</label><span><@authorLink gametype.gametype.authorName /></span>
 				</div>
 				<div class="label-value">
 					<label>Summary</label><span>${gametype.gametype.description}</span>

@@ -556,6 +556,10 @@ public class Main {
 		// unpack static content
 		Templates.unpackResources("static.list", Files.createDirectories(staticOutput).getParent());
 
+		Path authorPath = contentPath(cli).resolve(AUTHORS_DIR);
+		AuthorNames names = new AuthorNames(authorPath);
+		AuthorNames.instance = Optional.of(names);
+
 		final Set<SiteMap.Page> allPages = ConcurrentHashMap.newKeySet();
 
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("content"))) {
@@ -577,8 +581,6 @@ public class Main {
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("authors"))) {
 			// generate author pages
 			System.out.println("Generating Authors pages");
-			Path authorPath = contentPath(cli).resolve(AUTHORS_DIR);
-			AuthorNames names = new AuthorNames(authorPath);
 			allPages.addAll(new Authors(names, contentManager, gameTypeManager, managed, outputPath, staticOutput, features).generate());
 		}
 

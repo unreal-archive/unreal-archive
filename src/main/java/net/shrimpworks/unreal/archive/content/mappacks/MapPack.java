@@ -43,7 +43,7 @@ public class MapPack extends Content {
 	@Override
 	public String autoDescription() {
 		return String.format("%s, a %s map pack for %s containing %d maps, created by %s",
-							 name, gametype, Games.byName(game).bigName, maps.size(), author);
+							 name, gametype, Games.byName(game).bigName, maps.size(), authorName());
 	}
 
 	@Override

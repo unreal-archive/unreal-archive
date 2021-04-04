@@ -22,7 +22,7 @@
 		<section class="meta">
 			<h2><img src="${staticPath()}/images/icons/info.svg" alt="Information"/>Information</h2>
 			<div class="label-value">
-				<label>Author</label><span>${managed.managed.author}</span>
+				<label>Author</label><span><@authorLink managed.managed.authorName /></span>
 			</div>
 			<#if managed.managed.homepage??>
 				<div class="label-value">

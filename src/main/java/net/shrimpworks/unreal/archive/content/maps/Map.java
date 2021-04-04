@@ -63,7 +63,7 @@ public class Map extends Content {
 	@Override
 	public String autoDescription() {
 		String playerString = playerCount.equalsIgnoreCase("unknown") ? "" : String.format(" %s player", playerCount);
-		String authorString = author.equalsIgnoreCase("unknown") ? "" : String.format(", created by %s", author);
+		String authorString = authorName().equalsIgnoreCase("unknown") ? "" : String.format(", created by %s", authorName());
 		return String.format("%s, a%s %s map for %s%s",
 							 title, playerString, gametype, Games.byName(game).bigName, authorString);
 	}

@@ -47,7 +47,7 @@ public class Skin extends Content {
 							 faces.isEmpty()
 									 ? "no faces"
 									 : faces.size() > 1 ? faces.size() + " faces" : faces.size() + " face",
-							 author.equalsIgnoreCase("unknown") ? "" : ", created by " + author);
+							 authorName().equalsIgnoreCase("unknown") ? "" : ", created by " + authorName());
 	}
 
 	@Override

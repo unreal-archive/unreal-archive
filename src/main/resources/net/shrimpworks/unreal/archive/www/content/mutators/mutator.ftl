@@ -55,6 +55,7 @@
 				</#list>
 			</#assign>
 
+			<#assign author><@authorLink mutator.mutator.authorName /></#assign>
 			<#assign
 			labels=[
 					"Name",
@@ -74,7 +75,7 @@
 			values=[
 					'${mutator.mutator.name}',
 					'${mutator.mutator.description}',
-					'${mutator.mutator.author}',
+					'${author}',
 					'${dateFmtShort(mutator.mutator.releaseDate)}',
 					'${mutator.mutator.hasConfigMenu?string("Yes", "No")}',
 					'${mutator.mutator.hasKeybinds?string("Yes", "No")}',

@@ -30,6 +30,7 @@
 
 			<#assign voicesList><#list voice.voice.voices as v><div>${v}</div><#else>Unknown</#list></#assign>
 
+			<#assign author><@authorLink voice.voice.authorName /></#assign>
 			<#assign
 			labels=[
 					"Name",
@@ -43,7 +44,7 @@
 
 			values=[
 					'${voice.voice.name}',
-					'${voice.voice.author}',
+					'${author}',
 					'${dateFmtShort(voice.voice.releaseDate)}',
 					'${voicesList}',
 					'${fileSize(voice.voice.fileSize)}',

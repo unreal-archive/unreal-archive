@@ -31,6 +31,7 @@
 			<#assign modelList><#list model.model.models as m><div>${m}</div><#else>Unknown</#list></#assign>
 			<#assign skinsList><#list model.model.skins as s><div>${s}</div><#else>Unknown</#list></#assign>
 
+			<#assign author><@authorLink model.model.authorName /></#assign>
 			<#assign
 			labels=[
 					"Name",
@@ -45,7 +46,7 @@
 
 			values=[
 					'${model.model.name}',
-					'${model.model.author}',
+					'${author}',
 					'${dateFmtShort(model.model.releaseDate)}',
 					'${modelList}',
 					'${skinsList}',

@@ -68,6 +68,7 @@
 				</#if>
 			</#assign>
 
+			<#assign author><@authorLink pack.pack.authorName /></#assign>
 			<#assign
 			labels=[
 				"Name",
@@ -85,7 +86,7 @@
 				'${pack.pack.name}',
 				'<a href="${relPath(gametype.path + "/index.html")}">${pack.pack.gametype}</a>'?no_esc,
 				'${pack.pack.maps?size}',
-				'${pack.pack.author}',
+				'${author}',
 				'${dateFmtShort(pack.pack.releaseDate)}',
         '${themes}',
 				'${fileSize(pack.pack.fileSize)}',

@@ -35,7 +35,7 @@
 				<#list mutators as m>
 				<tr>
 					<td nowrap="nowrap"><a href="${relPath(m.path + ".html")}">${m.mutator.name}</a></td>
-					<td>${m.mutator.author}</td>
+					<td><@authorLink m.mutator.authorName /></td>
 					<td class="nomobile">
 						<#if m.mutator.mutators?size gt 0>
 							${m.mutator.mutators?size} mutator<#if m.mutator.mutators?size gt 1>s</#if>

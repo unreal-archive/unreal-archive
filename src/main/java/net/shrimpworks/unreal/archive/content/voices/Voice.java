@@ -38,7 +38,7 @@ public class Voice extends Content {
 							 voices.isEmpty()
 									 ? "no voices"
 									 : voices.size() > 1 ? voices.size() + " voices" : voices.size() + " voice",
-							 author.equalsIgnoreCase("unknown") ? "" : ", created by " + author);
+							 authorName().equalsIgnoreCase("unknown") ? "" : ", created by " + authorName());
 	}
 
 	@Override

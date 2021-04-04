@@ -15,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.jetbrains.annotations.NotNull;
 
+import net.shrimpworks.unreal.archive.AuthorNames;
 import net.shrimpworks.unreal.archive.ContentEntity;
 import net.shrimpworks.unreal.archive.Platform;
 import net.shrimpworks.unreal.archive.Util;
@@ -109,6 +110,11 @@ public class GameType implements ContentEntity<GameType> {
 	@Override
 	public String author() {
 		return author;
+	}
+
+	@Override
+	public String authorName() {
+		return AuthorNames.nameFor(author);
 	}
 
 	@Override

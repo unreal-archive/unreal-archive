@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import net.shrimpworks.unreal.archive.AuthorNames;
 import net.shrimpworks.unreal.archive.ContentEntity;
 import net.shrimpworks.unreal.archive.Platform;
 import net.shrimpworks.unreal.archive.Util;
@@ -89,6 +90,11 @@ public class Managed implements ContentEntity<Managed> {
 	@Override
 	public String author() {
 		return author;
+	}
+
+	@Override
+	public String authorName() {
+		return AuthorNames.nameFor(author);
 	}
 
 	@Override

@@ -23,7 +23,7 @@ import net.shrimpworks.unreal.archive.www.SiteFeatures;
 import net.shrimpworks.unreal.archive.www.SiteMap;
 import net.shrimpworks.unreal.archive.www.Templates;
 
-import static net.shrimpworks.unreal.archive.Util.slug;
+import static net.shrimpworks.unreal.archive.Util.authorSlug;
 
 public class Authors extends ContentPageGenerator {
 
@@ -31,16 +31,17 @@ public class Authors extends ContentPageGenerator {
 
 	public final TreeMap<String, LetterGroup> letters = new TreeMap<>();
 
-	public Authors(AuthorNames names, ContentManager content, GameTypeManager gameTypes, ManagedContentManager managed, Path output, Path staticRoot,
-				   SiteFeatures features) {
+	public Authors(AuthorNames names, ContentManager content, GameTypeManager gameTypes, ManagedContentManager managed, Path output,
+				   Path staticRoot, SiteFeatures features) {
 		super(content, output, output.resolve("authors"), staticRoot, features);
 
 		Stream.concat(Stream.concat(content.search(null, null, null, null).stream(),
 									gameTypes.all().stream()), managed.all().stream())
 			  .filter(c -> !c.deleted())
 			  .filter(c -> !c.isVariation())
-			  .filter(c -> c.author().length() > 2)
+//			  .filter(c -> c.author().length() > 2)
 			  .filter(c -> !c.author().equalsIgnoreCase("Unknown"))
+			  .filter(c -> !c.author().equalsIgnoreCase("Various"))
 			  .collect(Collectors.groupingBy(c -> names.cleanName(c.author()).toLowerCase())).entrySet().stream()
 			  .filter(e -> e.getValue().size() > 1)
 			  .sorted(Map.Entry.comparingByKey())
@@ -97,9 +98,9 @@ public class Authors extends ContentPageGenerator {
 	}
 
 	private void authorPage(Templates.PageSet pages, AuthorInfo author) {
-		pages.add("author.ftl", SiteMap.Page.monthly(0.92f), String.join(" / ", SECTION, author.author))
+		pages.add("author.ftl", SiteMap.Page.monthly(author.count > 2 ? 0.92f : 0.67f), String.join(" / ", SECTION, author.author))
 			 .put("author", author)
-			 .write(Paths.get(author.path.toString() + "/index.html"));
+			 .write(Paths.get(author.path.toString() + ".html"));
 	}
 
 	public class LetterGroup {
@@ -132,6 +133,8 @@ public class Authors extends ContentPageGenerator {
 		public final Path path;
 		public final List<AuthorInfo> authors = new ArrayList<>();
 
+		public int count;
+
 		public Page(LetterGroup letter, int number) {
 			this.letter = letter;
 			this.number = number;
@@ -141,6 +144,7 @@ public class Authors extends ContentPageGenerator {
 		public void add(String author, List<ContentEntity<?>> contents) {
 			this.authors.add(new AuthorInfo(this, author, contents));
 			Collections.sort(authors);
+			this.count = count + contents.size();
 		}
 	}
 
@@ -159,7 +163,7 @@ public class Authors extends ContentPageGenerator {
 			this.page = page;
 			this.author = author;
 			this.contents = new HashMap<>(contents.stream().sorted().collect(Collectors.groupingBy(ContentEntity::friendlyType)));
-			this.slug = slug(author);
+			this.slug = authorSlug(author);
 
 			this.path = root.resolve(slug);
 

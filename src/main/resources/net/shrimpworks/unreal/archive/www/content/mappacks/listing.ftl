@@ -31,7 +31,7 @@
 				<#list page.packs as p>
 				<tr>
 					<td><a href="${relPath(p.path + ".html")}">${p.pack.name}</a></td>
-					<td>${p.pack.author}</td>
+					<td><@authorLink p.pack.authorName /></td>
 					<td class="nomobile">${p.pack.maps?size}</td>
 					<td class="meta nomobile">
 						<#if p.pack.attachments?size gt 0>

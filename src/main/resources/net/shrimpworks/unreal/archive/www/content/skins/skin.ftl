@@ -31,6 +31,7 @@
 			<#assign skinsList><#list skin.skin.skins as s><div>${s}</div><#else>Unknown</#list></#assign>
 			<#assign faceList><#list skin.skin.faces as s><div>${s}</div><#else>Unknown</#list></#assign>
 
+			<#assign author><@authorLink skin.skin.authorName /></#assign>
 			<#assign
 			labels=[
 					"Name",
@@ -46,7 +47,7 @@
 
 			values=[
 					'${skin.skin.name}',
-					'${skin.skin.author}',
+					'${author}',
 					'${dateFmtShort(skin.skin.releaseDate)}',
 					'${skin.skin.teamSkins?string("Yes", "No")}',
 					'${skinsList}',

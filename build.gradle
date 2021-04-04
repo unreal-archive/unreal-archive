@@ -12,7 +12,7 @@ plugins {
 }
 
 group = 'net.shrimpworks'
-version = "1.6"
+version = "1.7"
 
 mainClassName = 'net.shrimpworks.unreal.archive.Main'
 
@@ -53,11 +53,11 @@ publishing {
 }
 
 dependencies {
-	implementation 'net.shrimpworks:unreal-package-lib:1.7.3'
+	implementation 'net.shrimpworks:unreal-package-lib:1.7.6'
 	implementation 'net.shrimpworks:package-dependency:1.2.8'
 
-	implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.0'
-	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.0'
+	implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.2'
+	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.2'
 
 	implementation 'org.jsoup:jsoup:1.13.1'
 

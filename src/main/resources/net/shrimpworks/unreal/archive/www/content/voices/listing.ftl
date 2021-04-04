@@ -35,7 +35,7 @@
 				<#list voices as v>
 				<tr>
 					<td nowrap="nowrap"><a href="${relPath(v.path + ".html")}">${v.voice.name}</a></td>
-					<td>${v.voice.author}</td>
+					<td><@authorLink v.voice.authorName /></td>
 					<td class="nomobile">
 						<#if v.voice.voices?size gt 0>
 							${v.voice.voices?size} voice<#if v.voice.voices?size gt 1>s</#if>
