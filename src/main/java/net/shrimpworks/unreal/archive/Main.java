@@ -633,6 +633,11 @@ public class Main {
 									 ManagedContentManager managedContentManager, CLI cli) throws IOException {
 		// TODO documents, managed content, and gametypes
 
+		// meh
+		Path authorPath = contentPath(cli).resolve(AUTHORS_DIR);
+		AuthorNames names = new AuthorNames(authorPath);
+		AuthorNames.instance = Optional.of(names);
+
 		final long start = System.currentTimeMillis();
 
 		System.out.printf("Submitting content to search instance at %s%n", System.getenv().getOrDefault("MSE_URL", ""));
