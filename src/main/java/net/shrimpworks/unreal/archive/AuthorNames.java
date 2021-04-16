@@ -14,9 +14,9 @@ public class AuthorNames {
 
 	public static Optional<AuthorNames> instance = Optional.empty();
 
-	private static final Pattern EMAIL = Pattern.compile("(-? ?)?([A-Za-z0-9.-]+@[^.]+\\.[A-Za-z]+)"); // excessively simple, intentionally
+	private static final Pattern EMAIL = Pattern.compile("(-? ?)?\\(?([A-Za-z0-9.-]+@[^.]+\\.[A-Za-z]+)\\)?"); // excessively simple, intentionally
 	private static final Pattern URL = Pattern.compile(
-			"(-? ?)?((https?://)?(www\\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\\.[a-zA-Z0-9()]{2,6}\\b([-a-zA-Z0-9()!@:%_+.~#?&/=]*))"
+			"(-? ?)?\\(?((https?://)?(www\\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\\.[a-zA-Z0-9()]{2,6}\\b([-a-zA-Z0-9()!@:%_+.~#?&/=]*))\\)?"
 	);
 	private static final Pattern BY = Pattern.compile("(([Mm]ade).+)?\\s?([Bb]y)");
 	private static final Pattern CONVERTED = Pattern.compile("([Cc]onver[^\\s]+)\\s([Bb]y)?");
@@ -42,7 +42,7 @@ public class AuthorNames {
 	}
 
 	public String cleanName(String author) {
-		String aliased = aliases.getOrDefault(author.toLowerCase(), author).strip();
+		String aliased = aliases.getOrDefault(author.toLowerCase().strip(), author).strip();
 
 		String noEmail = EMAIL.matcher(aliased).replaceAll("");
 		if (noEmail.isBlank() || noEmail.length() < 3) {
@@ -62,7 +62,7 @@ public class AuthorNames {
 		String noImport = IMPORTED.matcher(noConverted).replaceAll("");
 		if (noImport.isBlank()) noImport = noConverted;
 
-		return noImport.strip();
+		return aliases.getOrDefault(noImport.toLowerCase().strip(), noImport).strip();
 	}
 
 	public static String nameFor(String name) {
