@@ -20,6 +20,7 @@ public class AuthorNames {
 	);
 	private static final Pattern BY = Pattern.compile("(([Mm]ade).+)?\\s?([Bb]y)");
 	private static final Pattern CONVERTED = Pattern.compile("([Cc]onver[^\\s]+)\\s([Bb]y)?");
+	private static final Pattern IMPORTED = Pattern.compile("\\s(\\*)?[Ii]mported.*(\\*)?");
 
 	private final Map<String, String> aliases;
 
@@ -58,7 +59,10 @@ public class AuthorNames {
 		String noConverted = CONVERTED.matcher(noMadeBy).replaceAll("");
 		if (noConverted.isBlank()) noConverted = noMadeBy;
 
-		return noConverted.strip();
+		String noImport = IMPORTED.matcher(noConverted).replaceAll("");
+		if (noImport.isBlank()) noImport = noConverted;
+
+		return noImport.strip();
 	}
 
 	public static String nameFor(String name) {
