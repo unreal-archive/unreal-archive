@@ -109,7 +109,7 @@ public class Main {
 				managed(managedContent(cli), cli);
 				break;
 			case "mirror":
-				mirror(contentManager(cli), cli);
+				mirror(contentManager(cli), managedContent(cli), gameTypeManager(cli), cli);
 				break;
 			case "local-mirror":
 				localMirror(contentManager(cli), cli);
@@ -469,12 +469,12 @@ public class Main {
 		}
 	}
 
-	private static void mirror(ContentManager contentManager, CLI cli) {
+	private static void mirror(ContentManager contentManager, ManagedContentManager managed, GameTypeManager gameTypeManager, CLI cli) {
 		final DataStore mirrorStore = store(DataStore.StoreContent.CONTENT, cli);
 
 		System.out.printf("Mirroring files to %s with concurrency of %s%n", mirrorStore, cli.option("concurrency", "3"));
 
-		LocalDate since = LocalDate.MIN;
+		LocalDate since = LocalDate.MIN.plusDays(1);
 		try {
 			if (!cli.option("since", "").isBlank()) since = LocalDate.parse(cli.option("since", ""));
 		} catch (DateTimeParseException e) {
@@ -483,12 +483,12 @@ public class Main {
 		}
 
 		Mirror mirror = new Mirror(
-				contentManager,
+				contentManager, gameTypeManager, managed,
 				mirrorStore,
 				Integer.parseInt(cli.option("concurrency", "3")),
 				since,
 				((total, remaining, last) -> System.out.printf("\r[ %-6s / %-6s ] Processed %-40s",
-															   total - remaining, total, last.originalFilename))
+															   total - remaining, total, last.name()))
 		);
 		mirror.mirror();
 
@@ -514,7 +514,7 @@ public class Main {
 				output,
 				Integer.parseInt(cli.option("concurrency", "3")),
 				((total, remaining, last) -> System.out.printf("\r[ %-6s / %-6s ] Processed %-40s",
-															   total - remaining, total, last.originalFilename))
+															   total - remaining, total, last.name()))
 		);
 		mirror.mirror();
 

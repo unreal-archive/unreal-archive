@@ -182,92 +182,105 @@ public class GameTypeManager {
 						.findFirst().orElseThrow(() -> new IllegalArgumentException("GameType was not found: " + gameType.name));
 	}
 
-	private void syncReleases(DataStore contentStore) {
+	public void syncReleases(DataStore contentStore) {
 		Set<GameTypeHolder> toSync = gameTypes.stream()
 											  .filter(g -> g.gametype.releases.stream().flatMap(m -> m.files.stream())
 																			  .anyMatch(r -> !r.synced))
 											  .collect(Collectors.toSet());
 
-		toSync.forEach(g -> {
-			System.out.println("Syncing gametype: " + g.gametype.name);
+		toSync.forEach(g -> syncReleases(contentStore, g.gametype));
+	}
 
-			GameType clone;
-			try {
-				clone = YAML.fromString(YAML.toString(g.gametype), GameType.class);
-			} catch (IOException e) {
-				throw new IllegalStateException("Cannot clone gametype " + g.gametype);
-			}
+	private void syncReleases(DataStore contentStore, GameType gameType) {
+		System.out.println("Syncing gametype: " + gameType.name);
 
-			boolean[] success = { false };
+		GameType clone;
+		try {
+			clone = YAML.fromString(YAML.toString(gameType), GameType.class);
+		} catch (IOException e) {
+			throw new IllegalStateException("Cannot clone gametype " + gameType);
+		}
 
-			clone.releases.stream().flatMap(r -> r.files.stream()).filter(f -> !f.synced).forEach(r -> {
-				System.out.println(" - sync files for release " + r.title);
-				Path f = g.path.resolve(r.localFile);
-				if (!Files.exists(f)) throw new IllegalArgumentException(String.format("Local file %s not found!", r.localFile));
+		boolean[] success = { false };
 
-				// populate files and dependencies
-				try (Incoming incoming = new Incoming(new Submission(f))) {
-					System.out.println(" - get file details for " + f.getFileName());
+		clone.releases.stream().flatMap(r -> r.files.stream()).filter(f -> !f.synced).forEach(r -> {
+			Path f = path(gameType).resolve(r.localFile);
+			syncReleaseFile(contentStore, gameType, r, f, success);
+		});
 
-					// reuse Incoming implementation, capable of unpacking various files and formats
-					incoming.prepare();
+		if (success[0]) {
+			final Path path = path(clone);
+			gameTypes.add(new GameTypeHolder(path, clone));
+		}
+	}
 
-					// gather files
-					r.otherFiles = 0;
-					r.files.clear();
-					for (Incoming.IncomingFile i : incoming.files(Incoming.FileType.ALL)) {
-						if (!Incoming.FileType.important(i.file)) {
-							r.otherFiles++;
-							continue;
-						}
+	public void syncReleaseFile(DataStore contentStore, GameType gameType, GameType.ReleaseFile r, Path localFile, boolean[] success) {
+		System.out.println(" - sync files for release " + r.title);
+		if (!Files.exists(localFile)) throw new IllegalArgumentException(String.format("Local file %s not found!", localFile));
 
-						r.files.add(new Content.ContentFile(i.fileName(), i.fileSize(), i.hash()));
+		// populate files and dependencies
+		if (!r.synced) {
+			try (Incoming incoming = new Incoming(new Submission(localFile))) {
+				System.out.println(" - get file details for " + localFile.getFileName());
+
+				// reuse Incoming implementation, capable of unpacking various files and formats
+				incoming.prepare();
+
+				// gather files
+				r.otherFiles = 0;
+				r.files.clear();
+				for (Incoming.IncomingFile i : incoming.files(Incoming.FileType.ALL)) {
+					if (!Incoming.FileType.important(i.file)) {
+						r.otherFiles++;
+						continue;
 					}
 
-					// compute dependencies
-					r.dependencies = IndexUtils.dependencies(Games.byName(g.gametype.game), incoming);
-				} catch (IOException e) {
-					System.err.printf("Could not read files and dependencies for release file %s%n", f);
+					r.files.add(new Content.ContentFile(i.fileName(), i.fileSize(), i.hash()));
 				}
 
-				try {
-					System.out.println(" - storing file " + f.getFileName());
+				// compute dependencies
+				r.dependencies = IndexUtils.dependencies(Games.byName(gameType.game), incoming);
+			} catch (IOException e) {
+				System.err.printf("Could not read files and dependencies for release file %s%n", localFile);
+			}
+		}
 
-					// store file
-					contentStore.store(f, String.join("/", remotePath(g.gametype), f.getFileName().toString()), (url, ex) -> {
-						System.out.println(" - stored as " + url);
+		try {
+			System.out.println(" - storing file " + localFile.getFileName());
 
-						try {
-							// record download
-							if (r.downloads.stream().noneMatch(dl -> dl.url.equals(url))) {
-								r.downloads.add(new Content.Download(url, true, false, Content.DownloadState.OK));
-							}
+			// store file
+			storeReleaseFile(contentStore, gameType, r, localFile, success);
+		} catch (IOException e) {
+			throw new RuntimeException(String.format("Failed to sync file %s: %s%n", r.localFile, e));
+		}
+	}
 
-							// other file stats
-							r.fileSize = Files.size(f);
-							r.hash = Util.hash(f);
-							r.originalFilename = Util.fileName(f);
-							r.synced = true;
+	private void storeReleaseFile(DataStore contentStore, GameType gameType, GameType.ReleaseFile releaseFile, Path localFile, boolean[] success)
+			throws IOException {
+		contentStore.store(localFile, String.join("/", remotePath(gameType), localFile.getFileName().toString()), (url, ex) -> {
+			System.out.println(" - stored as " + url);
 
-							// replace existing with updated
-							Files.write(g.path, YAML.toString(clone).getBytes(StandardCharsets.UTF_8),
-										StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-
-							success[0] = true;
-						} catch (IOException e) {
-							throw new RuntimeException(String.format("Failed to update managed content definition %s: %s%n",
-																	 g.path, e.toString()));
-						}
-
-					});
-				} catch (IOException e) {
-					throw new RuntimeException(String.format("Failed to sync file %s: %s%n", r.localFile, e.toString()));
+			try {
+				// record download
+				if (releaseFile.downloads.stream().noneMatch(dl -> dl.url.equals(url))) {
+					releaseFile.downloads.add(new Content.Download(url, !releaseFile.synced, false, Content.DownloadState.OK));
 				}
-			});
 
-			if (success[0]) {
-				gameTypes.remove(g);
-				gameTypes.add(new GameTypeHolder(g.path, clone));
+				// other file stats
+				if (!releaseFile.synced) {
+					releaseFile.fileSize = Files.size(localFile);
+					releaseFile.hash = Util.hash(localFile);
+					releaseFile.originalFilename = Util.fileName(localFile);
+					releaseFile.synced = true;
+				}
+
+				// replace existing with updated
+				Files.write(path(gameType), YAML.toString(gameType).getBytes(StandardCharsets.UTF_8),
+							StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+
+				success[0] = true;
+			} catch (IOException e) {
+				throw new RuntimeException(String.format("Failed to update gametype definition %s: %s%n", path(gameType), e));
 			}
 		});
 	}
@@ -278,58 +291,58 @@ public class GameTypeManager {
 				 .filter(g -> g.gametype.game.equals(game.name) && g.gametype.name.equalsIgnoreCase(gameType))
 				 .findFirst().ifPresentOrElse(g -> {
 
-			GameType clone;
-			try {
-				clone = YAML.fromString(YAML.toString(g.gametype), GameType.class);
-			} catch (IOException e) {
-				throw new IllegalStateException("Cannot clone gametype " + g.gametype);
-			}
+					 GameType clone;
+					 try {
+						 clone = YAML.fromString(YAML.toString(g.gametype), GameType.class);
+					 } catch (IOException e) {
+						 throw new IllegalStateException("Cannot clone gametype " + g.gametype);
+					 }
 
-			clone.releases.stream()
-						  .filter(r -> !r.deleted && !r.files.isEmpty())
-						  .flatMap(r -> r.files.stream())
-						  .filter(r -> !r.deleted && r.originalFilename.equalsIgnoreCase(releaseFile))
-						  .findFirst().ifPresentOrElse(r -> {
-				Path[] f = { Paths.get(r.localFile) };
-				if (!Files.exists(f[0])) {
-					System.out.printf("Downloading %s (%dKB)%n", r.originalFilename, r.fileSize / 1024);
-					try {
-						f[0] = Util.downloadTo(r.downloads.stream().filter(m -> m.main).map(m -> m.url).findFirst().get(),
-											   Files.createTempDirectory("ua-gametype").resolve(r.originalFilename));
-					} catch (Exception e) {
-						throw new RuntimeException(String.format("Could not download file %s", releaseFile), e);
-					}
-				}
+					 clone.releases.stream()
+								   .filter(r -> !r.deleted && !r.files.isEmpty())
+								   .flatMap(r -> r.files.stream())
+								   .filter(r -> !r.deleted && r.originalFilename.equalsIgnoreCase(releaseFile))
+								   .findFirst().ifPresentOrElse(r -> {
+							  Path[] f = { Paths.get(r.localFile) };
+							  if (!Files.exists(f[0])) {
+								  System.out.printf("Downloading %s (%dKB)%n", r.originalFilename, r.fileSize / 1024);
+								  try {
+									  f[0] = Util.downloadTo(r.downloads.stream().filter(m -> m.main).map(m -> m.url).findFirst().get(),
+															 Files.createTempDirectory("ua-gametype").resolve(r.originalFilename));
+								  } catch (Exception e) {
+									  throw new RuntimeException(String.format("Could not download file %s", releaseFile), e);
+								  }
+							  }
 
-				try (Incoming incoming = new Incoming(new Submission(f[0]))) {
-					// reuse Incoming implementation, capable of unpacking various files and formats
-					incoming.prepare();
+							  try (Incoming incoming = new Incoming(new Submission(f[0]))) {
+								  // reuse Incoming implementation, capable of unpacking various files and formats
+								  incoming.prepare();
 
-					// find gametypes
-					clone.gameTypes = findGameTypes(incoming);
+								  // find gametypes
+								  clone.gameTypes = findGameTypes(incoming);
 
-					// find mutators
-					clone.mutators = findMutators(incoming);
+								  // find mutators
+								  clone.mutators = findMutators(incoming);
 
-					// find maps
-					clone.maps = findMaps(incoming, clone, imagesStore);
+								  // find maps
+								  clone.maps = findMaps(incoming, clone, imagesStore);
 
-					// replace existing with updated
-					Files.write(g.path, YAML.toString(clone).getBytes(StandardCharsets.UTF_8),
-								StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-				} catch (IOException e) {
-					System.err.printf("Could not read files and dependencies for release file %s%n", f[0]);
-				}
+								  // replace existing with updated
+								  Files.write(g.path, YAML.toString(clone).getBytes(StandardCharsets.UTF_8),
+											  StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+							  } catch (IOException e) {
+								  System.err.printf("Could not read files and dependencies for release file %s%n", f[0]);
+							  }
 
-			}, () -> {
-				throw new RuntimeException(String.format("Could not find release file %s", releaseFile));
-			});
+						  }, () -> {
+							  throw new RuntimeException(String.format("Could not find release file %s", releaseFile));
+						  });
 
-			gameTypes.remove(g);
-			gameTypes.add(new GameTypeHolder(g.path, clone));
-		}, () -> {
-			throw new RuntimeException(String.format("Could not find game type %s", gameType));
-		});
+					 gameTypes.remove(g);
+					 gameTypes.add(new GameTypeHolder(g.path, clone));
+				 }, () -> {
+					 throw new RuntimeException(String.format("Could not find game type %s", gameType));
+				 });
 	}
 
 	/**
@@ -529,5 +542,17 @@ public class GameTypeManager {
 			this.variationOf = variationOf;
 		}
 
+		@Override
+		public boolean equals(java.lang.Object o) {
+			if (this == o) return true;
+			if (o == null || getClass() != o.getClass()) return false;
+			GameTypeHolder that = (GameTypeHolder)o;
+			return Objects.equals(gametype, that.gametype);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(gametype);
+		}
 	}
 }

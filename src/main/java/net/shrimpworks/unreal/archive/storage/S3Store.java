@@ -13,10 +13,12 @@ import java.util.function.Consumer;
 import io.minio.MinioClient;
 import io.minio.ObjectStat;
 import io.minio.PutObjectOptions;
+import io.minio.Result;
 import io.minio.errors.ErrorResponseException;
 import io.minio.errors.InvalidEndpointException;
 import io.minio.errors.InvalidPortException;
 import io.minio.errors.MinioException;
+import io.minio.messages.Item;
 
 import net.shrimpworks.unreal.archive.CLI;
 import net.shrimpworks.unreal.archive.Util;
@@ -38,7 +40,7 @@ public class S3Store implements DataStore {
 
 			try {
 				return new S3Store(endpoint, keyId, secret, bucket, publicUrl);
-			} catch (MinioException e) {
+			} catch (MinioException | IOException e) {
 				throw new IllegalArgumentException(e.getMessage(), e);
 			}
 		}
@@ -58,7 +60,7 @@ public class S3Store implements DataStore {
 	private final String publicUrl;
 
 	public S3Store(String endpointUrl, String accessKey, String secretKey, String bucket, String publicUrl)
-			throws InvalidPortException, InvalidEndpointException {
+			throws InvalidPortException, InvalidEndpointException, IOException {
 		this.client = new MinioClient(endpointUrl, accessKey, secretKey);
 		this.bucket = bucket;
 		this.publicUrl = publicUrl;

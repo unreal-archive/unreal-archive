@@ -19,7 +19,7 @@ public class AuthorNames {
 			"(-? ?)?\\(?((https?://)?(www\\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\\.[a-zA-Z0-9()]{2,6}\\b([-a-zA-Z0-9()!@:%_+.~#?&/=]*))\\)?"
 	);
 	private static final Pattern BY = Pattern.compile("(([Mm]ade).+)?\\s?([Bb]y)");
-	private static final Pattern CONVERTED = Pattern.compile("([Cc]onver[^\\s]+)\\s([Bb]y)?");
+	private static final Pattern CONVERTED = Pattern.compile("([-A-Za-z]+?[Cc]onver[^\\s]+)\\s([Bb]y)?");
 	private static final Pattern IMPORTED = Pattern.compile("\\s(\\*)?[Ii]mported.*(\\*)?");
 
 	private final Map<String, String> aliases;
@@ -39,6 +39,10 @@ public class AuthorNames {
 					 throw new RuntimeException("Failed to process names from file " + path, e);
 				 }
 			 });
+	}
+
+	public AuthorNames(Map<String, String> aliases) {
+		this.aliases = aliases;
 	}
 
 	public String cleanName(String author) {

@@ -117,6 +117,10 @@ public final class Util {
 		return path.getParent().resolve(safeFileName(path.getFileName().toString()));
 	}
 
+	public static void main(String[] args) {
+		System.out.println(slug("Sa\uFFFEings"));
+	}
+
 	public static String slug(String input) {
 		String nowhitespace = WHITESPACE.matcher(input).replaceAll("-");
 		String normalized = Normalizer.normalize(nowhitespace, Normalizer.Form.NFD);

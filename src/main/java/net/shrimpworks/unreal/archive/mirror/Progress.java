@@ -1,9 +1,9 @@
 package net.shrimpworks.unreal.archive.mirror;
 
-import net.shrimpworks.unreal.archive.content.Content;
+import net.shrimpworks.unreal.archive.ContentEntity;
 
 @FunctionalInterface
 public interface Progress {
 
-	public void progress(long total, long remaining, Content last);
+	public void progress(long total, long remaining, ContentEntity<?> last);
 }
