@@ -16,6 +16,7 @@ import com.vladsch.flexmark.parser.Parser;
 import net.shrimpworks.unreal.archive.ArchiveUtil;
 import net.shrimpworks.unreal.archive.Platform;
 import net.shrimpworks.unreal.archive.YAML;
+import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.www.ManagedContent;
 import net.shrimpworks.unreal.archive.www.SiteFeatures;
 
@@ -37,11 +38,11 @@ public class ManagedContentTest {
 		assertNotSame(man, newMan);
 		assertEquals(man.downloads.get(0), newMan.downloads.get(0));
 
-		// fake syncing the download, should appear as a change
-		newMan.downloads.get(0).downloads.add("https://cool-files.dl/file.exe");
+		// fake syncing the download, downloads don't count as changes, so they can be managed while syncing
+		newMan.downloads.get(0).downloads.add(new Content.Download("https://cool-files.dl/file.exe", false));
 		newMan.downloads.get(0).synced = true;
 
-		assertNotEquals(man, newMan);
+		assertEquals(man, newMan);
 		assertNotEquals(man.downloads.get(0), newMan.downloads.get(0));
 	}
 
