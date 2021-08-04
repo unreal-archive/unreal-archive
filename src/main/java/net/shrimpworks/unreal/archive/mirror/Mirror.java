@@ -13,6 +13,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import net.shrimpworks.unreal.archive.ContentEntity;
 import net.shrimpworks.unreal.archive.Util;
@@ -55,17 +56,16 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 
 		final LocalDate sinceFilter = since.minusDays(1);
 
-		this.content =
-//				Stream.concat(
-//									 cm.search(null, null, null, null).stream(),
-//									 Stream.concat(
-//											 gm.all().stream(),
-				mm.all().stream()
-//									 )
-//							 )
-				  .filter(c -> !c.deleted())
-				  .filter(c -> c.addedDate().toLocalDate().isAfter(sinceFilter))
-				  .collect(Collectors.toCollection(ConcurrentLinkedDeque::new));
+		this.content = Stream.concat(
+									 cm.search(null, null, null, null).stream(),
+									 Stream.concat(
+											 gm.all().stream(),
+											 mm.all().stream()
+									 )
+							 )
+							 .filter(c -> !c.deleted())
+							 .filter(c -> c.addedDate().toLocalDate().isAfter(sinceFilter))
+							 .collect(Collectors.toCollection(ConcurrentLinkedDeque::new));
 
 		this.retryQueue = new ConcurrentLinkedDeque<>();
 		this.concurrency = concurrency;
