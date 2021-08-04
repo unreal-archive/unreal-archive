@@ -492,7 +492,7 @@ public class Main {
 		);
 		mirror.mirror();
 
-		System.out.println("Mirror completed");
+		System.out.printf("%nMirror completed%n");
 
 		// cleanup executor
 		mirror.cancel();

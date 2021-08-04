@@ -80,12 +80,13 @@ public class S3Store implements DataStore {
 		exists(name, (exits) -> {
 			if (exits instanceof ObjectStat) {
 				stored.accept(Util.toUriString(makePublicUrl(((ObjectStat)exits).bucketName(), ((ObjectStat)exits).name())), null);
-			}
-			try {
-				client.putObject(bucket, name, stream, new PutObjectOptions(dataSize, -1));
-				stored.accept(Util.toUriString(makePublicUrl(bucket, name)), null);
-			} catch (Exception e) {
-				stored.accept(null, new IOException("Failed to store file " + name, e));
+			} else {
+				try {
+					client.putObject(bucket, name, stream, new PutObjectOptions(dataSize, -1));
+					stored.accept(Util.toUriString(makePublicUrl(bucket, name)), null);
+				} catch (Exception e) {
+					stored.accept(null, new IOException("Failed to store file " + name, e));
+				}
 			}
 		});
 	}

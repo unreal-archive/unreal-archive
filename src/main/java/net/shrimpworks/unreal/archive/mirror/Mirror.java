@@ -13,7 +13,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import net.shrimpworks.unreal.archive.ContentEntity;
 import net.shrimpworks.unreal.archive.Util;
@@ -22,6 +21,7 @@ import net.shrimpworks.unreal.archive.content.ContentManager;
 import net.shrimpworks.unreal.archive.content.GameTypeManager;
 import net.shrimpworks.unreal.archive.content.IndexResult;
 import net.shrimpworks.unreal.archive.content.gametypes.GameType;
+import net.shrimpworks.unreal.archive.managed.Managed;
 import net.shrimpworks.unreal.archive.managed.ManagedContentManager;
 import net.shrimpworks.unreal.archive.storage.DataStore;
 
@@ -55,15 +55,17 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 
 		final LocalDate sinceFilter = since.minusDays(1);
 
-		this.content = Stream.concat(
-									 cm.search(null, null, null, null).stream(),
-									 Stream.concat(
-											 gm.all().stream(), mm.all().stream()
-									 )
-							 )
-							 .filter(c -> !c.deleted())
-							 .filter(c -> c.addedDate().toLocalDate().isAfter(sinceFilter))
-							 .collect(Collectors.toCollection(ConcurrentLinkedDeque::new));
+		this.content =
+//				Stream.concat(
+//									 cm.search(null, null, null, null).stream(),
+//									 Stream.concat(
+//											 gm.all().stream(),
+				mm.all().stream()
+//									 )
+//							 )
+				  .filter(c -> !c.deleted())
+				  .filter(c -> c.addedDate().toLocalDate().isAfter(sinceFilter))
+				  .collect(Collectors.toCollection(ConcurrentLinkedDeque::new));
 
 		this.retryQueue = new ConcurrentLinkedDeque<>();
 		this.concurrency = concurrency;
@@ -75,10 +77,6 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 		this.executor = Executors.newFixedThreadPool(concurrency);
 	}
 
-	public boolean mirror() {
-		return mirrorContent();
-	}
-
 	public void cancel() {
 		executor.shutdownNow();
 
@@ -88,7 +86,7 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 		}
 	}
 
-	private boolean mirrorContent() {
+	public boolean mirror() {
 		this.mirrorThread = Thread.currentThread();
 
 		// limit number of retry cycles
@@ -140,7 +138,7 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 
 	private void next() {
 		final ContentEntity<?> c = this.content.poll();
-		if (c != null) executor.submit(new Transfer(c, this.mirrorStore, this, this.retryQueue));
+		if (c != null) executor.submit(new Transfer(c, this.mirrorStore, this));
 	}
 
 	private static class MirrorFailedException extends Exception {
@@ -160,12 +158,10 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 		private final ContentEntity<?> content;
 		private final DataStore mirrorStore;
 		private final Consumer<Transfer> done;
-		private final Deque<ContentEntity<?>> retryQueue;
 
-		public Transfer(ContentEntity<?> c, DataStore mirrorStore, Consumer<Transfer> done, Deque<ContentEntity<?>> retryQueue) {
+		public Transfer(ContentEntity<?> c, DataStore mirrorStore, Consumer<Transfer> done) {
 			this.content = c;
 			this.mirrorStore = mirrorStore;
-			this.retryQueue = retryQueue;
 			this.done = done;
 		}
 
@@ -174,6 +170,7 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 			try {
 				if (content instanceof Content) mirrorContent((Content)content);
 				else if (content instanceof GameType) mirrorGameType((GameType)content);
+				else if (content instanceof Managed) mirrorManaged((Managed)content);
 				else System.out.printf("%nContent mirroring not yet supported for type %s: %s%n",
 									   content.getClass().getSimpleName(), content.name());
 			} catch (MirrorFailedException t) {
@@ -181,6 +178,30 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 				retryQueue.add(t.content);
 			} finally {
 				done.accept(this);
+			}
+		}
+
+		private void mirrorManaged(Managed managed) throws MirrorFailedException {
+			for (Managed.ManagedFile download : managed.downloads) {
+				try {
+					Content.Download dl = download.downloads.stream().filter(d -> d.main).findFirst().get();
+					Path localFile = Util.downloadTo(
+							dl.url.replaceAll(" ", "%20"),
+							Files.createTempDirectory("ua-mirror").resolve(Util.fileName(download.localFile))
+					);
+
+					try {
+						boolean[] success = { false };
+						mm.storeDownloadFile(mirrorStore, managed, download, localFile, success);
+						if (!success[0]) {
+							throw new MirrorFailedException("Mirror of managed file failed", null, download.originalFilename, managed);
+						}
+					} finally {
+						Files.deleteIfExists(localFile);
+					}
+				} catch (Exception ex) {
+					throw new MirrorFailedException(ex.getMessage(), ex, download.originalFilename, managed);
+				}
 			}
 		}
 
@@ -197,8 +218,9 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 						try {
 							boolean[] success = { false };
 							gm.syncReleaseFile(mirrorStore, gameType, releaseFile, localFile, success);
-							if (!success[0])
+							if (!success[0]) {
 								throw new MirrorFailedException("Mirror of gametype failed", null, releaseFile.originalFilename, gameType);
+							}
 						} finally {
 							Files.deleteIfExists(localFile);
 						}

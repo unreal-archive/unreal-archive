@@ -16,6 +16,7 @@ import net.shrimpworks.unreal.archive.AuthorNames;
 import net.shrimpworks.unreal.archive.ContentEntity;
 import net.shrimpworks.unreal.archive.Platform;
 import net.shrimpworks.unreal.archive.Util;
+import net.shrimpworks.unreal.archive.content.Content;
 
 /**
  * Managed files represent content we cannot automatically index and
@@ -154,14 +155,13 @@ public class Managed implements ContentEntity<Managed> {
 			   && Objects.equals(homepage, managed.homepage)
 			   && Objects.equals(description, managed.description)
 			   && Objects.equals(titleImage, managed.titleImage)
-			   && Objects.equals(images, managed.images)
-			   && Objects.equals(downloads, managed.downloads);
+			   && Objects.equals(images, managed.images);
 	}
 
 	@Override
 	public int hashCode() {
 		return Objects.hash(createdDate, updatedDate, game, document, path, title, author, homepage, description, titleImage, images,
-							downloads, published);
+							published);
 	}
 
 	public static class ManagedFile {
@@ -170,9 +170,13 @@ public class Managed implements ContentEntity<Managed> {
 		public String version;
 		public String description = "";             // specific description for this file
 		public String localFile;                    // local path to the file to be synced
-		public List<String> downloads = new ArrayList<>(); // list of download mirrors for this file, sync process will add to this
-		public long fileSize = 0;                    // filesize, we'll determine when synced
 		public Platform platform = Platform.ANY;    // platform-specific files
+
+		public List<Content.Download> downloads = new ArrayList<>(); // list of download mirrors for this file, sync process will add to this
+
+		public String originalFilename;             // dm-mymap.zip
+		public String hash;
+		public long fileSize = 0;                   // filesize, we'll determine when synced
 		public boolean synced = false;              // if false, localFile will be uploaded and turned into a download upon sync
 		public boolean deleted = false;             // if deleted, prevents from syncing and will not publish
 

@@ -32,12 +32,12 @@
 			<div class="label-value">
 				<label>Release Date</label><span>${managed.managed.releaseDate!"-"}</span>
 			</div>
-			<div class="label-value">
-				<label>Date Added</label><span>${managed.managed.createdDate}</span>
-			</div>
-			<div class="label-value">
-				<label>Last Updated</label><span>${managed.managed.updatedDate}</span>
-			</div>
+<#--			<div class="label-value">-->
+<#--				<label>Date Added</label><span>${managed.managed.createdDate}</span>-->
+<#--			</div>-->
+<#--			<div class="label-value">-->
+<#--				<label>Last Updated</label><span>${managed.managed.updatedDate}</span>-->
+<#--			</div>-->
 			<div class="label-value">
 				<label>Summary</label><span>${managed.managed.description}</span>
 			</div>
@@ -52,13 +52,17 @@
 								${d.title} ver ${d.version}
 							</div>
 							<div class="info">
-								<div>${fileName(d.localFile)}</div>
+								<div>${d.originalFileName!fileName(d.localFile)}</div>
 								<div>${fileSize(d.fileSize)}</div>
 								<div>${d.description}</div>
 							</div>
 							<div class="links">
 								<#list d.downloads as l>
-									<a href="${urlEncode(l)}">${urlHost(l)}</a>
+										<#if l.state == 'OK'>
+											<a href="${urlEncode(l.url)}" <#if l.main>class="main"</#if>>
+													${urlHost(l.url)}
+											</a>
+										</#if>
 								</#list>
 							</div>
 						</div>

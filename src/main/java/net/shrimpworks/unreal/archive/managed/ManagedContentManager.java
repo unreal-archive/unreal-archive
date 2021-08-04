@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.YAML;
+import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.storage.DataStore;
 
 public class ManagedContentManager {
@@ -29,7 +30,7 @@ public class ManagedContentManager {
 		this.content = new HashMap<>();
 
 		// load contents from path into content
-		Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
+		Files.walkFileTree(path, new SimpleFileVisitor<>() {
 			@Override
 			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 				if (Util.extension(file).equalsIgnoreCase("yml")) {
@@ -83,14 +84,18 @@ public class ManagedContentManager {
 	 * This can be used to access files intended to be bundled with
 	 * the document.
 	 *
-	 * @param man document to get root path for
+	 * @param managed document to get root path for
 	 * @return document root path
 	 */
-	public Path contentRoot(Managed man) {
-		ManagedContentHolder holder = content.get(man);
+	public Path contentRoot(Managed managed) {
+		ManagedContentHolder holder = content.get(managed);
 		if (holder == null) return null;
 
 		return holder.path.getParent();
+	}
+
+	private Path path(Managed managed) {
+		return content.get(managed).path;
 	}
 
 	public Set<Managed> sync(DataStore contentStore) {
@@ -119,25 +124,9 @@ public class ManagedContentManager {
 				if (!Files.exists(f)) throw new IllegalArgumentException(String.format("Local file %s not found!", d.localFile));
 
 				try {
-					contentStore.store(f, String.join("/", remotePath(m.managed), f.getFileName().toString()), (url, ex) -> {
-						try {
-							if (!d.downloads.contains(url)) d.downloads.add(url);
-							d.fileSize = Files.size(f);
-							d.synced = true;
-
-							// replace existing with updated
-							Files.write(m.path, YAML.toString(clone).getBytes(StandardCharsets.UTF_8),
-										StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-
-							success[0] = true;
-						} catch (IOException e) {
-							throw new RuntimeException(String.format("Failed to update managed content definition %s: %s%n",
-																	 m.path, e.toString()));
-						}
-
-					});
+					storeDownloadFile(contentStore, clone, d, f, success);
 				} catch (IOException e) {
-					throw new RuntimeException(String.format("Failed to sync file %s: %s%n", d.localFile, e.toString()));
+					throw new RuntimeException(String.format("Failed to sync file %s: %s%n", d.localFile, e));
 				}
 			});
 
@@ -149,6 +138,34 @@ public class ManagedContentManager {
 		});
 
 		return synced;
+	}
+
+	public void storeDownloadFile(DataStore contentStore, Managed managed, Managed.ManagedFile file, Path localFile, boolean[] success)
+			throws IOException {
+		contentStore.store(localFile, String.join("/", remotePath(managed), localFile.getFileName().toString()), (url, ex) -> {
+			try {
+				// record download
+				if (file.downloads.stream().noneMatch(dl -> dl.url.equals(url))) {
+					file.downloads.add(new Content.Download(url, !file.synced, false, Content.DownloadState.OK));
+				}
+
+				// other file stats (the null checks are added to populate fields added post initial implementation)
+				if (!file.synced || file.hash == null || file.originalFilename == null) {
+					file.fileSize = Files.size(localFile);
+					file.hash = Util.hash(localFile);
+					file.originalFilename = Util.fileName(localFile);
+					file.synced = true;
+				}
+
+				// replace existing with updated
+				Files.write(path(managed), YAML.toString(managed).getBytes(StandardCharsets.UTF_8),
+							StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+
+				success[0] = true;
+			} catch (IOException e) {
+				throw new RuntimeException(String.format("Failed to update managed content definition %s: %s%n", path(managed), e));
+			}
+		});
 	}
 
 	private String remotePath(Managed managed) {
