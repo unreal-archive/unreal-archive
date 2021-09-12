@@ -773,6 +773,35 @@ div.themes img {
 	height: 22px;
 }
 
+/*
+  lightbox image popup
+ */
+.lightbox {
+	display: none;
+	position: fixed;
+	z-index: 999;
+	width: 100%;
+	height: 100%;
+	text-align: center;
+	top: 0;
+	left: 0;
+	background: rgba(0,0,0,0.8);
+}
+
+.lightbox:target {
+	outline: none;
+	display: block;
+}
+
+.lightbox img {
+	max-width: 90%;
+	max-height: 90%;
+	position: absolute;
+}
+
+/*
+   responsive adjustments for smaller displays
+ */
 @media screen and (max-width: 1024px) {
 
 	body {

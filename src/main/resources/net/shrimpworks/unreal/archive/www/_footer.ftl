@@ -18,5 +18,7 @@
 
 </div>
 
+<script src="${staticPath()}/scripts/lb.js"></script>
+
 </body>
 </html>

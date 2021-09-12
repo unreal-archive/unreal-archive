@@ -472,15 +472,18 @@ public class Main {
 	private static void mirror(ContentManager contentManager, ManagedContentManager managed, GameTypeManager gameTypeManager, CLI cli) {
 		final DataStore mirrorStore = store(DataStore.StoreContent.CONTENT, cli);
 
-		System.out.printf("Mirroring files to %s with concurrency of %s%n", mirrorStore, cli.option("concurrency", "3"));
+		// default to mirror last 7 days of changes
+		LocalDate since = LocalDate.now().minusDays(7);
 
-		LocalDate since = LocalDate.MIN.plusDays(1);
 		try {
 			if (!cli.option("since", "").isBlank()) since = LocalDate.parse(cli.option("since", ""));
 		} catch (DateTimeParseException e) {
 			System.err.println("Failed to parse date input " + cli.option("since", ""));
 			System.exit(-1);
 		}
+
+		System.out.printf("Mirroring files added since %s to %s with concurrency of %s%n",
+						  since, mirrorStore, cli.option("concurrency", "3"));
 
 		Mirror mirror = new Mirror(
 				contentManager, gameTypeManager, managed,

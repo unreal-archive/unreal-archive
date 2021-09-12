@@ -205,7 +205,7 @@ public class GameTypeManager {
 
 		clone.releases.stream().flatMap(r -> r.files.stream()).filter(f -> !f.synced).forEach(r -> {
 			Path f = path(gameType).resolve(r.localFile);
-			syncReleaseFile(contentStore, gameType, r, f, success);
+			syncReleaseFile(contentStore, clone, r, f, success);
 		});
 
 		if (success[0]) {

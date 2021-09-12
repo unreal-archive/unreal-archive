@@ -73,7 +73,7 @@
 								<div class="map">
 									<div class="image">
 										<#if m.screenshot??>
-											<img src="${m.screenshot.url}" alt="${m.name}"/>
+											<img src="${m.screenshot.url}" alt="${m.name}" class="thumb lb"/>
 										<#else>
 											<img src="${staticPath()}/images/none.png" alt="no image"/>
                     </#if>

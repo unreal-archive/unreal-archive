@@ -28,8 +28,8 @@
 
 		<div class="info">
 
-			<#assign skinsList><#list skin.skin.skins as s><div>${s}</div><#else>Unknown</#list></#assign>
-			<#assign faceList><#list skin.skin.faces as s><div>${s}</div><#else>Unknown</#list></#assign>
+			<#assign skinsList><#list skin.skin.skins as s><div>${s}</div></#list></#assign>
+			<#assign faceList><#list skin.skin.faces as s><div>${s}</div></#list></#assign>
 
 			<#assign author><@authorLink skin.skin.authorName /></#assign>
 			<#assign
