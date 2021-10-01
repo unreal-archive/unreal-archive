@@ -56,12 +56,12 @@ dependencies {
 	implementation 'net.shrimpworks:unreal-package-lib:1.7.6'
 	implementation 'net.shrimpworks:package-dependency:1.2.8'
 
-	implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.2'
-	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.2'
+	implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.5'
+	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.5'
 
-	implementation 'org.jsoup:jsoup:1.13.1'
+	implementation 'org.jsoup:jsoup:1.14.2'
 
-	implementation 'org.freemarker:freemarker:2.3.30'
+	implementation 'org.freemarker:freemarker:2.3.31'
 
 	implementation 'com.backblaze.b2:b2-sdk-core:1.4.0'
 	implementation 'com.backblaze.b2:b2-sdk-httpclient:1.4.0'
@@ -71,7 +71,7 @@ dependencies {
 
 	implementation 'com.vladsch.flexmark:flexmark:0.62.2'
 
-	testImplementation 'org.junit.jupiter:junit-jupiter:5.4.2'
+	testImplementation 'org.junit.jupiter:junit-jupiter:5.7.2'
 }
 
 /**

@@ -2,7 +2,6 @@ package net.shrimpworks.unreal.archive.content;
 
 import java.beans.ConstructorProperties;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -272,12 +271,12 @@ public abstract class Content implements ContentEntity<Content> {
 			if (this == o) return true;
 			if (o == null || getClass() != o.getClass()) return false;
 			ContentFile that = (ContentFile)o;
-			return Objects.equals(hash, that.hash);
+			return Objects.equals(name, that.name) && Objects.equals(hash, that.hash);
 		}
 
 		@Override
 		public int hashCode() {
-			return Objects.hash(hash);
+			return Objects.hash(name, hash);
 		}
 	}
 
