@@ -13,10 +13,11 @@
 <#include "../../macros.ftl">
 
 	<@heading bg=[ogImage]>
-		<a href="${relPath(sectionPath + "/index.html")}">Map Packs</a>
-		/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
-		/ <a href="${relPath(gametype.path + "/index.html")}">${gametype.name}</a>
-		/ ${pack.pack.name}
+		<span class="crumbs">
+			<a href="${relPath(sectionPath + "/index.html")}">Map Packs</a>
+			/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
+			/ <a href="${relPath(gametype.path + "/index.html")}">${gametype.name}</a>
+			/</span> ${pack.pack.name}
 	</@heading>
 
 	<@content class="info">

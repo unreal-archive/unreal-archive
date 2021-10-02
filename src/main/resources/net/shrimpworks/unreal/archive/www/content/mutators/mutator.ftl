@@ -16,9 +16,10 @@
 <#include "../../macros.ftl">
 
 	<@heading bg=[headerbg]>
-		<a href="${relPath(sectionPath + "/index.html")}">Mutators</a>
-		/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
-		/ ${mutator.mutator.name}
+		<span class="crumbs">
+			<a href="${relPath(sectionPath + "/index.html")}">Mutators</a>
+			/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
+			/</span> ${mutator.mutator.name}
 	</@heading>
 
 	<@content class="info">

@@ -5,8 +5,9 @@
 <#include "../../macros.ftl">
 
 	<@heading bg=[ogImage]>
-		<a href="${relPath(sectionPath + "/index.html")}">Game Types &amp; Mods</a>
-		/ ${game.name}
+		<span class="crumbs">
+			<a href="${relPath(sectionPath + "/index.html")}">Game Types &amp; Mods</a>
+			/</span> ${game.name}
 	</@heading>
 
 	<@content class="biglist">

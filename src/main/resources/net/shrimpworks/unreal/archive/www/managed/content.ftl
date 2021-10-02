@@ -11,11 +11,12 @@
 <#include "../macros.ftl">
 
 	<@heading bg=[headerbg]>
-		<#list groupPath as p>
-			<a href="${relPath(p.path + "/index.html")}">${p.name}</a>
-			<#if p?has_next>/</#if>
-		</#list>
-		/ ${managed.managed.title}
+		<span class="crumbs">
+			<#list groupPath as p>
+				<a href="${relPath(p.path + "/index.html")}">${p.name}</a>
+				<#if p?has_next>/</#if>
+			</#list>
+			/</span> ${managed.managed.title}
 	</@heading>
 
 	<@content class="managed document">

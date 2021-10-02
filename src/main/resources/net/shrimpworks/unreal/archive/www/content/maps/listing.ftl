@@ -12,11 +12,14 @@
 <#include "../../macros.ftl">
 
 	<@heading bg=[ogImage, "${staticPath()}/images/games/${game.name}.png"]>
-		<a href="${relPath(sectionPath + "/index.html")}">Maps</a>
-		/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
-		/ <a href="${relPath(gametype.path + "/index.html")}">${gametype.name}</a>
-    <#if page?? && gametype.letters?size gt 1>/ ${page.letter.letter}</#if>
-    <#if page?? && page.letter.pages?size gt 1>/ pg ${page.number}</#if>
+		<span class="crumbs">
+			<a href="${relPath(sectionPath + "/index.html")}">Maps</a>
+			/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
+			/</span> <a href="${relPath(gametype.path + "/index.html")}">${gametype.name}</a>
+		<span class="crumbs">
+			<#if page?? && gametype.letters?size gt 1>/ ${page.letter.letter}</#if>
+			<#if page?? && page.letter.pages?size gt 1>/ pg ${page.number}</#if>
+		</span>
 	</@heading>
 
 	<@content class="list">

@@ -16,9 +16,10 @@
 <#include "../../macros.ftl">
 
 	<@heading bg=[headerbg]>
-		<a href="${relPath(sectionPath + "/index.html")}">Voices</a>
-		/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
-		/ ${voice.voice.name}
+		<span class="crumbs">
+			<a href="${relPath(sectionPath + "/index.html")}">Voices</a>
+			/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
+			/</span> ${voice.voice.name}
 	</@heading>
 
 	<@content class="info">

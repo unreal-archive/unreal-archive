@@ -52,6 +52,7 @@ import net.shrimpworks.unreal.archive.www.Documents;
 import net.shrimpworks.unreal.archive.www.Index;
 import net.shrimpworks.unreal.archive.www.MESSubmitter;
 import net.shrimpworks.unreal.archive.www.ManagedContent;
+import net.shrimpworks.unreal.archive.www.PageGenerator;
 import net.shrimpworks.unreal.archive.www.Search;
 import net.shrimpworks.unreal.archive.www.SiteFeatures;
 import net.shrimpworks.unreal.archive.www.SiteMap;
@@ -565,66 +566,47 @@ public class Main {
 
 		final Set<SiteMap.Page> allPages = ConcurrentHashMap.newKeySet();
 
+		final Set<PageGenerator> generators = new HashSet<>();
+		generators.add(new Index(contentManager, gameTypeManager, documentManager, managed, outputPath, staticOutput, features));
+
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("content"))) {
 			// generate content pages
-			Arrays.asList(
-					new Maps(contentManager, outputPath, staticOutput, features),
-					new MapPacks(contentManager, outputPath, staticOutput, features),
-					new Skins(contentManager, outputPath, staticOutput, features),
-					new Models(contentManager, outputPath, staticOutput, features),
-					new Voices(contentManager, outputPath, staticOutput, features),
-					new Mutators(contentManager, outputPath, staticOutput, features),
-					new FileDetails(contentManager, outputPath, staticOutput, features)
-			).parallelStream().forEach(g -> {
-				System.out.printf("Generating %s pages%n", g.getClass().getSimpleName());
-				allPages.addAll(g.generate());
-			});
+			generators.addAll(
+					Arrays.asList(
+							new Maps(contentManager, outputPath, staticOutput, features),
+							new MapPacks(contentManager, outputPath, staticOutput, features),
+							new Skins(contentManager, outputPath, staticOutput, features),
+							new Models(contentManager, outputPath, staticOutput, features),
+							new Voices(contentManager, outputPath, staticOutput, features),
+							new Mutators(contentManager, outputPath, staticOutput, features),
+							new FileDetails(contentManager, outputPath, staticOutput, features)
+					));
 		}
 
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("authors"))) {
-			// generate author pages
-			System.out.println("Generating Authors pages");
-			allPages.addAll(new Authors(names, contentManager, gameTypeManager, managed, outputPath, staticOutput, features).generate());
+			generators.add(new Authors(names, contentManager, gameTypeManager, managed, outputPath, staticOutput, features));
 		}
 
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("docs"))) {
-			// generate document pages
-			System.out.println("Generating Document pages");
-			allPages.addAll(new Documents(documentManager, outputPath, staticOutput, features).generate());
+			generators.add(new Documents(documentManager, outputPath, staticOutput, features));
 		}
 
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("managed"))) {
-			// generate managed constent pages
-			System.out.println("Generating Managed pages");
-			allPages.addAll(new ManagedContent(managed, outputPath, staticOutput, features).generate());
+			generators.add(new ManagedContent(managed, outputPath, staticOutput, features));
 		}
 
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("gametypes"))) {
-			// generate gametypes and mods pages
-			System.out.println("Generating GameType pages");
-			allPages.addAll(new GameTypes(gameTypeManager, contentManager, outputPath, staticOutput, features).generate());
+			generators.add(new GameTypes(gameTypeManager, contentManager, outputPath, staticOutput, features));
 		}
 
-		// generate index
-		System.out.println("Generating index page");
-		allPages.addAll(
-				new Index(contentManager, gameTypeManager, documentManager, managed, outputPath, staticOutput, features).generate()
-		);
+		if (features.submit) generators.add(new Submit(outputPath, staticOutput, features));
+		if (features.search) generators.add(new Search(outputPath, staticOutput, features));
+		if (features.latest) generators.add(new Latest(contentManager, gameTypeManager, managed, outputPath, staticOutput, features));
 
-		if (features.submit) {
-			System.out.println("Generating submit page");
-			allPages.addAll(new Submit(outputPath, staticOutput, features).generate());
-		}
-
-		if (features.search) {
-			System.out.println("Generating search page");
-			allPages.addAll(new Search(outputPath, staticOutput, features).generate());
-		}
-
-		if (features.latest) {
-			System.out.println("Generating latest files");
-			allPages.addAll(new Latest(contentManager, gameTypeManager, managed, outputPath, staticOutput, features).generate());
-		}
+		generators.parallelStream().forEach(g -> {
+			System.out.printf("Generating %s pages%n", g.getClass().getSimpleName());
+			allPages.addAll(g.generate());
+		});
 
 		System.out.println("Generating sitemap");
 		allPages.addAll(SiteMap.siteMap(SiteMap.SITE_ROOT, outputPath, allPages, 50000, features).generate());

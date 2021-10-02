@@ -10,15 +10,13 @@ import java.nio.file.StandardOpenOption;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
-import io.minio.ObjectStat;
-import io.minio.PutObjectOptions;
-import io.minio.Result;
+import io.minio.PutObjectArgs;
+import io.minio.RemoveObjectArgs;
+import io.minio.StatObjectArgs;
+import io.minio.StatObjectResponse;
 import io.minio.errors.ErrorResponseException;
-import io.minio.errors.InvalidEndpointException;
-import io.minio.errors.InvalidPortException;
-import io.minio.errors.MinioException;
-import io.minio.messages.Item;
 
 import net.shrimpworks.unreal.archive.CLI;
 import net.shrimpworks.unreal.archive.Util;
@@ -40,7 +38,7 @@ public class S3Store implements DataStore {
 
 			try {
 				return new S3Store(endpoint, keyId, secret, bucket, publicUrl);
-			} catch (MinioException | IOException e) {
+			} catch (IOException e) {
 				throw new IllegalArgumentException(e.getMessage(), e);
 			}
 		}
@@ -59,9 +57,8 @@ public class S3Store implements DataStore {
 	private final String bucket;
 	private final String publicUrl;
 
-	public S3Store(String endpointUrl, String accessKey, String secretKey, String bucket, String publicUrl)
-			throws InvalidPortException, InvalidEndpointException, IOException {
-		this.client = new MinioClient(endpointUrl, accessKey, secretKey);
+	public S3Store(String endpointUrl, String accessKey, String secretKey, String bucket, String publicUrl) throws IOException {
+		this.client = MinioClient.builder().endpoint(endpointUrl).credentials(accessKey, secretKey).build();
 		this.bucket = bucket;
 		this.publicUrl = publicUrl;
 	}
@@ -78,11 +75,12 @@ public class S3Store implements DataStore {
 	@Override
 	public void store(InputStream stream, long dataSize, String name, BiConsumer<String, IOException> stored) throws IOException {
 		exists(name, (exits) -> {
-			if (exits instanceof ObjectStat) {
-				stored.accept(Util.toUriString(makePublicUrl(((ObjectStat)exits).bucketName(), ((ObjectStat)exits).name())), null);
+			if (exits instanceof StatObjectResponse) {
+				stored.accept(Util.toUriString(makePublicUrl(((StatObjectResponse)exits).bucket(), ((StatObjectResponse)exits).object())),
+							  null);
 			} else {
 				try {
-					client.putObject(bucket, name, stream, new PutObjectOptions(dataSize, -1));
+					client.putObject(PutObjectArgs.builder().bucket(bucket).object(name).stream(stream, dataSize, -1).build());
 					stored.accept(Util.toUriString(makePublicUrl(bucket, name)), null);
 				} catch (Exception e) {
 					stored.accept(null, new IOException("Failed to store file " + name, e));
@@ -97,7 +95,7 @@ public class S3Store implements DataStore {
 			URI uri = URI.create(url);
 			String object = uri.getPath();
 			if (object.startsWith("/")) object = object.substring(1);
-			client.removeObject(bucket, object);
+			client.removeObject(RemoveObjectArgs.builder().bucket(bucket).object(object).build());
 			deleted.accept(true);
 		} catch (Exception e) {
 			throw new IOException("File download failed", e);
@@ -111,7 +109,7 @@ public class S3Store implements DataStore {
 			String object = uri.getPath();
 			if (object.startsWith("/")) object = object.substring(1);
 
-			InputStream inputStream = client.getObject(bucket, object);
+			InputStream inputStream = client.getObject(GetObjectArgs.builder().bucket("bucket").object(object).build());
 			Path outFile = Files.createTempFile("download-", Util.fileName(url));
 			Files.copy(inputStream, outFile, StandardCopyOption.REPLACE_EXISTING);
 			downloaded.accept(outFile);
@@ -123,9 +121,9 @@ public class S3Store implements DataStore {
 	@Override
 	public void exists(String name, Consumer<Object> result) throws IOException {
 		try {
-			result.accept(client.statObject(bucket, name));
+			result.accept(client.statObject(StatObjectArgs.builder().bucket(bucket).object(name).build()));
 		} catch (ErrorResponseException e) {
-			if (e.errorResponse().errorCode().code().equalsIgnoreCase("NoSuchKey")) {
+			if (e.errorResponse().code().equalsIgnoreCase("NoSuchKey")) {
 				result.accept(null);
 			} else {
 				throw new IOException(e.getMessage());

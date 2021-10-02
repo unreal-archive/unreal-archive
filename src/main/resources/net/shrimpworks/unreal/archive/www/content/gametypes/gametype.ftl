@@ -15,12 +15,13 @@
 <#include "../../macros.ftl">
 
 	<@heading bg=[headerbg]>
-		<a href="${relPath(sectionPath + "/index.html")}">Game Types &amp; Mods</a>
-			/ <a href="${relPath(gametype.game.path + "/index.html")}">${gametype.game.name}</a>
-		  <#if gametype.variationOf??>
-				/ <a href="../index.html">${gametype.variationOf.name}</a>
-      </#if>
-			/ ${gametype.gametype.name}
+		<span class="crumbs">
+			<a href="${relPath(sectionPath + "/index.html")}">Game Types &amp; Mods</a>
+				/ <a href="${relPath(gametype.game.path + "/index.html")}">${gametype.game.name}</a>
+				<#if gametype.variationOf??>
+					/ <a href="../index.html">${gametype.variationOf.name}</a>
+				</#if>
+				/</span> ${gametype.gametype.name}
 	</@heading>
 
 	<@content class="split split6040">

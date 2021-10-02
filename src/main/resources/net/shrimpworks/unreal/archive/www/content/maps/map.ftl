@@ -17,10 +17,11 @@
 <#include "../../macros.ftl">
 
 	<@heading bg=[headerbg]>
-		<a href="${relPath(sectionPath + "/index.html")}">Maps</a>
-		/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
-		/ <a href="${relPath(gametype.path + "/index.html")}">${gametype.name}</a>
-		/ ${map.map.name}
+		<span class="crumbs">
+			<a href="${relPath(sectionPath + "/index.html")}">Maps</a>
+			/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
+			/ <a href="${relPath(gametype.path + "/index.html")}">${gametype.name}</a>
+			/</span> ${map.map.name}
 	</@heading>
 
 	<@content class="info">

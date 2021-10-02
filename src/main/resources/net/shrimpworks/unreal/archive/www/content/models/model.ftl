@@ -16,9 +16,10 @@
 <#include "../../macros.ftl">
 
 	<@heading bg=[headerbg]>
-		<a href="${relPath(sectionPath + "/index.html")}">Models</a>
-		/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
-		/ ${model.model.name}
+		<span class="crumbs">
+			<a href="${relPath(sectionPath + "/index.html")}">Models</a>
+			/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
+			/</span> ${model.model.name}
 	</@heading>
 
 	<@content class="info">

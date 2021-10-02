@@ -75,10 +75,13 @@ public class ManagedContent implements PageGenerator {
 			grp = grp.parent;
 		}
 
-		pages.add("group.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", group.parentPath.split("/")))
-			 .put("groupPath", groupPath)
-			 .put("group", group)
-			 .write(group.path.resolve("index.html"));
+		// exclude the root group just used to kick off the generation process
+		if (!group.name.isEmpty()) {
+			pages.add("group.ftl", SiteMap.Page.weekly(0.91f), String.join(" / ", group.parentPath.split("/")))
+				 .put("groupPath", groupPath)
+				 .put("group", group)
+				 .write(group.path.resolve("index.html"));
+		}
 
 		for (ContentGroup g : group.groups.values()) {
 			generateGroup(pages, g);

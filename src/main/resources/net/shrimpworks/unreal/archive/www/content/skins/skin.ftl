@@ -16,9 +16,10 @@
 <#include "../../macros.ftl">
 
 	<@heading bg=[headerbg]>
-		<a href="${relPath(sectionPath + "/index.html")}">Skins</a>
-		/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
-		/ ${skin.skin.name}
+		<span class="crumbs">
+			<a href="${relPath(sectionPath + "/index.html")}">Skins</a>
+			/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
+			/</span> ${skin.skin.name}
 	</@heading>
 
 	<@content class="info">

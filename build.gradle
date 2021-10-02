@@ -12,7 +12,7 @@ plugins {
 }
 
 group = 'net.shrimpworks'
-version = "1.7"
+version = "1.8"
 
 mainClassName = 'net.shrimpworks.unreal.archive.Main'
 
@@ -67,11 +67,11 @@ dependencies {
 	implementation 'com.backblaze.b2:b2-sdk-httpclient:1.4.0'
 
 	// S3 compatible storage client
-	implementation 'io.minio:minio:7.0.0'
+	implementation 'io.minio:minio:8.2.2'
 
 	implementation 'com.vladsch.flexmark:flexmark:0.62.2'
 
-	testImplementation 'org.junit.jupiter:junit-jupiter:5.7.2'
+	testImplementation 'org.junit.jupiter:junit-jupiter:5.8.1'
 }
 
 /**

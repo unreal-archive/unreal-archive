@@ -11,11 +11,12 @@
 <#include "../macros.ftl">
 
 	<@heading bg=[headerbg]>
-		<a href="${relPath(sectionPath + "/index.html")}">Articles & Guides</a>
-		<#list groupPath as p>
-			/ <a href="${relPath(p.path + "/index.html")}">${p.name}</a>
-		</#list>
-		/ ${document.document.title}
+			<span class="crumbs">
+			<a href="${relPath(sectionPath + "/index.html")}">Articles & Guides</a>
+			<#list groupPath as p>
+				/ <a href="${relPath(p.path + "/index.html")}">${p.name}</a>
+			</#list>
+			/</span> ${document.document.title}
 	</@heading>
 
 	<@content class="document">

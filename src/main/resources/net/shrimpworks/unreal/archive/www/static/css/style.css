@@ -283,6 +283,10 @@ section.header h1 a:hover {
 	color: var(--section-header-title-color-hover);
 }
 
+section.header .crumbs {
+	font-size: 0.75em;
+}
+
 .biglist ul {
 	list-style: none;
 	padding: 0;

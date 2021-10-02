@@ -10,8 +10,9 @@
 <#include "../../macros.ftl">
 
 <@heading bg=[ogImage]>
-	<a href="${relPath(sectionPath + "/index.html")}">Authors</a>
-	/ ${author.author}
+	<span class="crumbs">
+		<a href="${relPath(sectionPath + "/index.html")}">Authors</a>
+		/</span> ${author.author}
 </@heading>
 
 <@content class="biglist taller">

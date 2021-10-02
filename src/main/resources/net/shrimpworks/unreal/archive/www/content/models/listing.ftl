@@ -10,10 +10,13 @@
 <#include "../../macros.ftl">
 
 	<@heading bg=[ogImage]>
-		<a href="${relPath(sectionPath + "/index.html")}">Models</a>
-		/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
-		<#if page?? && game.letters?size gt 1>/ ${page.letter.letter}</#if>
-		<#if page?? && page.letter.pages?size gt 1>/ pg ${page.number}</#if>
+		<span class="crumbs">
+			<a href="${relPath(sectionPath + "/index.html")}">Models</a>
+			/</span> <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
+		<span class="crumbs">
+			<#if page?? && game.letters?size gt 1>/ ${page.letter.letter}</#if>
+			<#if page?? && page.letter.pages?size gt 1>/ pg ${page.number}</#if>
+		</span>
 	</@heading>
 
 	<@content class="list">

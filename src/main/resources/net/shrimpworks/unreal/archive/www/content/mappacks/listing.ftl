@@ -8,10 +8,13 @@
 <#include "../../macros.ftl">
 
 	<@heading bg=[ogImage, "${staticPath()}/images/games/${game.name}.png"]>
-		<a href="${relPath(sectionPath + "/index.html")}">Map Packs</a>
-		/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
+		<span class="crumbs">
+			<a href="${relPath(sectionPath + "/index.html")}">Map Packs</a>
+			/</span> <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
 		/ <a href="${relPath(gametype.path + "/index.html")}">${gametype.name}</a>
-		<#if gametype.pages?size gt 1>/ pg ${page.number}</#if>
+		<span class="crumbs">
+			<#if gametype.pages?size gt 1>/ pg ${page.number}</#if>
+		</span>
 	</@heading>
 
 	<@content class="list">

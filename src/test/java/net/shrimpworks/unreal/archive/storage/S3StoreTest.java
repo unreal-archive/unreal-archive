@@ -4,9 +4,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import io.minio.errors.InvalidEndpointException;
-import io.minio.errors.InvalidPortException;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -18,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class S3StoreTest {
 
 	@Test
-	public void uploadDownload() throws IOException, InvalidPortException, InvalidEndpointException {
+	public void uploadDownload() throws IOException {
 		String endpoint = System.getenv("S3_ENDPOINT");
 		String key = System.getenv("S3_KEY");
 		String secret = System.getenv("S3_SECRET");

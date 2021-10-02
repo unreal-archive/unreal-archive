@@ -2,7 +2,9 @@
 <#include "../macros.ftl">
 
 	<@heading bg=["${staticPath()}/images/contents/documents.png"]>
-		<a href="${relPath(sectionPath + "/index.html")}">Articles & Guides</a>
+		<span class="crumbs">
+			<a href="${relPath(sectionPath + "/index.html")}">Articles & Guides</a>
+		</span>
 		<#list groupPath as p>
 			/ <a href="${relPath(p.path + "/index.html")}">${p.name}</a>
 		</#list>
