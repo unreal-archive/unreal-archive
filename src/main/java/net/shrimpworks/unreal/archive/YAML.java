@@ -1,6 +1,7 @@
 package net.shrimpworks.unreal.archive;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
@@ -52,7 +53,7 @@ public class YAML {
 
 	public static <T> T fromFile(Path path, Class<T> type) throws IOException {
 		try {
-			return MAPPER.readValue(MAPPER.readTree(path.toFile()).traverse(), type);
+			return MAPPER.readValue(Files.newBufferedReader(path), type);
 		} catch (Exception e) {
 			throw new IOException("Failed to read YAML file " + path.toString(), e);
 		}
@@ -60,7 +61,7 @@ public class YAML {
 
 	public static <T> T fromFile(Path path, TypeReference<T> type) throws IOException {
 		try {
-			return MAPPER.readValue(MAPPER.readTree(path.toFile()).traverse(), type);
+			return MAPPER.readValue(Files.newBufferedReader(path), type);
 		} catch (Exception e) {
 			throw new IOException("Failed to read YAML file " + path.toString(), e);
 		}

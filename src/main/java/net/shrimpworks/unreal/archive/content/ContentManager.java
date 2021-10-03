@@ -43,7 +43,7 @@ public class ContentManager {
 
 		this.changes = new HashSet<>();
 
-		try (Stream<Path> files = Files.find(path, 20, (file, attr) -> Util.extension(file).equalsIgnoreCase("yml")).parallel()) {
+		try (Stream<Path> files = Files.find(path, 20, (file, attr) -> file.toString().endsWith(".yml")).parallel()) {
 			files.forEach(file -> {
 				try {
 					Content c = YAML.fromFile(file, Content.class);

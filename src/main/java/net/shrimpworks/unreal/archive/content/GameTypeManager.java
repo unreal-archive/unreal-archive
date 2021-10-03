@@ -54,7 +54,7 @@ public class GameTypeManager {
 	}
 
 	private void scanPath(Path root, GameTypeHolder parent) throws IOException {
-		try (Stream<Path> files = Files.find(root, 3, (file, attr) -> Util.extension(file).equalsIgnoreCase("yml")).parallel()) {
+		try (Stream<Path> files = Files.find(root, 3, (file, attr) -> file.toString().endsWith(".yml")).parallel()) {
 			files.forEach(file -> {
 				try {
 					GameType g = YAML.fromFile(file, GameType.class);
