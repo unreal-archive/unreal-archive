@@ -15,7 +15,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -36,7 +35,6 @@ public class YAML {
 		MAPPER.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
 		MAPPER.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
-
 		SimpleModule module = new SimpleModule();
 
 		MAPPER.registerModule(module.addDeserializer(LocalDateTime.class, new DateTimeDeserializer()));
@@ -53,7 +51,7 @@ public class YAML {
 
 	public static <T> T fromFile(Path path, Class<T> type) throws IOException {
 		try {
-			return MAPPER.readValue(Files.newBufferedReader(path), type);
+			return MAPPER.readValue(Files.newInputStream(path), type);
 		} catch (Exception e) {
 			throw new IOException("Failed to read YAML file " + path.toString(), e);
 		}
@@ -61,7 +59,7 @@ public class YAML {
 
 	public static <T> T fromFile(Path path, TypeReference<T> type) throws IOException {
 		try {
-			return MAPPER.readValue(Files.newBufferedReader(path), type);
+			return MAPPER.readValue(Files.newInputStream(path), type);
 		} catch (Exception e) {
 			throw new IOException("Failed to read YAML file " + path.toString(), e);
 		}
@@ -84,8 +82,7 @@ public class YAML {
 		@Override
 		public LocalDateTime deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
 			jsonParser.setCodec(MAPPER);
-			JsonNode node = jsonParser.readValueAsTree();
-			return LocalDateTime.parse(node.asText(), DATE_TIME_FORMAT);
+			return LocalDateTime.parse(jsonParser.readValueAs(String.class), DATE_TIME_FORMAT);
 		}
 	}
 
@@ -102,8 +99,7 @@ public class YAML {
 		@Override
 		public LocalDate deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
 			jsonParser.setCodec(MAPPER);
-			JsonNode node = jsonParser.readValueAsTree();
-			return LocalDate.parse(node.asText(), DATE_FORMAT);
+			return LocalDate.parse(jsonParser.readValueAs(String.class), DATE_FORMAT);
 		}
 	}
 
@@ -120,8 +116,7 @@ public class YAML {
 		@Override
 		public Path deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
 			jsonParser.setCodec(MAPPER);
-			JsonNode node = jsonParser.readValueAsTree();
-			return Paths.get(node.asText());
+			return Paths.get(jsonParser.readValueAs(String.class));
 		}
 	}
 
