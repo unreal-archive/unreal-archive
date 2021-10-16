@@ -19,8 +19,10 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 public class YAML {
 
@@ -30,19 +32,20 @@ public class YAML {
 	private static final ObjectMapper MAPPER;
 
 	static {
-		MAPPER = new ObjectMapper(new YAMLFactory());
-		MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-		MAPPER.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-		MAPPER.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-
-		SimpleModule module = new SimpleModule();
-
-		MAPPER.registerModule(module.addDeserializer(LocalDateTime.class, new DateTimeDeserializer()));
-		MAPPER.registerModule(module.addSerializer(LocalDateTime.class, new DateTimeSerializer()));
-		MAPPER.registerModule(module.addDeserializer(LocalDate.class, new DateDeserializer()));
-		MAPPER.registerModule(module.addSerializer(LocalDate.class, new DateSerializer()));
-		MAPPER.registerModule(module.addDeserializer(Path.class, new PathDeserializer()));
-		MAPPER.registerModule(module.addSerializer(Path.class, new PathSerializer()));
+		MAPPER = JsonMapper.builder(new YAMLFactory())
+						   .addModule(new JavaTimeModule())
+						   .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+						   .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
+						   .serializationInclusion(JsonInclude.Include.NON_NULL)
+						   .addModule(new SimpleModule()
+										  .addDeserializer(LocalDateTime.class, new DateTimeDeserializer())
+										  .addSerializer(LocalDateTime.class, new DateTimeSerializer())
+										  .addDeserializer(LocalDate.class, new DateDeserializer())
+										  .addSerializer(LocalDate.class, new DateSerializer())
+										  .addDeserializer(Path.class, new PathDeserializer())
+										  .addSerializer(Path.class, new PathSerializer())
+						   )
+						   .build();
 	}
 
 	public static String toString(Object object) throws IOException {
