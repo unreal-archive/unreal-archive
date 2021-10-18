@@ -110,8 +110,8 @@ public class GameTypes implements PageGenerator {
 			final String page = Templates.renderMarkdown(docChan);
 
 			Path indexPath = gametype.variationOf == null
-					? gametype.indexPath
-					: gametype.path.resolve("index.html");
+				? gametype.indexPath
+				: gametype.path.resolve("index.html");
 
 			pages.add("gametype.ftl", SiteMap.Page.weekly(0.97f),
 					  String.join(" / ", SECTION, gametype.gametype.game, gametype.gametype.name))
@@ -126,7 +126,7 @@ public class GameTypes implements PageGenerator {
 	}
 
 	private void generateRelease(Templates.PageSet pages, GameTypeInfo gametype, GameType.Release release, Path path)
-			throws IOException {
+		throws IOException {
 
 		final Path outPath = Files.isDirectory(path) ? path : Files.createDirectories(path);
 
@@ -173,6 +173,8 @@ public class GameTypes implements PageGenerator {
 		public final Path path;
 		public final Path indexPath;
 
+		public final String fallbackTitle;
+
 		public final Map<String, String> gallery; // map of { image -> thumbnail }
 
 		public final Map<String, Map<String, Integer>> filesAlsoIn;
@@ -191,8 +193,8 @@ public class GameTypes implements PageGenerator {
 
 			this.slug = slug(gametype.name);
 			this.path = variationOf == null
-					? gametype.slugPath(siteRoot)
-					: variationOf.slugPath(siteRoot).resolve(Util.slug(gametype.name));
+				? gametype.slugPath(siteRoot)
+				: variationOf.slugPath(siteRoot).resolve(Util.slug(gametype.name));
 			this.indexPath = gametype.pagePath(siteRoot);
 			this.variationOf = variationOf;
 			this.variations = variations;
@@ -211,6 +213,14 @@ public class GameTypes implements PageGenerator {
 					}
 				}
 			}
+
+			if (gametype.bannerImage.isBlank()) {
+				this.fallbackTitle = gametype.maps.stream()
+												  .filter(g -> g.screenshot != null)
+												  .map(g -> g.screenshot.url)
+												  .findAny()
+												  .orElse("");
+			} else this.fallbackTitle = "";
 
 			this.gallery = new LinkedHashMap<>();
 		}

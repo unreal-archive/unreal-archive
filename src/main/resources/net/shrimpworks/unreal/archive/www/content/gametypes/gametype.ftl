@@ -1,5 +1,7 @@
 <#if gametype.gametype.bannerImage?? && gametype.gametype.bannerImage?length gt 0>
 	<#assign headerbg>${relPath(gametype.path + "/" + gametype.gametype.bannerImage)}</#assign>
+<#elseif gametype.fallbackTitle?? && gametype.fallbackTitle?length gt 0>
+	<#assign headerbg>${gametype.fallbackTitle}</#assign>
 <#else>
 	<#assign headerbg>${staticPath()}/images/games/${gametype.game.name}.png</#assign>
 </#if>

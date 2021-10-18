@@ -16,12 +16,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.imageio.ImageIO;
 
+import net.shrimpworks.unreal.archive.CLI;
+import net.shrimpworks.unreal.archive.Platform;
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.YAML;
 import net.shrimpworks.unreal.archive.content.gametypes.GameType;
@@ -124,6 +127,10 @@ public class GameTypeManager {
 	}
 
 	public Path init(Games game, String gameType) throws IOException {
+		return init(game, gameType, "template.md", gt -> {});
+	}
+
+	private Path init(Games game, String gameType, String template, GameTypePostInitialiser initialiser) throws IOException {
 		// create path
 		final Path path = Files.createDirectories(gameTypePath(game, gameType));
 		final String neatName = Util.capitalWords(gameType);
@@ -136,8 +143,8 @@ public class GameTypeManager {
 		gt.author = neatName + " Team";
 		gt.description = "Short description about " + neatName;
 		gt.titleImage = "title.png";
-		gt.links = Map.of("Homepage", "https://" + Util.slug(gameType) + ".com");
-		gt.credits = Map.of("Programming", List.of("Joe 'Programmer' Soap"), "Maps", List.of("MapGuy"));
+		gt.links.put("Homepage", "https://" + Util.slug(gameType) + ".com");
+		gt.credits.putAll(Map.of("Programming", List.of("Joe 'Programmer' Soap"), "Maps", List.of("MapGuy")));
 
 		GameType.Release release = new GameType.Release();
 		release.title = neatName + " Release";
@@ -150,6 +157,8 @@ public class GameTypeManager {
 		release.files.add(file);
 		gt.releases.add(release);
 
+		initialiser.gametypeInitialised(gt);
+
 		Path yml = Util.safeFileName(path.resolve("gametype.yml"));
 		Path md = Util.safeFileName(path.resolve(DOCUMENT_FILE));
 
@@ -158,10 +167,75 @@ public class GameTypeManager {
 		}
 
 		if (!Files.exists(md)) {
-			Files.copy(GameType.class.getResourceAsStream("template.md"), md);
+			Files.copy(GameType.class.getResourceAsStream(template), md);
 		}
 
+		gameTypes.add(new GameTypeHolder(yml, gt));
+
 		return path;
+	}
+
+	@FunctionalInterface
+	private interface GameTypePostInitialiser {
+		void gametypeInitialised(GameType gameType);
+	}
+
+	private Optional<GameTypeHolder> findGametype(Games game, String gameType) {
+		return gameTypes.stream()
+						.filter(g -> !g.gametype.deleted)
+						.filter(g -> g.gametype.game.equals(game.name) && g.gametype.name.equalsIgnoreCase(gameType))
+						.findFirst();
+	}
+
+	public GameType addRelease(DataStore imageStore, Games game, String gameType, String releaseName, Path localFile,
+							   CLI cli) throws IOException {
+		GameTypeHolder gt = findGametype(game, gameType)
+			.or(() -> {
+				try {
+					init(game, gameType, "template-minimal.md", newGt -> {
+						newGt.releases.clear();
+						newGt.links.clear();
+						newGt.credits.clear();
+						newGt.description = "";
+						newGt.titleImage = "";
+						newGt.bannerImage = "";
+					});
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+				return findGametype(game, gameType);
+			}).orElseThrow();
+
+		GameType.Release rel = gt.gametype.releases.stream()
+												   .filter(r -> r.title.equalsIgnoreCase(releaseName))
+												   .findFirst()
+												   .orElseGet(() -> {
+													   GameType.Release release = new GameType.Release();
+													   release.title = releaseName;
+													   release.version = cli.option("version", releaseName);
+													   release.releaseDate = cli.option("releaseDate", release.releaseDate);
+													   release.description = cli.option("description", release.description);
+													   gt.gametype.releases.add(release);
+													   return release;
+												   });
+
+		GameType.ReleaseFile file = new GameType.ReleaseFile();
+		file.localFile = localFile.toString();
+		file.originalFilename = Util.fileName(localFile);
+		file.platform = Platform.valueOf(cli.option("platform", file.platform.name()));
+		file.title = cli.option("title", releaseName);
+		rel.files.add(file);
+
+		// update with the release
+		Files.write(gt.path, YAML.toString(gt.gametype).getBytes(StandardCharsets.UTF_8),
+					StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+
+		if (cli.option("index", "false").equalsIgnoreCase("true")) {
+			// trigger an index
+			index(imageStore, game, gameType, Util.fileName(localFile));
+		}
+
+		return gt.gametype;
 	}
 
 	public Path gameTypePath(Games game, String gameType) {
@@ -255,8 +329,9 @@ public class GameTypeManager {
 		}
 	}
 
-	private void storeReleaseFile(DataStore contentStore, GameType gameType, GameType.ReleaseFile releaseFile, Path localFile, boolean[] success)
-			throws IOException {
+	private void storeReleaseFile(
+		DataStore contentStore, GameType gameType, GameType.ReleaseFile releaseFile, Path localFile, boolean[] success
+	) throws IOException {
 		contentStore.store(localFile, String.join("/", remotePath(gameType), localFile.getFileName().toString()), (url, ex) -> {
 			System.out.println(" - stored as " + url);
 
@@ -499,16 +574,19 @@ public class GameTypeManager {
 								   Path imgPath = Files.createTempFile(Util.slug(mapName), ".png");
 								   ImageIO.write(screenshots.get(0), "png", imgPath.toFile());
 
-								   imageStore.store(imgPath,
-													Paths.get("").relativize(gameType.contentPath(Paths.get(""))).resolve("maps").resolve(
-															imgPath.getFileName().toString()).toString(),
-													(url, ex) -> {
-														if (ex == null && url != null) {
-															attachment[0] = new Content.Attachment(Content.AttachmentType.IMAGE,
-																								   imgPath.getFileName().toString(), url);
-															System.out.printf("Stored as %s%n", url);
-														}
-													});
+								   imageStore.store(
+									   imgPath,
+									   Paths.get("")
+											.relativize(gameType.contentPath(Paths.get(""))).resolve("maps")
+											.resolve(imgPath.getFileName().toString())
+											.toString(),
+									   (url, ex) -> {
+										   if (ex == null && url != null) {
+											   attachment[0] = new Content.Attachment(
+												   Content.AttachmentType.IMAGE, imgPath.getFileName().toString(), url
+											   );
+										   }
+									   });
 							   }
 						   } catch (Exception e) {
 							   System.err.printf("Failed to save screenshot for map %s%n", mapName);

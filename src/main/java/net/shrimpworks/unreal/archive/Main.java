@@ -414,7 +414,13 @@ public class Main {
 			System.err.println("  sync");
 			System.err.println("    synchronises downloads, files, and dependencies for unsynced items");
 			System.err.println("  index <game> <game type name> <release name>");
-			System.err.println("    synchronises downloads, files, and dependencies for unsynced items");
+			System.err.println("    indexes the content of the release specified");
+			System.err.println("  add <game> <game type name> <release name> <file>");
+			System.err.println("    convenience, which adds a gametype if it does not yet exist, adds a release,");
+			System.err.println("    and indexes the release. a `sync` command afterwards is still required to sync");
+			System.err.println("    download files to mirrors");
+			System.err.println("  addmirror <game> <game type name> <release name> <url>");
+			System.err.println("    adds a secondary mirror to the gametype specified");
 			System.exit(2);
 		}
 
@@ -422,15 +428,17 @@ public class Main {
 			case "init": {
 				if (cli.commands().length < 3) {
 					System.err.println("A game name is required");
+					System.exit(1);
 				}
 				if (cli.commands().length < 4) {
 					System.err.println("A game type name is required");
+					System.exit(1);
 				}
 
 				Games game = Games.byName(cli.commands()[2]);
 				Path gametypePath = gametypes.init(game, String.join(" ", Arrays.copyOfRange(cli.commands(), 3, cli.commands().length)));
 				System.out.println("Gametype initialised in directory:");
-				System.out.printf("  - %s%n", gametypePath.toAbsolutePath().toString());
+				System.out.printf("  - %s%n", gametypePath.toAbsolutePath());
 				System.out.println("\nPopulate the appropriate files, add images, etc.");
 				System.out.println("To upload gametype files, execute the `sync` command.");
 				break;
@@ -444,6 +452,35 @@ public class Main {
 				final DataStore imageStore = store(DataStore.StoreContent.IMAGES, cli);
 				Games game = Games.byName(cli.commands()[2]);
 				gametypes.index(imageStore, game, cli.commands()[3], cli.commands()[4]);
+				break;
+			}
+			case "add": {
+				if (cli.commands().length < 3) {
+					System.err.println("A game name is required");
+					System.exit(1);
+				}
+				if (cli.commands().length < 4) {
+					System.err.println("A game type name is required");
+					System.exit(1);
+				}
+				if (cli.commands().length < 5) {
+					System.err.println("A release name or version is required");
+					System.exit(1);
+				}
+				if (cli.commands().length < 6) {
+					System.err.println("A local file to add is required");
+					System.exit(1);
+				}
+
+				final Path localFile = Paths.get(cli.commands()[5]).toAbsolutePath();
+				if (!Files.exists(localFile)) {
+					System.err.printf("Local file %s was not found%n", localFile);
+					System.exit(1);
+				}
+
+				final DataStore imageStore = store(DataStore.StoreContent.IMAGES, cli);
+				Games game = Games.byName(cli.commands()[2]);
+				gametypes.addRelease(imageStore, game, cli.commands()[3], cli.commands()[4], localFile, cli);
 				break;
 			}
 			default:
@@ -487,12 +524,12 @@ public class Main {
 						  since, mirrorStore, cli.option("concurrency", "3"));
 
 		Mirror mirror = new Mirror(
-				contentManager, gameTypeManager, managed,
-				mirrorStore,
-				Integer.parseInt(cli.option("concurrency", "3")),
-				since,
-				((total, remaining, last) -> System.out.printf("\r[ %-6s / %-6s ] Processed %-40s",
-															   total - remaining, total, last.name()))
+			contentManager, gameTypeManager, managed,
+			mirrorStore,
+			Integer.parseInt(cli.option("concurrency", "3")),
+			since,
+			((total, remaining, last) -> System.out.printf("\r[ %-6s / %-6s ] Processed %-40s",
+														   total - remaining, total, last.name()))
 		);
 		mirror.mirror();
 
@@ -514,11 +551,11 @@ public class Main {
 						  output.toString(), cli.option("concurrency", "3"));
 
 		LocalMirrorClient mirror = new LocalMirrorClient(
-				contentManager,
-				output,
-				Integer.parseInt(cli.option("concurrency", "3")),
-				((total, remaining, last) -> System.out.printf("\r[ %-6s / %-6s ] Processed %-40s",
-															   total - remaining, total, last.name()))
+			contentManager,
+			output,
+			Integer.parseInt(cli.option("concurrency", "3")),
+			((total, remaining, last) -> System.out.printf("\r[ %-6s / %-6s ] Processed %-40s",
+														   total - remaining, total, last.name()))
 		);
 		mirror.mirror();
 
@@ -530,7 +567,7 @@ public class Main {
 
 	private static void www(ContentManager contentManager, DocumentManager documentManager, ManagedContentManager managed,
 							GameTypeManager gameTypeManager, CLI cli)
-			throws IOException {
+		throws IOException {
 		if (cli.commands().length < 2) {
 			System.err.println("An output path must be specified!");
 			System.exit(2);
@@ -572,15 +609,15 @@ public class Main {
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("content"))) {
 			// generate content pages
 			generators.addAll(
-					Arrays.asList(
-							new Maps(contentManager, outputPath, staticOutput, features),
-							new MapPacks(contentManager, outputPath, staticOutput, features),
-							new Skins(contentManager, outputPath, staticOutput, features),
-							new Models(contentManager, outputPath, staticOutput, features),
-							new Voices(contentManager, outputPath, staticOutput, features),
-							new Mutators(contentManager, outputPath, staticOutput, features),
-							new FileDetails(contentManager, outputPath, staticOutput, features)
-					));
+				Arrays.asList(
+					new Maps(contentManager, outputPath, staticOutput, features),
+					new MapPacks(contentManager, outputPath, staticOutput, features),
+					new Skins(contentManager, outputPath, staticOutput, features),
+					new Models(contentManager, outputPath, staticOutput, features),
+					new Voices(contentManager, outputPath, staticOutput, features),
+					new Mutators(contentManager, outputPath, staticOutput, features),
+					new FileDetails(contentManager, outputPath, staticOutput, features)
+				));
 		}
 
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("authors"))) {
@@ -630,8 +667,8 @@ public class Main {
 						 System.getenv().getOrDefault("SITE_URL", ""),
 						 System.getenv().getOrDefault("MSE_URL", ""),
 						 System.getenv().getOrDefault("MSE_TOKEN", ""), 50)
-				.submit(percent -> System.out.printf("\r%.1f%% complete", percent * 100d),
-						done -> System.out.printf("%nSearch submission complete in %.2fs%n", (System.currentTimeMillis() - start) / 1000f));
+			.submit(percent -> System.out.printf("\r%.1f%% complete", percent * 100d),
+					done -> System.out.printf("%nSearch submission complete in %.2fs%n", (System.currentTimeMillis() - start) / 1000f));
 	}
 
 	private static void summary(ContentManager contentManager) {
@@ -644,7 +681,7 @@ public class Main {
 			contentManager.countByGame().forEach((game, count) -> {
 				System.out.printf(" > %s: %d%n", game, count);
 				contentManager.countByType(game).forEach(
-						(type, typeCount) -> System.out.printf("   > %s: %d%n", type.getSimpleName(), typeCount)
+					(type, typeCount) -> System.out.printf("   > %s: %d%n", type.getSimpleName(), typeCount)
 				);
 			});
 		} else {

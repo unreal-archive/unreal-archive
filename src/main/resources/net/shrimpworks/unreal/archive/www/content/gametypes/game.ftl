@@ -18,6 +18,8 @@
 					style='background-image: url("${relPath(gametype.path + "/" + gametype.gametype.titleImage)}"); box-shadow: none'
 				<#elseif gametype.gametype.bannerImage?? && gametype.gametype.bannerImage?length gt 0>
 					style='background-image: url("${relPath(gametype.path + "/" + gametype.gametype.bannerImage)}");'
+				<#elseif gametype.fallbackTitle?? && gametype.fallbackTitle?length gt 0>
+					style='background-image: url("${gametype.fallbackTitle}");'
 				</#if>
 			>
 				<a href="${relPath(gametype.path + "/index.html")}" title="${gametype.gametype.name}">
