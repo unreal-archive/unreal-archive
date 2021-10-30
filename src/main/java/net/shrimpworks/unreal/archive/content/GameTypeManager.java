@@ -314,7 +314,7 @@ public class GameTypeManager {
 
 				// compute dependencies
 				r.dependencies = IndexUtils.dependencies(Games.byName(gameType.game), incoming);
-			} catch (IOException e) {
+			} catch (Exception e) {
 				System.err.printf("Could not read files and dependencies for release file %s%n", localFile);
 			}
 		}
@@ -407,6 +407,7 @@ public class GameTypeManager {
 											  StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 							  } catch (IOException e) {
 								  System.err.printf("Could not read files and dependencies for release file %s%n", f[0]);
+								  e.printStackTrace();
 							  }
 
 						  }, () -> {

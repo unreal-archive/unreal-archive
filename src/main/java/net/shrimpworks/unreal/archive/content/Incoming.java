@@ -218,7 +218,11 @@ public class Incoming implements Closeable {
 			Files.walkFileTree(rootExtracted, new SimpleFileVisitor<>() {
 				@Override
 				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-					if (ArchiveUtil.isArchive(file)) extract(file, destination.resolve(file.getFileName().toString() + ".ex"));
+					try {
+						if (ArchiveUtil.isArchive(file)) extract(file, destination.resolve(file.getFileName().toString() + ".ex"));
+					} catch (ArchiveUtil.BadArchiveException ex) {
+						// pass - don't fail on internal file extractions
+					}
 					return FileVisitResult.CONTINUE;
 				}
 			});
