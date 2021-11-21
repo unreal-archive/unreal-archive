@@ -52,7 +52,8 @@ public class GameTypes {
 			new GameType("Funnel", "FN"),
 			new GameType("Survival", "SV"),
 			new GameType("Conquest", "CNQ"),
-			new GameType("RealCTF", "Real_")
+			new GameType("RealCTF", "Real_"),
+			new GameType("Unreal Badlands", "BL-", "BLC-")
 	);
 
 	public static GameType forMap(String mapName) {
