@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.Incoming;
@@ -72,15 +73,17 @@ public class VoiceIndexHandler implements IndexHandler<Voice> {
 	private List<String> voiceNames(Incoming incoming) {
 		return IndexUtils.readIntFiles(incoming, incoming.files(Incoming.FileType.INT))
 						 .filter(Objects::nonNull)
-						 .map(intFile -> {
+						 .flatMap(intFile -> {
 							 IntFile.Section section = intFile.section("public");
-							 if (section == null) return null;
+							 if (section == null) return Stream.empty();
+
+							 final Set<String> foundVoices = new HashSet<>();
 
 							 IntFile.ListValue objects = section.asList("Object");
 							 for (IntFile.Value value : objects.values) {
 								 IntFile.MapValue mapVal = (IntFile.MapValue)value;
 
-								 if (!mapVal.containsKey("MetaClass")) return null;
+								 if (!mapVal.containsKey("MetaClass")) continue;
 
 								 String[] voiceClass = mapVal.getOrDefault("Name", "Package.Unknown").split("\\.");
 								 String maybeName = voiceClass[voiceClass.length - 1];
@@ -92,16 +95,16 @@ public class VoiceIndexHandler implements IndexHandler<Voice> {
 									 if (nameSection != null) {
 										 IntFile.Value nameVal = nameSection.value("VoicePackName");
 										 if (nameVal instanceof IntFile.SimpleValue) {
-											 return ((IntFile.SimpleValue)nameVal).value;
+											 maybeName = ((IntFile.SimpleValue)nameVal).value;
 										 }
 									 }
 
-									 return maybeName;
+									 foundVoices.add(maybeName);
 								 } else if (Voice.UT_VOICE_MATCH.matcher(mapVal.get("MetaClass")).matches()) {
-									 return mapVal.getOrDefault("Description", maybeName);
+									 foundVoices.add(mapVal.getOrDefault("Description", maybeName));
 								 }
 							 }
-							 return null;
+							 return foundVoices.stream();
 						 })
 						 .filter(Objects::nonNull)
 						 .collect(Collectors.toList());
