@@ -4,12 +4,12 @@ type: docker
 
 steps:
   - name: test
-    image: gradle:6.7.1-jdk11
+    image: gradle:6.9.1-jdk11
     commands:
       - apt-get update && apt-get install -y p7zip-full unrar
       - gradle test
   - name: publish
-    image: gradle:6.7.1-jdk11
+    image: gradle:6.9.1-jdk11
     environment:
       ARTEFACTS_USER:
         from_secret: ARTEFACTS_USER
@@ -23,7 +23,7 @@ steps:
       branch:
         - master
   - name: www
-    image: gradle:6.7.1-jdk11
+    image: gradle:6.9.1-jdk11
     environment:
       DRONE_TOKEN:
         from_secret: DRONE_TOKEN
