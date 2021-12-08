@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import net.shrimpworks.unreal.archive.AuthorNames;
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.Games;
@@ -79,6 +80,10 @@ public class MapPack extends Content {
 		public String name;
 		public String title;
 		public String author = "Unknown";
+
+		public String authorName() {
+			return AuthorNames.nameFor(author);
+		}
 
 		@Override
 		public int compareTo(PackMap o) {

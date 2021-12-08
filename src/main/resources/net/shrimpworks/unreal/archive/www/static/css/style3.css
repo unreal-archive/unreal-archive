@@ -82,3 +82,7 @@ td.meta img[src$="svg"], footer img[src$="svg"], .report img[src$="svg"] {
 article.managed section.downloads .download .title img[src$="svg"], .variation img[src$="svg"] {
 	filter: invert(0.8);
 }
+
+h2 img, h3 img {
+	margin-top: -9px;
+}

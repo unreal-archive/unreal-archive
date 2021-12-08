@@ -42,7 +42,7 @@
 							<td>
 								<a href="${relPath(c.slugPath(siteRoot) + ".html")}">${c.name}</a>
 							</td>
-							<td>${c.author}</td>
+							<td><@authorLink c.authorName /></td>
 						</tr>
 						</#list>
 					</tbody>

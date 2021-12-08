@@ -66,6 +66,7 @@ import net.shrimpworks.unreal.archive.www.content.MapPacks;
 import net.shrimpworks.unreal.archive.www.content.Maps;
 import net.shrimpworks.unreal.archive.www.content.Models;
 import net.shrimpworks.unreal.archive.www.content.Mutators;
+import net.shrimpworks.unreal.archive.www.content.Packages;
 import net.shrimpworks.unreal.archive.www.content.Skins;
 import net.shrimpworks.unreal.archive.www.content.Voices;
 import net.shrimpworks.unreal.packages.Umod;
@@ -585,6 +586,7 @@ public class Main {
 		final boolean withSearch = Boolean.parseBoolean(cli.option("with-search", "false"));
 		final boolean withSubmit = Boolean.parseBoolean(cli.option("with-submit", "false"));
 		final boolean withLatest = Boolean.parseBoolean(cli.option("with-latest", "false"));
+		final boolean withPackages = Boolean.parseBoolean(cli.option("with-packages", "false"));
 		final boolean localImages = Boolean.parseBoolean(cli.option("local-images", "false"));
 		if (localImages) System.out.println("Will download a local copy of content images, this will take additional time.");
 
@@ -618,6 +620,7 @@ public class Main {
 					new Mutators(contentManager, outputPath, staticOutput, features),
 					new FileDetails(contentManager, outputPath, staticOutput, features)
 				));
+			if (withPackages) generators.add(new Packages(contentManager, gameTypeManager, managed, outputPath, staticOutput, features));
 		}
 
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("authors"))) {
@@ -634,6 +637,10 @@ public class Main {
 
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("gametypes"))) {
 			generators.add(new GameTypes(gameTypeManager, contentManager, outputPath, staticOutput, features));
+		}
+
+		if (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("packages")) {
+			generators.add(new Packages(contentManager, gameTypeManager, managed, outputPath, staticOutput, features));
 		}
 
 		if (features.submit) generators.add(new Submit(outputPath, staticOutput, features));

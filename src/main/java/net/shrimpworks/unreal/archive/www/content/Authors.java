@@ -35,7 +35,7 @@ public class Authors extends ContentPageGenerator {
 				   Path staticRoot, SiteFeatures features) {
 		super(content, output, output.resolve("authors"), staticRoot, features);
 
-		Stream.concat(Stream.concat(content.search(null, null, null, null).stream(),
+		Stream.concat(Stream.concat(content.all().stream(),
 									gameTypes.all().stream()), managed.all().stream())
 			  .filter(c -> !c.deleted())
 			  .filter(c -> !c.isVariation())

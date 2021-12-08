@@ -141,7 +141,7 @@
 						<tr>
 							<td>${m.name}</td>
 							<td class="nomobile">${m.title}</td>
-							<td>${m.author}</td>
+							<td><@authorLink m.authorName /></td>
 						</tr>
 						</#list>
 					</tbody>
@@ -152,7 +152,7 @@
 
 			<@downloads downloads=pack.pack.downloads/>
 
-      <@dependencies deps=pack.pack.dependencies/>
+      <@dependencies deps=pack.pack.dependencies game=pack.pack.game/>
 
       <@ghIssue text="Report a problem" repoUrl="${dataProjectUrl}" title="[Map Pack] ${pack.pack.name}" hash="${pack.pack.hash}" name="${pack.pack.name}"/>
 

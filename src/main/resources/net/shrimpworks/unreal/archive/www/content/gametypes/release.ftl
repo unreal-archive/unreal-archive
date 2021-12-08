@@ -65,7 +65,7 @@
 
           <@files files=f.files alsoIn=gametype.filesAlsoIn[slug(f.originalFilename)] otherFiles=f.otherFiles h="h3"/>
 
-					<@dependencies deps=f.dependencies h="h3"/>
+					<@dependencies deps=f.dependencies h="h3" game=gametype.game.name/>
 
 				</section>
       </#list>

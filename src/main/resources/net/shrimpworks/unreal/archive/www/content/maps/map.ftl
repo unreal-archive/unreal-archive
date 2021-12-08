@@ -139,7 +139,7 @@
 
 			<@downloads downloads=map.map.downloads/>
 
-			<@dependencies deps=map.map.dependencies/>
+			<@dependencies deps=map.map.dependencies game=map.map.game/>
 
 			<@ghIssue text="Report a problem" repoUrl="${dataProjectUrl}" title="[Map] ${map.map.name}" hash="${map.map.hash}" name="${map.map.name}"/>
 

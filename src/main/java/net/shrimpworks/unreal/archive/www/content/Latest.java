@@ -26,7 +26,7 @@ public class Latest extends ContentPageGenerator {
 				  SiteFeatures features) {
 		super(content, output, output.resolve("latest"), staticRoot, features);
 
-		this.allContent = Stream.concat(Stream.concat(content.search(null, null, null, null).stream(),
+		this.allContent = Stream.concat(Stream.concat(content.all().stream(),
 													  gameTypes.all().stream()),
 										managed.all().stream())
 								.filter(c -> !c.deleted())

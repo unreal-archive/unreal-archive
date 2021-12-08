@@ -19,11 +19,11 @@ public class FileDetails extends ContentPageGenerator {
 
 	private final Map<Content.ContentFile, List<Content>> contentFiles;
 
-	public FileDetails(ContentManager content, Path output, Path staticRoot, SiteFeatures localImages) {
-		super(content, output, output.resolve("files"), staticRoot, localImages);
+	public FileDetails(ContentManager content, Path output, Path staticRoot, SiteFeatures features) {
+		super(content, output, output.resolve("packages"), staticRoot, features);
 
 		this.contentFiles = new HashMap<>();
-		content.search(null, null, null, null)
+		content.all()
 			   .forEach(c -> {
 				   for (Content.ContentFile f : c.files) {
 					   Collection<Content> contents = contentFiles.computeIfAbsent(f, h -> new ArrayList<>());

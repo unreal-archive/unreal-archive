@@ -209,6 +209,7 @@ public class Templates {
 			TPL_VARS.put("urlHost", new UrlHostMethod());
 			TPL_VARS.put("fileSize", new FileSizeMethod());
 			TPL_VARS.put("fileName", new FileNameMethod());
+			TPL_VARS.put("plainName", new PlainNameMethod());
 			TPL_VARS.put("staticPath", new StaticPathMethod());
 			TPL_VARS.put("dateFmt", new FormatLocalDateMethod(false));
 			TPL_VARS.put("dateFmtShort", new FormatLocalDateMethod(true));
@@ -385,6 +386,15 @@ public class Templates {
 			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a file path");
 
 			return Util.fileName(args.get(0).toString());
+		}
+	}
+
+	private static class PlainNameMethod implements TemplateMethodModelEx {
+
+		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
+			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a file name");
+
+			return Util.plainName(args.get(0).toString());
 		}
 	}
 

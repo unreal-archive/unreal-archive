@@ -80,14 +80,14 @@ public class ContentManager {
 
 	public Map<Class<? extends Content>, Long> countByType(String game) {
 		return content.values().stream()
-					  .filter(c -> c.content.variationOf == null && !c.content.deleted)
+					  .filter(c -> c.content.variationOf == null && !c.content.deleted())
 					  .filter(c -> game == null || c.content.game.equals(game))
 					  .collect(Collectors.groupingBy(v -> v.content.getClass(), Collectors.counting()));
 	}
 
 	public Map<String, Long> countByGame() {
 		return content.values().stream()
-					  .filter(c -> c.content.variationOf == null && !c.content.deleted)
+					  .filter(c -> c.content.variationOf == null && !c.content.deleted())
 					  .collect(Collectors.groupingBy(v -> v.content.game, Collectors.counting()));
 	}
 
@@ -101,6 +101,13 @@ public class ContentManager {
 						  match = match && (name == null || c.name.toLowerCase().contains(name.toLowerCase()));
 						  return match;
 					  })
+					  .collect(Collectors.toSet());
+	}
+
+	public Collection<Content> all() {
+		return content.values().parallelStream()
+					  .map(c -> c.content)
+					  .filter(c -> !c.deleted())
 					  .collect(Collectors.toSet());
 	}
 
@@ -182,10 +189,10 @@ public class ContentManager {
 					String uploadPath = path.relativize(next.resolve(file.name)).toString();
 					if (file.type == Content.AttachmentType.IMAGE) {
 						imageStore.store(file.path, uploadPath, (fileUrl, ex) ->
-								indexed.content.attachments.add(new Content.Attachment(file.type, file.name, fileUrl)));
+							indexed.content.attachments.add(new Content.Attachment(file.type, file.name, fileUrl)));
 					} else {
 						attachmentStore.store(file.path, uploadPath, (fileUrl, ex) ->
-								indexed.content.attachments.add(new Content.Attachment(file.type, file.name, fileUrl)));
+							indexed.content.attachments.add(new Content.Attachment(file.type, file.name, fileUrl)));
 					}
 				} finally {
 					// cleanup file once uploaded
@@ -214,7 +221,7 @@ public class ContentManager {
 			if (submission != null && indexed.content.downloads.stream().noneMatch(d -> d.main)) {
 				String uploadPath = path.relativize(next.resolve(submission.filePath.getFileName())).toString();
 				contentStore.store(submission.filePath, uploadPath, (fileUrl, ex) ->
-						indexed.content.downloads.add(new Content.Download(fileUrl, true, false, Content.DownloadState.OK))
+					indexed.content.downloads.add(new Content.Download(fileUrl, true, false, Content.DownloadState.OK))
 				);
 			}
 

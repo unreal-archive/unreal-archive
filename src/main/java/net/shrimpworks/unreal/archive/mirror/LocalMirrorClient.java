@@ -38,7 +38,7 @@ public class LocalMirrorClient implements Consumer<LocalMirrorClient.Downloader>
 	private volatile Thread mirrorThread;
 
 	public LocalMirrorClient(ContentManager content, Path output, int concurrency, Progress progress) {
-		this.content = new ConcurrentLinkedDeque<>(content.search(null, null, null, null));
+		this.content = new ConcurrentLinkedDeque<>(content.all());
 		this.retryQueue = new ConcurrentLinkedDeque<>();
 		this.output = output;
 		this.concurrency = concurrency;

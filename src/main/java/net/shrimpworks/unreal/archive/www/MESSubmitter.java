@@ -46,7 +46,7 @@ public class MESSubmitter {
 	}
 
 	public void submit(Consumer<Double> progress, Consumer<Boolean> done) throws IOException {
-		Collection<Content> contents = contentManager.search(null, null, null, null);
+		Collection<Content> contents = contentManager.all();
 		Path root = Paths.get("");
 		final int count = contents.size();
 		int i = 0;
@@ -54,7 +54,7 @@ public class MESSubmitter {
 		final List<Map<String, Object>> batchDocs = new ArrayList<>(batchSize);
 
 		for (Content content : contents) {
-			if (content.variationOf != null || content.deleted) continue;
+			if (content.variationOf != null) continue;
 			Map<String, Object> doc = Map.of(
 					"id", content.hash,
 					"score", 1.0d,

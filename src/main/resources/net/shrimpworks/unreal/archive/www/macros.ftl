@@ -147,7 +147,7 @@
 	</section>
 </#macro>
 
-<#macro dependencies deps h="h2">
+<#macro dependencies deps h="h2" game="">
 	<#if deps?size gt 0>
 		<section class="dependencies">
 			<${h}><img src="${staticPath()}/images/icons/file-check.svg" alt="Required Files"/> Required Files</${h}>
@@ -168,7 +168,11 @@
 					<#list value as dep>
 						<tr>
 							<td>&nbsp;</td>
-							<td>${dep.name}</td>
+							<#if game??>
+								<td><a href="${relPath(siteRoot + "/packages/" + slug(game) + "/" + slug(dep.name) + "/index.html")}">${dep.name}<a/></td>
+							<#else>
+								<td>${dep.name}</td>
+							</#if>
 							<td>${dep.status}</td>
 							<td>
 								<#if dep.status == "OK">

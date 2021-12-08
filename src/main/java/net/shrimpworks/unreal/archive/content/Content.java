@@ -271,12 +271,12 @@ public abstract class Content implements ContentEntity<Content> {
 			if (this == o) return true;
 			if (o == null || getClass() != o.getClass()) return false;
 			ContentFile that = (ContentFile)o;
-			return Objects.equals(name, that.name) && Objects.equals(hash, that.hash);
+			return Objects.equals(name.toLowerCase(), that.name.toLowerCase()) && Objects.equals(hash, that.hash);
 		}
 
 		@Override
 		public int hashCode() {
-			return Objects.hash(name, hash);
+			return Objects.hash(name.toLowerCase(), hash);
 		}
 	}
 

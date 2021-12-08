@@ -57,7 +57,7 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 		final LocalDate sinceFilter = since.minusDays(1);
 
 		this.content = Stream.concat(
-									 cm.search(null, null, null, null).stream(),
+									 cm.all().stream(),
 									 Stream.concat(
 											 gm.all().stream(),
 											 mm.all().stream()
