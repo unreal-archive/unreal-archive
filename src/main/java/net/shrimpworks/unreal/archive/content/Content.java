@@ -282,7 +282,7 @@ public abstract class Content implements ContentEntity<Content> {
 
 	public static enum DependencyStatus {
 		OK,            // all required elements are present within the package
-		MISSING,    // the package is not included at all
+		MISSING,       // the package is not included at all
 		PARTIAL        // the package exists but does not contain required objects
 	}
 

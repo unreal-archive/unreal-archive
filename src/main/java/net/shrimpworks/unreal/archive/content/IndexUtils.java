@@ -23,6 +23,7 @@ import javax.imageio.ImageIO;
 
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.dependencies.DependencyResolver;
+import net.shrimpworks.unreal.dependencies.NativePackages;
 import net.shrimpworks.unreal.dependencies.Resolved;
 import net.shrimpworks.unreal.dependencies.ShippedPackages;
 import net.shrimpworks.unreal.packages.IntFile;
@@ -360,9 +361,12 @@ public class IndexUtils {
 
 		Map<String, List<Content.Dependency>> dependencies = new HashMap<>();
 		try {
-			DependencyResolver resolver = new DependencyResolver(incoming.contentRoot);
+			DependencyResolver resolver = new DependencyResolver(incoming.contentRoot, NativePackages.DEFAULT, e -> {
+				incoming.log.log(IndexLog.EntryType.CONTINUE, "Dependency resolution error for " + e.file.toString(), e);
+			});
+
 			for (Incoming.IncomingFile file : incoming.files(Incoming.FileType.CODE, Incoming.FileType.MAP, Incoming.FileType.TEXTURE,
-															 Incoming.FileType.STATICMESH)) {
+															 Incoming.FileType.STATICMESH, Incoming.FileType.ANIMATION)) {
 				List<Content.Dependency> depList = new ArrayList<>();
 				try {
 					Map<String, Set<Resolved>> resolved = resolver.resolve(Util.plainName(file.fileName()));
