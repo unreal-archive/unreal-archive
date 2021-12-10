@@ -67,7 +67,7 @@ public class Packages extends ContentPageGenerator {
 					 .peek(a -> Collections.sort(a.getValue()))
 					 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 
-				pages.add("package.ftl", SiteMap.Page.monthly(0.25f), String.join(" / ", "Packages", game.getKey().name, e.getKey()))
+				pages.add("package.ftl", SiteMap.Page.monthly(0.3f), String.join(" / ", "Packages", game.getKey().name, e.getKey()))
 					 .put("game", game.getKey().name)
 					 .put("package", e.getKey())
 					 .put("packageFiles", sorted)
