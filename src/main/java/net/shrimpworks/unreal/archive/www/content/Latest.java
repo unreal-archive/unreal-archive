@@ -3,6 +3,7 @@ package net.shrimpworks.unreal.archive.www.content;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -26,8 +27,12 @@ public class Latest extends ContentPageGenerator {
 				  SiteFeatures features) {
 		super(content, output, output.resolve("latest"), staticRoot, features);
 
-		this.allContent = Stream.concat(Stream.concat(content.all().stream(),
-													  gameTypes.all().stream()),
+		Set<String> variations = content.all().stream().map(c -> c.variationOf).filter(Objects::nonNull).collect(Collectors.toSet());
+
+		this.allContent = Stream.concat(Stream.concat(
+											// exclude content which are variations of existing things
+											content.all().stream().filter(c -> !variations.contains(c.hash)),
+											gameTypes.all().stream()),
 										managed.all().stream())
 								.filter(c -> !c.deleted())
 								.filter(c -> !c.isVariation())
@@ -37,7 +42,7 @@ public class Latest extends ContentPageGenerator {
 	@Override
 	public Set<SiteMap.Page> generate() {
 		TreeMap<LocalDate, List<ContentEntity<?>>> contentFiles = new TreeMap<>(
-				allContent.stream().collect(Collectors.groupingBy(c -> c.addedDate().toLocalDate()))
+			allContent.stream().collect(Collectors.groupingBy(c -> c.addedDate().toLocalDate()))
 		);
 
 		Templates.PageSet pages = pageSet("content/latest");
@@ -53,8 +58,8 @@ public class Latest extends ContentPageGenerator {
 		// per game RSS
 		for (Games game : Games.values()) {
 			TreeMap<LocalDate, List<ContentEntity<?>>> gameContent = new TreeMap<>(
-					allContent.stream().filter(c -> c.game().equals(game.name))
-							  .collect(Collectors.groupingBy(c -> c.addedDate().toLocalDate()))
+				allContent.stream().filter(c -> c.game().equals(game.name))
+						  .collect(Collectors.groupingBy(c -> c.addedDate().toLocalDate()))
 			);
 			pages.add("feed.ftl", SiteMap.Page.weekly(0f), "Latest " + game.name + " Additions")
 				 .put("latest", gameContent.descendingMap())

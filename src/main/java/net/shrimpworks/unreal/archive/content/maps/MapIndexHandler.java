@@ -13,6 +13,7 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.content.Content;
@@ -95,8 +96,8 @@ public class MapIndexHandler implements IndexHandler<Map> {
 			Property author = level.property("Author");
 			Property title = level.property("Title");
 			Property description = level.property("Description") != null
-					? level.property("Description")
-					: level.property("LevelEnterText"); // fallback for Unreal, some maps have fun text here
+				? level.property("Description")
+				: level.property("LevelEnterText"); // fallback for Unreal, some maps have fun text here
 
 			if (author != null) m.author = ((StringProperty)author).value.trim();
 			if (title != null) m.title = ((StringProperty)title).value.trim();
@@ -266,12 +267,11 @@ public class MapIndexHandler implements IndexHandler<Map> {
 
 	public static boolean botSupport(Package pkg) {
 		return pkg.version < 117
-				? pkg.objectsByClassName("PathNode").stream()
-					 .filter(n -> pkg.object(n).property("Paths") instanceof ArrayProperty &&
-								  !((ArrayProperty)pkg.object(n).property("Paths")).values.isEmpty())
-					 .count() > BOT_PATH_MIN
-				: pkg.objectsByClassName("PathNode").size() > BOT_PATH_MIN
-				  && pkg.objectsByClassName("ReachSpec").size() > BOT_PATH_MIN;
+			? Stream.concat(pkg.objectsByClassName("PathNode").stream(), pkg.objectsByClassName("InventorySpot").stream())
+					.filter(n -> pkg.object(n).property("Paths") instanceof ArrayProperty
+								 && !((ArrayProperty)pkg.object(n).property("Paths")).values.isEmpty())
+					.count() > BOT_PATH_MIN
+			: pkg.objectsByClassName("ReachSpec").size() > BOT_PATH_MIN;
 	}
 
 }
