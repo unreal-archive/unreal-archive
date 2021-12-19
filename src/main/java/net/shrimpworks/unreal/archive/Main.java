@@ -39,14 +39,6 @@ import net.shrimpworks.unreal.archive.managed.Managed;
 import net.shrimpworks.unreal.archive.managed.ManagedContentManager;
 import net.shrimpworks.unreal.archive.mirror.LocalMirrorClient;
 import net.shrimpworks.unreal.archive.mirror.Mirror;
-import net.shrimpworks.unreal.archive.scraper.AutoIndexPHPScraper;
-import net.shrimpworks.unreal.archive.scraper.Downloader;
-import net.shrimpworks.unreal.archive.scraper.FPSNetwork;
-import net.shrimpworks.unreal.archive.scraper.GameBanana;
-import net.shrimpworks.unreal.archive.scraper.GameFrontOnline;
-import net.shrimpworks.unreal.archive.scraper.GameZooMaps;
-import net.shrimpworks.unreal.archive.scraper.UTTexture;
-import net.shrimpworks.unreal.archive.scraper.UnrealPlayground;
 import net.shrimpworks.unreal.archive.storage.DataStore;
 import net.shrimpworks.unreal.archive.www.Documents;
 import net.shrimpworks.unreal.archive.www.Index;
@@ -130,12 +122,6 @@ public class Main {
 				break;
 			case "show":
 				show(contentManager(cli), cli);
-				break;
-			case "scrape":
-				scrape(cli);
-				break;
-			case "download":
-				download(cli);
 				break;
 			case "unpack":
 				unpack(cli);
@@ -750,44 +736,6 @@ public class Main {
 		}
 	}
 
-	private static void scrape(CLI cli) throws IOException {
-		switch (cli.commands()[1]) {
-			case "autoindexphp":
-				AutoIndexPHPScraper.index(cli);
-				break;
-			case "unrealplayground":
-				UnrealPlayground.index(cli);
-				break;
-			case "gamezoo":
-				GameZooMaps.index(cli);
-				break;
-			case "gamefrontonline":
-				GameFrontOnline.index(cli);
-				break;
-			case "fpsnetwork":
-				FPSNetwork.index(cli);
-				break;
-			case "uttexture":
-				UTTexture.index(cli);
-				break;
-			case "gamebanana":
-				GameBanana.index(cli);
-				break;
-			default:
-				throw new UnsupportedOperationException("Scraper not supported: " + cli.commands()[1]);
-		}
-
-	}
-
-	private static void download(CLI cli) throws IOException {
-		if (cli.commands().length < 3) {
-			System.err.println("An input file and output directory are required");
-			System.exit(255);
-		}
-
-		Downloader.download(cli);
-	}
-
 	private static void unpack(CLI cli) throws IOException {
 		if (cli.commands().length < 3) {
 			System.err.println("A Umod file and destination directory are required!");
@@ -861,13 +809,5 @@ public class Main {
 		System.out.println("    Show data for the content items specified");
 		System.out.println("  unpack <umod-file> <destination>");
 		System.out.println("    Unpack the contents of <umod-file> to directory <destination>");
-		System.out.println("  scrape <type> [parameters ...] [--slowdown=<millis>]");
-		System.out.println("    Scrape file listings from the provided URL, <type> is the type of scraper ");
-		System.out.println("    to use ('autoindexphp', 'unrealplayground', 'gamezoo' supported).");
-		System.out.println("    [slowdown] will cause the scraper to pause between page loads, defaults to 2000ms.");
-		System.out.println("  download <file-list> <output-path> [--slowdown=<millis>]");
-		System.out.println("    Download previously-scraped files defined in the file <file-list>, and write");
-		System.out.println("    them out to <output-path>, along with a YML file containing the original URL.");
-		System.out.println("    [slowdown] will cause the downloader to pause between downloads, defaults to 2000ms.");
 	}
 }
