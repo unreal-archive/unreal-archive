@@ -4,12 +4,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -17,6 +19,7 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -32,8 +35,11 @@ import net.shrimpworks.unreal.archive.content.ContentManager;
 import net.shrimpworks.unreal.archive.content.ContentType;
 import net.shrimpworks.unreal.archive.content.GameTypeManager;
 import net.shrimpworks.unreal.archive.content.Games;
+import net.shrimpworks.unreal.archive.content.Incoming;
+import net.shrimpworks.unreal.archive.content.IndexLog;
 import net.shrimpworks.unreal.archive.content.Indexer;
 import net.shrimpworks.unreal.archive.content.Scanner;
+import net.shrimpworks.unreal.archive.content.Submission;
 import net.shrimpworks.unreal.archive.docs.DocumentManager;
 import net.shrimpworks.unreal.archive.managed.Managed;
 import net.shrimpworks.unreal.archive.managed.ManagedContentManager;
@@ -125,6 +131,8 @@ public class Main {
 				break;
 			case "unpack":
 				unpack(cli);
+			case "install":
+				install(contentManager(cli), cli);
 				break;
 			default:
 				System.out.printf("Command \"%s\" has not been implemented!%n%n", cli.commands()[0]);
@@ -190,36 +198,6 @@ public class Main {
 		}
 
 		return contentPath.toAbsolutePath();
-	}
-
-	private static Path[] cliPaths(CLI cli, int fromOffset) throws IOException {
-		// let's see if there are cli paths which are actually URLs, and download them to local paths
-		String[] urls = Arrays.stream(cli.commands(), fromOffset, cli.commands().length)
-							  .filter(s -> s.matches("^https?://.*"))
-							  .toArray(String[]::new);
-
-		List<Path> dlPaths = new ArrayList<>();
-		if (urls.length > 0) {
-			Path dlTemp = Files.createTempDirectory("ua-download");
-			for (String url : urls) {
-				System.out.printf("Fetching %s ... ", url);
-				dlPaths.add(Util.downloadTo(url, dlTemp));
-				System.out.println("Done");
-			}
-		}
-
-		List<Path> diskPaths = Arrays.stream(cli.commands(), fromOffset, cli.commands().length)
-									 .filter(s -> !s.matches("^https?://.*"))
-									 .map(s -> Paths.get(s).toAbsolutePath())
-									 .peek(p -> {
-										 if (!Files.exists(p)) {
-											 System.err.println("Input path does not exist: " + p.toString());
-											 System.exit(4);
-										 }
-									 })
-									 .collect(Collectors.toList());
-
-		return Stream.concat(dlPaths.stream(), diskPaths.stream()).toArray(Path[]::new);
 	}
 
 	private static ContentManager contentManager(CLI cli) throws IOException {
@@ -342,7 +320,7 @@ public class Main {
 				paths = inPaths.toArray(new Path[0]);
 			}
 		} else {
-			paths = cliPaths(cli, 1);
+			paths = cliPaths(cli, 1, contentManager).toArray(Path[]::new);
 		}
 
 		indexer.index(force, newOnly, concurrency, forceType, paths);
@@ -356,7 +334,7 @@ public class Main {
 
 		Scanner scanner = new Scanner(contentManager, cli);
 
-		Path[] paths = cliPaths(cli, 1);
+		Path[] paths = cliPaths(cli, 1, contentManager).toArray(Path[]::new);
 
 		scanner.scan(new Scanner.CLIEventPrinter(), paths);
 	}
@@ -782,6 +760,138 @@ public class Main {
 		}
 	}
 
+	private static void install(ContentManager contentManager, CLI cli) throws IOException {
+		if (cli.commands().length < 3) {
+			System.err.println("A file path or content hash and destination directory are required!");
+			System.exit(2);
+		}
+
+		Path dest = Paths.get(cli.commands()[2]).toAbsolutePath();
+		if (!Files.isDirectory(dest)) {
+			System.err.println("Destination directory does not exist!");
+			System.exit(4);
+		}
+
+		Path path = localOrRemoteOrHashToPaths(new String[] { cli.commands()[1] }, contentManager)
+			.stream()
+			.findFirst()
+			.orElseThrow();
+
+		boolean overwrite = Boolean.parseBoolean(cli.option("overwrite", "false"));
+		StandardCopyOption[] copyOptions = overwrite
+			? new StandardCopyOption[] { StandardCopyOption.REPLACE_EXISTING }
+			: new StandardCopyOption[0];
+
+		Map<Incoming.FileType, String> destinations = new HashMap<>();
+		destinations.put(Incoming.FileType.CODE, "System");
+		destinations.put(Incoming.FileType.INT, "System");
+		destinations.put(Incoming.FileType.INI, "System");
+		destinations.put(Incoming.FileType.UCL, "System");
+		destinations.put(Incoming.FileType.PLAYER, "System");
+		destinations.put(Incoming.FileType.MAP, "Maps");
+		destinations.put(Incoming.FileType.MUSIC, "Music");
+		destinations.put(Incoming.FileType.STATICMESH, "StaticMeshes");
+		destinations.put(Incoming.FileType.SOUNDS, "Sounds");
+		destinations.put(Incoming.FileType.TEXTURE, "Textures");
+		destinations.put(Incoming.FileType.PHYSICS, "KarmaData");
+		destinations.put(Incoming.FileType.ANIMATION, "Animations");
+
+		// create some useless holder things, so we can reuse the Incoming class for unpacking content
+		Submission sub = new Submission(path);
+		IndexLog log = new IndexLog();
+		try (Incoming incoming = new Incoming(sub, log).prepare()) {
+			incoming.files(destinations.keySet().toArray(new Incoming.FileType[0])).forEach(f -> {
+				Path destPath = dest.resolve(destinations.get(f.fileType()));
+				if (!Files.isDirectory(destPath)) {
+					try {
+						destPath = Files.createDirectories(destPath);
+					} catch (IOException e) {
+						throw new RuntimeException("Failed to create output directory " + destPath, e);
+					}
+				}
+
+				Path destFile = destPath.resolve(f.fileName());
+				if (Files.exists(destFile) && !overwrite) {
+					System.err.printf("File %s already exists! Use --overwrite=true to force overwriting.%n", destFile);
+					System.exit(1);
+				}
+				try {
+					System.out.printf("Copying file %s to %s%n", f.fileName(), destFile);
+					Files.copy(Channels.newInputStream(f.asChannel()), destFile, copyOptions);
+				} catch (IOException e) {
+					throw new RuntimeException("Failed to write file to " + destFile, e);
+				}
+			});
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
+
+	private static Set<Path> cliPaths(CLI cli, int fromOffset, ContentManager cm) throws IOException {
+		// let's see if there are cli paths which are actually URLs, and download them to local paths
+		String[] paths = Arrays.copyOfRange(cli.commands(), fromOffset, cli.commands().length);
+		return localOrRemoteOrHashToPaths(paths, cm);
+	}
+
+	/**
+	 * Given a collection of local file paths, URLs, and content hashes, resolve
+	 * everything to an output collection of local files, downloading content where
+	 * necessary.
+	 */
+	private static Set<Path> localOrRemoteOrHashToPaths(String[] paths, ContentManager cm) throws IOException {
+		// convert hashes to URLs
+		String[] contentUrls = Arrays
+			.stream(paths)
+			.filter(s -> s.matches("^[a-f0-9]{40}$"))
+			.map(hash -> {
+				Content content = cm.forHash(hash);
+				if (content == null) throw new IllegalArgumentException(String.format("Hash %s does not match any known content!", hash));
+				return content.downloads.stream()
+										.filter(d -> d.main)
+										.findFirst()
+										.orElseThrow(() -> new IllegalStateException(
+														 String.format("Could not find a download for content hash %s!", hash
+														 )
+													 )
+										).url;
+			})
+			.toArray(String[]::new);
+
+		// get whatever else looks like a URL from the input collection
+		String[] urls = Arrays.stream(paths)
+							  .filter(s -> s.matches("^https?://.*"))
+							  .toArray(String[]::new);
+
+		// convert URLs to local files
+		Path dlTemp = Files.createTempDirectory("ua-download");
+		Set<Path> dls = Stream.concat(Arrays.stream(contentUrls), Arrays.stream(urls))
+							  .map(url -> {
+								  System.out.printf("Fetching %s ... ", url);
+								  try {
+									  return Util.downloadTo(url, dlTemp);
+								  } catch (IOException e) {
+									  throw new IllegalStateException(String.format("Failed to download from URL %s: %s!", url, e), e);
+								  } finally {
+									  System.out.println("Done");
+								  }
+							  }).collect(Collectors.toSet());
+
+		// find local paths
+		Set<Path> diskPaths = Arrays.stream(paths)
+									.filter(s -> !s.matches("^https?://.*"))
+									.filter(s -> !s.matches("^[a-f0-9]{40}$"))
+									.map(s -> Paths.get(s).toAbsolutePath())
+									.peek(p -> {
+										if (!Files.isRegularFile(p)) {
+											throw new IllegalArgumentException(String.format("File not found %s!", p));
+										}
+									})
+									.collect(Collectors.toSet());
+
+		return Stream.concat(dls.stream(), diskPaths.stream()).collect(Collectors.toSet());
+	}
+
 	private static void usage() {
 		System.out.println("Unreal Archive");
 		System.out.println("Usage: unreal-archive.jar <command> [options]");
@@ -796,6 +906,10 @@ public class Main {
 		System.out.println("    Dry-run scan the contents of files or paths, comparing to known content where possible.");
 		System.out.println("  edit <hash> --content-path=<path>");
 		System.out.println("    Edit the metadata for the <hash> provided. Relies on `sensible-editor` on Linux.");
+		System.out.println("  set <hash> <attribute> <new-value> --content-path=<path>");
+		System.out.println("    Set <attribute> to value <new-value> within the metadata of the <hash> provided.");
+		System.out.println("  gametype <...>");
+		System.out.println("    Utilities for managing gametype content. Run `gametype` with no arguments for help.");
 		System.out.println("  local-mirror <output-path> --content-path=<path> [--concurrency=<count>]");
 		System.out.println("    Create a local mirror of the content in <content-path> in local directory <output-path>.");
 		System.out.println("    Optionally specify the number of concurrent downloads via <count>, defaults to 3.");
@@ -809,5 +923,10 @@ public class Main {
 		System.out.println("    Show data for the content items specified");
 		System.out.println("  unpack <umod-file> <destination>");
 		System.out.println("    Unpack the contents of <umod-file> to directory <destination>");
+		System.out.println("  install <file|hash> <destination>");
+		System.out.println("    Extract and place the contents of <file> into the <destination> directory");
+		System.out.println("    provided. Files will be placed into appropriate sub-directories by file type,");
+		System.out.println("    eg. Maps, System, Textures, etc. If <hash> is provided, content will be downloaded");
+		System.out.println("    first and then installed. Supports unpacking of UMOD files");
 	}
 }

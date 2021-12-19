@@ -77,6 +77,13 @@ public class Incoming implements Closeable {
 			}
 			return false;
 		}
+
+		public static FileType forFile(String path) {
+			for (FileType type : values()) {
+				if (type.ext.contains(Util.extension(path).toLowerCase())) return type;
+			}
+			return null;
+		}
 	}
 
 	public final Submission submission;
@@ -202,10 +209,10 @@ public class Incoming implements Closeable {
 
 	private void unpackFiles(Path incoming, Path destination) throws IOException, UnsupportedOperationException {
 		if (ArchiveUtil.isArchive(incoming)) {
-			// its an archive of files of some sort, unpack it to the root
+			// it's an archive of files of some sort, unpack it to the root
 			extract(incoming, destination);
 		} else if (FileType.important(incoming)) {
-			// its simply an loose file of a type we're interested in
+			// it's simply a loose file of a type we're interested in
 			Files.copy(incoming, destination.resolve(incoming.getFileName()), StandardCopyOption.REPLACE_EXISTING);
 		} else {
 			throw new UnsupportedFileTypeException("Can't unpack file " + incoming);
@@ -288,6 +295,10 @@ public class Incoming implements Closeable {
 				throw new IllegalStateException("Failed to get file size for " + file, e);
 			}
 			return LocalDateTime.now();
+		}
+
+		public FileType fileType() {
+			return FileType.forFile(file);
 		}
 
 		public String hash() {

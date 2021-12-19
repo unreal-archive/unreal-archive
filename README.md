@@ -55,6 +55,8 @@ java -jar build\libs\unreal-archive-exec.jar
 
 > TODO: complete this section 
 
+Run with no arguments to see input arguments and additional help for each command.
+
 **Browsing and Information:**
 - `ls`: List indexed content filtered by game, type or author.
 - `show`: Show data for the content items specified.
@@ -85,6 +87,8 @@ java -jar build\libs\unreal-archive-exec.jar
 
 **Utilities and Tools:**
 - `unpack`: Unpack the contents of a umod file to a directory.
+- `install`: Unpack the contents of a file, URL or hash, and place within an Unreal
+      game's standard directory layout (Maps, System, Textures etc).
 
 **Website Build:**
 - `www`: Generate the HTML website for browsing content.
