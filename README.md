@@ -60,11 +60,24 @@ java -jar build\libs\unreal-archive-exec.jar
 - `show`: Show data for the content items specified.
 - `summary`: Show stats and counters for the content index.
 
-**Content Management**
+**General Content Management**
 - `scan`: Dry-run scan the contents of files or paths, comparing to known content where possible.
 - `index`: Index the contents of files or paths, writing the results to the content path.
 - `edit`: Edit the metadata for the <hash> provided.
+- `set`: Convenience, set an attribute for the <hash> provided. Eg: `set <hash> author Bob`.
 - `sync`: Sync managed files' local files to remote storage.
+
+**Gametype Management**
+- All commands prefixed by `gametype`:
+- `init <game> <gametype name>`: Create a skeleton gametype file structure.
+- `locate <game> <gametype name>`: Show the local file path to the provided gametype.
+- `index <game> <game type name> <release name>`: Indexes the content of the release specified.
+- `add <game> <game type name> <release name> <file>`:
+      Convenience, which adds a gametype if it does not yet exist, adds a release, and indexes 
+      the release. A `sync` command afterwards is still required to sync download files to 
+      mirrors.
+- `addmirror <game> <game type name> <release name> <url>`: Adds a secondary mirror to the 
+      gametype specified.
 
 **Mirrors:**
 - `local-mirror`: Create a local mirror of all file content.
