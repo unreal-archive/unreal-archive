@@ -883,8 +883,8 @@ public class Main {
 									.filter(s -> !s.matches("^[a-f0-9]{40}$"))
 									.map(s -> Paths.get(s).toAbsolutePath())
 									.peek(p -> {
-										if (!Files.isRegularFile(p)) {
-											throw new IllegalArgumentException(String.format("File not found %s!", p));
+										if (!Files.exists(p)) {
+											throw new IllegalArgumentException(String.format("Path not found %s!", p));
 										}
 									})
 									.collect(Collectors.toSet());
