@@ -227,11 +227,6 @@ header .header img {
 	font-size: 1.0em;
 }
 
-.readable h1, .readable h2 {
-	background: none;
-	padding: 0;
-}
-
 .readable blockquote {
 	background-color: var(--document-meta-bg);
 	border-left: 4px solid var(--table-header-bg);

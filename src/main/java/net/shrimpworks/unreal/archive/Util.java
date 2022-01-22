@@ -127,6 +127,7 @@ public final class Util {
 		String slug = NONLATIN.matcher(normalized).replaceAll("");
 		return slug.toLowerCase(Locale.ENGLISH).replaceAll("(-)\\1+", "-");
 	}
+
 	public static String authorSlug(String input) {
 		String nowhitespace = WHITESPACE.matcher(input).replaceAll("-");
 		String normalized = Normalizer.normalize(nowhitespace, Normalizer.Form.NFD);

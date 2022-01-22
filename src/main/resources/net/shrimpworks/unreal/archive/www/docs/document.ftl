@@ -34,9 +34,10 @@
 				<label>Summary</label><span>${document.document.description}</span>
 			</div>
 		</div>
-		<div class="content readable">
+
+		<section class="content readable">
 			${page?no_esc}
-		</div>
+		</section>
 	</@content>
 
 <#include "../_footer.ftl">

@@ -20,7 +20,7 @@ public class FileDetails extends ContentPageGenerator {
 	private final Map<Content.ContentFile, List<Content>> contentFiles;
 
 	public FileDetails(ContentManager content, Path output, Path staticRoot, SiteFeatures features) {
-		super(content, output, output.resolve("packages"), staticRoot, features);
+		super(content, output, output.resolve("files"), staticRoot, features);
 
 		this.contentFiles = new HashMap<>();
 		content.all()
