@@ -53,7 +53,8 @@ public class GameTypes {
 			new GameType("Survival", "SV"),
 			new GameType("Conquest", "CNQ"),
 			new GameType("RealCTF", "Real_"),
-			new GameType("Unreal Badlands", "BL-", "BLC-")
+			new GameType("Unreal Badlands", "BL-", "BLC-"),
+			new GameType("Double Domination", "DDOM")
 	);
 
 	public static GameType forMap(String mapName) {
