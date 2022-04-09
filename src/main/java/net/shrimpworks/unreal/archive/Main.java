@@ -812,8 +812,8 @@ public class Main {
 
 				Path destFile = destPath.resolve(f.fileName());
 				if (Files.exists(destFile) && !overwrite) {
-					System.err.printf("File %s already exists! Use --overwrite=true to force overwriting.%n", destFile);
-					System.exit(1);
+					System.out.printf("Skipping file %s, use --overwrite=true to force overwrite%n", f.fileName());
+					return;
 				}
 				try {
 					System.out.printf("Copying file %s to %s%n", f.fileName(), destFile);
