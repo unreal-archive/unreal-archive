@@ -20,8 +20,8 @@ steps:
       - "export CI_BUILD=$(gradle properties | grep 'version:' | sed 's/version: //') && \
       ./etc/publish.sh https://code.shrimpworks.za.net/artefacts/unreal-archive ./build/libs/unreal-archive ./build/libs/unreal-archive-exec.jar"
     when:
-      branch:
-        - master
+      ref:
+        - refs/heads/master
   - name: www
     image: gradle:7.3.1-jdk11
     environment:
@@ -30,5 +30,5 @@ steps:
     commands:
       - ./etc/rebuild-www.sh
     when:
-      branch:
-        - master
+      ref:
+        - refs/heads/master
