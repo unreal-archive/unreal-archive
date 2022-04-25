@@ -131,7 +131,7 @@ parallel behaviour is not quite worth the implementation time.
 If you have storage capacity available and would like to contribute some of it
 as a public mirror for archive content, the following steps may be taken.
 
-1. Fork and clone the [`unreal-archive-data`](https://gitbug.com/unreal-archive/unreal-archive-data)
+1. Fork and clone the [`unreal-archive-data`](https://github.com/unreal-archive/unreal-archive-data)
    repository.
    - This dataset will be updated during the mirroring process.
 2. Download or [build](#building) the `unreal-archive` project binary
