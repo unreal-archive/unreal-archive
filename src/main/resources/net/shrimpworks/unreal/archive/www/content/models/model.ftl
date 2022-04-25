@@ -1,16 +1,16 @@
-<#assign game=model.page.letter.game>
+<#assign game=model.page.letter.group.game>
 
 <#assign headerbg>${staticPath()}/images/games/${game.name}.png</#assign>
-<#if model.model.leadImage?has_content>
-    <#assign headerbg=urlEncode(model.model.leadImage)>
+<#if model.item.leadImage?has_content>
+    <#assign headerbg=urlEncode(model.item.leadImage)>
 </#if>
 
-<#assign ogDescription="${model.model.autoDescription}">
+<#assign ogDescription="${model.item.autoDescription}">
 <#assign ogImage=headerbg>
 
-<#assign schemaItemName="${model.model.name}">
-<#assign schemaItemAuthor="${model.model.author}">
-<#assign schemaItemDate="${model.model.releaseDate}-01">
+<#assign schemaItemName="${model.item.name}">
+<#assign schemaItemAuthor="${model.item.author}">
+<#assign schemaItemDate="${model.item.releaseDate}-01">
 
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
@@ -19,20 +19,20 @@
 		<span class="crumbs">
 			<a href="${relPath(sectionPath + "/index.html")}">Models</a>
 			/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
-			/</span> ${model.model.name}
+			/</span> ${model.item.name}
 	</@heading>
 
 	<@content class="info">
 		<div class="screenshots">
-			<@screenshots attachments=model.model.attachments/>
+			<@screenshots attachments=model.item.attachments/>
 		</div>
 
 		<div class="info">
 
-			<#assign modelList><#list model.model.models as m><div>${m}</div><#else>Unknown</#list></#assign>
-			<#assign skinsList><#list model.model.skins as s><div>${s}</div><#else>Unknown</#list></#assign>
+			<#assign modelList><#list model.item.models as m><div>${m}</div><#else>Unknown</#list></#assign>
+			<#assign skinsList><#list model.item.skins as s><div>${s}</div><#else>Unknown</#list></#assign>
 
-			<#assign author><@authorLink model.model.authorName /></#assign>
+			<#assign author><@authorLink model.item.authorName /></#assign>
 			<#assign
 			labels=[
 					"Name",
@@ -46,14 +46,14 @@
 			]
 
 			values=[
-					'${model.model.name}',
+					'${model.item.name}',
 					'${author}',
-					'${dateFmtShort(model.model.releaseDate)}',
+					'${dateFmtShort(model.item.releaseDate)}',
 					'${modelList}',
 					'${skinsList}',
-					'${fileSize(model.model.fileSize)}',
-					'${model.model.originalFilename}',
-					'${model.model.hash}'
+					'${fileSize(model.item.fileSize)}',
+					'${model.item.originalFilename}',
+					'${model.item.hash}'
 			]
 
       styles={"7": "nomobile"}
@@ -76,10 +76,10 @@
 						<tbody>
 							<#list model.variations as v>
 							<tr>
-								<td><a href="${relPath(v.path + ".html")}">${v.model.name}</a></td>
-								<td>${v.model.releaseDate}</td>
-								<td>${v.model.originalFilename}</td>
-								<td>${fileSize(v.model.fileSize)}</td>
+								<td><a href="${relPath(v.path + ".html")}">${v.item.name}</a></td>
+								<td>${v.item.releaseDate}</td>
+								<td>${v.item.originalFilename}</td>
+								<td>${fileSize(v.item.fileSize)}</td>
 							</tr>
 							</#list>
 						</tbody>
@@ -87,13 +87,13 @@
 				</section>
 			</#if>
 
-			<@files files=model.model.files alsoIn=model.alsoIn otherFiles=model.model.otherFiles/>
+			<@files files=model.item.files alsoIn=model.alsoIn otherFiles=model.item.otherFiles/>
 
-			<@downloads downloads=model.model.downloads/>
+			<@downloads downloads=model.item.downloads/>
 
-      <@dependencies deps=model.model.dependencies game=model.model.game/>
+      <@dependencies deps=model.item.dependencies game=model.item.game/>
 
-      <@ghIssue text="Report a problem" repoUrl="${dataProjectUrl}" title="[Model] ${model.model.name}" hash="${model.model.hash}" name="${model.model.name}"/>
+      <@ghIssue text="Report a problem" repoUrl="${dataProjectUrl}" title="[Model] ${model.item.name}" hash="${model.item.hash}" name="${model.item.name}"/>
 
 		</div>
 

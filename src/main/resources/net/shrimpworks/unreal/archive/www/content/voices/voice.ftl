@@ -1,16 +1,16 @@
-<#assign game=voice.page.letter.game>
+<#assign game=voice.page.letter.group.game>
 
 <#assign headerbg>${staticPath()}/images/games/${game.name}.png</#assign>
-<#if voice.voice.leadImage?has_content>
-    <#assign headerbg=urlEncode(voice.voice.leadImage)>
+<#if voice.item.leadImage?has_content>
+    <#assign headerbg=urlEncode(voice.item.leadImage)>
 </#if>
 
-<#assign ogDescription="${voice.voice.autoDescription}">
+<#assign ogDescription="${voice.item.autoDescription}">
 <#assign ogImage=headerbg>
 
-<#assign schemaItemName="${voice.voice.name}">
-<#assign schemaItemAuthor="${voice.voice.author}">
-<#assign schemaItemDate="${voice.voice.releaseDate}-01">
+<#assign schemaItemName="${voice.item.name}">
+<#assign schemaItemAuthor="${voice.item.author}">
+<#assign schemaItemDate="${voice.item.releaseDate}-01">
 
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
@@ -19,19 +19,19 @@
 		<span class="crumbs">
 			<a href="${relPath(sectionPath + "/index.html")}">Voices</a>
 			/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
-			/</span> ${voice.voice.name}
+			/</span> ${voice.item.name}
 	</@heading>
 
 	<@content class="info">
 		<div class="screenshots">
-			<@screenshots attachments=voice.voice.attachments/>
+			<@screenshots attachments=voice.item.attachments/>
 		</div>
 
 		<div class="info">
 
-			<#assign voicesList><#list voice.voice.voices as v><div>${v}</div><#else>Unknown</#list></#assign>
+			<#assign voicesList><#list voice.item.voices as v><div>${v}</div><#else>Unknown</#list></#assign>
 
-			<#assign author><@authorLink voice.voice.authorName /></#assign>
+			<#assign author><@authorLink voice.item.authorName /></#assign>
 			<#assign
 			labels=[
 					"Name",
@@ -44,13 +44,13 @@
 			]
 
 			values=[
-					'${voice.voice.name}',
+					'${voice.item.name}',
 					'${author}',
-					'${dateFmtShort(voice.voice.releaseDate)}',
+					'${dateFmtShort(voice.item.releaseDate)}',
 					'${voicesList}',
-					'${fileSize(voice.voice.fileSize)}',
-					'${voice.voice.originalFilename}',
-					'${voice.voice.hash}'
+					'${fileSize(voice.item.fileSize)}',
+					'${voice.item.originalFilename}',
+					'${voice.item.hash}'
 			]
 
       styles={"6": "nomobile"}
@@ -73,10 +73,10 @@
 						<tbody>
 							<#list voice.variations as v>
 							<tr>
-								<td><a href="${relPath(v.path + ".html")}">${v.voice.name}</a></td>
-								<td>${v.voice.releaseDate}</td>
-								<td>${v.voice.originalFilename}</td>
-								<td>${fileSize(v.voice.fileSize)}</td>
+								<td><a href="${relPath(v.path + ".html")}">${v.item.name}</a></td>
+								<td>${v.item.releaseDate}</td>
+								<td>${v.item.originalFilename}</td>
+								<td>${fileSize(v.item.fileSize)}</td>
 							</tr>
 							</#list>
 						</tbody>
@@ -84,13 +84,13 @@
 				</section>
 			</#if>
 
-			<@files files=voice.voice.files alsoIn=voice.alsoIn otherFiles=voice.voice.otherFiles/>
+			<@files files=voice.item.files alsoIn=voice.alsoIn otherFiles=voice.item.otherFiles/>
 
-			<@downloads downloads=voice.voice.downloads/>
+			<@downloads downloads=voice.item.downloads/>
 
-      <@dependencies deps=voice.voice.dependencies game=voice.voice.game/>
+      <@dependencies deps=voice.item.dependencies game=voice.item.game/>
 
-      <@ghIssue text="Report a problem" repoUrl="${dataProjectUrl}" title="[Voice] ${voice.voice.name}" hash="${voice.voice.hash}" name="${voice.voice.name}"/>
+      <@ghIssue text="Report a problem" repoUrl="${dataProjectUrl}" title="[Voice] ${voice.item.name}" hash="${voice.item.hash}" name="${voice.item.name}"/>
 
 		</div>
 

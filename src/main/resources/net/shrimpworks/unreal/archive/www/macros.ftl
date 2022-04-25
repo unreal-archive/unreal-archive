@@ -218,3 +218,26 @@
 		<a href="${relPath(siteRoot + "/authors/" + authorSlug(author) + ".html")}">${display!author}</a>
 	</#if>
 </#macro>
+
+<#macro tline timeline game activeYear=0 activeMonth=0>
+	<div id="timeline">
+		<#assign tlMax=0 />
+		<#list timeline as year, months>
+			<#list months as month, count>
+				<#if count gt tlMax>
+					<#assign tlMax=count />
+				</#if>
+			</#list>
+		</#list>
+		<#list timeline as year, months>
+			<a href="${relPath(game.path + "/releases/${year?c}/index.html")}" class="year <#if year == activeYear>active</#if>">
+				<div class="months">
+					<#list months as month, count>
+						<div class="month <#if month == activeMonth && year == activeYear>active</#if>" style="--max:${tlMax?c}; --cnt:${count?c}" title="${year?c}-${month?c}: ${count}"></div>
+					</#list>
+				</div>
+				<div class="label">${year?c}</div>
+			</a>
+		</#list>
+	</div>
+</#macro>

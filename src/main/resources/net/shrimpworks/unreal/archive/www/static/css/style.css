@@ -121,7 +121,7 @@ h2 img, h3 img {
 .mainpage {
 	min-height: 100vh;
 	background-color: rgba(78, 78, 80, 0.2);
-	box-shadow: 0 0 30px 0 rgba(0, 0 , 0, 0.5);
+	box-shadow: 0 0 30px 0 rgba(0, 0, 0, 0.5);
 }
 
 .contentpage {
@@ -288,7 +288,7 @@ section.header .crumbs {
 	margin: 0;
 
 	display: grid;
-	grid-template-columns: 33.3%;
+	grid-template-columns: calc(33.3% - 10px) calc(33.3% - 10px) calc(33.3% - 10px);
 	grid-template-areas: 'block block block';
 	grid-gap: 15px;
 }
@@ -351,6 +351,10 @@ section.header .crumbs {
 	position: absolute;
 	bottom: -10px;
 	right: 0;
+}
+
+.biglist ul li.disabled {
+	opacity: 0.33;
 }
 
 .list nav, .biglist nav {
@@ -641,7 +645,6 @@ section.latest table tr th:nth-child(3) {
 }
 
 section.latest table td {
-	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
@@ -784,7 +787,7 @@ div.themes img {
 	text-align: center;
 	top: 0;
 	left: 0;
-	background: rgba(0,0,0,0.8);
+	background: rgba(0, 0, 0, 0.8);
 }
 
 .lightbox:target {
@@ -796,6 +799,56 @@ div.themes img {
 	max-width: 90%;
 	max-height: 90%;
 	position: absolute;
+}
+
+/*
+  Timeline stuff.
+ */
+#timeline {
+	display: flex;
+	height: 69px;
+	padding: 13px 0 0 0;
+}
+
+#timeline .year {
+	flex-grow: 1;
+}
+
+#timeline .year:hover {
+	background-color: var(--paginate-bg-hover);
+	cursor: pointer;
+}
+
+#timeline .year:not(:last-child) {
+	border-width: 0 1px 0 0;
+	border-style: solid;
+	border-color: lightgray;
+}
+
+#timeline .year .label {
+	text-align: center;
+	height: 20px;
+}
+
+#timeline .year .months {
+	display: flex;
+	align-items: flex-end;
+	height: 45px;
+}
+
+#timeline .year .month {
+	flex-grow: 1;
+	background-color: black;
+	height: calc((var(--cnt) / var(--max)) * 40px);
+}
+
+#timeline .year.active {
+	background-color: var(--paginate-bg-active);
+	box-shadow: var(--paginate-shadow-active);
+}
+
+#timeline .month.active {
+	background-color: var(--header-border-color);
 }
 
 /*

@@ -42,7 +42,7 @@
       </#if>
 
 			<#list packageFiles as file, packages>
-				<section class="meta">
+				<section>
 					<h2 id="${file.hash}"><img src="${staticPath()}/images/icons/package.svg" alt="Files"/> File</h2>
 					<div class="label-value">
 						<label>Name</label><span>${file.name}</span>
@@ -53,30 +53,31 @@
 					<div class="label-value">
 						<label>SHA1 Hash</label><span>${file.hash}</span>
 					</div>
-				</section>
 
-				<section class="packages">
-					<h3>Usages (${packages?size})</h3>
-					<table>
-						<thead>
-						<tr>
-							<th>Type</th>
-							<th>Name</th>
-							<th>Author</th>
-						</tr>
-						</thead>
-						<tbody>
-							<#list packages as c>
+					<section class="packages">
+						<h3>Usages (${packages?size})</h3>
+						<table>
+							<thead>
 							<tr>
-								<td>${c.friendlyType}</td>
-								<td>
-									<a href="${relPath(c.slugPath(siteRoot) + ".html")}">${c.name}</a>
-								</td>
-								<td><@authorLink c.authorName /></td>
+								<th>Type</th>
+								<th>Name</th>
+								<th>Author</th>
 							</tr>
-							</#list>
-						</tbody>
-					</table>
+							</thead>
+							<tbody>
+								<#list packages as c>
+								<tr>
+									<td>${c.friendlyType}</td>
+									<td>
+										<a href="${relPath(c.slugPath(siteRoot) + ".html")}">${c.name}</a>
+									</td>
+									<td><@authorLink c.authorName /></td>
+								</tr>
+								</#list>
+							</tbody>
+						</table>
+					</section>
+
 				</section>
       </#list>
 

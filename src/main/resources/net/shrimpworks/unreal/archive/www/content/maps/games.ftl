@@ -12,7 +12,7 @@
 		<ul>
 		<#list games.games as k, game>
 			<li style='background-image: url("${staticPath()}/images/games/t_${game.name}.png")'>
-				<span class="meta">${game.maps}</span>
+				<span class="meta">${game.count}</span>
 				<a href="${relPath(game.path + "/index.html")}">${game.name}</a>
 			</li>
 		</#list>

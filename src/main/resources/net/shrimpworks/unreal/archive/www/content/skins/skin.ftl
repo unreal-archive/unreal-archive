@@ -1,16 +1,16 @@
-<#assign game=skin.page.letter.game>
+<#assign game=skin.page.letter.group.game>
 
 <#assign headerbg>${staticPath()}/images/games/${game.name}.png</#assign>
-<#if skin.skin.leadImage?has_content>
-    <#assign headerbg=urlEncode(skin.skin.leadImage)>
+<#if skin.item.leadImage?has_content>
+    <#assign headerbg=urlEncode(skin.item.leadImage)>
 </#if>
 
-<#assign ogDescription="${skin.skin.autoDescription}">
+<#assign ogDescription="${skin.item.autoDescription}">
 <#assign ogImage=headerbg>
 
-<#assign schemaItemName="${skin.skin.name}">
-<#assign schemaItemAuthor="${skin.skin.author}">
-<#assign schemaItemDate="${skin.skin.releaseDate}-01">
+<#assign schemaItemName="${skin.item.name}">
+<#assign schemaItemAuthor="${skin.item.author}">
+<#assign schemaItemDate="${skin.item.releaseDate}-01">
 
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
@@ -19,20 +19,20 @@
 		<span class="crumbs">
 			<a href="${relPath(sectionPath + "/index.html")}">Skins</a>
 			/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
-			/</span> ${skin.skin.name}
+			/</span> ${skin.item.name}
 	</@heading>
 
 	<@content class="info">
 		<div class="screenshots">
-			<@screenshots attachments=skin.skin.attachments/>
+			<@screenshots attachments=skin.item.attachments/>
 		</div>
 
 		<div class="info">
 
-			<#assign skinsList><#list skin.skin.skins as s><div>${s}</div></#list></#assign>
-			<#assign faceList><#list skin.skin.faces as s><div>${s}</div></#list></#assign>
+			<#assign skinsList><#list skin.item.skins as s><div>${s}</div></#list></#assign>
+			<#assign faceList><#list skin.item.faces as s><div>${s}</div></#list></#assign>
 
-			<#assign author><@authorLink skin.skin.authorName /></#assign>
+			<#assign author><@authorLink skin.item.authorName /></#assign>
 			<#assign
 			labels=[
 					"Name",
@@ -47,15 +47,15 @@
 			]
 
 			values=[
-					'${skin.skin.name}',
+					'${skin.item.name}',
 					'${author}',
-					'${dateFmtShort(skin.skin.releaseDate)}',
-					'${skin.skin.teamSkins?string("Yes", "No")}',
+					'${dateFmtShort(skin.item.releaseDate)}',
+					'${skin.item.teamSkins?string("Yes", "No")}',
 					'${skinsList}',
 					'${faceList}',
-					'${fileSize(skin.skin.fileSize)}',
-					'${skin.skin.originalFilename}',
-					'${skin.skin.hash}'
+					'${fileSize(skin.item.fileSize)}',
+					'${skin.item.originalFilename}',
+					'${skin.item.hash}'
 			]
 
       styles={"8": "nomobile"}
@@ -78,10 +78,10 @@
 						<tbody>
 							<#list skin.variations as v>
 							<tr>
-								<td><a href="${relPath(v.path + ".html")}">${v.skin.name}</a></td>
-								<td>${v.skin.releaseDate}</td>
-								<td>${v.skin.originalFilename}</td>
-								<td>${fileSize(v.skin.fileSize)}</td>
+								<td><a href="${relPath(v.path + ".html")}">${v.item.name}</a></td>
+								<td>${v.item.releaseDate}</td>
+								<td>${v.item.originalFilename}</td>
+								<td>${fileSize(v.item.fileSize)}</td>
 							</tr>
 							</#list>
 						</tbody>
@@ -90,13 +90,13 @@
 			</#if>
 
 
-			<@files files=skin.skin.files alsoIn=skin.alsoIn otherFiles=skin.skin.otherFiles/>
+			<@files files=skin.item.files alsoIn=skin.alsoIn otherFiles=skin.item.otherFiles/>
 
-			<@downloads downloads=skin.skin.downloads/>
+			<@downloads downloads=skin.item.downloads/>
 
-			<@dependencies deps=skin.skin.dependencies game=skin.skin.game/>
+			<@dependencies deps=skin.item.dependencies game=skin.item.game/>
 
-      <@ghIssue text="Report a problem" repoUrl="${dataProjectUrl}" title="[Skin] ${skin.skin.name}" hash="${skin.skin.hash}" name="${skin.skin.name}"/>
+      <@ghIssue text="Report a problem" repoUrl="${dataProjectUrl}" title="[Skin] ${skin.item.name}" hash="${skin.item.hash}" name="${skin.item.name}"/>
 
 		</div>
 

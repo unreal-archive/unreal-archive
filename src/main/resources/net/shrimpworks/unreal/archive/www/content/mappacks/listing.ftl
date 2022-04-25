@@ -1,5 +1,4 @@
-<#assign game=page.gametype.game>
-<#assign gametype=page.gametype>
+<#assign game=gametype.game>
 
 <#assign ogDescription="${gametype.name} map packs for ${game.game.bigName}">
 <#assign ogImage="${staticPath()}/images/gametypes/${game.name}/${gametype.name}.png">
@@ -13,15 +12,15 @@
 			/</span> <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
 		/ <a href="${relPath(gametype.path + "/index.html")}">${gametype.name}</a>
 		<span class="crumbs">
-			<#if gametype.pages?size gt 1>/ pg ${page.number}</#if>
+			<#if pages?size gt 1>/ pg ${page.number}</#if>
 		</span>
 	</@heading>
 
 	<@content class="list">
 
-		<@paginator pages=gametype.pages currentPage=page />
+		<@paginator pages=pages currentPage=page />
 
-		<table class="mappacks">
+		<table>
 			<thead>
 			<tr>
 				<th>Name</th>
@@ -31,23 +30,23 @@
 			</tr>
 			</thead>
 			<tbody>
-				<#list page.packs as p>
+				<#list page.items as p>
 				<tr>
-					<td><a href="${relPath(p.path + ".html")}">${p.pack.name}</a></td>
-					<td><@authorLink p.pack.authorName /></td>
-					<td class="nomobile">${p.pack.maps?size}</td>
+					<td><a href="${relPath(p.path + ".html")}">${p.item.name}</a></td>
+					<td><@authorLink p.item.authorName /></td>
+					<td class="nomobile">${p.item.maps?size}</td>
 					<td class="meta nomobile">
-						<#if p.pack.attachments?size gt 0>
+						<#if p.item.attachments?size gt 0>
 							<img src="${staticPath()}/images/icons/image.svg" alt="Has images" height="22"/>
 						</#if>
-						<@dependencyIcon p.pack.dependencies/>
+						<@dependencyIcon p.item.dependencies/>
 					</td>
 				</tr>
 				</#list>
 			</tbody>
 		</table>
 
-		<@paginator pages=gametype.pages currentPage=page />
+		<@paginator pages=pages currentPage=page />
 	</@content>
 
 <#include "../../_footer.ftl">

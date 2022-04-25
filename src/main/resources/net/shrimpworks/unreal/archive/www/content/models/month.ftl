@@ -1,9 +1,4 @@
-<#if page??>
-  <#assign game=page.letter.group.game>
-  <#assign models=page.items>
-</#if>
-
-<#assign ogDescription="Custom player models for ${game.game.bigName}">
+<#assign ogDescription="Custom player models for ${game.game.bigName} released in ${monthNames[month-1]} ${year?c}">
 <#assign ogImage="${staticPath()}/images/games/${game.name}.png">
 
 <#include "../../_header.ftl">
@@ -12,20 +7,14 @@
 	<@heading bg=[ogImage]>
 		<span class="crumbs">
 			<a href="${relPath(sectionPath + "/index.html")}">Models</a>
-			/</span> <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
-		<span class="crumbs">
-			<#if page?? && game.groups.all.letters?size gt 1>/ ${page.letter.letter}</#if>
-			<#if page?? && page.letter.pages?size gt 1>/ pg ${page.number}</#if>
-		</span>
+			/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
+			/ <a href="${relPath(game.path + "/releases/${year?c}/index.html")}">${year?c}</a>
+			/</span> ${monthNames[month-1]}
 	</@heading>
 
+	<@tline timeline=timeline game=game activeYear=year activeMonth=month></@tline>
+
 	<@content class="list">
-
-		<@tline timeline=timeline game=game></@tline>
-
-		<#if page??>
-			<@letterPages letters=game.groups.all.letters currentLetter=page.letter.letter pages=page.letter.pages currentPage=page />
-		</#if>
 
 		<section>
 			<table>
@@ -38,7 +27,7 @@
 				</tr>
 				</thead>
 				<tbody>
-					<#list models as m>
+        <#list items as m>
 					<tr>
 						<td nowrap="nowrap"><a href="${relPath(m.path + ".html")}">${m.item.name}</a></td>
 						<td><@authorLink m.item.authorName /></td>
@@ -58,14 +47,10 @@
 							<@dependencyIcon m.item.dependencies/>
 						</td>
 					</tr>
-					</#list>
+        </#list>
 				</tbody>
 			</table>
 		</section>
-
-		<#if page??>
-			<@paginator pages=page.letter.pages currentPage=page />
-		</#if>
 
 	</@content>
 

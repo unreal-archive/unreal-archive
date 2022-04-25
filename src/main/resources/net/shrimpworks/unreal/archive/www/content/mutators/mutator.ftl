@@ -1,16 +1,16 @@
-<#assign game=mutator.page.letter.game>
+<#assign game=mutator.page.letter.group.game>
 
 <#assign headerbg>${staticPath()}/images/games/${game.name}.png</#assign>
-<#if mutator.mutator.leadImage?has_content>
-    <#assign headerbg=urlEncode(mutator.mutator.leadImage)>
+<#if mutator.item.leadImage?has_content>
+    <#assign headerbg=urlEncode(mutator.item.leadImage)>
 </#if>
 
-<#assign ogDescription="${mutator.mutator.autoDescription}">
+<#assign ogDescription="${mutator.item.autoDescription}">
 <#assign ogImage=headerbg>
 
-<#assign schemaItemName="${mutator.mutator.name}">
-<#assign schemaItemAuthor="${mutator.mutator.author}">
-<#assign schemaItemDate="${mutator.mutator.releaseDate}-01">
+<#assign schemaItemName="${mutator.item.name}">
+<#assign schemaItemAuthor="${mutator.item.author}">
+<#assign schemaItemDate="${mutator.item.releaseDate}-01">
 
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
@@ -19,18 +19,18 @@
 		<span class="crumbs">
 			<a href="${relPath(sectionPath + "/index.html")}">Mutators</a>
 			/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
-			/</span> ${mutator.mutator.name}
+			/</span> ${mutator.item.name}
 	</@heading>
 
 	<@content class="info">
 		<div class="screenshots">
-			<@screenshots attachments=mutator.mutator.attachments/>
+			<@screenshots attachments=mutator.item.attachments/>
 		</div>
 
 		<div class="info">
 
 			<#assign mutatorList>
-				<#list mutator.mutator.mutators as m>
+				<#list mutator.item.mutators as m>
 					<div class="mini-head">${m.name}</div>
 					<div class="mini-detail">${m.description?replace("|", "<br/>")?no_esc}</div>
 				<#else>
@@ -39,7 +39,7 @@
 			</#assign>
 
 			<#assign weaponsList>
-				<#list mutator.mutator.weapons as m>
+				<#list mutator.item.weapons as m>
 					<div class="mini-head">${m.name}</div>
 					<div class="mini-detail">${m.description?replace("|", "<br/>")?no_esc}</div>
         <#else>
@@ -48,7 +48,7 @@
 			</#assign>
 
 			<#assign vehicleList>
-				<#list mutator.mutator.vehicles as m>
+				<#list mutator.item.vehicles as m>
 					<div class="mini-head">${m.name}</div>
 					<div class="mini-detail">${m.description?replace("|", "<br/>")?no_esc}</div>
         <#else>
@@ -56,7 +56,7 @@
 				</#list>
 			</#assign>
 
-			<#assign author><@authorLink mutator.mutator.authorName /></#assign>
+			<#assign author><@authorLink mutator.item.authorName /></#assign>
 			<#assign
 			labels=[
 					"Name",
@@ -74,18 +74,18 @@
 			]
 
 			values=[
-					'${mutator.mutator.name}',
-					'${mutator.mutator.description}',
+					'${mutator.item.name}',
+					'${mutator.item.description}',
 					'${author}',
-					'${dateFmtShort(mutator.mutator.releaseDate)}',
-					'${mutator.mutator.hasConfigMenu?string("Yes", "No")}',
-					'${mutator.mutator.hasKeybinds?string("Yes", "No")}',
+					'${dateFmtShort(mutator.item.releaseDate)}',
+					'${mutator.item.hasConfigMenu?string("Yes", "No")}',
+					'${mutator.item.hasKeybinds?string("Yes", "No")}',
 					'${mutatorList}',
 					'${weaponsList}',
 					'${vehicleList}',
-					'${fileSize(mutator.mutator.fileSize)}',
-					'${mutator.mutator.originalFilename}',
-					'${mutator.mutator.hash}'
+					'${fileSize(mutator.item.fileSize)}',
+					'${mutator.item.originalFilename}',
+					'${mutator.item.hash}'
 			]
 
       styles={"11": "nomobile"}
@@ -108,10 +108,10 @@
 						<tbody>
 							<#list mutator.variations as v>
 							<tr>
-								<td><a href="${relPath(v.path + ".html")}">${v.mutator.name}</a></td>
-								<td>${v.mutator.releaseDate}</td>
-								<td>${v.mutator.originalFilename}</td>
-								<td>${fileSize(v.mutator.fileSize)}</td>
+								<td><a href="${relPath(v.path + ".html")}">${v.item.name}</a></td>
+								<td>${v.item.releaseDate}</td>
+								<td>${v.item.originalFilename}</td>
+								<td>${fileSize(v.item.fileSize)}</td>
 							</tr>
 							</#list>
 						</tbody>
@@ -119,13 +119,13 @@
 				</section>
 			</#if>
 
-			<@files files=mutator.mutator.files alsoIn=mutator.alsoIn otherFiles=mutator.mutator.otherFiles/>
+			<@files files=mutator.item.files alsoIn=mutator.alsoIn otherFiles=mutator.item.otherFiles/>
 
-			<@downloads downloads=mutator.mutator.downloads/>
+			<@downloads downloads=mutator.item.downloads/>
 
-			<@dependencies deps=mutator.mutator.dependencies game=mutator.mutator.game/>
+			<@dependencies deps=mutator.item.dependencies game=mutator.item.game/>
 
-      <@ghIssue text="Report a problem" repoUrl="${dataProjectUrl}" title="[Mutator] ${mutator.mutator.name}" hash="${mutator.mutator.hash}" name="${mutator.mutator.name}"/>
+      <@ghIssue text="Report a problem" repoUrl="${dataProjectUrl}" title="[Mutator] ${mutator.item.name}" hash="${mutator.item.hash}" name="${mutator.item.name}"/>
 
 		</div>
 

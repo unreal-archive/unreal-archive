@@ -1,12 +1,11 @@
-<#assign game=pack.page.gametype.game>
-<#assign gametype=pack.page.gametype>
+<#assign game=gametype.game>
 
 <#assign headerbg>${staticPath()}/images/games/${game.name}.png</#assign>
-<#if pack.pack.leadImage?has_content>
-    <#assign headerbg=urlEncode(pack.pack.leadImage)>
+<#if pack.item.leadImage?has_content>
+    <#assign headerbg=urlEncode(pack.item.leadImage)>
 </#if>
 
-<#assign ogDescription="${pack.pack.autoDescription}">
+<#assign ogDescription="${pack.item.autoDescription}">
 <#assign ogImage=headerbg>
 
 <#include "../../_header.ftl">
@@ -17,20 +16,20 @@
 			<a href="${relPath(sectionPath + "/index.html")}">Map Packs</a>
 			/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
 			/ <a href="${relPath(gametype.path + "/index.html")}">${gametype.name}</a>
-			/</span> ${pack.pack.name}
+			/</span> ${pack.item.name}
 	</@heading>
 
 	<@content class="info">
 
 		<div class="screenshots">
-			<@screenshots attachments=pack.pack.attachments/>
+			<@screenshots attachments=pack.item.attachments/>
 		</div>
 
 		<div class="info">
 
 			<#assign themes>
-				<#if pack.pack.themes?size gt 0>
-					<#list pack.pack.themes as theme, weight>
+				<#if pack.item.themes?size gt 0>
+					<#list pack.item.themes as theme, weight>
 						<div class="themes">
                 <#if weight lt 0.2>
 									<img src="${staticPath()}/images/icons/circle.svg" alt="${weight * 100}%"/>
@@ -69,7 +68,7 @@
 				</#if>
 			</#assign>
 
-			<#assign author><@authorLink pack.pack.authorName /></#assign>
+			<#assign author><@authorLink pack.item.authorName /></#assign>
 			<#assign
 			labels=[
 				"Name",
@@ -84,15 +83,15 @@
 			]
 
 			values=[
-				'${pack.pack.name}',
-				'<a href="${relPath(gametype.path + "/index.html")}">${pack.pack.gametype}</a>'?no_esc,
-				'${pack.pack.maps?size}',
+				'${pack.item.name}',
+				'<a href="${relPath(gametype.path + "/index.html")}">${pack.item.gametype}</a>'?no_esc,
+				'${pack.item.maps?size}',
 				'${author}',
-				'${dateFmtShort(pack.pack.releaseDate)}',
+				'${dateFmtShort(pack.item.releaseDate)}',
         '${themes}',
-				'${fileSize(pack.pack.fileSize)}',
-				'${pack.pack.originalFilename}',
-				'${pack.pack.hash}'
+				'${fileSize(pack.item.fileSize)}',
+				'${pack.item.originalFilename}',
+				'${pack.item.hash}'
 			]
 
       styles={"8": "nomobile"}
@@ -115,10 +114,10 @@
 						<tbody>
 							<#list pack.variations as v>
 							<tr>
-								<td><a href="${relPath(v.path + ".html")}">${v.pack.name}</a></td>
-								<td>${v.pack.releaseDate}</td>
-								<td>${v.pack.originalFilename}</td>
-								<td>${fileSize(v.pack.fileSize)}</td>
+								<td><a href="${relPath(v.path + ".html")}">${v.item.name}</a></td>
+								<td>${v.item.releaseDate}</td>
+								<td>${v.item.originalFilename}</td>
+								<td>${fileSize(v.item.fileSize)}</td>
 							</tr>
 							</#list>
 						</tbody>
@@ -137,7 +136,7 @@
 					</tr>
 					</thead>
 					<tbody>
-						<#list pack.pack.maps as m>
+						<#list pack.item.maps?sort as m>
 						<tr>
 							<td>${m.name}</td>
 							<td class="nomobile">${m.title}</td>
@@ -148,13 +147,13 @@
 				</table>
 			</section>
 
-			<@files files=pack.pack.files alsoIn=pack.alsoIn otherFiles=pack.pack.otherFiles/>
+			<@files files=pack.item.files alsoIn=pack.alsoIn otherFiles=pack.item.otherFiles/>
 
-			<@downloads downloads=pack.pack.downloads/>
+			<@downloads downloads=pack.item.downloads/>
 
-      <@dependencies deps=pack.pack.dependencies game=pack.pack.game/>
+      <@dependencies deps=pack.item.dependencies game=pack.item.game/>
 
-      <@ghIssue text="Report a problem" repoUrl="${dataProjectUrl}" title="[Map Pack] ${pack.pack.name}" hash="${pack.pack.hash}" name="${pack.pack.name}"/>
+      <@ghIssue text="Report a problem" repoUrl="${dataProjectUrl}" title="[Map Pack] ${pack.item.name}" hash="${pack.item.hash}" name="${pack.item.name}"/>
 
 		</div>
 

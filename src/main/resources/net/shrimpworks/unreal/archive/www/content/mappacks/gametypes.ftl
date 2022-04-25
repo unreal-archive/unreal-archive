@@ -10,11 +10,13 @@
 			/</span> ${game.name}
 	</@heading>
 
+	<@tline timeline=timeline game=game></@tline>
+
 	<@content class="biglist">
 		<ul>
-		<#list game.gametypes as k, gametype>
+		<#list game.groups as k, gametype>
 			<li style='background-image: url("${staticPath()}/images/gametypes/${game.name}/t_${gametype.name}.png")'>
-				<span class="meta">${gametype.packs}</span>
+				<span class="meta">${gametype.count}</span>
 				<a href="${relPath(gametype.path + "/index.html")}">${gametype.name}</a>
 			</li>
 		</#list>
