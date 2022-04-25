@@ -35,6 +35,7 @@ public abstract class GenericContentPage<T extends Content> extends ContentPageG
 		.parseDefaulting(ChronoField.DAY_OF_MONTH, 1)
 		.toFormatter();
 	static final LocalDate MIN_DATE = LocalDate.of(1998, 1, 1);
+	static final LocalDate MAX_DATE = LocalDate.now();
 
 	/**
 	 * Create a new Page Generator instance.
@@ -107,13 +108,11 @@ public abstract class GenericContentPage<T extends Content> extends ContentPageG
 	}
 
 	public Map<Integer, Map<Integer, Integer>> timeline(Game game) {
-		final LocalDate now = LocalDate.now();
-
 		Map<LocalDate, Integer> grouped = game.groups.values().stream().flatMap(g -> g.letters.values().stream()).flatMap(
 												  g -> g.pages.stream()).flatMap(g -> g.items.stream())
 													 .filter(c -> c.releaseDate.isPresent())
 													 .filter(c -> c.releaseDate.get().isAfter(MIN_DATE)
-																  && c.releaseDate.get().isBefore(now))
+																  && c.releaseDate.get().isBefore(MAX_DATE))
 													 .collect(
 														 HashMap::new,
 														 (m, c) -> m.compute(c.releaseDate.get(), (k, v) -> v == null ? 1 : v + 1),
