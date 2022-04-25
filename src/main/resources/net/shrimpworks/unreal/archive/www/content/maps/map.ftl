@@ -1,17 +1,17 @@
-<#assign game=map.page.letter.gametype.game>
-<#assign gametype=map.page.letter.gametype>
+<#assign game=map.page.letter.group.game>
+<#assign gametype=map.page.letter.group>
 
 <#assign headerbg>${staticPath()}/images/games/${game.name}.png</#assign>
-<#if map.map.leadImage?has_content>
-    <#assign headerbg=urlEncode(map.map.leadImage)>
+<#if map.item.leadImage?has_content>
+    <#assign headerbg=urlEncode(map.item.leadImage)>
 </#if>
 
-<#assign ogDescription="${map.map.autoDescription}">
+<#assign ogDescription="${map.item.autoDescription}">
 <#assign ogImage=headerbg>
 
-<#assign schemaItemName="${map.map.name}">
-<#assign schemaItemAuthor="${map.map.author}">
-<#assign schemaItemDate="${map.map.releaseDate}-01">
+<#assign schemaItemName="${map.item.name}">
+<#assign schemaItemAuthor="${map.item.author}">
+<#assign schemaItemDate="${map.item.releaseDate}-01">
 
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
@@ -21,19 +21,19 @@
 			<a href="${relPath(sectionPath + "/index.html")}">Maps</a>
 			/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
 			/ <a href="${relPath(gametype.path + "/index.html")}">${gametype.name}</a>
-			/</span> ${map.map.name}
+			/</span> ${map.item.name}
 	</@heading>
 
 	<@content class="info">
 		<div class="screenshots">
-			<@screenshots attachments=map.map.attachments/>
+			<@screenshots attachments=map.item.attachments/>
 		</div>
 
 		<div class="info">
 
 			<#assign themes>
-				<#if map.map.themes?size gt 0>
-					<#list map.map.themes as theme, weight>
+				<#if map.item.themes?size gt 0>
+					<#list map.item.themes as theme, weight>
 						<div class="themes">
 							<#if weight lt 0.2>
 								<img src="${staticPath()}/images/icons/circle.svg" alt="${weight * 100}%"/>
@@ -72,7 +72,7 @@
 				</#if>
 			</#assign>
 
-			<#assign author><span title="${map.map.author}"><@authorLink map.map.authorName /></span></#assign>
+			<#assign author><span title="${map.item.author}"><@authorLink map.item.authorName /></span></#assign>
 			<#assign
 			labels=[
 				  "Name",
@@ -90,18 +90,18 @@
 			]
 
 			values=[
-					'${map.map.name}',
-					'<a href="${relPath(gametype.path + "/index.html")}">${map.map.gametype}</a>'?no_esc,
-					'${map.map.title}',
+					'${map.item.name}',
+					'<a href="${relPath(gametype.path + "/index.html")}">${map.item.gametype}</a>'?no_esc,
+					'${map.item.title}',
 					'${author}',
-					'${map.map.playerCount}',
-					'${map.map.bots?string("Yes", "No")}',
-					'${dateFmtShort(map.map.releaseDate)}',
-					'${map.map.description?replace("||", "<br/><br/>")?no_esc}',
+					'${map.item.playerCount}',
+					'${map.item.bots?string("Yes", "No")}',
+					'${dateFmtShort(map.item.releaseDate)}',
+					'${map.item.description?replace("||", "<br/><br/>")?no_esc}',
       		'${themes}',
-      		'${fileSize(map.map.fileSize)}',
-					'${map.map.originalFilename}',
-					'${map.map.hash}'
+      		'${fileSize(map.item.fileSize)}',
+					'${map.item.originalFilename}',
+					'${map.item.hash}'
 			]
 
 			styles={"10": "nomobile"}
@@ -124,10 +124,10 @@
 						<tbody>
 							<#list map.variations as v>
 							<tr>
-								<td><a href="${relPath(v.path + ".html")}">${v.map.name}</a></td>
-								<td>${v.map.releaseDate}</td>
-								<td>${v.map.originalFilename}</td>
-								<td>${fileSize(v.map.fileSize)}</td>
+								<td><a href="${relPath(v.path + ".html")}">${v.item.name}</a></td>
+								<td>${v.item.releaseDate}</td>
+								<td>${v.item.originalFilename}</td>
+								<td>${fileSize(v.item.fileSize)}</td>
 							</tr>
 							</#list>
 						</tbody>
@@ -135,13 +135,13 @@
 				</section>
 			</#if>
 
-			<@files files=map.map.files alsoIn=map.alsoIn otherFiles=map.map.otherFiles/>
+			<@files files=map.item.files alsoIn=map.alsoIn otherFiles=map.item.otherFiles/>
 
-			<@downloads downloads=map.map.downloads/>
+			<@downloads downloads=map.item.downloads/>
 
-			<@dependencies deps=map.map.dependencies game=map.map.game/>
+			<@dependencies deps=map.item.dependencies game=map.item.game/>
 
-			<@ghIssue text="Report a problem" repoUrl="${dataProjectUrl}" title="[Map] ${map.map.name}" hash="${map.map.hash}" name="${map.map.name}"/>
+			<@ghIssue text="Report a problem" repoUrl="${dataProjectUrl}" title="[Map] ${map.item.name}" hash="${map.item.hash}" name="${map.item.name}"/>
 
 		</div>
 

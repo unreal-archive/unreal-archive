@@ -1,6 +1,6 @@
 <#if page??>
-  <#assign gametype=page.letter.gametype>
-  <#assign maps=page.maps>
+  <#assign gametype=page.letter.group>
+  <#assign maps=page.items>
 </#if>
 
 <#assign game=gametype.game>
@@ -28,36 +28,38 @@
       <@letterPages letters=gametype.letters currentLetter=page.letter.letter pages=page.letter.pages currentPage=page />
     </#if>
 
-		<table class="maps">
-			<thead>
-			<tr>
-				<th>Map</th>
-				<th class="nomobile">Title</th>
-				<th>Author</th>
-				<th class="nomobile">Players</th>
-				<th class="nomobile"> </th>
-			</tr>
-			</thead>
-			<tbody>
-				<#list maps as m>
+		<section>
+			<table>
+				<thead>
 				<tr>
-					<td nowrap="nowrap"><a href="${relPath(m.path + ".html")}">${m.map.name}</a></td>
-					<td class="nomobile">${m.map.title}</td>
-					<td><@authorLink m.map.authorName /></td>
-					<td class="nomobile">${m.map.playerCount}</td>
-					<td class="meta nomobile">
-						<#if m.map.bots>
-							<img src="${staticPath()}/images/icons/bots.svg" alt="AI/Bot support" title="AI/Bot support" height="22"/>
-						</#if>
-						<#if m.map.attachments?size gt 0>
-							<img src="${staticPath()}/images/icons/image.svg" alt="Has images" title="Has images" height="22"/>
-						</#if>
-						<@dependencyIcon m.map.dependencies/>
-					</td>
+					<th>Map</th>
+					<th class="nomobile">Title</th>
+					<th>Author</th>
+					<th class="nomobile">Players</th>
+					<th class="nomobile"> </th>
 				</tr>
-				</#list>
-			</tbody>
-		</table>
+				</thead>
+				<tbody>
+					<#list maps as m>
+					<tr>
+						<td nowrap="nowrap"><a href="${relPath(m.path + ".html")}">${m.item.name}</a></td>
+						<td class="nomobile">${m.item.title}</td>
+						<td><@authorLink m.item.authorName /></td>
+						<td class="nomobile">${m.item.playerCount}</td>
+						<td class="meta nomobile">
+							<#if m.item.bots>
+								<img src="${staticPath()}/images/icons/bots.svg" alt="AI/Bot support" title="AI/Bot support" height="22"/>
+							</#if>
+							<#if m.item.attachments?size gt 0>
+								<img src="${staticPath()}/images/icons/image.svg" alt="Has images" title="Has images" height="22"/>
+							</#if>
+							<@dependencyIcon m.item.dependencies/>
+						</td>
+					</tr>
+					</#list>
+				</tbody>
+			</table>
+		</section>
 
     <#if page??>
       <@paginator pages=page.letter.pages currentPage=page />

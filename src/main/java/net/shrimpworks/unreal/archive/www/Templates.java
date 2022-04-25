@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.text.DateFormatSymbols;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
@@ -58,6 +59,8 @@ public class Templates {
 	private static final Map<String, String> HOST_REMAP = new HashMap<>();
 
 	private static final Pattern LINK_PREFIX = Pattern.compile("https?://.*");
+
+	private static final String[] MONTH_NAMES = new DateFormatSymbols().getMonths();
 
 	private static final Configuration TPL_CONFIG = new Configuration(Configuration.VERSION_2_3_27);
 
@@ -219,6 +222,7 @@ public class Templates {
 			TPL_VARS.put("siteName", SITE_NAME);
 			TPL_VARS.put("siteUrl", SITE_URL);
 			TPL_VARS.put("dataProjectUrl", DATA_PROJECT_URL);
+			TPL_VARS.put("monthNames", MONTH_NAMES);
 		}
 
 		private final Template template;

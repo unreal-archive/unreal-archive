@@ -2,34 +2,29 @@ package net.shrimpworks.unreal.archive.www.content;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.ContentManager;
+import net.shrimpworks.unreal.archive.content.Games;
 import net.shrimpworks.unreal.archive.content.mutators.Mutator;
 import net.shrimpworks.unreal.archive.www.SiteFeatures;
 import net.shrimpworks.unreal.archive.www.SiteMap;
 import net.shrimpworks.unreal.archive.www.Templates;
 
-import static net.shrimpworks.unreal.archive.Util.slug;
-
-public class Mutators extends ContentPageGenerator {
+public class Mutators extends GenericContentPage<Mutator> {
 
 	private static final String SECTION = "Mutators";
+	private static final String SUBGROUP = "all";
 
-	private final Games games;
+	private final GameList games;
 
 	public Mutators(ContentManager content, Path output, Path staticRoot, SiteFeatures localImages) {
 		super(content, output, output.resolve("mutators"), staticRoot, localImages);
 
-		this.games = new Games();
+		this.games = new GameList();
 
 		content.get(Mutator.class).stream()
 			   .filter(m -> !m.deleted)
@@ -51,179 +46,76 @@ public class Mutators extends ContentPageGenerator {
 
 		games.games.entrySet().parallelStream().forEach(g -> {
 
-			var game = net.shrimpworks.unreal.archive.content.Games.byName(g.getKey());
+			Map<Integer, Map<Integer, Integer>> timeline = timeline(g.getValue());
 
-			if (g.getValue().mutators < Templates.PAGE_SIZE) {
-				List<MutatorInfo> all = g.getValue().letters.values().stream()
-															.flatMap(l -> l.pages.stream())
-															.flatMap(e -> e.mutators.stream())
-															.sorted()
-															.collect(Collectors.toList());
+			Games game = Games.byName(g.getKey());
+
+			if (g.getValue().count < Templates.PAGE_SIZE) {
+				List<ContentInfo<Mutator>> all = g.getValue().groups.get(SUBGROUP).letters.values().stream()
+																						  .flatMap(l -> l.pages.stream())
+																						  .flatMap(e -> e.items.stream())
+																						  .sorted()
+																						  .collect(Collectors.toList());
 				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName))
 					 .put("game", g.getValue())
+					 .put("timeline", timeline)
 					 .put("mutators", all)
 					 .write(g.getValue().path.resolve("index.html"));
 
 				// still generate all mutator pages
 				all.parallelStream().forEach(mutator -> mutatorPage(pages, mutator));
 
+				generateTimeline(pages, timeline, g.getValue(), SECTION);
+
 				return;
 			}
 
-			g.getValue().letters.entrySet().parallelStream().forEach(l -> {
+			g.getValue().groups.get(SUBGROUP).letters.entrySet().parallelStream().forEach(l -> {
 				l.getValue().pages.parallelStream().forEach(p -> {
 					pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName))
+						 .put("timeline", timeline)
 						 .put("page", p)
 						 .write(p.path.resolve("index.html"));
 
-					p.mutators.parallelStream().forEach(mutator -> mutatorPage(pages, mutator));
+					p.items.parallelStream().forEach(mutator -> mutatorPage(pages, mutator));
 				});
 
 				// output first letter/page combo, with appropriate relative links
 				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName))
+					 .put("timeline", timeline)
 					 .put("page", l.getValue().pages.get(0))
 					 .write(l.getValue().path.resolve("index.html"));
 			});
 
 			// output first letter/page combo, with appropriate relative links
 			pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName))
-				 .put("page", g.getValue().letters.firstEntry().getValue().pages.get(0))
+				 .put("timeline", timeline)
+				 .put("page", g.getValue().groups.get(SUBGROUP).letters.firstEntry().getValue().pages.get(0))
 				 .write(g.getValue().path.resolve("index.html"));
+
+			generateTimeline(pages, timeline, g.getValue(), SECTION);
 		});
 
 		return pages.pages;
 	}
 
-	private void mutatorPage(Templates.PageSet pages, MutatorInfo mutator) {
-		localImages(mutator.mutator, root.resolve(mutator.path).getParent());
+	private void mutatorPage(Templates.PageSet pages, ContentInfo<Mutator> mutator) {
+		localImages(mutator.item, root.resolve(mutator.path).getParent());
 
-		pages.add("mutator.ftl", SiteMap.Page.monthly(0.9f, mutator.mutator.firstIndex), String.join(" / ", SECTION,
-																									 mutator.page.letter.game.game.bigName,
-																									 mutator.mutator.name))
+		pages.add("mutator.ftl", SiteMap.Page.monthly(0.9f, mutator.item.firstIndex), String.join(" / ", SECTION,
+																								  mutator.page.letter.group.game.game.bigName,
+																								  mutator.item.name))
 			 .put("mutator", mutator)
-			 .write(Paths.get(mutator.path.toString() + ".html"));
+			 .write(Paths.get(mutator.path + ".html"));
 
 		// since variations are not top-level things, we need to generate them here
-		for (MutatorInfo variation : mutator.variations) {
+		for (ContentInfo<Mutator> variation : mutator.variations) {
 			mutatorPage(pages, variation);
 		}
 	}
 
-	public class Games {
-
-		public final TreeMap<String, Game> games = new TreeMap<>();
+	@Override
+	String gameSubGroup(Mutator item) {
+		return SUBGROUP;
 	}
-
-	public class Game {
-
-		public final net.shrimpworks.unreal.archive.content.Games game;
-		public final String name;
-		public final String slug;
-		public final Path path;
-		public final TreeMap<String, LetterGroup> letters = new TreeMap<>();
-		public int mutators;
-
-		public Game(String name) {
-			this.game = net.shrimpworks.unreal.archive.content.Games.byName(name);
-			this.name = name;
-			this.slug = slug(name);
-			this.path = root.resolve(slug);
-			this.mutators = 0;
-		}
-
-		public void add(Mutator s) {
-			LetterGroup letter = letters.computeIfAbsent(s.subGrouping(), l -> new LetterGroup(this, l));
-			letter.add(s);
-			this.mutators++;
-		}
-	}
-
-	public class LetterGroup {
-
-		public final Game game;
-		public final String letter;
-		public final Path path;
-		public final List<Page> pages = new ArrayList<>();
-		public int mutators;
-
-		public LetterGroup(Game game, String letter) {
-			this.game = game;
-			this.letter = letter;
-			this.path = game.path.resolve(letter);
-			this.mutators = 0;
-		}
-
-		public void add(Mutator s) {
-			if (pages.isEmpty()) pages.add(new Page(this, pages.size() + 1));
-			Page page = pages.get(pages.size() - 1);
-			if (page.mutators.size() == Templates.PAGE_SIZE) {
-				page = new Page(this, pages.size() + 1);
-				pages.add(page);
-			}
-
-			page.add(s);
-			this.mutators++;
-		}
-	}
-
-	public class Page {
-
-		public final LetterGroup letter;
-		public final int number;
-		public final Path path;
-		public final List<MutatorInfo> mutators = new ArrayList<>();
-
-		public Page(LetterGroup letter, int number) {
-			this.letter = letter;
-			this.number = number;
-			this.path = letter.path.resolve(Integer.toString(number));
-		}
-
-		public void add(Mutator s) {
-			this.mutators.add(new MutatorInfo(this, s));
-			Collections.sort(mutators);
-		}
-	}
-
-	public class MutatorInfo implements Comparable<MutatorInfo> {
-
-		public final Page page;
-		public final Mutator mutator;
-		public final String slug;
-		public final Path path;
-
-		public final Collection<MutatorInfo> variations;
-		public final java.util.Map<String, Integer> alsoIn;
-
-		public MutatorInfo(Page page, Mutator mutator) {
-			this.page = page;
-			this.mutator = mutator;
-			this.slug = slug(mutator.name + "_" + mutator.hash.substring(0, 8));
-
-			this.path = mutator.slugPath(siteRoot);
-
-			this.alsoIn = new HashMap<>();
-			for (Content.ContentFile f : mutator.files) {
-				Collection<Content> containing = content.containingFile(f.hash);
-				if (containing.size() > 1) {
-					alsoIn.put(f.hash, containing.size() - 1);
-				}
-			}
-
-			this.variations = content.variationsOf(mutator.hash).stream()
-									 .filter(p -> p instanceof Mutator)
-									 .map(p -> new MutatorInfo(page, (Mutator)p))
-									 .sorted()
-									 .collect(Collectors.toList());
-
-			Collections.sort(this.mutator.downloads);
-			Collections.sort(this.mutator.files);
-		}
-
-		@Override
-		public int compareTo(MutatorInfo o) {
-			return mutator.name.toLowerCase().compareTo(o.mutator.name.toLowerCase());
-		}
-	}
-
 }
