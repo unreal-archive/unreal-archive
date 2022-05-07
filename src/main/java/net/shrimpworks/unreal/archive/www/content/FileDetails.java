@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.ContentManager;
@@ -23,9 +22,8 @@ public class FileDetails extends ContentPageGenerator {
 	public FileDetails(ContentManager content, Path output, Path staticRoot, SiteFeatures features) {
 		super(content, output, output.resolve("files"), staticRoot, features);
 
-		this.contentFiles = new ConcurrentHashMap<>();
+		this.contentFiles = new HashMap<>();
 		content.all()
-			.parallelStream()
 			   .forEach(c -> {
 				   for (Content.ContentFile f : c.files) {
 					   Collection<Content> contents = contentFiles.computeIfAbsent(f, h -> new ArrayList<>());
