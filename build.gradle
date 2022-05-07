@@ -56,9 +56,9 @@ dependencies {
 	implementation 'net.shrimpworks:unreal-package-lib:1.7.6'
 	implementation 'net.shrimpworks:package-dependency:1.2.10'
 
-	implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.0'
-	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.0'
-	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.0'
+	implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.2.2'
+	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.2'
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.2'
 
 	implementation 'org.freemarker:freemarker:2.3.31'
 
@@ -68,7 +68,7 @@ dependencies {
 	// S3 compatible storage client
 	implementation 'io.minio:minio:8.2.2'
 
-	implementation 'com.vladsch.flexmark:flexmark:0.62.2'
+	implementation 'com.vladsch.flexmark:flexmark:0.64.0'
 
 	testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2'
 }

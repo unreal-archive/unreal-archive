@@ -83,7 +83,7 @@ public class Templates {
 				try {
 					// we got a NoSuchFieldException, which means there's no property named after the method, so we can expose it
 					out.setExposeAsProperty(
-							new PropertyDescriptor(in.getMethod().getName(), in.getContainingClass(), in.getMethod().getName(), null)
+						new PropertyDescriptor(in.getMethod().getName(), in.getContainingClass(), in.getMethod().getName(), null)
 					);
 				} catch (IntrospectionException ex) {
 					// pass
@@ -103,18 +103,20 @@ public class Templates {
 
 	public static class PageSet {
 
+		private static final int PAGES_INITIAL_SIZE = 100000;
+
 		public final String resourceRoot;
 		public final Set<SiteMap.Page> pages;
 		public final Map<String, Object> vars;
 
 		public PageSet(String resourceRoot, SiteFeatures features, Path siteRoot, Path staticPath, Path sectionPath) {
 			this.resourceRoot = resourceRoot;
-			this.pages = ConcurrentHashMap.newKeySet();
+			this.pages = ConcurrentHashMap.newKeySet(PAGES_INITIAL_SIZE);
 			this.vars = Map.of(
-					"siteRoot", siteRoot,
-					"staticRoot", staticPath,
-					"sectionPath", sectionPath,
-					"features", features
+				"siteRoot", siteRoot,
+				"staticRoot", staticPath,
+				"sectionPath", sectionPath,
+				"features", features
 			);
 		}
 
@@ -122,8 +124,8 @@ public class Templates {
 			if (page != null) this.pages.add(page);
 			try {
 				return template(String.join("/", resourceRoot, template), page)
-						.put("title", title)
-						.putAll(vars);
+					.put("title", title)
+					.putAll(vars);
 			} catch (IOException e) {
 				throw new RuntimeException(String.format("Failed to create template %s", resourceRoot + "/" + template), e);
 			}
@@ -263,9 +265,9 @@ public class Templates {
 		private Writer templateOut(Path target) throws IOException {
 			if (!Files.exists(target.getParent())) Files.createDirectories(target.getParent());
 			return Channels.newWriter(
-					Files.newByteChannel(
-							target, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING
-					), StandardCharsets.UTF_8);
+				Files.newByteChannel(
+					target, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING
+				), StandardCharsets.UTF_8);
 		}
 	}
 
@@ -336,8 +338,8 @@ public class Templates {
 			String string = args.get(0).toString();
 			int maxLength = Integer.parseInt(args.get(1).toString());
 			string = string.length() <= maxLength
-					? string
-					: string.substring(0, Math.min(maxLength, string.length())) + ELLIPSIS;
+				? string
+				: string.substring(0, Math.min(maxLength, string.length())) + ELLIPSIS;
 
 			return string;
 		}

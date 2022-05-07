@@ -27,6 +27,7 @@ import net.shrimpworks.unreal.archive.www.SiteMap;
 import net.shrimpworks.unreal.archive.www.Templates;
 
 import static net.shrimpworks.unreal.archive.Util.slug;
+import static net.shrimpworks.unreal.archive.www.Templates.PAGE_SIZE;
 
 public abstract class GenericContentPage<T extends Content> extends ContentPageGenerator {
 
@@ -83,7 +84,7 @@ public abstract class GenericContentPage<T extends Content> extends ContentPageG
 		try {
 			if (!Files.exists(imgPath)) Files.createDirectories(imgPath);
 		} catch (IOException e) {
-			System.err.printf("\rFailed to download create output directory %s: %s%n", imgPath.toString(), e.toString());
+			System.err.printf("\rFailed to download create output directory %s: %s%n", imgPath, e);
 			return;
 		}
 
@@ -102,7 +103,7 @@ public abstract class GenericContentPage<T extends Content> extends ContentPageG
 				content.attachments.remove(img);
 				content.attachments.add(new Content.Attachment(img.type, img.name, localPath.relativize(outPath).toString()));
 			} catch (Throwable t) {
-				System.err.printf("\rFailed to download image %s: %s%n", img.name, t.toString());
+				System.err.printf("\rFailed to download image %s: %s%n", img.name, t);
 			}
 		}
 	}
@@ -110,6 +111,7 @@ public abstract class GenericContentPage<T extends Content> extends ContentPageG
 	public Map<Integer, Map<Integer, Integer>> timeline(Game game) {
 		Map<LocalDate, Integer> grouped = game.groups.values().stream().flatMap(g -> g.letters.values().stream()).flatMap(
 												  g -> g.pages.stream()).flatMap(g -> g.items.stream())
+													 .parallel()
 													 .filter(c -> c.releaseDate.isPresent())
 													 .filter(c -> c.releaseDate.get().isAfter(MIN_DATE)
 																  && c.releaseDate.get().isBefore(MAX_DATE))
@@ -243,7 +245,7 @@ public abstract class GenericContentPage<T extends Content> extends ContentPageG
 		public ContentInfo<T> add(T item) {
 			if (pages.isEmpty()) pages.add(new Page(this, 1));
 			Page page = pages.get(pages.size() - 1);
-			if (page.items.size() == Templates.PAGE_SIZE) {
+			if (page.items.size() == PAGE_SIZE) {
 				page = new Page(this, pages.size() + 1);
 				pages.add(page);
 			}
@@ -258,7 +260,7 @@ public abstract class GenericContentPage<T extends Content> extends ContentPageG
 		public final LetterGroup letter;
 		public final int number;
 		public final Path path;
-		public final List<ContentInfo<T>> items = new ArrayList<>();
+		public final List<ContentInfo<T>> items = new ArrayList<>(PAGE_SIZE);
 
 		public Page(LetterGroup letter, int number) {
 			this.letter = letter;
@@ -285,6 +287,7 @@ public abstract class GenericContentPage<T extends Content> extends ContentPageG
 
 		public final Optional<LocalDate> releaseDate;
 
+		@SuppressWarnings("unchecked")
 		public ContentInfo(Page page, Y item) {
 			this.page = page;
 			this.item = item;

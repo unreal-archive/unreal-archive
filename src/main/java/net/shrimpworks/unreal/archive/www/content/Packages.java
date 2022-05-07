@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import net.shrimpworks.unreal.archive.Util;
@@ -36,8 +37,8 @@ public class Packages extends ContentPageGenerator {
 					SiteFeatures features) {
 		super(content, output, output.resolve("packages"), staticRoot, features);
 
-		this.contentFiles = new HashMap<>();
-		content.all()
+		this.contentFiles = new ConcurrentHashMap<>();
+		content.all().parallelStream()
 			   .forEach(c -> {
 				   for (Content.ContentFile f : c.files) {
 					   if (PKG_TYPES.contains(Util.extension(f.name).toLowerCase())) {

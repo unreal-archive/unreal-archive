@@ -20,6 +20,10 @@ import net.shrimpworks.unreal.archive.storage.DataStore;
 
 public class ContentManager {
 
+	private static final int CONTENT_INITIAL_SIZE = 50000;
+	private static final int FILES_INITIAL_SIZE = CONTENT_INITIAL_SIZE * 5;
+	private static final int VARIATION_INITIAL_SIZE = CONTENT_INITIAL_SIZE / 4;
+
 	private final Path path;
 	private final Map<String, ContentHolder> content;
 
@@ -37,9 +41,9 @@ public class ContentManager {
 		this.contentStore = contentStore;
 		this.imageStore = imageStore;
 		this.attachmentStore = attachmentStore;
-		this.content = new ConcurrentHashMap<>();
-		this.contentFileMap = new ConcurrentHashMap<>();
-		this.variationsMap = new ConcurrentHashMap<>();
+		this.content = new ConcurrentHashMap<>(CONTENT_INITIAL_SIZE);
+		this.contentFileMap = new ConcurrentHashMap<>(500000);
+		this.variationsMap = new ConcurrentHashMap<>(50000);
 
 		this.changes = new HashSet<>();
 
@@ -79,14 +83,14 @@ public class ContentManager {
 	}
 
 	public Map<Class<? extends Content>, Long> countByType(String game) {
-		return content.values().stream()
+		return content.values().parallelStream()
 					  .filter(c -> c.content.variationOf == null && !c.content.deleted())
 					  .filter(c -> game == null || c.content.game.equals(game))
 					  .collect(Collectors.groupingBy(v -> v.content.getClass(), Collectors.counting()));
 	}
 
 	public Map<String, Long> countByGame() {
-		return content.values().stream()
+		return content.values().parallelStream()
 					  .filter(c -> c.content.variationOf == null && !c.content.deleted())
 					  .collect(Collectors.groupingBy(v -> v.content.game, Collectors.counting()));
 	}
