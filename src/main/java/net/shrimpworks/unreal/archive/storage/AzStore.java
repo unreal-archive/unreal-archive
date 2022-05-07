@@ -130,7 +130,7 @@ public class AzStore implements DataStore {
 	public void delete(String url, Consumer<Boolean> deleted) throws IOException {
 		// As a safety check before we append the access token and send data,
 		// ensure the base of the URL matches what we expect
-		if (url.toLowerCase().startsWith(getBlobUrlBase(name).toString().toLowerCase())) {
+		if (url.toLowerCase().startsWith(getBlobUrlBase("").toString().toLowerCase())) {
 			throw new IllegalArgumentException("URL does not match the given Azure container name or storage account");
 		}
 
