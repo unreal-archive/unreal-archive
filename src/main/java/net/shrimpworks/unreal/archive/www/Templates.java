@@ -98,6 +98,7 @@ public class Templates {
 		HOST_REMAP.put("f002.backblazeb2.com", "Unreal Archive US");
 		HOST_REMAP.put("unreal-archive-files.eu-central-1.linodeobjects.com", "Unreal Archive EU");
 		HOST_REMAP.put("files.vohzd.com", "vohzd");
+		HOST_REMAP.put("unrealarchiveusa.blob.core.windows.net", "Azure US");
 	}
 
 	public static class PageSet {

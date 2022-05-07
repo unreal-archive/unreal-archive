@@ -219,3 +219,19 @@ Note: Amazon S3 bucket policy to allow public downloads:
     ]
 }
 ```
+
+### Azure Blob Storage
+
+- `--store=az`
+  - `--store-[images|attachments|content]=az`
+- `--az-acc=storage-account-name`
+  - `--az-acc-[images|attachments|content]=storage-account-name`
+- `--az-container`
+  - `--az-container-[images|attachments|content]=container-name`
+- `--az-sas`
+  - `--az-sas-[images|attachments|content]="shared-access-signature"`
+- `--az-endpoint` (Optional, default="blob.core.windows.net")
+  - `--az-endpoint-[images|attachments|content]=endpoint-suffix`
+
+Note: The shared access signature (SAS) should be created with full permissions to the specified container.
+Use double quotes around the SAS when specifying it via the command line.
