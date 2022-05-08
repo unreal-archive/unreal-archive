@@ -98,7 +98,7 @@ public class S3Store implements DataStore {
 			client.removeObject(RemoveObjectArgs.builder().bucket(bucket).object(object).build());
 			deleted.accept(true);
 		} catch (Exception e) {
-			throw new IOException("File download failed", e);
+			throw new IOException("File delete failed", e);
 		}
 	}
 
