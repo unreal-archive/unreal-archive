@@ -76,7 +76,7 @@ public abstract class ContentPageGenerator implements PageGenerator {
 
 				// prepend filenames with the content hash, to prevent conflicts
 				String hashName = String.join("_", content.hash.substring(0, 8), img.name);
-				Path outPath = imgPath.resolve(hashName);
+				Path outPath = imgPath.resolve(Util.safeFileName(hashName));
 
 				// only download if it doesn't already exist locally
 				if (!Files.exists(outPath)) Util.downloadTo(img.url, outPath);
