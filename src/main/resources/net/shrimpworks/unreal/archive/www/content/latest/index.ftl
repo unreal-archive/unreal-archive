@@ -23,7 +23,10 @@
 					<tbody>
           <#list content as c>
 						<tr>
-							<td>${c.game} ${c.friendlyType}</td>
+							<td>
+									<img src="${staticPath()}/images/games/icons/${c.game}.png" alt="${c.game} icon" height="22"/>
+									${c.game} ${c.friendlyType}
+							</td>
 							<td>
 								<a href="${relPath(c.pagePath(siteRoot))}">${c.name}</a>
 							</td>
