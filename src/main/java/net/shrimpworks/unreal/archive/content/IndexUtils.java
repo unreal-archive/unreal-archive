@@ -35,6 +35,7 @@ import net.shrimpworks.unreal.packages.entities.Named;
 import net.shrimpworks.unreal.packages.entities.ObjectReference;
 import net.shrimpworks.unreal.packages.entities.objects.Object;
 import net.shrimpworks.unreal.packages.entities.objects.Texture;
+import net.shrimpworks.unreal.packages.entities.objects.Texture2D;
 import net.shrimpworks.unreal.packages.entities.properties.ObjectProperty;
 import net.shrimpworks.unreal.packages.entities.properties.Property;
 
@@ -52,10 +53,18 @@ public class IndexUtils {
 
 	public static String game(Set<Incoming.IncomingFile> files) throws IOException {
 		if (files.isEmpty()) return UNKNOWN;
+
+		if (files.stream().anyMatch(f -> Util.extension(f.file).equalsIgnoreCase("ut2"))) return Games.UNREAL_TOURNAMENT_2004.name;
+		if (files.stream().anyMatch(f -> Util.extension(f.file).equalsIgnoreCase("upl"))) return Games.UNREAL_TOURNAMENT_2004.name;
+		if (files.stream().anyMatch(f -> Util.extension(f.file).equalsIgnoreCase("usx"))) return Games.UNREAL_TOURNAMENT_2004.name;
+		if (files.stream().anyMatch(f -> Util.extension(f.file).equalsIgnoreCase("ut3"))) return Games.UNREAL_TOURNAMENT_3.name;
+		if (files.stream().anyMatch(f -> Util.extension(f.file).equalsIgnoreCase("upk"))) return Games.UNREAL_TOURNAMENT_3.name;
+
 		try (Package pkg = new Package(new PackageReader(files.iterator().next().asChannel()))) {
-			if (pkg.version < 68) return "Unreal";
+			if (pkg.version < 68) return Games.UNREAL.name;
 			else if (pkg.version < 117) return "Unreal Tournament";
-			else return "Unreal Tournament 2004";
+			else if (pkg.version < 200) return "Unreal Tournament 2004";
+			else return "Unreal Tournament 3";
 		}
 	}
 
@@ -139,14 +148,15 @@ public class IndexUtils {
 	private static List<BufferedImage> scrapeScreenshots(Incoming incoming, Package map) {
 		List<BufferedImage> images = new ArrayList<>();
 
-		map.exportsByClassName("Texture").stream()
-		   .filter(t -> t.name.name.toLowerCase().startsWith("screen") || t.name.name.toLowerCase().startsWith("shot"))
-		   .map(t -> map.objectByName(t.name))
-		   .filter(Objects::nonNull)
-		   .map(ExportedObject::object)
-		   .filter(Objects::nonNull)
-		   .map(o -> screenshotFromObject(map, o))
-		   .forEach(images::add);
+		Stream.concat(map.exportsByClassName("Texture").stream(),
+					  map.exportsByClassName("Texture2D").stream())
+			  .filter(t -> t.name.name.toLowerCase().startsWith("screen") || t.name.name.toLowerCase().startsWith("shot"))
+			  .map(t -> map.objectByName(t.name))
+			  .filter(Objects::nonNull)
+			  .map(ExportedObject::object)
+			  .filter(Objects::nonNull)
+			  .map(o -> screenshotFromObject(map, o))
+			  .forEach(images::add);
 
 		return images;
 	}
@@ -187,9 +197,12 @@ public class IndexUtils {
 			}
 		}
 
-		if (object instanceof Texture) {
-			return ((Texture)object).mipMaps()[0].get();
-		}
+		// UE1 has simple textures
+		if (object instanceof Texture) return ((Texture)object).mipMaps()[0].get();
+
+		// UE3 also has simple textures
+		if (object instanceof Texture2D) return ((Texture2D)object).mipMaps()[0].get();
+
 		return null;
 	}
 
@@ -204,12 +217,12 @@ public class IndexUtils {
 	 * @throws IOException failed to write files
 	 */
 	public static void saveImages(
-			String shotTemplate, Content content, List<BufferedImage> screenshots, Set<IndexResult.NewAttachment> attachments)
-			throws IOException {
-		for (int i = 0; i < screenshots.size(); i++) {
+		String shotTemplate, Content content, List<BufferedImage> screenshots, Set<IndexResult.NewAttachment> attachments
+	) throws IOException {
+		for (BufferedImage screenshot : screenshots) {
 			String shotName = String.format(shotTemplate, Util.slug(content.name), content.hash.substring(0, 8), attachments.size() + 1);
 			Path out = Paths.get(shotName);
-			ImageIO.write(screenshots.get(i), "png", out.toFile());
+			ImageIO.write(screenshot, "png", out.toFile());
 			attachments.add(new IndexResult.NewAttachment(Content.AttachmentType.IMAGE, shotName, out));
 		}
 	}
@@ -302,8 +315,8 @@ public class IndexUtils {
 	 */
 	public static String findAuthor(Incoming incoming, boolean searchIntFiles) throws IOException {
 		Incoming.FileType[] types = searchIntFiles
-				? new Incoming.FileType[] { Incoming.FileType.TEXT, Incoming.FileType.HTML, Incoming.FileType.INT }
-				: new Incoming.FileType[] { Incoming.FileType.TEXT, Incoming.FileType.HTML };
+			? new Incoming.FileType[] { Incoming.FileType.TEXT, Incoming.FileType.HTML, Incoming.FileType.INT }
+			: new Incoming.FileType[] { Incoming.FileType.TEXT, Incoming.FileType.HTML };
 
 		List<String> lines = IndexUtils.textContent(incoming, types);
 
@@ -353,11 +366,18 @@ public class IndexUtils {
 	}
 
 	public static Map<String, List<Content.Dependency>> dependencies(Games game, Incoming incoming) {
-		ShippedPackages shippedPackages = game == Games.UNREAL
-				? ShippedPackages.UNREAL_GOLD
-				: game == Games.UNREAL_TOURNAMENT
-						? ShippedPackages.UNREAL_TOURNAMENT
-						: ShippedPackages.UNREAL_TOURNAMENT_2004;
+		ShippedPackages shippedPackages;
+		switch (game) {
+			case UNREAL:
+				shippedPackages = ShippedPackages.UNREAL_GOLD; break;
+			case UNREAL_TOURNAMENT_2004:
+				shippedPackages = ShippedPackages.UNREAL_TOURNAMENT_2004; break;
+			case UNREAL_TOURNAMENT_3:
+				shippedPackages = ShippedPackages.UNREAL_TOURNAMENT_3; break;
+			case UNREAL_TOURNAMENT:
+			default:
+				shippedPackages = ShippedPackages.UNREAL_TOURNAMENT;
+		}
 
 		Map<String, List<Content.Dependency>> dependencies = new HashMap<>();
 		try {

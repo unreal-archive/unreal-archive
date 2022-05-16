@@ -34,6 +34,7 @@ public class Incoming implements Closeable {
 	public enum FileType {
 		CODE(true, "u"),
 		MAP(true, "unr", "ut2", "ut3"),
+		PACKAGE(true, "upk"), /* UT3 catch-all format */
 		TEXTURE(true, "utx"),
 		MUSIC(true, "umx", "ogg"),
 		SOUNDS(true, "uax"),
@@ -51,7 +52,7 @@ public class Incoming implements Closeable {
 		IMAGE(false, "jpg", "jpeg", "bmp", "png", "gif"),
 		;
 
-		public static final FileType[] PACKAGES = { CODE, MAP, TEXTURE, SOUNDS, ANIMATION, STATICMESH };
+		public static final FileType[] PACKAGES = { CODE, MAP, TEXTURE, SOUNDS, ANIMATION, STATICMESH, PACKAGE };
 
 		public static final FileType[] ALL = FileType.values();
 

@@ -65,6 +65,32 @@
 	--document-meta-bg: #eaefff;
 }
 
+/*@media (prefers-color-scheme: dark) {*/
+/*	:root {*/
+/*		--p1: #223;*/
+/*		--p2: #ccf;*/
+
+/*		--body-color: #ddd;*/
+
+/*		--table-header-color: var(--body-color);*/
+/*		--table-row-alt-bg: #3e3e4e;*/
+
+/*		--document-meta-bg: #334;*/
+
+/*		--link-color: white;*/
+/*		--link-color-visited: silver;*/
+/*	}*/
+
+
+/*	section.downloads .links a {*/
+/*		--link-color: black;*/
+/*	}*/
+
+/*	td.meta img[src$="svg"], footer img[src$="svg"], .report img[src$="svg"] {*/
+/*		filter: invert(1);*/
+/*	}*/
+/*}*/
+
 .mainpage {
 	background-color: #f8f9fa00;
 	box-shadow: none;
