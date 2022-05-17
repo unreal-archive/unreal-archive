@@ -31,6 +31,7 @@ import net.shrimpworks.unreal.packages.Package;
 import net.shrimpworks.unreal.packages.PackageReader;
 import net.shrimpworks.unreal.packages.entities.ExportedObject;
 import net.shrimpworks.unreal.packages.entities.Import;
+import net.shrimpworks.unreal.packages.entities.Name;
 import net.shrimpworks.unreal.packages.entities.Named;
 import net.shrimpworks.unreal.packages.entities.ObjectReference;
 import net.shrimpworks.unreal.packages.entities.objects.Object;
@@ -48,6 +49,8 @@ public class IndexUtils {
 
 	public static final Pattern AUTHOR_MATCH = Pattern.compile("(.+)?(author|by)(\\(s\\))?([\\s:]+)?([A-Za-z0-9 _]{4,25})(\\s+)?",
 															   Pattern.CASE_INSENSITIVE);
+
+	public static final Pattern UT3_SCREENSHOT_MATCH = Pattern.compile("<Images:.*\\.([^>]+)>", Pattern.CASE_INSENSITIVE);
 
 	public static final String SHOT_NAME = "%s_shot_%s_%d.png";
 
@@ -148,9 +151,28 @@ public class IndexUtils {
 	private static List<BufferedImage> scrapeScreenshots(Incoming incoming, Package map) {
 		List<BufferedImage> images = new ArrayList<>();
 
+		// maybe it's a UT3 map
+		if (map.version > 200) {
+			readIntFiles(incoming, incoming.files(Incoming.FileType.INI)).findFirst().ifPresent(ini -> {
+				ini.sections().forEach(s -> {
+					IntFile.Value shot = ini.section(s).value("PreviewImageMarkup");
+					if (shot instanceof IntFile.SimpleValue) {
+						Matcher matcher = IndexUtils.UT3_SCREENSHOT_MATCH.matcher(((IntFile.SimpleValue)shot).value);
+						if (matcher.find()) {
+							ExportedObject export = map.objectByName(new Name(matcher.group(1)));
+							if (export != null) images.add(screenshotFromObject(map, export.object()));
+						}
+					}
+				});
+			});
+		}
+
+		// we found our screenshot, so we can end here
+		if (!images.isEmpty()) return images;
+
 		Stream.concat(map.exportsByClassName("Texture").stream(),
 					  map.exportsByClassName("Texture2D").stream())
-			  .filter(t -> t.name.name.toLowerCase().startsWith("screen") || t.name.name.toLowerCase().startsWith("shot"))
+			  .filter(t -> t.name.name.toLowerCase().startsWith("screen") || t.name.name.toLowerCase().contains("shot"))
 			  .map(t -> map.objectByName(t.name))
 			  .filter(Objects::nonNull)
 			  .map(ExportedObject::object)

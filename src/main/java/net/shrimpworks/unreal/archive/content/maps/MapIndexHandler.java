@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,6 +23,7 @@ import net.shrimpworks.unreal.archive.content.IndexHandler;
 import net.shrimpworks.unreal.archive.content.IndexLog;
 import net.shrimpworks.unreal.archive.content.IndexResult;
 import net.shrimpworks.unreal.archive.content.IndexUtils;
+import net.shrimpworks.unreal.packages.IntFile;
 import net.shrimpworks.unreal.packages.Package;
 import net.shrimpworks.unreal.packages.PackageReader;
 import net.shrimpworks.unreal.packages.entities.ExportedObject;
@@ -72,73 +74,17 @@ public class MapIndexHandler implements IndexHandler<Map> {
 		Set<IndexResult.NewAttachment> attachments = new HashSet<>();
 
 		try (Package map = map(baseMap)) {
-			if (!gameOverride) {
-				// attempt to detect Unreal maps by possible release date
-				if (map.version < 68 || (m.releaseDate != null && m.releaseDate.compareTo(IndexUtils.RELEASE_UT99) < 0)) m.game = "Unreal";
-				// Unreal does not contain a LevelSummary
-				if (map.version == 68 && map.objectsByClassName("LevelSummary").isEmpty()) m.game = "Unreal";
-			}
-
-			// read level info (also in LevelSummary, but missing Screenshot)
-			Collection<ExportedObject> maybeLevelInfo = map.objectsByClassName("LevelInfo");
-			if (maybeLevelInfo == null || maybeLevelInfo.isEmpty()) {
-				throw new IllegalArgumentException("Could not find LevelInfo in map");
-			}
-
-			// if there are multiple LevelInfos in a map, try to find the right one...
-			Object level = maybeLevelInfo.stream()
-										 .map(ExportedObject::object)
-										 .filter(l -> l.property("Title") != null || l.property("Author") != null)
-										 .findFirst()
-										 .orElse(maybeLevelInfo.iterator().next().object());
-
-			// read some basic level info
-			Property author = level.property("Author");
-			Property title = level.property("Title");
-			Property description = level.property("Description") != null
-				? level.property("Description")
-				: level.property("LevelEnterText"); // fallback for Unreal, some maps have fun text here
-
-			if (author != null) m.author = ((StringProperty)author).value.trim();
-			if (title != null) m.title = ((StringProperty)title).value.trim();
-			if (description != null) m.description = ((StringProperty)description).value.trim();
-
-			// just in case, some maps seem to have blank values occasionally
-			if (m.author.isBlank()) m.author = "Unknown";
-			if (m.title.isBlank()) m.title = m.name;
-
-			if (map.version < 117) {
-				Property idealPlayerCount = level.property("IdealPlayerCount");
-				if (idealPlayerCount != null) m.playerCount = ((StringProperty)idealPlayerCount).value.trim();
+			List<BufferedImage> screenshots = new ArrayList<>();
+			if (map.version < 200) {
+				scrapeUE12(incoming, m, gameOverride, map, screenshots);
 			} else {
-				Property idealPlayerCountMin = level.property("IdealPlayerCountMin");
-				Property idealPlayerCountMax = level.property("IdealPlayerCountMax");
-				int min = 0;
-				int max = 0;
-				if (idealPlayerCountMin != null) min = ((IntegerProperty)idealPlayerCountMin).value;
-				if (idealPlayerCountMax != null) max = ((IntegerProperty)idealPlayerCountMax).value;
-
-				if (min == max && max > 0) m.playerCount = Integer.toString(max);
-				else if (min > 0 && max > 0) m.playerCount = min + "-" + max;
-				else if (min > 0 || max > 0) m.playerCount = Integer.toString(Math.max(min, max));
+				scrapeUE3(incoming, m, map, screenshots);
 			}
 
-			Property screenshot = level.property("Screenshot");
-
-			if (!gameOverride) {
-				// use this opportunity to resolve some version overlap between game versions
-				if (screenshot != null && map.version < 117 && !map.objectsByClassName("LevelSummary").isEmpty()) {
-					m.game = "Unreal Tournament";
-				}
-				if (m.gametype.equals("XMP") && map.version >= 126
-					&& !map.exportsByClassName("DeploymentPoint").isEmpty() && m.game.equals("Unreal Tournament")) {
-					m.game = "Unreal 2";
-				}
-			}
-
-			List<BufferedImage> screenshots = IndexUtils.screenshots(incoming, map, screenshot);
 			screenshots.addAll(IndexUtils.findImageFiles(incoming));
 			IndexUtils.saveImages(IndexUtils.SHOT_NAME, m, screenshots, attachments);
+
+			if (m.author.isBlank() || m.author.equals("Unknown")) m.author = IndexUtils.findAuthor(incoming);
 
 			// Find map themes
 			m.themes.clear();
@@ -152,6 +98,102 @@ public class MapIndexHandler implements IndexHandler<Map> {
 		}
 
 		completed.accept(new IndexResult<>(m, attachments));
+	}
+
+	private void scrapeUE12(Incoming incoming, Map m, boolean gameOverride, Package map, List<BufferedImage> screenshots) {
+		if (!gameOverride) {
+			// attempt to detect Unreal maps by possible release date
+			if (map.version < 68 || (m.releaseDate != null && m.releaseDate.compareTo(IndexUtils.RELEASE_UT99) < 0)) m.game = "Unreal";
+			// Unreal does not contain a LevelSummary
+			if (map.version == 68 && map.objectsByClassName("LevelSummary").isEmpty()) m.game = "Unreal";
+		}
+
+		// read level info (also in LevelSummary, but missing Screenshot)
+		Collection<ExportedObject> maybeLevelInfo = map.objectsByClassName("LevelInfo");
+		if (maybeLevelInfo == null || maybeLevelInfo.isEmpty()) {
+			throw new IllegalArgumentException("Could not find LevelInfo in map");
+		}
+
+		// if there are multiple LevelInfos in a map, try to find the right one...
+		Object level = maybeLevelInfo.stream()
+									 .map(ExportedObject::object)
+									 .filter(l -> l.property("Title") != null || l.property("Author") != null)
+									 .findFirst()
+									 .orElse(maybeLevelInfo.iterator().next().object());
+
+		// read some basic level info
+		Property author = level.property("Author");
+		Property title = level.property("Title");
+		Property description = level.property("Description") != null
+			? level.property("Description")
+			: level.property("LevelEnterText"); // fallback for Unreal, some maps have fun text here
+
+		if (author != null) m.author = ((StringProperty)author).value.trim();
+		if (title != null) m.title = ((StringProperty)title).value.trim();
+		if (description != null) m.description = ((StringProperty)description).value.trim();
+
+		// just in case, some maps seem to have blank values occasionally
+		if (m.author.isBlank()) m.author = "Unknown";
+		if (m.title.isBlank()) m.title = m.name;
+
+		if (map.version < 117) {
+			Property idealPlayerCount = level.property("IdealPlayerCount");
+			if (idealPlayerCount != null) m.playerCount = ((StringProperty)idealPlayerCount).value.trim();
+		} else {
+			Property idealPlayerCountMin = level.property("IdealPlayerCountMin");
+			Property idealPlayerCountMax = level.property("IdealPlayerCountMax");
+			int min = 0;
+			int max = 0;
+			if (idealPlayerCountMin != null) min = ((IntegerProperty)idealPlayerCountMin).value;
+			if (idealPlayerCountMax != null) max = ((IntegerProperty)idealPlayerCountMax).value;
+
+			if (min == max && max > 0) m.playerCount = Integer.toString(max);
+			else if (min > 0 && max > 0) m.playerCount = min + "-" + max;
+			else if (min > 0 || max > 0) m.playerCount = Integer.toString(Math.max(min, max));
+		}
+
+		Property screenshot = level.property("Screenshot");
+
+		if (!gameOverride) {
+			// use this opportunity to resolve some version overlap between game versions
+			if (screenshot != null && map.version < 117 && !map.objectsByClassName("LevelSummary").isEmpty()) {
+				m.game = "Unreal Tournament";
+			}
+			if (m.gametype.equals("XMP") && map.version >= 126
+				&& !map.exportsByClassName("DeploymentPoint").isEmpty() && m.game.equals("Unreal Tournament")) {
+				m.game = "Unreal 2";
+			}
+		}
+
+		screenshots.addAll(IndexUtils.screenshots(incoming, map, screenshot));
+	}
+
+	private void scrapeUE3(Incoming incoming, Map m, Package map, List<BufferedImage> screenshots) {
+		IndexUtils.readIntFiles(incoming, incoming.files(Incoming.FileType.INI)).findFirst().ifPresent(ini -> {
+			ini.sections().forEach(s -> {
+				IntFile.Value name = ini.section(s).value("MapName");
+				if (name instanceof IntFile.SimpleValue) m.name = ((IntFile.SimpleValue)name).value;
+
+				IntFile.Value title = ini.section(s).value("FriendlyName");
+				if (title instanceof IntFile.SimpleValue) m.title = ((IntFile.SimpleValue)title).value;
+
+				IntFile.Value desc = ini.section(s).value("Description");
+				if (desc instanceof IntFile.SimpleValue) m.description = ((IntFile.SimpleValue)desc).value;
+
+				IntFile.Value players = ini.section(s).value("NumPlayers");
+				if (players instanceof IntFile.SimpleValue) {
+					String playerCount = ((IntFile.SimpleValue)players).value.replaceAll("([Pp]layers)", "");
+					if (playerCount.toLowerCase().contains("author")) {
+						m.playerCount = playerCount.substring(0, playerCount.toLowerCase().indexOf("author")).trim();
+						m.author = playerCount.replaceAll(".*(?i)author\\s?:?\\s?(.*)", "$1");
+					} else {
+						m.playerCount = playerCount;
+					}
+				}
+
+				screenshots.addAll(IndexUtils.screenshots(incoming, map, null));
+			});
+		});
 	}
 
 	private Incoming.IncomingFile baseMap(Incoming incoming) {

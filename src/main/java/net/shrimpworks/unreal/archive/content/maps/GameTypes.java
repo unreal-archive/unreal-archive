@@ -20,6 +20,8 @@ public class GameTypes {
 			new GameType("Bombing Run", "BR"),
 			new GameType("Onslaught", "ONS"),
 			new GameType("Vehicle CTF", "VCTF"),
+			new GameType("Warfare", "WAR"),
+			new GameType("Greed", "CTF-GRD"),
 			new GameType("Monster Hunt", "MH"),
 			new GameType("Monster Arena", "MA"),
 			new GameType("Team Monster Hunt", "TMH"),

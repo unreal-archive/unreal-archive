@@ -17,11 +17,6 @@ public class MapClassifier implements Classifier {
 
 		if (maps.isEmpty()) return false;
 
-		// for now, we specifically disallow UT3, since we don't understand its package structure (> version 500?)
-		for (Incoming.IncomingFile map : maps) {
-			if (Util.extension(map.fileName()).equalsIgnoreCase("ut3")) return false;
-		}
-
 		// a map definitely probably won't have any associated .int files
 		if (ints.stream().anyMatch(i -> !IGNORED_FILES.contains(i.fileName()))) return false;
 

@@ -30,22 +30,6 @@ public class ClassifierTest {
 	}
 
 	@Test
-	public void map() throws IOException {
-		Path tmpMap = Files.createTempFile("test-dm-longestyard", ".zip");
-		try (InputStream is = getClass().getResourceAsStream("maps/dm-longestyard.zip")) {
-			Files.copy(is, tmpMap, StandardCopyOption.REPLACE_EXISTING);
-
-			Submission sub = new Submission(tmpMap);
-			IndexLog log = new IndexLog();
-			Incoming incoming = new Incoming(sub, log).prepare();
-
-			assertEquals(ContentType.MAP, ContentType.classify(incoming));
-		} finally {
-			Files.deleteIfExists(tmpMap);
-		}
-	}
-
-	@Test
 	public void logTest() throws IOException {
 		Path tmpMap = Files.createTempFile("test-dm-longestyard", ".zip");
 		try (InputStream is = getClass().getResourceAsStream("maps/dm-longestyard.zip")) {
