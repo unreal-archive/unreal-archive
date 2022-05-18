@@ -85,6 +85,10 @@ public class MapIndexHandler implements IndexHandler<Map> {
 			IndexUtils.saveImages(IndexUtils.SHOT_NAME, m, screenshots, attachments);
 
 			if (m.author.isBlank() || m.author.equals("Unknown")) m.author = IndexUtils.findAuthor(incoming);
+			if (m.playerCount.isBlank() || m.playerCount.equals("Unknown")) {
+				if (m.gametype.equals("1 on 1")) m.playerCount = "2";
+				else if (m.gametype.equals("Single Player")) m.playerCount = "1";
+			}
 
 			// Find map themes
 			m.themes.clear();
@@ -165,7 +169,11 @@ public class MapIndexHandler implements IndexHandler<Map> {
 			}
 		}
 
-		screenshots.addAll(IndexUtils.screenshots(incoming, map, screenshot));
+		try {
+			screenshots.addAll(IndexUtils.screenshots(incoming, map, screenshot));
+		} catch (Throwable e) {
+			incoming.log.log(IndexLog.EntryType.CONTINUE, "Failed to extract screenshot: " + e, e);
+		}
 	}
 
 	private void scrapeUE3(Incoming incoming, Map m, Package map, List<BufferedImage> screenshots) {
@@ -190,10 +198,14 @@ public class MapIndexHandler implements IndexHandler<Map> {
 						m.playerCount = playerCount;
 					}
 				}
-
-				screenshots.addAll(IndexUtils.screenshots(incoming, map, null));
 			});
 		});
+
+		try {
+			screenshots.addAll(IndexUtils.screenshots(incoming, map, null));
+		} catch (Throwable e) {
+			incoming.log.log(IndexLog.EntryType.CONTINUE, "Failed to extract screenshots: " + e, e);
+		}
 	}
 
 	private Incoming.IncomingFile baseMap(Incoming incoming) {
@@ -209,7 +221,7 @@ public class MapIndexHandler implements IndexHandler<Map> {
 	}
 
 	private Package map(Incoming.IncomingFile mapFile) {
-		return new Package(new PackageReader(mapFile.asChannel()));
+		return new Package(new PackageReader(mapFile.asChannel(), false));
 	}
 
 	private String mapName(Incoming.IncomingFile mapFile) {
@@ -264,6 +276,10 @@ public class MapIndexHandler implements IndexHandler<Map> {
 
 	public static java.util.Map<String, Double> themes(Package pkg) {
 		final java.util.Map<String, Integer> foundThemes = new HashMap<>();
+
+		// polygon format of UE3 maps is unknown at the moment, so we cannot interrogate them for texture usage.
+		// also UE3 maps no longer use much BSP, so need an alternative approach (mesh usage?)
+		if (pkg.version > 199) return java.util.Map.of();
 
 		// this can also work using "Models", but there are issues parsing those for UE2 maps
 		pkg.objectsByClassName("Polys").forEach(o -> {

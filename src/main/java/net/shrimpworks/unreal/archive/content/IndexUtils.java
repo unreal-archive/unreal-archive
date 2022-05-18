@@ -37,6 +37,7 @@ import net.shrimpworks.unreal.packages.entities.ObjectReference;
 import net.shrimpworks.unreal.packages.entities.objects.Object;
 import net.shrimpworks.unreal.packages.entities.objects.Texture;
 import net.shrimpworks.unreal.packages.entities.objects.Texture2D;
+import net.shrimpworks.unreal.packages.entities.properties.ArrayProperty;
 import net.shrimpworks.unreal.packages.entities.properties.ObjectProperty;
 import net.shrimpworks.unreal.packages.entities.properties.Property;
 
@@ -160,7 +161,23 @@ public class IndexUtils {
 						Matcher matcher = IndexUtils.UT3_SCREENSHOT_MATCH.matcher(((IntFile.SimpleValue)shot).value);
 						if (matcher.find()) {
 							ExportedObject export = map.objectByName(new Name(matcher.group(1)));
-							if (export != null) images.add(screenshotFromObject(map, export.object()));
+							if (export == null) return;
+
+							Object object = export.object();
+
+							if (object instanceof Texture2D) images.add(screenshotFromObject(map, object));
+
+							// UT3 maps may use a Material to hold multiple screenshots
+							if (object.className().equals("Material") && object.property("ReferencedTextures") instanceof ArrayProperty) {
+								((ArrayProperty)object.property("ReferencedTextures")).values.forEach(t -> {
+									if (t instanceof ObjectProperty) {
+										Object tex = map.objectByRef(((ObjectProperty)t).value).object();
+										if (tex instanceof Texture2D) {
+											images.add(screenshotFromObject(map, tex));
+										}
+									}
+								});
+							}
 						}
 					}
 				});
@@ -178,6 +195,7 @@ public class IndexUtils {
 			  .map(ExportedObject::object)
 			  .filter(Objects::nonNull)
 			  .map(o -> screenshotFromObject(map, o))
+			  .filter(Objects::nonNull)
 			  .forEach(images::add);
 
 		return images;
@@ -218,6 +236,7 @@ public class IndexUtils {
 				}
 			}
 		}
+
 
 		// UE1 has simple textures
 		if (object instanceof Texture) return ((Texture)object).mipMaps()[0].get();
