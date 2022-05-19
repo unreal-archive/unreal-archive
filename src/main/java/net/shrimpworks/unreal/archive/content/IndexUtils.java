@@ -48,7 +48,9 @@ public class IndexUtils {
 	public static final String UNKNOWN = "Unknown";
 	public static final String RELEASE_UT99 = "1999-11";
 
-	public static final Pattern AUTHOR_MATCH = Pattern.compile("(.+)?(author|by)(\\(s\\))?([\\s:]+)?([A-Za-z0-9 _\\-\"']{4,25})(\\s+)?",
+	public static final Pattern AUTHOR_MATCH = Pattern.compile("(.+)?(author|by)(\\(s\\))?([\\s:]+)?([A-Za-z0-9 _\\-\"']{4,35})(\\s+)?",
+															   Pattern.CASE_INSENSITIVE);
+	public static final Pattern PLAYER_MATCH = Pattern.compile("(.+)?(player)(s| count)?([\\s:]+)?([A-Za-z0-9 \\-]{1,16})(\\s+)?",
 															   Pattern.CASE_INSENSITIVE);
 
 	public static final Pattern UT3_SCREENSHOT_MATCH = Pattern.compile("<Images:.*\\.([^>]+)>", Pattern.CASE_INSENSITIVE);
@@ -237,7 +239,6 @@ public class IndexUtils {
 			}
 		}
 
-
 		// UE1 has simple textures
 		if (object instanceof Texture) return ((Texture)object).mipMaps()[0].get();
 
@@ -363,6 +364,28 @@ public class IndexUtils {
 
 		for (String s : lines) {
 			Matcher m = AUTHOR_MATCH.matcher(s);
+			if (m.matches() && !m.group(5).trim().isEmpty()) {
+				return m.group(5).trim();
+			}
+		}
+
+		return UNKNOWN;
+	}
+
+	/**
+	 * Attempt to find a player count for a map, based on included text files.
+	 *
+	 * @param incoming       content being indexed
+	 * @return an author if found, or unknown
+	 * @throws IOException failed to read files
+	 */
+	public static String findPlayerCount(Incoming incoming) throws IOException {
+		Incoming.FileType[] types = new Incoming.FileType[] { Incoming.FileType.TEXT, Incoming.FileType.HTML };
+
+		List<String> lines = IndexUtils.textContent(incoming, types);
+
+		for (String s : lines) {
+			Matcher m = PLAYER_MATCH.matcher(s);
 			if (m.matches() && !m.group(5).trim().isEmpty()) {
 				return m.group(5).trim();
 			}

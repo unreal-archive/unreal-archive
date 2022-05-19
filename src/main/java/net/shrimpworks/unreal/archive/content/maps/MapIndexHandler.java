@@ -88,6 +88,7 @@ public class MapIndexHandler implements IndexHandler<Map> {
 			if (m.playerCount.isBlank() || m.playerCount.equals("Unknown")) {
 				if (m.gametype.equals("1 on 1")) m.playerCount = "2";
 				else if (m.gametype.equals("Single Player")) m.playerCount = "1";
+				else m.playerCount = IndexUtils.findPlayerCount(incoming);
 			}
 
 			// Find map themes
