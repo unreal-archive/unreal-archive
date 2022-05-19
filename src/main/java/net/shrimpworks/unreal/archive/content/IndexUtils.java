@@ -48,7 +48,7 @@ public class IndexUtils {
 	public static final String UNKNOWN = "Unknown";
 	public static final String RELEASE_UT99 = "1999-11";
 
-	public static final Pattern AUTHOR_MATCH = Pattern.compile("(.+)?(author|by)(\\(s\\))?([\\s:]+)?([A-Za-z0-9 _]{4,25})(\\s+)?",
+	public static final Pattern AUTHOR_MATCH = Pattern.compile("(.+)?(author|by)(\\(s\\))?([\\s:]+)?([A-Za-z0-9 _\\-\"']{4,25})(\\s+)?",
 															   Pattern.CASE_INSENSITIVE);
 
 	public static final Pattern UT3_SCREENSHOT_MATCH = Pattern.compile("<Images:.*\\.([^>]+)>", Pattern.CASE_INSENSITIVE);
