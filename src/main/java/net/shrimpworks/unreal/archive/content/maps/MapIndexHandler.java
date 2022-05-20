@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
@@ -196,7 +197,7 @@ public class MapIndexHandler implements IndexHandler<Map> {
 						m.playerCount = playerCount.substring(0, playerCount.toLowerCase().indexOf("author")).trim();
 						m.author = playerCount.replaceAll(".*(?i)author\\s?:?\\s?(.*)", "$1");
 					} else {
-						m.playerCount = playerCount;
+						m.playerCount = playerCount.toLowerCase(Locale.ROOT);
 					}
 				}
 			});

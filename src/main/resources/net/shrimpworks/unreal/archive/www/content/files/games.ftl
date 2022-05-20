@@ -11,7 +11,7 @@
 	<@content class="biglist">
 		<ul>
 		<#list games.games as k, v>
-			<li style='background-image: url("${staticPath(static)}/images/games/${v.name}.png")'>
+			<li style='background-image: url("${staticPath(static)}/images/games/t_${v.name}.png")'>
 				<span class="meta">${v.packs}</span>
 				<a href="${v.path}/index.html">${v.name}</a>
 			</li>

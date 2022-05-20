@@ -151,7 +151,7 @@ public class Templates {
 			while ((resource = br.readLine()) != null) {
 				try (InputStream res = Templates.class.getResourceAsStream(resource)) {
 					Path destPath = destination.resolve(resource);
-					if (destPath.getFileName().toString().equals("thumbs")) {
+					if (destPath.getFileName().toString().equals("generate_thumbs")) {
 						try (BufferedReader thumbDef = new BufferedReader(new InputStreamReader(res))) {
 							thumbConfig.add(new ThumbConfig(destPath.getParent(), thumbDef.readLine()));
 						}
@@ -164,14 +164,14 @@ public class Templates {
 		}
 
 		for (ThumbConfig conf : thumbConfig) {
-			Files.walk(conf.path)
+			Files.walk(conf.path, conf.noSubDirectories ? 1 : 5)
 				 .filter(Util::image)
+				 .filter(f -> !Util.fileName(f).startsWith(String.format("%s_", conf.name)))
 				 .forEach(f -> {
 					 try {
-						 Util.thumbnail(f, f.getParent().resolve(String.format("%s_%s", conf.name, Util.fileName(f))),
-										conf.maxWidth);
+						 Util.thumbnail(f, f.getParent().resolve(String.format("%s_%s", conf.name, Util.fileName(f))), conf.maxWidth);
 					 } catch (IOException e) {
-						 throw new RuntimeException("Failed to generate thumbnail for file " + f.toAbsolutePath().toString(), e);
+						 throw new RuntimeException("Failed to generate thumbnail for file " + f.toAbsolutePath(), e);
 					 }
 				 });
 		}
@@ -189,20 +189,26 @@ public class Templates {
 	private static class ThumbConfig {
 
 		public final Path path;
-		public final String name;
-		public final int maxWidth;
-		public final int maxHeight;
+		public String name;
+		public int maxWidth;
+		public int maxHeight;
+		public boolean noSubDirectories;
 
 		public ThumbConfig(Path path, String config) {
-			String[] nameSize = config.split("=");
-			String[] widthHeight = nameSize[1].split("x");
-
 			this.path = path;
-			this.name = nameSize[0];
-			this.maxWidth = Integer.parseInt(widthHeight[0]);
-			this.maxHeight = Integer.parseInt(widthHeight[1]);
-		}
 
+			for (String param : config.split(";")) {
+				if (param.matches("[a-zA-Z]+?=\\d+x\\d+")) {
+					String[] nameSize = param.split("=");
+					String[] widthHeight = nameSize[1].split("x");
+					this.name = nameSize[0];
+					this.maxWidth = Integer.parseInt(widthHeight[0]);
+					this.maxHeight = Integer.parseInt(widthHeight[1]);
+				} else if (param.equalsIgnoreCase("nowalk")) {
+					this.noSubDirectories = true;
+				}
+			}
+		}
 	}
 
 	public static class Tpl {
