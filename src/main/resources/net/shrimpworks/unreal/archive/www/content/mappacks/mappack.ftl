@@ -63,9 +63,7 @@
 							<span>${theme}</span>
 						</div>
 					</#list>
-				<#else>
-					Unknown
-				</#if>
+				<#else></#if>
 			</#assign>
 
 			<#assign author><@authorLink pack.item.authorName /></#assign>

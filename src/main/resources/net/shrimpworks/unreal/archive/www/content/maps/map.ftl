@@ -67,9 +67,7 @@
 							<span>${theme}</span>
 						</div>
 					</#list>
-				<#else>
-					Unknown
-				</#if>
+				<#else></#if>
 			</#assign>
 
 			<#assign author><span title="${map.item.author}"><@authorLink map.item.authorName /></span></#assign>

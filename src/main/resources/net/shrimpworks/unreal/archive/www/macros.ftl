@@ -62,6 +62,11 @@
 		<${h}><img src="${staticPath()}/images/icons/info.svg" alt="Info"/>${title}</${h}>
 		<#list labels as l>
 			<#if values[l?index]?? && values[l?index]?has_content>
+				<#if values[l?index]?is_markup_output && values[l?index]?markup_string?trim == "None">
+					<#continue/>
+				<#elseif values[l?index]?is_string && values[l?index]?trim == "None">
+					<#continue/>
+				</#if>
 				<div class="label-value <#if styles[l?index?string]??>${styles[l?index?string]}</#if>">
 					<label>${l}</label><span>${values[l?index]}</span>
 				</div>

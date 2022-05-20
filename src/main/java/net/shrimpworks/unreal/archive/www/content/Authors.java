@@ -42,7 +42,9 @@ public class Authors extends ContentPageGenerator {
 			  .filter(c -> c.author().length() > 2)
 			  .filter(c -> !c.author().equalsIgnoreCase("Unknown"))
 			  .filter(c -> !c.author().equalsIgnoreCase("Various"))
-			  .collect(Collectors.groupingBy(c -> names.cleanName(c.author()).toLowerCase().replaceAll("[\"`()\\[\\]=*-]", "'"))).entrySet().stream()
+			  .collect(Collectors.groupingBy(
+				  c -> names.cleanName(c.author()).toLowerCase().replaceAll("[\"`()\\[\\]<>{}=*-]", "'"))
+			  ).entrySet().stream()
 			  .sorted(Map.Entry.comparingByKey())
 			  .forEach(e -> {
 				  String authorName = names.cleanName(e.getValue().get(0).author());
