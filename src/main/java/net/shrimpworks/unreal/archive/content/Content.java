@@ -140,7 +140,8 @@ public abstract class Content implements ContentEntity<Content> {
 
 	@Override
 	public String releaseDate() {
-		return releaseDate;
+		if (releaseDate.matches("\\d{4}-\\d{2}-\\d{2}")) return releaseDate.substring(0, 7);
+		else return releaseDate;
 	}
 
 	@Override

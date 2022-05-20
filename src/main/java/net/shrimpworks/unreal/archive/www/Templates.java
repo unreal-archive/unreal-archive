@@ -20,6 +20,7 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.text.DateFormatSymbols;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -382,8 +383,12 @@ public class Templates {
 		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
 			if (args.isEmpty()) throw new TemplateModelException("Wrong arguments, expecting a date");
 
-			if (shortDate) return OUT_FMT_SHORT.format(IN_FMT_SHORT.parse(args.get(0).toString() + "-01"));
-			else return OUT_FMT.format(IN_FMT.parse(args.get(0).toString()));
+			TemporalAccessor date;
+			if (args.get(0).toString().matches("\\d{4}-\\d{2}-\\d{2}")) date = IN_FMT.parse(args.get(0).toString());
+			else date = IN_FMT_SHORT.parse(args.get(0).toString() + "-01");
+
+			if (shortDate) return OUT_FMT_SHORT.format(date);
+			else return OUT_FMT.format(date);
 		}
 	}
 
