@@ -2,12 +2,13 @@ package net.shrimpworks.unreal.archive.content.maps;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class GameTypes {
+
+	private static final java.util.Map<String, GameType> mapMapping = new HashMap<>();
 
 	private static final List<GameType> GAME_TYPES = Arrays.asList(
 		new GameType("Single Player", "SP", "OSM"),
@@ -61,16 +62,16 @@ public class GameTypes {
 		new GameType("Double Domination", "DDOM")
 	);
 
+	/**
+	 * Attempt to find a gametype for a given map name, using a very naive longest prefix match.
+	 */
 	public static GameType forMap(String mapName) {
 		String lower = mapName.toLowerCase();
-		for (GameType gt : GAME_TYPES) {
-			List<String> reversedPrefixes = gt.mapPrefixes.stream()
-														  .sorted(Comparator.comparingInt(String::length))
-														  .collect(Collectors.toList());
-			Collections.reverse(reversedPrefixes);
-			for (String p : reversedPrefixes) {
-				if (lower.startsWith(p.toLowerCase())) return gt;
-			}
+		List<String> sortedPrefixes = mapMapping.keySet().stream()
+												.sorted((a, b) -> -Integer.compare(a.length(), b.length()))
+												.collect(Collectors.toList());
+		for (String p : sortedPrefixes) {
+			if (lower.startsWith(p.toLowerCase())) return mapMapping.get(p);
 		}
 		return null;
 	}
@@ -91,6 +92,10 @@ public class GameTypes {
 		public GameType(String name, Collection<String> mapPrefixes) {
 			this.name = name;
 			this.mapPrefixes = mapPrefixes;
+
+			for (String mapPrefix : mapPrefixes) {
+				mapMapping.put(mapPrefix, this);
+			}
 		}
 
 		public GameType(String name, String... mapPrefixes) {

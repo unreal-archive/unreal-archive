@@ -23,6 +23,14 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 public class MapIndexerTest {
 
 	@Test
+	public void gametypeDetection() {
+		assertEquals("Greed", GameTypes.forMap("CTF-GRD-Cake").name);
+		assertEquals("Greed", GameTypes.forMap("VCTF-GRD-Cake").name);
+		assertEquals("Capture The Flag", GameTypes.forMap("CTF-Lies").name);
+		assertEquals("DeathMatch", GameTypes.forMap("DM-DeathMatch").name);
+	}
+
+	@Test
 	public void utMap() throws IOException {
 		Path tmpMap = Files.createTempFile("test-dm-longestyard", ".zip");
 		try (InputStream is = getClass().getResourceAsStream("../maps/dm-longestyard.zip")) {
