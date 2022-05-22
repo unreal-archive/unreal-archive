@@ -59,6 +59,13 @@ public class GameTypes {
 		new GameType("Conquest", "CNQ"),
 		new GameType("RealCTF", "Real_"),
 		new GameType("Unreal Badlands", "BL-", "BLC-"),
+		new GameType("CarBall", "CB-"),
+		new GameType("Classic Domination", "cDOM-"),
+		new GameType("XVehicles", "AS-XV-", "CTF-XV-", "DM-XV-", "MH-XV-", "DOM-XV-"),
+		new GameType("Perfect Dark UT", "PD-"),
+		new GameType("Monster Match", "MM-"),
+		new GameType("Alien Swarm", "AO-"),
+		new GameType("Movies, Machinimas and Entries", "MOV-"),
 		new GameType("Double Domination", "DDOM")
 	);
 
