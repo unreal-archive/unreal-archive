@@ -25,7 +25,7 @@ import net.shrimpworks.unreal.archive.content.voices.VoiceIndexHandler;
 
 public enum ContentType {
 	MAP(new MapClassifier(), new MapIndexHandler.MapIndexHandlerFactory(), Map.class),
-	MAP_PACK(new MapPackClassifier(), new MapPackIndexHandler.MapPackIndesHandlerFactory(), MapPack.class),
+	MAP_PACK(new MapPackClassifier(), new MapPackIndexHandler.MapPackIndexHandlerFactory(), MapPack.class),
 	SKIN(new SkinClassifier(), new SkinIndexHandler.SkinIndexHandlerFactory(), Skin.class),
 	MODEL(new ModelClassifier(), new ModelIndexHandler.ModelIndexHandlerFactory(), Model.class),
 	VOICE(new VoiceClassifier(), new VoiceIndexHandler.ModelIndexHandlerFactory(), Voice.class),

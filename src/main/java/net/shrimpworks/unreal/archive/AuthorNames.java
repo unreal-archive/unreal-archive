@@ -8,19 +8,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class AuthorNames {
 
 	public static Optional<AuthorNames> instance = Optional.empty();
 
-	private static final Pattern EMAIL = Pattern.compile("(-? ?)?\\(?([A-Za-z0-9.-]+@[^.]+\\.[A-Za-z]+)\\)?"); // excessively simple, intentionally
+	private static final Pattern EMAIL = Pattern.compile(
+		"(-? ?)?\\(?([A-Za-z0-9.-]+@[^.]+\\.[A-Za-z]+)\\)?"); // excessively simple, intentionally
 	private static final Pattern URL = Pattern.compile(
-			"(-? ?)?\\(?((https?://)?(www\\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\\.[a-zA-Z0-9()]{2,6}\\b([-a-zA-Z0-9()!@:%_+.~#?&/=]*))\\)?"
+		"(-? ?)?\\(?((https?://)?(www\\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\\.[a-zA-Z0-9()]{2,6}\\b([-a-zA-Z0-9()!@:%_+.~#?&/=]*))\\)?"
 	);
 	private static final Pattern BY = Pattern.compile("(([Mm]ade).+)?\\s?([Bb]y)");
 	private static final Pattern CONVERTED = Pattern.compile("([-A-Za-z]+?[Cc]onver[^\\s]+)\\s([Bb]y)?");
 	private static final Pattern IMPORTED = Pattern.compile("\\s(\\*)?[Ii]mported.*(\\*)?");
+
+	private static final Pattern AKA = Pattern.compile("(.*)\\s+a\\.?k\\.?a\\.?:?\\s+?(.*)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern HANDLE = Pattern.compile("(.*)\\s+(['\"]([^'^\"]+)['\"])\\s+?(.*)", Pattern.CASE_INSENSITIVE);
 
 	private final Map<String, String> aliases;
 
@@ -47,6 +52,23 @@ public class AuthorNames {
 
 	public String cleanName(String author) {
 		String aliased = aliases.getOrDefault(author.toLowerCase().strip(), author).strip();
+
+		if (aliased.equalsIgnoreCase(author.strip())) {
+			Matcher aka = AKA.matcher(author);
+			if (aka.matches()) {
+				// we'll record the name as well as the "aka" alias, both mapped to the pre-aka name
+				aliases.put(author.strip().toLowerCase(), aka.group(1));
+				aliases.put(aka.group(2).strip().toLowerCase(), aka.group(1));
+				aliased = aka.group(1).strip();
+			} else {
+				Matcher handle = HANDLE.matcher(author);
+				if (handle.matches()) {
+					// we'll record the full name, aliased by both the handle and real name
+					aliases.put((handle.group(1) + " " + handle.group(4)).strip().toLowerCase(), author.strip());
+					aliases.put(handle.group(3).strip().toLowerCase(), author.strip());
+				}
+			}
+		}
 
 		String noEmail = EMAIL.matcher(aliased).replaceAll("");
 		if (noEmail.isBlank() || noEmail.length() < 3) {

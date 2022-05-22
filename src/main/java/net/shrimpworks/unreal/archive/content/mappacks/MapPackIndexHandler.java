@@ -33,7 +33,7 @@ import net.shrimpworks.unreal.packages.entities.properties.StringProperty;
 
 public class MapPackIndexHandler implements IndexHandler<MapPack> {
 
-	public static class MapPackIndesHandlerFactory implements IndexHandler.IndexHandlerFactory<MapPack> {
+	public static class MapPackIndexHandlerFactory implements IndexHandler.IndexHandlerFactory<MapPack> {
 
 		@Override
 		public IndexHandler<MapPack> get() {
