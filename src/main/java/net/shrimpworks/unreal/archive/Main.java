@@ -565,6 +565,7 @@ public class Main {
 
 		Path authorPath = contentPath(cli).resolve(AUTHORS_DIR);
 		AuthorNames names = new AuthorNames(authorPath);
+		contentManager.all().parallelStream().forEach(c -> names.maybeAutoAlias(c.author));
 		AuthorNames.instance = Optional.of(names);
 
 		final Set<SiteMap.Page> allPages = ConcurrentHashMap.newKeySet();
@@ -629,6 +630,7 @@ public class Main {
 		// meh
 		Path authorPath = contentPath(cli).resolve(AUTHORS_DIR);
 		AuthorNames names = new AuthorNames(authorPath);
+		contentManager.all().parallelStream().forEach(c -> names.maybeAutoAlias(c.author));
 		AuthorNames.instance = Optional.of(names);
 
 		final long start = System.currentTimeMillis();

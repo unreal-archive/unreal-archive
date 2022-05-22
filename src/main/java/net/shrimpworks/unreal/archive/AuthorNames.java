@@ -50,7 +50,11 @@ public class AuthorNames {
 		this.aliases = aliases;
 	}
 
-	public String cleanName(String author) {
+	/**
+	 * Can be used to auto-generate aliases for authors, before calling
+	 * {@link #cleanName(String)}.
+	 */
+	public void maybeAutoAlias(String author) {
 		String aliased = aliases.getOrDefault(author.toLowerCase().strip(), author).strip();
 
 		if (aliased.equalsIgnoreCase(author.strip())) {
@@ -69,6 +73,14 @@ public class AuthorNames {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Create a presentable representation of an author name, possibly aliased to some
+	 * common name, and with various elements like URLs and email addresses stripped.
+	 */
+	public String cleanName(String author) {
+		String aliased = aliases.getOrDefault(author.toLowerCase().strip(), author).strip();
 
 		String noEmail = EMAIL.matcher(aliased).replaceAll("");
 		if (noEmail.isBlank() || noEmail.length() < 3) {
