@@ -18,6 +18,7 @@ public class AuthorNamesTest {
 	@Test
 	public void akaAliasTest() {
 		AuthorNames name = new AuthorNames(new HashMap<>());
+		name.maybeAutoAlias("Mike Bananas A.K.A. Mr. Banan");
 		assertEquals("Mike Bananas", name.cleanName("Mike Bananas A.K.A. Mr. Banan"));
 		assertEquals("Mike Bananas", name.cleanName("Mr. Banan"));
 	}
@@ -25,6 +26,7 @@ public class AuthorNamesTest {
 	@Test
 	public void handleAliasTest() {
 		AuthorNames name = new AuthorNames(new HashMap<>());
+		name.maybeAutoAlias("Mike \"Mr. Banan\" Bananas");
 		assertEquals("Mike \"Mr. Banan\" Bananas", name.cleanName("Mike \"Mr. Banan\" Bananas"));
 		assertEquals("Mike \"Mr. Banan\" Bananas", name.cleanName("Mike Bananas"));
 		assertEquals("Mike \"Mr. Banan\" Bananas", name.cleanName("Mr. Banan"));
