@@ -61,7 +61,7 @@ public class GameTypes {
 		new GameType("Unreal Badlands", "BL-", "BLC-"),
 		new GameType("CarBall", "CB-"),
 		new GameType("Classic Domination", "cDOM-"),
-		new GameType("XVehicles", "AS-XV-", "CTF-XV-", "DM-XV-", "MH-XV-", "DOM-XV-"),
+		new GameType("XVehicles", "AS-XV-", "CTF-XV-", "CTFM-XV-", "DM-XV-", "MH-XV-", "DOM-XV-"),
 		new GameType("Perfect Dark UT", "PD-"),
 		new GameType("Monster Match", "MM-"),
 		new GameType("Alien Swarm", "AO-"),

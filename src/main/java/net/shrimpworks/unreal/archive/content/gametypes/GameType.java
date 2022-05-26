@@ -148,6 +148,11 @@ public class GameType implements ContentEntity<GameType> {
 	}
 
 	@Override
+	public Map<String, String> links() {
+		return links;
+	}
+
+	@Override
 	public boolean deleted() {
 		return deleted;
 	}

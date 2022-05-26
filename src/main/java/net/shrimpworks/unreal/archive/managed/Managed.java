@@ -6,7 +6,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -52,6 +54,7 @@ public class Managed implements ContentEntity<Managed> {
 	public String titleImage;                       // "pic.png"
 	public List<String> images = new ArrayList<>(); // [image1.png, screenshot.jpg]
 	public List<ManagedFile> downloads = new ArrayList<>();
+	public java.util.Map<String, String> links = new HashMap<>();
 
 	public boolean published = true;                // false will hide it
 
@@ -129,6 +132,11 @@ public class Managed implements ContentEntity<Managed> {
 	}
 
 	@Override
+	public Map<String, String> links() {
+		return links;
+	}
+
+	@Override
 	public boolean deleted() {
 		return !published;
 	}
@@ -160,13 +168,14 @@ public class Managed implements ContentEntity<Managed> {
 			   && Objects.equals(homepage, managed.homepage)
 			   && Objects.equals(description, managed.description)
 			   && Objects.equals(titleImage, managed.titleImage)
+			   && Objects.equals(links, managed.links)
 			   && Objects.equals(images, managed.images);
 	}
 
 	@Override
 	public int hashCode() {
 		return Objects.hash(createdDate, updatedDate, game, document, path, title, author, homepage, description, titleImage, images,
-							published);
+							published, links);
 	}
 
 	public static class ManagedFile {

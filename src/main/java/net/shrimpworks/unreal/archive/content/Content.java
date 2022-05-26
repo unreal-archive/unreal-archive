@@ -75,6 +75,8 @@ public abstract class Content implements ContentEntity<Content> {
 
 	public List<Download> downloads = new ArrayList<>();
 
+	public java.util.Map<String, String> links = new HashMap<>();
+
 	/**
 	 * If true, will not show up in www output, and will be ignored in index passes.
 	 */
@@ -172,6 +174,11 @@ public abstract class Content implements ContentEntity<Content> {
 	}
 
 	@Override
+	public java.util.Map<String, String> links() {
+		return links;
+	}
+
+	@Override
 	public boolean deleted() {
 		return deleted;
 	}
@@ -240,13 +247,14 @@ public abstract class Content implements ContentEntity<Content> {
 			   && Objects.equals(hash, content.hash)
 			   && Objects.equals(files, content.files)
 			   && Objects.equals(downloads, content.downloads)
+			   && Objects.equals(links, content.links)
 			   && Objects.equals(dependencies, content.dependencies);
 	}
 
 	@Override
 	public int hashCode() {
 		return Objects.hash(contentType, firstIndex, variationOf, game, name, author, description, releaseDate, attachments,
-							originalFilename, hash, fileSize, files, otherFiles, downloads, deleted, dependencies);
+							originalFilename, hash, fileSize, files, otherFiles, downloads, links, deleted, dependencies);
 	}
 
 	public static class ContentFile implements Comparable<ContentFile> {

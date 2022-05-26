@@ -30,6 +30,8 @@ public interface ContentEntity<T extends ContentEntity<T>> extends Comparable<Co
 
 	public String leadImage();
 
+	public java.util.Map<String, String> links();
+
 	public boolean deleted();
 
 	public boolean isVariation();
