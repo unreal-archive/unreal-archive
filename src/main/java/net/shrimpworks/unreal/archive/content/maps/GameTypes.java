@@ -67,6 +67,7 @@ public class GameTypes {
 		new GameType("Alien Swarm", "AO-"),
 		new GameType("Movies, Machinimas and Entries", "MOV-"),
 		new GameType("Double Domination", "DDOM")
+		new GameType("Invasion", "DM-INV-", "DM-(INV)-")
 	);
 
 	/**
