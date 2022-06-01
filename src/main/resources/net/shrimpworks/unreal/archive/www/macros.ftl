@@ -9,7 +9,7 @@
 			<#t/>'
 		<#t/></#if>
 	<#t/></#assign>
-	<section class="page header" ${style!""}>
+<section class="page header" ${style!""} xmlns="http://www.w3.org/1999/html">
 		<div class="page">
 			<h1>
 				<#nested/>
@@ -46,14 +46,29 @@
 </#macro>
 
 <#macro screenshots attachments>
-	<#if attachments?size == 0>
-		<img src="${staticPath()}/images/none.png" class="thumb" alt="no image"/>
-	<#else>
-		<#list attachments as a>
-			<#if a.type == "IMAGE">
-				<img src="${urlEncode(a.url)}" class="thumb lb" alt="screenshot"/>
-			</#if>
-		</#list>
+	<div class="screenshots">
+		<#if attachments?size == 0>
+			<img src="${staticPath()}/images/none.png" class="thumb" alt="no image"/>
+		<#else>
+			<#list attachments as a>
+				<#if a.type == "IMAGE">
+					<img src="${urlEncode(a.url)}" class="thumb lb" alt="screenshot"/>
+				</#if>
+			</#list>
+		</#if>
+	</div>
+</#macro>
+
+<#macro links links title="Links" h="h2">
+	<#if links?? && links?size gt 0>
+		<section class="meta">
+			<${h}><img src="${staticPath()}/images/icons/link.svg" alt="Link"/>${title}</${h}>
+		  <ul>
+				<#list links as name, url>
+					<li><a href="${url}">${name}</a></li>
+				</#list>
+			</ul>
+		</section>
 	</#if>
 </#macro>
 

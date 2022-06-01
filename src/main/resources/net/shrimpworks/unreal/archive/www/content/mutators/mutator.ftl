@@ -23,8 +23,10 @@
 	</@heading>
 
 	<@content class="info">
-		<div class="screenshots">
-			<@screenshots attachments=mutator.item.attachments/>
+		<div class="side">
+        <@links links=mutator.item.links/>
+
+        <@screenshots attachments=mutator.item.attachments/>
 		</div>
 
 		<div class="info">

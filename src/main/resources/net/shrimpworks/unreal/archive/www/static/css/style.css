@@ -417,13 +417,16 @@ article.info {
 	display: grid;
 	grid-template-columns: auto 310px;
 	grid-template-rows: auto auto;
-	grid-template-areas: 'info screenshots';
+	grid-template-areas: 'info side';
 	grid-column-gap: 10px;
 	align-content: start;
 }
 
-article.info .screenshots {
-	grid-area: screenshots;
+article.info .side {
+	grid-area: side;
+}
+
+article.info .side .screenshots {
 	text-align: center;
 	padding: 0 5px;
 }

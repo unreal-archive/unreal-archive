@@ -81,7 +81,7 @@ processResources.doLast {
 	def destFile = buildDir.toPath().resolve('resources/main/net/shrimpworks/unreal/archive/www/static.list')
 	def staticList = new StringBuilder()
 	files { fileTree(wwwStaticDir).matching { exclude('**/*.xcf') } }.each {
-		staticList.append(wwwStaticDir.getParent().relativize(it.toPath())).append("\n")
+		staticList.append(wwwStaticDir.getParent().relativize(it.toPath())).append("\t").append(it.lastModified()).append("\n")
 	}
 	Files.write(destFile, staticList.toString().replaceAll("\\\\", "/").getBytes(StandardCharsets.UTF_8),
 			StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)

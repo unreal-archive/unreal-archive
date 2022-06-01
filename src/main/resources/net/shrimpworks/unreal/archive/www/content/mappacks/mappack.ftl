@@ -21,7 +21,9 @@
 
 	<@content class="info">
 
-		<div class="screenshots">
+		<div class="side">
+			<@links links=pack.item.links/>
+
 			<@screenshots attachments=pack.item.attachments/>
 		</div>
 

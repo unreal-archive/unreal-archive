@@ -23,8 +23,10 @@
 	</@heading>
 
 	<@content class="info">
-		<div class="screenshots">
-			<@screenshots attachments=voice.item.attachments/>
+		<div class="side">
+        <@links links=voice.item.links/>
+
+        <@screenshots attachments=voice.item.attachments/>
 		</div>
 
 		<div class="info">

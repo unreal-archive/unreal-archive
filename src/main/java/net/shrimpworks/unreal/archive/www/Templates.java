@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.FileTime;
 import java.text.DateFormatSymbols;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
@@ -147,8 +148,11 @@ public class Templates {
 		try (InputStream in = Templates.class.getResourceAsStream(resourceList);
 			 BufferedReader br = new BufferedReader(new InputStreamReader(in))) {
 
-			String resource;
-			while ((resource = br.readLine()) != null) {
+			String line;
+			while ((line = br.readLine()) != null) {
+				String[] nameAndDate = line.split("\t");
+				String resource = nameAndDate[0];
+				long lastModified = Long.parseLong(nameAndDate[1]);
 				try (InputStream res = Templates.class.getResourceAsStream(resource)) {
 					Path destPath = destination.resolve(resource);
 					if (destPath.getFileName().toString().equals("generate_thumbs")) {
@@ -158,6 +162,7 @@ public class Templates {
 					} else {
 						Files.createDirectories(destPath.getParent());
 						Files.copy(res, destPath, StandardCopyOption.REPLACE_EXISTING);
+						Files.setLastModifiedTime(destPath, FileTime.fromMillis(lastModified));
 					}
 				}
 			}

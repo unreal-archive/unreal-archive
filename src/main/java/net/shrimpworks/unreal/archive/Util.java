@@ -297,6 +297,7 @@ public final class Util {
 		graphics.drawImage(image.getScaledInstance(thumb.getWidth(), thumb.getHeight(), Image.SCALE_SMOOTH), 0, 0, null);
 
 		ImageIO.write(thumb, Util.extension(source), dest.toFile());
+		Files.setLastModifiedTime(dest, Files.getLastModifiedTime(source));
 
 		return dest;
 	}

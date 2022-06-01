@@ -23,8 +23,10 @@
 	</@heading>
 
 	<@content class="info">
-		<div class="screenshots">
-			<@screenshots attachments=skin.item.attachments/>
+		<div class="side">
+        <@links links=skin.item.links/>
+
+        <@screenshots attachments=skin.item.attachments/>
 		</div>
 
 		<div class="info">

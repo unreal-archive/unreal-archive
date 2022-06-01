@@ -25,8 +25,10 @@
 	</@heading>
 
 	<@content class="info">
-		<div class="screenshots">
-			<@screenshots attachments=map.item.attachments/>
+		<div class="side">
+        <@links links=map.item.links/>
+
+        <@screenshots attachments=map.item.attachments/>
 		</div>
 
 		<div class="info">
