@@ -6,7 +6,8 @@ steps:
   - name: test
     image: gradle:7.3.1-jdk11
     commands:
-      - apt-get update && apt-get install -y p7zip-full unrar
+      - apt-get update && apt-get install -y p7zip-full unrar git-restore-mtime
+      - git restore-mtime ./src/main/resources/
       - gradle test --no-daemon
   - name: publish
     image: gradle:7.3.1-jdk11
