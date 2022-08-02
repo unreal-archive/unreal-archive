@@ -106,7 +106,7 @@ public final class Util {
 
 	public static String plainName(String path) {
 		String tmp = fileName(path);
-		return tmp.substring(0, tmp.lastIndexOf(".")).replaceAll("/", "").trim().replaceAll("[^\\x20-\\x7E]", "");
+		return tmp.substring(0, tmp.lastIndexOf(".")).replaceAll("/", "").trim().replaceAll("[^\\x20-\\x7E]", "").trim();
 	}
 
 	public static String safeFileName(String name) {

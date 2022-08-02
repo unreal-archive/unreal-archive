@@ -24,6 +24,7 @@ import net.shrimpworks.unreal.archive.content.IndexUtils;
 import net.shrimpworks.unreal.archive.content.maps.GameTypes;
 import net.shrimpworks.unreal.archive.content.maps.MapIndexHandler;
 import net.shrimpworks.unreal.archive.content.maps.Themes;
+import net.shrimpworks.unreal.packages.IntFile;
 import net.shrimpworks.unreal.packages.Package;
 import net.shrimpworks.unreal.packages.PackageReader;
 import net.shrimpworks.unreal.packages.entities.ExportedObject;
@@ -138,13 +139,14 @@ public class MapPackIndexHandler implements IndexHandler<MapPack> {
 								   Consumer<List<BufferedImage>> listConsumer) {
 		MapPack.PackMap p = new MapPack.PackMap();
 		p.author = IndexUtils.UNKNOWN;
-		p.name = Util.fileName(map.fileName());
-		p.name = p.name.substring(0, p.name.lastIndexOf(".")).replaceAll("/", "").trim().replaceAll("[^\\x20-\\x7E]", "").trim();
+		p.name = Util.plainName(map.fileName());
 		p.title = p.name;
 
 		List<BufferedImage> images = new ArrayList<>();
 
 		try (Package pkg = map(map)) {
+			if (Util.extension(map.fileName()).equalsIgnoreCase("ut3")) return scrapeUE3(incoming, map, pkg, p, listConsumer);
+
 			Collection<ExportedObject> maybeLevelInfo = pkg.objectsByClassName("LevelInfo");
 			if (maybeLevelInfo != null && !maybeLevelInfo.isEmpty()) {
 				ExportedObject levelInfo = maybeLevelInfo.iterator().next();
@@ -167,6 +169,42 @@ public class MapPackIndexHandler implements IndexHandler<MapPack> {
 		}
 
 		listConsumer.accept(images);
+		return p;
+	}
+
+	private MapPack.PackMap scrapeUE3(Incoming incoming, Incoming.IncomingFile map, Package pkg, MapPack.PackMap p,
+									  Consumer<List<BufferedImage>> listConsumer) {
+		List<BufferedImage> images = new ArrayList<>();
+
+		Set<Incoming.IncomingFile> iniFile = incoming.files(Incoming.FileType.INI)
+													 .stream()
+													 .filter(f -> f.fileName().equalsIgnoreCase(Util.plainName(map.fileName()) + ".ini"))
+													 .collect(Collectors.toSet());
+
+		IndexUtils.readIntFiles(incoming, iniFile).findFirst().ifPresent(ini -> ini.sections().forEach(s -> {
+			IntFile.Value name = ini.section(s).value("MapName");
+			if (name instanceof IntFile.SimpleValue) p.name = ((IntFile.SimpleValue)name).value.trim();
+
+			IntFile.Value title = ini.section(s).value("FriendlyName");
+			if (title instanceof IntFile.SimpleValue) p.title = ((IntFile.SimpleValue)title).value.trim();
+
+			IntFile.Value players = ini.section(s).value("NumPlayers");
+			if (players instanceof IntFile.SimpleValue) {
+				String playerCount = ((IntFile.SimpleValue)players).value.replaceAll("([Pp]layers)", "");
+				if (playerCount.toLowerCase().contains("author")) {
+					p.author = playerCount.replaceAll(".*(?i)authors?\\s?:?\\s?(.*)", "$1");
+				}
+			}
+		}));
+
+		try {
+			images.addAll(IndexUtils.screenshots(incoming, pkg, null));
+		} catch (Throwable e) {
+			incoming.log.log(IndexLog.EntryType.CONTINUE, "Failed to extract screenshots: " + e, e);
+		}
+
+		listConsumer.accept(images);
+
 		return p;
 	}
 
