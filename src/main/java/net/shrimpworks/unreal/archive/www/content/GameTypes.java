@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -213,6 +214,9 @@ public class GameTypes implements PageGenerator {
 					}
 				}
 			}
+
+			Collections.sort(gametype.releases);
+			Collections.reverse(gametype.releases);
 
 			if (gametype.bannerImage.isBlank()) {
 				this.fallbackTitle = gametype.maps.stream()
