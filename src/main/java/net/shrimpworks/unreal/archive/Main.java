@@ -563,6 +563,7 @@ public class Main {
 		// unpack static content
 		Templates.unpackResources("static.list", Files.createDirectories(staticOutput).getParent());
 
+		// prepare author names and aliases
 		Path authorPath = contentPath(cli).resolve(AUTHORS_DIR);
 		AuthorNames names = new AuthorNames(authorPath);
 		contentManager.all().parallelStream().forEach(c -> names.maybeAutoAlias(c.author));

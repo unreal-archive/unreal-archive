@@ -5,11 +5,14 @@ import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class AuthorNames {
 
@@ -28,12 +31,15 @@ public class AuthorNames {
 	private static final Pattern HANDLE = Pattern.compile("(.*)\\s+(['\"]([^'^\"]+)['\"])\\s+?(.*)", Pattern.CASE_INSENSITIVE);
 
 	private final Map<String, String> aliases;
+	private final Set<String> nonAutoAliases;
 
 	public AuthorNames(Path aliasPath) throws IOException {
 		this.aliases = new HashMap<>();
-		Files.walk(aliasPath, FileVisitOption.FOLLOW_LINKS)
+		this.nonAutoAliases = new HashSet<>();
+		Files.walk(aliasPath, 0, FileVisitOption.FOLLOW_LINKS)
 			 .filter(p -> !Files.isDirectory(p))
 			 .filter(p -> Util.extension(p).equalsIgnoreCase("txt"))
+			 .filter(p -> !Util.fileName(p).equalsIgnoreCase("exclude.txt"))
 			 .forEach(path -> {
 				 try {
 					 List<String> names = Files.readAllLines(path);
@@ -44,10 +50,20 @@ public class AuthorNames {
 					 throw new RuntimeException("Failed to process names from file " + path, e);
 				 }
 			 });
+
+		final Path exclude = aliasPath.resolve("no-auto-alias").resolve("exclude.txt");
+		if (Files.exists(exclude)) {
+			try {
+				nonAutoAliases.addAll(Files.readAllLines(exclude).stream().map(String::toLowerCase).collect(Collectors.toSet()));
+			} catch (IOException e) {
+				throw new RuntimeException("Failed to load non-alias names from file " + exclude, e);
+			}
+		}
 	}
 
-	public AuthorNames(Map<String, String> aliases) {
+	public AuthorNames(Map<String, String> aliases, Set<String> nonAutoAliases) {
 		this.aliases = aliases;
+		this.nonAutoAliases = nonAutoAliases;
 	}
 
 	/**
@@ -55,15 +71,18 @@ public class AuthorNames {
 	 * {@link #cleanName(String)}.
 	 */
 	public void maybeAutoAlias(String author) {
+		if (nonAutoAliases.contains(author.toLowerCase().strip())) return;
+
 		String aliased = aliases.getOrDefault(author.toLowerCase().strip(), author).strip();
+		if (nonAutoAliases.contains(aliased)) return;
 
 		if (aliased.equalsIgnoreCase(author.strip())) {
 			Matcher aka = AKA.matcher(author);
 			if (aka.matches()) {
 				// we'll record the name as well as the "aka" alias, both mapped to the pre-aka name
-				aliases.put(author.strip().toLowerCase(), aka.group(1));
-				aliases.put(aka.group(2).strip().toLowerCase(), aka.group(1));
 				aliased = aka.group(1).strip();
+				aliases.put(author.strip().toLowerCase(), aliased);
+				aliases.put(aka.group(2).strip().toLowerCase(), aliased);
 			} else {
 				Matcher handle = HANDLE.matcher(author);
 				if (handle.matches()) {
