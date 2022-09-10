@@ -7,7 +7,7 @@
 	<title>${siteName} / ${title}</title>
 	<link rel="stylesheet" href="${staticPath()}/fonts/fonts.css">
 	<link rel="stylesheet" href="${staticPath()}/css/style.css?v=20220425">
-	<link rel="stylesheet" href="${staticPath()}/css/style4.css?v=20220425">
+	<link rel="stylesheet" href="${staticPath()}/css/style4.css?v=20220910">
 	<#if extraCss??>
 		<link rel="stylesheet" href="${staticPath()}/css/${extraCss}">
 	</#if>
