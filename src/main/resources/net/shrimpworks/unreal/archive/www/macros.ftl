@@ -1,4 +1,5 @@
 <#macro heading bg=[]>
+	<#compress>
 	<#t/><#assign style>
 		<#t/><#if bg?? && bg?size gt 0>
 			<#t/>style='background-image:
@@ -9,13 +10,14 @@
 			<#t/>'
 		<#t/></#if>
 	<#t/></#assign>
-<section class="page header" ${style!""} xmlns="http://www.w3.org/1999/html">
+  <section class="page header" ${style!""} xmlns="http://www.w3.org/1999/html">
 		<div class="page">
 			<h1>
 				<#nested/>
 			</h1>
 		</div>
 	</section>
+  </#compress>
 </#macro>
 
 <#macro content class="">
@@ -27,6 +29,7 @@
 </#macro>
 
 <#macro letterPages letters currentLetter pages currentPage>
+	<#compress>
 	<#if letters?? && letters?size gt 1 && currentLetter??>
 		<nav class="letters">
 			<#list letters as k, letter><#if letter.count??><#if letter.count gt 0><a href="${relPath(letter.path + "/index.html")}"<#if letter.letter == currentLetter>class="active"</#if>>${letter.letter}</a></#if>
@@ -35,17 +38,21 @@
 	</#if>
 
 	<@paginator pages=pages currentPage=currentPage />
+  </#compress>
 </#macro>
 
 <#macro paginator pages currentPage>
+	<#compress>
 	<#if pages?? && pages?size gt 1 && currentPage??>
 		<nav class="pages">
 			<#list pages as pg><a href="${relPath(pg.path + "/index.html")}" <#if pg.number == currentPage.number>class="active"</#if>>${pg.number}</a></#list>
 		</nav>
 	</#if>
+  </#compress>
 </#macro>
 
 <#macro screenshots attachments>
+	<#compress>
 	<div class="screenshots">
 		<#if attachments?size == 0>
 			<img src="${staticPath()}/images/none.png" class="thumb" alt="no image"/>
@@ -57,9 +64,11 @@
 			</#list>
 		</#if>
 	</div>
+  </#compress>
 </#macro>
 
 <#macro links links title="Links" h="h2">
+	<#compress>
 	<#if links?? && links?size gt 0>
 		<section class="meta">
 			<${h}><img src="${staticPath()}/images/icons/link.svg" alt="Link"/>${title}</${h}>
@@ -70,9 +79,11 @@
 			</ul>
 		</section>
 	</#if>
+  </#compress>
 </#macro>
 
 <#macro meta title labels values styles={} h="h2">
+	<#compress>
 	<section class="meta">
 		<${h}><img src="${staticPath()}/images/icons/info.svg" alt="Info"/>${title}</${h}>
 		<#list labels as l>
@@ -88,9 +99,11 @@
 			</#if>
 		</#list>
 	</section>
+  </#compress>
 </#macro>
 
 <#macro files files alsoIn otherFiles h="h2">
+	<#compress>
 	<#if files?size gt 0>
 		<section class="files">
 			<${h}><img src="${staticPath()}/images/icons/package.svg" alt="Files"/>Packaged Files</${h}>
@@ -129,11 +142,13 @@
 			</#if>
 		</section>
 	</#if>
+  </#compress>
 </#macro>
 
 <#macro downloads downloads h="h2">
+	<#compress>
 	<section class="downloads">
-		<${h}><img src="${staticPath()}/images/icons/download.svg" alt="Download"/> Downloads</${h}>
+		<${h}><img src="${staticPath()}/images/icons/download.svg" alt="Download"/> Download Mirrors</${h}>
 		<div class="links">
 			<#list downloads as d>
 				<#if d.state == 'OK'>
@@ -144,6 +159,7 @@
 			</#list>
 		</div>
 	</section>
+  </#compress>
 </#macro>
 
 <#macro ghIssue text repoUrl title name hash labels=[]>
@@ -168,6 +184,7 @@
 </#macro>
 
 <#macro dependencies deps h="h2" game="">
+	<#compress>
 	<#if deps?size gt 0>
 		<section class="dependencies">
 			<${h}><img src="${staticPath()}/images/icons/file-check.svg" alt="Required Files"/> Required Files</${h}>
@@ -212,9 +229,11 @@
 			</table>
 		</section>
 	</#if>
+  </#compress>
 </#macro>
 
 <#macro dependencyIcon deps>
+	<#compress>
 	<#assign status=true/>
 	<#list deps as name, value>
 		<#list value as dep>
@@ -229,17 +248,21 @@
 	<#else>
 		<img src="${staticPath()}/images/icons/file-x.svg" alt="Missing dependencies" title="Missing dependencies" height="22"/>
 	</#if>
+  </#compress>
 </#macro>
 
 <#macro authorLink author display=author>
+	<#compress>
 	<#if author?lower_case == "unknown" || author?lower_case == "various">
     ${display!author}
 	<#else>
 		<a href="${relPath(siteRoot + "/authors/" + authorSlug(author) + ".html")}">${display!author}</a>
 	</#if>
+  </#compress>
 </#macro>
 
 <#macro tline timeline game activeYear=0 activeMonth=0>
+	<#compress>
 	<div id="timeline">
 		<#assign tlMax=0 />
 		<#list timeline as year, months>
@@ -260,4 +283,5 @@
 			</a>
 		</#list>
 	</div>
+  </#compress>
 </#macro>

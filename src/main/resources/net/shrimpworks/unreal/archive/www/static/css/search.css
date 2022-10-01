@@ -3,10 +3,12 @@
 	border-bottom: 4px solid #aaa;
 }
 
-#search-form input {
-}
-
-#search-form button {
+#search-form input,
+#search-form button,
+#search-form select,
+#search-nav button {
+	height: 35px;
+	vertical-align: middle;
 }
 
 #search-form span:not(:last-child) {
@@ -58,9 +60,7 @@
 #search-results .result .info .description {
 }
 
-
 /* compact styling */
-
 #search-results.compact .result .image img {
 	min-width: 55px;
 	max-width: 55px;

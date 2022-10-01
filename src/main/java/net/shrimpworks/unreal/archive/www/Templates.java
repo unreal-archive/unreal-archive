@@ -70,7 +70,27 @@ public class Templates {
 	private static final Parser MD_PARSER = Parser.builder(MD_OPTIONS).build();
 	private static final HtmlRenderer MD_RENDERER = HtmlRenderer.builder(MD_OPTIONS).build();
 
+	private static final Map<String, Object> TPL_VARS = new HashMap<>();
+
 	static {
+		TPL_VARS.put("relPath", new RelPageMethod());
+		TPL_VARS.put("relUrl", new RelUrlMethod());
+		TPL_VARS.put("urlEncode", new UrlEncodeMethod());
+		TPL_VARS.put("urlHost", new UrlHostMethod());
+		TPL_VARS.put("fileSize", new FileSizeMethod());
+		TPL_VARS.put("fileName", new FileNameMethod());
+		TPL_VARS.put("plainName", new PlainNameMethod());
+		TPL_VARS.put("staticPath", new StaticPathMethod());
+		TPL_VARS.put("dateFmt", new FormatLocalDateMethod(false));
+		TPL_VARS.put("dateFmtShort", new FormatLocalDateMethod(true));
+		TPL_VARS.put("trunc", new TruncateStringMethod());
+		TPL_VARS.put("slug", new SlugMethod());
+		TPL_VARS.put("authorSlug", new AuthorSlugMethod());
+		TPL_VARS.put("siteName", SITE_NAME);
+		TPL_VARS.put("siteUrl", SITE_URL);
+		TPL_VARS.put("dataProjectUrl", DATA_PROJECT_URL);
+		TPL_VARS.put("monthNames", MONTH_NAMES);
+
 		TPL_CONFIG.setClassForTemplateLoading(Templates.class, "");
 		DefaultObjectWrapper ow = new DefaultObjectWrapper(TPL_CONFIG.getIncompatibleImprovements());
 		ow.setExposeFields(true);
@@ -95,11 +115,20 @@ public class Templates {
 		});
 		TPL_CONFIG.setObjectWrapper(ow);
 		TPL_CONFIG.setOutputEncoding(StandardCharsets.UTF_8.name());
-		TPL_CONFIG.setOutputFormat(HTMLOutputFormat.INSTANCE);
+		TPL_CONFIG.setOutputFormat(HTMLOutputFormat.INSTANCE); // force, don't attempt to auto detect
+		TPL_CONFIG.setWhitespaceStripping(true); // remove whitespace from some directives
+		try {
+			TPL_CONFIG.setSharedVariables(TPL_VARS);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		TPL_CONFIG.setTagSyntax(Configuration.ANGLE_BRACKET_TAG_SYNTAX); // force - don't bother with auto-detection
+		TPL_CONFIG.setTemplateUpdateDelayMilliseconds(Long.MAX_VALUE); // do not bother looking for updated templates
 
 		HOST_REMAP.put("f002.backblazeb2.com", "Unreal Archive US");
 		HOST_REMAP.put("unreal-archive-files.eu-central-1.linodeobjects.com", "Unreal Archive EU");
 		HOST_REMAP.put("files.vohzd.com", "vohzd");
+		HOST_REMAP.put("medor.no-ip.org", "medor");
 		HOST_REMAP.put("unrealarchiveusa.blob.core.windows.net", "Azure US");
 		HOST_REMAP.put("unrealarchivesgp.blob.core.windows.net", "Azure Singapore");
 	}
@@ -219,38 +248,14 @@ public class Templates {
 
 	public static class Tpl {
 
-		private static final Map<String, Object> TPL_VARS = new HashMap<>();
-
-		static {
-			TPL_VARS.put("relPath", new RelPageMethod());
-			TPL_VARS.put("relUrl", new RelUrlMethod());
-			TPL_VARS.put("urlEncode", new UrlEncodeMethod());
-			TPL_VARS.put("urlHost", new UrlHostMethod());
-			TPL_VARS.put("fileSize", new FileSizeMethod());
-			TPL_VARS.put("fileName", new FileNameMethod());
-			TPL_VARS.put("plainName", new PlainNameMethod());
-			TPL_VARS.put("staticPath", new StaticPathMethod());
-			TPL_VARS.put("dateFmt", new FormatLocalDateMethod(false));
-			TPL_VARS.put("dateFmtShort", new FormatLocalDateMethod(true));
-			TPL_VARS.put("trunc", new TruncateStringMethod());
-			TPL_VARS.put("slug", new SlugMethod());
-			TPL_VARS.put("authorSlug", new AuthorSlugMethod());
-			TPL_VARS.put("siteName", SITE_NAME);
-			TPL_VARS.put("siteUrl", SITE_URL);
-			TPL_VARS.put("dataProjectUrl", DATA_PROJECT_URL);
-			TPL_VARS.put("monthNames", MONTH_NAMES);
-		}
-
 		private final Template template;
 		private final Map<String, Object> vars;
-
 		private final SiteMap.Page page;
 
 		public Tpl(Template template, SiteMap.Page page) {
 			this.template = template;
 			this.vars = new HashMap<>();
 			this.vars.put("timestamp", new Date());
-			this.vars.putAll(TPL_VARS);
 			this.page = page;
 		}
 

@@ -1,4 +1,4 @@
-
+<#compress>
 <footer class="page">
 	<div>
 		<div>Website last generated: <code>${timestamp?string["yyyy-MM-dd HH:mm:ss '('zzz')'"]}</code></div>
@@ -22,3 +22,4 @@
 
 </body>
 </html>
+</#compress>

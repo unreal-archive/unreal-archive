@@ -1,7 +1,6 @@
 @font-face {
 	font-family: 'PassionOne';
-	src: url('passionone-regular-webfont.woff2') format('woff2'),
-			 url('passionone-regular-webfont.woff') format('woff');
+	src: url('../fonts/passionone-regular-webfont.woff2') format('woff2');
 	font-weight: normal;
 	font-style: normal;
 	font-display: swap;
@@ -9,8 +8,7 @@
 
 @font-face {
 	font-family: 'Nobile';
-	src: url('nobile-regular-webfont.woff2') format('woff2'),
-	url('nobile-regular-webfont.woff') format('woff');
+	src: url('../fonts/nobile-regular-webfont.woff2') format('woff2');
 	font-weight: normal;
 	font-style: normal;
 	font-display: swap;
@@ -18,8 +16,7 @@
 
 @font-face {
 	font-family: 'Dosis';
-	src: url('dosis-regular.woff2') format('woff2'),
-	url('dosis-regular.woff') format('woff');
+	src: url('../fonts/dosis-regular.woff2') format('woff2');
 	font-weight: normal;
 	font-style: normal;
 	font-display: swap;

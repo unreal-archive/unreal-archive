@@ -1,13 +1,11 @@
-<!DOCTYPE html>
+<#compress><!DOCTYPE html>
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
 	<title>${siteName} / ${title}</title>
-	<link rel="stylesheet" href="${staticPath()}/fonts/fonts.css">
-	<link rel="stylesheet" href="${staticPath()}/css/style.css?v=20220425">
-	<link rel="stylesheet" href="${staticPath()}/css/style4.css?v=20220910">
+	<link rel="stylesheet" href="${staticPath()}/css/all.css">
 	<#if extraCss??>
 		<link rel="stylesheet" href="${staticPath()}/css/${extraCss}">
 	</#if>
@@ -42,8 +40,7 @@
 	<meta property="og:type" content="website">
 
   <#if (schemaItemName!"")?length gt 0 && (schemaItemAuthor!"")?length gt 0>
-		<script type="application/ld+json">
-			{
+		<script type="application/ld+json">{
 				"@context": "https://schema.org",
 				"@type": "DigitalDocument",
 				"abstract": "${(schemaItemDesc!ogDescription)?replace("\"", "\\\"")?replace("\\", "\\\\")}",
@@ -51,12 +48,11 @@
 				"image": "${headerbg}",
 				"name": "${schemaItemName?replace("\"", "\\\"")?replace("\\", "\\\\")}",
 				"datePublished": "${schemaItemDate}"
-			}
-		</script>
+		}</script>
 	</#if>
 </head>
 
 <body>
 <#include "title.ftl">
 
-<div class="page mainpage">
+<div class="page mainpage"></#compress>

@@ -62,11 +62,11 @@ dependencies {
 
 	implementation 'org.freemarker:freemarker:2.3.31'
 
-	implementation 'com.backblaze.b2:b2-sdk-core:6.0.0'
-	implementation 'com.backblaze.b2:b2-sdk-httpclient:6.0.0'
+	implementation 'com.backblaze.b2:b2-sdk-core:6.1.0'
+	implementation 'com.backblaze.b2:b2-sdk-httpclient:6.1.0'
 
 	// S3 compatible storage client
-	implementation 'io.minio:minio:8.4.3'
+	implementation 'io.minio:minio:8.4.4'
 
 	implementation 'com.vladsch.flexmark:flexmark:0.64.0'
 
@@ -83,6 +83,19 @@ processResources.doLast {
 	files { fileTree(wwwStaticDir).matching { exclude('**/*.xcf') } }.each {
 		staticList.append(wwwStaticDir.getParent().relativize(it.toPath())).append("\t").append(it.lastModified()).append("\n")
 	}
+
+	// create single all.css file - cssOut filename must be used in _header.html
+	def cssSource = files(
+			wwwStaticDir.resolve("fonts/fonts.css"),
+			wwwStaticDir.resolve("css/style.css"),
+			wwwStaticDir.resolve("css/style4.css")
+	)
+	def cssDate = cssSource.max {f -> f.lastModified()}
+	def cssOut = destFile.parent.resolve("static/css/all.css")
+	cssOut.write('') // truncate output if needed
+	cssSource.each { f -> cssOut << f.text.replaceAll("/\\*.+?\\*/", "").replaceAll("\n", "").replaceAll("\\s{2,}", " ") }
+	staticList.append(destFile.getParent().relativize(cssOut)).append("\t").append(cssDate.lastModified()).append("\n")
+
 	Files.write(destFile, staticList.toString().replaceAll("\\\\", "/").getBytes(StandardCharsets.UTF_8),
 			StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
 }

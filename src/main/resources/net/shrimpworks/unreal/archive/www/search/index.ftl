@@ -1,4 +1,4 @@
-<#assign extraCss="search.css"/>
+<#assign extraCss="search.css?v=20221001"/>
 <#include "../_header.ftl">
 <#include "../macros.ftl">
 
@@ -10,7 +10,7 @@
 
 	<form id="search-form">
 		<span>
-			<input type="text" id="q"/>
+			<input type="search" id="q"/>
 			<button><img src="${staticPath()}/images/icons/search.svg" alt="Search"/> Search</button>
 		</span>
 		<span>
