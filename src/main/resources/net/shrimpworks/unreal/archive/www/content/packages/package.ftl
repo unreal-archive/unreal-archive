@@ -8,7 +8,7 @@
 	</@heading>
 
 	<@content>
-
+		<#compress>
 		<div class="info">
 
 			<#if packageFiles?size gt 1>
@@ -48,6 +48,9 @@
 						<label>Name</label><span>${file.name}</span>
 					</div>
 					<div class="label-value">
+						<label>Type</label><span>${type}</span>
+					</div>
+					<div class="label-value">
 						<label>File Size</label><span>${fileSize(file.fileSize)}</span>
 					</div>
 					<div class="label-value">
@@ -82,7 +85,7 @@
       </#list>
 
 		</div>
-
+    </#compress>
 	</@content>
 
 <#include "../../_footer.ftl">

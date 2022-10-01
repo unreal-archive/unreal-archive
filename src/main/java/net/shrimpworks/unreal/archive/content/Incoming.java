@@ -52,7 +52,7 @@ public class Incoming implements Closeable {
 		IMAGE(false, "jpg", "jpeg", "bmp", "png", "gif"),
 		;
 
-		public static final FileType[] PACKAGES = { CODE, MAP, TEXTURE, SOUNDS, ANIMATION, STATICMESH, PACKAGE };
+		public static final FileType[] PACKAGES = { CODE, MAP, TEXTURE, SOUNDS, ANIMATION, STATICMESH, PACKAGE, MUSIC };
 
 		public static final FileType[] ALL = FileType.values();
 

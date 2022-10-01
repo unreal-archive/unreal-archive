@@ -58,18 +58,21 @@ public class Packages extends ContentPageGenerator {
 
 		contentFiles.entrySet().parallelStream().forEach(game -> {
 			game.getValue().entrySet().parallelStream().forEach(e -> {
-				Path p = root.resolve(Util.slug(game.getKey().name)).resolve(Util.slug(e.getKey())).resolve("index.html");
+				Path p = root.resolve(Util.slug(game.getKey().name)).resolve(Util.authorSlug(e.getKey())).resolve("index.html");
 
+				final Content.ContentFile[] any = new Content.ContentFile[1];
 				LinkedHashMap<Content.ContentFile, List<Content>> sorted =
 					e.getValue().entrySet()
 					 .stream()
 					 .sorted(Collections.reverseOrder(Comparator.comparingInt(a -> a.getValue().size())))
 					 .peek(a -> Collections.sort(a.getValue()))
+					 .peek(a -> any[0] = a.getKey())
 					 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 
 				pages.add("package.ftl", SiteMap.Page.monthly(0.3f), String.join(" / ", "Packages", game.getKey().name, e.getKey()))
 					 .put("game", game.getKey().name)
 					 .put("package", e.getKey())
+					 .put("type", Incoming.FileType.forFile(any[0].name))
 					 .put("packageFiles", sorted)
 					 .write(p);
 			});

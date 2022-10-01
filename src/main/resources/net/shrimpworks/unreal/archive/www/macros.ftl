@@ -206,7 +206,7 @@
 						<tr>
 							<td>&nbsp;</td>
 							<#if game??>
-								<td><a href="${relPath(siteRoot + "/packages/" + slug(game) + "/" + slug(dep.name) + "/index.html")}">${dep.name}<a/></td>
+								<td><a href="${relPath(siteRoot + "/packages/" + slug(game) + "/" + slug(dep.name) + "/index.html")}">${dep.name}</a></td>
 							<#else>
 								<td>${dep.name}</td>
 							</#if>

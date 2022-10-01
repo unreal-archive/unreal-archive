@@ -8,12 +8,15 @@
 	</@heading>
 
 	<@content class="biglist">
-
+		<#compress>
 		<div class="info">
 			<section class="meta">
 				<h2>File</h2>
 				<div class="label-value">
 					<label>Name</label><span>${file.name}</span>
+				</div>
+				<div class="label-value">
+					<label>Type</label><span>${type}</span>
 				</div>
 				<div class="label-value">
 					<label>File Size</label><span>${fileSize(file.fileSize)}</span>
@@ -50,7 +53,7 @@
 			</section>
 
 		</div>
-
+  	</#compress>
 	</@content>
 
 <#include "../../_footer.ftl">
