@@ -72,7 +72,9 @@ public class ContentEditor {
 
 		System.out.printf("Setting field %s from value %s to %s%n", field.getName(), old == null ? "<null>" : old, newValue);
 
-		if (field.getType().equals(boolean.class) || field.getType().equals(Boolean.class)) {
+		if (newValue.equalsIgnoreCase("null")) {
+			field.set(content, null);
+		} else if (field.getType().equals(boolean.class) || field.getType().equals(Boolean.class)) {
 			field.setBoolean(content, Boolean.parseBoolean(newValue));
 		} else if (field.getType().equals(long.class) || field.getType().equals(Long.class)) {
 			field.set(content, Long.parseLong(newValue));
