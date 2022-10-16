@@ -80,10 +80,19 @@
 					<b>Tip:</b> Only submit completed work, rather than work-in-progress
 					builds.
 				</p>
+				<p>
+					<b>Tip:</b> Once the upload is complete, you do not need to keep
+					the upload page open. It will continue to process on the server.
+				</p>
 			</div>
 
 			<div id="log">
 				<h2>Processing Status</h2>
+				<p>
+					<b>Tip:</b> Once the upload is complete, you do not need to keep
+					the upload page open. It will continue to process on the server.
+				</p>
+				<div id="log-lines"></div>
 			</div>
 		</div>
 	</div>
@@ -102,7 +111,8 @@
 		let abortButton = document.querySelector('#abort');
 
 		let filesList = document.querySelector('#files-list');
-	  let logList = document.querySelector('#log');
+	  let logView = document.querySelector('#log');
+	  let logLines = document.querySelector('#log-lines');
 		let infoBlurb = document.querySelector('#words');
 
 		let uploadControls = document.querySelector('#upload-controls');
@@ -157,10 +167,7 @@
 		}
 
 		function resetLog() {
-			while (logList.childNodes.length > 0) logList.removeChild(logList.childNodes[0]);
-			let header = document.createElement("h2");
-			header.innerText = "Processing Status";
-			logList.append(header);
+			while (logLines.childNodes.length > 0) logLines.removeChild(logLines.childNodes[0]);
 		}
 
 		fileSelector.addEventListener('change', e => {
@@ -217,13 +224,13 @@
 
 		function toggleProgress(progressing) {
 			if (progressing) {
-				if (!logList.classList.contains("display-block")) logList.classList.add("display-block");
+				if (!logView.classList.contains("display-block")) logView.classList.add("display-block");
 				if (!progressControls.classList.contains("display-block")) progressControls.classList.add("display-block");
 		  	if (uploadControls.classList.contains("display-block")) uploadControls.classList.remove("display-block");
 		  	if (infoBlurb.classList.contains("display-block")) infoBlurb.classList.remove("display-block");
 				resetLog();
 			} else {
-				if (logList.classList.contains("display-block")) logList.classList.remove("display-block");
+				if (logView.classList.contains("display-block")) logView.classList.remove("display-block");
 				if (progressControls.classList.contains("display-block")) progressControls.classList.remove("display-block");
 				if (!uploadControls.classList.contains("display-block")) uploadControls.classList.add("display-block");
 				if (filesList.classList.contains("display-block")) filesList.classList.remove("display-block");
@@ -273,8 +280,8 @@
 
 			logRow.append(time, log);
 
-			if (!logList.classList.contains("display-block")) logList.classList.add("display-block");
-			logList.append(logRow);
+			if (!logView.classList.contains("display-block")) logView.classList.add("display-block");
+			logLines.append(logRow);
 		}
 
 		function linkify(message) {
