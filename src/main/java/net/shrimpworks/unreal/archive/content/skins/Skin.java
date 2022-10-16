@@ -39,14 +39,14 @@ public class Skin extends Content {
 
 	@Override
 	public String autoDescription() {
-		return String.format("%s, a player skin for %s with %s and %s%s",
+		return String.format("%s, a player skin for %s with %s%s%s",
 							 name, Games.byName(game).bigName,
 							 skins.isEmpty()
 									 ? "no skins"
 									 : skins.size() > 1 ? skins.size() + " skins" : skins.size() + " skin",
 							 faces.isEmpty()
-									 ? "no faces"
-									 : faces.size() > 1 ? faces.size() + " faces" : faces.size() + " face",
+									 ? ""
+									 : String.format(" and %s", faces.size() > 1 ? faces.size() + " faces" : faces.size() + " face"),
 							 authorName().equalsIgnoreCase("unknown") ? "" : ", created by " + authorName());
 	}
 

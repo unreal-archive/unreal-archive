@@ -36,14 +36,14 @@ public class Model extends Content {
 
 	@Override
 	public String autoDescription() {
-		return String.format("%s, a player model for %s with %s and %s%s",
+		return String.format("%s, a player model for %s with %s%s%s",
 							 name, Games.byName(game).bigName,
 							 models.isEmpty()
 									 ? "no characters"
 									 : models.size() > 1 ? models.size() + " characters" : models.size() + " character",
 							 skins.isEmpty()
-									 ? "no skins"
-									 : skins.size() > 1 ? skins.size() + " skins" : skins.size() + " skin",
+									 ? ""
+									 : String.format(" and %s", skins.size() > 1 ? skins.size() + " skins" : skins.size() + " skin"),
 							 authorName().equalsIgnoreCase("unknown") ? "" : ", created by " + authorName());
 	}
 

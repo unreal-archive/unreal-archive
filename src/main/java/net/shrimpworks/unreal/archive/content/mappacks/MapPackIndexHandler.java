@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import net.shrimpworks.unreal.archive.AuthorNames;
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.Incoming;
@@ -96,8 +97,8 @@ public class MapPackIndexHandler implements IndexHandler<MapPack> {
 		m.author = IndexUtils.UNKNOWN;
 		for (MapPack.PackMap map : m.maps) {
 			if (m.author.equals(IndexUtils.UNKNOWN)) {
-				m.author = map.author;
-			} else if (!m.author.equalsIgnoreCase(map.author)) {
+				m.author = AuthorNames.nameFor(map.author);
+			} else if (!AuthorNames.nameFor(m.author).equalsIgnoreCase(AuthorNames.nameFor(map.author))) {
 				m.author = "Various";
 				break;
 			}
