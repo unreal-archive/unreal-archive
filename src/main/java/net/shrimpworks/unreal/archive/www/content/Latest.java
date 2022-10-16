@@ -42,7 +42,9 @@ public class Latest extends ContentPageGenerator {
 	@Override
 	public Set<SiteMap.Page> generate() {
 		TreeMap<LocalDate, List<ContentEntity<?>>> contentFiles = new TreeMap<>(
-			allContent.stream().collect(Collectors.groupingBy(c -> c.addedDate().toLocalDate()))
+			allContent.stream()
+					  .sorted((a, b) -> -a.addedDate().compareTo(b.addedDate()))
+					  .collect(Collectors.groupingBy(c -> c.addedDate().toLocalDate()))
 		);
 
 		Templates.PageSet pages = pageSet("content/latest");
@@ -59,6 +61,7 @@ public class Latest extends ContentPageGenerator {
 		for (Games game : Games.values()) {
 			TreeMap<LocalDate, List<ContentEntity<?>>> gameContent = new TreeMap<>(
 				allContent.stream().filter(c -> c.game().equals(game.name))
+						  .sorted((a, b) -> -a.addedDate().compareTo(b.addedDate()))
 						  .collect(Collectors.groupingBy(c -> c.addedDate().toLocalDate()))
 			);
 			pages.add("feed.ftl", SiteMap.Page.weekly(0f), "Latest " + game.name + " Additions")
