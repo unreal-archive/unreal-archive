@@ -164,7 +164,7 @@ public class MapPackIndexHandler implements IndexHandler<MapPack> {
 				images.addAll(IndexUtils.screenshots(incoming, pkg, screenshot));
 			}
 			MapIndexHandler.themes(pkg).forEach((theme, weight) -> themes.compute(theme, (k, v) -> v == null ? weight : v + weight));
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			incoming.log.log(IndexLog.EntryType.CONTINUE, "Failed to read map properties", e);
 		}
 

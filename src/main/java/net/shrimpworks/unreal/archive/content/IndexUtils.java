@@ -53,7 +53,7 @@ public class IndexUtils {
 	public static final Pattern PLAYER_MATCH = Pattern.compile("(.+)?(player)(s| count)?([\\s:]+)?([A-Za-z0-9 \\-]{1,16})(\\s+)?",
 															   Pattern.CASE_INSENSITIVE);
 
-	public static final Pattern UT3_SCREENSHOT_MATCH = Pattern.compile("<Images:.*\\.([^>]+)>", Pattern.CASE_INSENSITIVE);
+	public static final Pattern UT3_SCREENSHOT_MATCH = Pattern.compile("<Images:([^.]*)\\.(.*\\.)?([^>]+)>", Pattern.CASE_INSENSITIVE);
 
 	public static final String SHOT_NAME = "%s_shot_%s_%d.png";
 
@@ -162,7 +162,7 @@ public class IndexUtils {
 					if (shot instanceof IntFile.SimpleValue) {
 						Matcher matcher = IndexUtils.UT3_SCREENSHOT_MATCH.matcher(((IntFile.SimpleValue)shot).value);
 						if (matcher.find()) {
-							ExportedObject export = map.objectByName(new Name(matcher.group(1)));
+							ExportedObject export = map.objectByName(new Name(matcher.group(3)));
 							if (export == null) return;
 
 							Object object = export.object();
@@ -203,7 +203,7 @@ public class IndexUtils {
 		return images;
 	}
 
-	private static BufferedImage screenshotFromObject(Package shotPackage, Object object) {
+	public static BufferedImage screenshotFromObject(Package shotPackage, Object object) {
 		// get a texture form a UT2003/4 material sequence (they cycle several images in the map preview)
 		if (object.className().equals("MaterialSequence")) {
 			Property fallbackMaterial = object.property("FallbackMaterial");

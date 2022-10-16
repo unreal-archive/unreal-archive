@@ -28,19 +28,18 @@ public class ModelClassifier implements Classifier {
 
 	// if any of these types are present, its probably part of a mod, mutator, or weapon mod, so rather exclude it
 	private static final List<String> INVALID_CLASSES = Arrays.asList(
-			"engine.mutator", "botpack.tournamentweapon", "botpack.tournamentgameinfo"
+		"engine.mutator", "botpack.tournamentweapon", "botpack.tournamentgameinfo"
 	);
 
 	@Override
 	public boolean classify(Incoming incoming) {
 		Set<Incoming.IncomingFile> intFiles = incoming.files(Incoming.FileType.INT);
-		Set<Incoming.IncomingFile> playerFiles = incoming.files(Incoming.FileType.PLAYER);
 		Set<Incoming.IncomingFile> animationFiles = incoming.files(Incoming.FileType.ANIMATION);
 		Set<Incoming.IncomingFile> codeFiles = incoming.files(Incoming.FileType.CODE);
 		Set<Incoming.IncomingFile> miscFiles = incoming.files(Incoming.FileType.MAP, Incoming.FileType.MUSIC, Incoming.FileType.STATICMESH);
-
-		// there should be no maps in a model... otherwise this may be a mod
-		if (!incoming.files(Incoming.FileType.MAP).isEmpty()) return false;
+		Set<Incoming.IncomingFile> playerFiles = incoming.files(Incoming.FileType.PLAYER); // ut2004
+		Set<Incoming.IncomingFile> upkFiles = incoming.files(Incoming.FileType.PACKAGE); // ut3
+		Set<Incoming.IncomingFile> iniFiles = incoming.files(Incoming.FileType.INI);
 
 		// if there are other types of files, we can probably assume its something like a mod
 		if (!miscFiles.isEmpty()) return false;
@@ -52,6 +51,9 @@ public class ModelClassifier implements Classifier {
 		// a UT2003/4 model should contain a player and animation definition
 		if (!playerFiles.isEmpty() && !animationFiles.isEmpty()) return ut2004Model(incoming, playerFiles);
 
+		// a UT3 model should contain a package files and an ini definition
+		if (!upkFiles.isEmpty() && !iniFiles.isEmpty()) return ut3Model(incoming, iniFiles);
+
 		// a UT model should have a "code" package which contains the mesh
 		if (!intFiles.isEmpty() && !codeFiles.isEmpty()) return utModel(incoming, intFiles);
 
@@ -62,7 +64,7 @@ public class ModelClassifier implements Classifier {
 		boolean[] seemsToBeAModel = new boolean[] { false };
 		boolean[] probablyNotAModel = new boolean[] { false };
 
-		// search int files for objects describing a skin
+		// search int files for objects describing a model
 		IndexUtils.readIntFiles(incoming, intFiles)
 				  .filter(Objects::nonNull)
 				  .forEach(intFile -> {
@@ -98,5 +100,16 @@ public class ModelClassifier implements Classifier {
 	private boolean ut2004Model(Incoming incoming, Set<Incoming.IncomingFile> playerFiles) {
 		// indicates a model - presence of a player file indicates a plain skin
 		return !incoming.files(Incoming.FileType.ANIMATION).isEmpty();
+	}
+
+	private boolean ut3Model(Incoming incoming, Set<Incoming.IncomingFile> iniFiles) {
+		// search ini files for things describing a character
+		return IndexUtils.readIntFiles(incoming, iniFiles)
+						 .filter(Objects::nonNull)
+						 .anyMatch(intFile -> {
+							 IntFile.Section section = intFile.section(Model.UT3_CHARACTER_DEF);
+							 if (section == null) return false;
+							 return section.keys().contains("+Characters");
+						 });
 	}
 }

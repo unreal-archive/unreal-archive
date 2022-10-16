@@ -8,9 +8,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.Incoming;
 import net.shrimpworks.unreal.archive.content.IndexHandler;
@@ -20,6 +22,14 @@ import net.shrimpworks.unreal.archive.content.IndexUtils;
 import net.shrimpworks.unreal.archive.content.skins.Skin;
 import net.shrimpworks.unreal.archive.content.skins.SkinIndexHandler;
 import net.shrimpworks.unreal.packages.IntFile;
+import net.shrimpworks.unreal.packages.Package;
+import net.shrimpworks.unreal.packages.PackageReader;
+import net.shrimpworks.unreal.packages.entities.ExportedObject;
+import net.shrimpworks.unreal.packages.entities.Name;
+import net.shrimpworks.unreal.packages.entities.objects.Object;
+import net.shrimpworks.unreal.packages.entities.objects.Texture2D;
+import net.shrimpworks.unreal.packages.entities.properties.ArrayProperty;
+import net.shrimpworks.unreal.packages.entities.properties.ObjectProperty;
 
 public class ModelIndexHandler implements IndexHandler<Model> {
 
@@ -40,8 +50,20 @@ public class ModelIndexHandler implements IndexHandler<Model> {
 
 		String origName = m.name;
 
-		// UT2003/4 model is defined by a UPL file
-		if (!incoming.files(Incoming.FileType.PLAYER).isEmpty()) {
+		if (!incoming.files(Incoming.FileType.PACKAGE).isEmpty()) {
+			// UT3 content includes .UPK files
+
+			// they don't seem to have skins, just characters, so that's all we'll record
+			characterDescriptors(incoming)
+				.forEach(v -> {
+					m.models.add(v.getOrDefault("CharName", "Unknown").trim());
+
+					if (m.name == null || m.name.equals(origName)) m.name = v.getOrDefault("CharName", "Unknown").trim();
+				});
+
+		} else if (!incoming.files(Incoming.FileType.PLAYER).isEmpty()) {
+			// UT2003/4 model is defined by a UPL file
+
 			// each record contains both mesh and skin information, so keep track of seen meshes vs skins
 			Set<String> meshes = new HashSet<>();
 
@@ -93,8 +115,11 @@ public class ModelIndexHandler implements IndexHandler<Model> {
 			// also see if we can at least include chat portrait images
 			SkinIndexHandler.findPortraits(incoming, images);
 
+			// try to find UT3 preview images
+			findUt3Previews(incoming, images);
+
 			IndexUtils.saveImages(IndexUtils.SHOT_NAME, m, images, attachments);
-		} catch (IOException e) {
+		} catch (Throwable e) {
 			log.log(IndexLog.EntryType.CONTINUE, "Failed to save images", e);
 		}
 
@@ -131,9 +156,66 @@ public class ModelIndexHandler implements IndexHandler<Model> {
 	private String game(Incoming incoming) throws IOException {
 		if (incoming.submission.override.get("game", null) != null) return incoming.submission.override.get("game", "Unreal Tournament");
 
-		if (!incoming.files(Incoming.FileType.PLAYER, Incoming.FileType.ANIMATION).isEmpty()) return "Unreal Tournament 2004";
-
 		return IndexUtils.game(incoming.files(Incoming.FileType.PACKAGES));
+	}
+
+	private List<IntFile.MapValue> characterDescriptors(Incoming incoming) {
+		return IndexUtils.readIntFiles(incoming, incoming.files(Incoming.FileType.INI))
+						 .filter(Objects::nonNull)
+						 .flatMap(intFile -> {
+							 IntFile.Section section = intFile.section(Model.UT3_CHARACTER_DEF);
+							 if (section == null) return Stream.empty();
+
+							 return section.asList("+Characters")
+								 .values
+								 .stream()
+								 .filter(v -> v instanceof IntFile.MapValue)
+								 .map(v -> (IntFile.MapValue)v)
+								 .filter(v -> v.containsKey("CharName"));
+
+						 })
+						 .filter(Objects::nonNull)
+						 .collect(Collectors.toList());
+
+	}
+
+	private void findUt3Previews(Incoming incoming, List<BufferedImage> images) {
+		characterDescriptors(incoming)
+			.stream()
+			.filter(c -> c.containsKey("PreviewImageMarkup"))
+			.forEach(c -> {
+				Matcher matcher = IndexUtils.UT3_SCREENSHOT_MATCH.matcher(c.get("PreviewImageMarkup"));
+				if (matcher.find()) {
+					String pkgName = matcher.group(1);
+					incoming.files(Incoming.FileType.PACKAGE).stream().filter(
+						f -> Util.plainName(f.fileName()).equalsIgnoreCase(pkgName)).findFirst().ifPresent(f -> {
+						try (Package pkg = new Package(new PackageReader(f.asChannel()))) {
+
+							ExportedObject export = pkg.objectByName(new Name(matcher.group(3)));
+							if (export == null) return;
+
+							Object object = export.object();
+
+							if (object instanceof Texture2D) images.add(IndexUtils.screenshotFromObject(pkg, object));
+
+							// UT3 maps may use a Material to hold multiple screenshots
+							if (object.className().equals("Material") && object.property("ReferencedTextures") instanceof ArrayProperty) {
+								((ArrayProperty)object.property("ReferencedTextures")).values.forEach(t -> {
+									if (t instanceof ObjectProperty) {
+										Object tex = pkg.objectByRef(((ObjectProperty)t).value).object();
+										if (tex instanceof Texture2D) {
+											images.add(IndexUtils.screenshotFromObject(pkg, tex));
+										}
+									}
+								});
+							}
+						} catch (Throwable e) {
+							incoming.log.log(IndexLog.EntryType.CONTINUE, "Failed to extract UE3 images", e);
+						}
+					});
+
+				}
+			});
 	}
 
 }
