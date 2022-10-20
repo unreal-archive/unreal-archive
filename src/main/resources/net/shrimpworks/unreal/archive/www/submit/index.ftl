@@ -89,8 +89,9 @@
 			<div id="log">
 				<h2>Processing Status</h2>
 				<p>
-					<b>Tip:</b> Once the upload is complete, you do not need to keep
-					the upload page open. It will continue to process on the server.
+					<b>Tip:</b> Once the upload is complete, you may upload another
+					file or close this page. The current	upload continue to process
+					on the server.
 				</p>
 				<div id="log-lines"></div>
 			</div>

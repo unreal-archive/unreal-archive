@@ -10,6 +10,8 @@ import net.shrimpworks.unreal.archive.content.Incoming;
 import net.shrimpworks.unreal.archive.content.IndexUtils;
 import net.shrimpworks.unreal.packages.IntFile;
 
+import static net.shrimpworks.unreal.archive.content.mutators.Mutator.UT3_MUTATOR_SECTION;
+
 /**
  * A Mutator should contain:
  * <p>
@@ -33,12 +35,15 @@ public class MutatorClassifier implements Classifier {
 
 	// if any of these types are present, its probably part of a mod, mutator, or weapon mod, so rather exclude it
 	private static final List<String> INVALID_CLASSES = Arrays.asList(
-			".voice", "tournamentgameinfo", "tournamentplayer"
+		".voice", "tournamentgameinfo", "tournamentplayer"
 	);
+
+	private static final List<String> INVALID_UT3_SECTIONS = Arrays.asList("UTUIDataProvider_GameModeInfo".toLowerCase());
 
 	@Override
 	public boolean classify(Incoming incoming) {
 		Set<Incoming.IncomingFile> intFiles = incoming.files(Incoming.FileType.INT);
+		Set<Incoming.IncomingFile> iniFiles = incoming.files(Incoming.FileType.INI);
 		Set<Incoming.IncomingFile> uclFiles = incoming.files(Incoming.FileType.UCL);
 		Set<Incoming.IncomingFile> codeFiles = incoming.files(Incoming.FileType.CODE);
 
@@ -49,13 +54,13 @@ public class MutatorClassifier implements Classifier {
 		if (!miscFiles.isEmpty()) return false;
 
 		// there should be an int file, along with a sound or code package
-		if ((intFiles.isEmpty() || uclFiles.isEmpty()) && codeFiles.isEmpty()) return false;
+		if ((intFiles.isEmpty() || uclFiles.isEmpty() || iniFiles.isEmpty()) && codeFiles.isEmpty()) return false;
 
-		// a UT model should have a "code" package which contains the mesh
 		boolean utMutator = !intFiles.isEmpty() && checkUTMutator(incoming, intFiles);
 		boolean ut2004Mutator = !uclFiles.isEmpty() && !utMutator && checkUT2004Mutator(incoming, uclFiles);
+		boolean ut3Mutator = !iniFiles.isEmpty() && !utMutator && !ut2004Mutator && checkUT3Mutator(incoming, iniFiles);
 
-		return utMutator || ut2004Mutator;
+		return utMutator || ut2004Mutator || ut3Mutator;
 	}
 
 	private boolean checkUTMutator(Incoming incoming, Set<Incoming.IncomingFile> intFiles) {
@@ -118,5 +123,20 @@ public class MutatorClassifier implements Classifier {
 				  });
 
 		return !probablyNotAMutator[0] && seemsToBeAMutator[0];
+	}
+
+	private boolean checkUT3Mutator(Incoming incoming, Set<Incoming.IncomingFile> iniFiles) {
+		// search ini files for things describing a character
+		return IndexUtils.readIntFiles(incoming, iniFiles)
+						 .filter(Objects::nonNull)
+						 .anyMatch(iniFile ->
+									   iniFile.sections()
+											  .stream()
+											  .noneMatch(s -> INVALID_UT3_SECTIONS
+												  .stream()
+												  .anyMatch(n -> s.toLowerCase().trim().endsWith(n.toLowerCase())))
+									   && iniFile.sections()
+												 .stream()
+												 .anyMatch(s -> s.toLowerCase().trim().endsWith(UT3_MUTATOR_SECTION.toLowerCase())));
 	}
 }

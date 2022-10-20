@@ -168,7 +168,7 @@ public class Main {
 					Util.downloadTo(Util.toUriString(CONTENT_URL), tmpFile);
 					System.out.println("Done");
 					try {
-						System.out.printf("Extracting archive from %s to %s... ", tmpFile.toString(), tmpPath.toString());
+						System.out.printf("Extracting archive from %s to %s... ", tmpFile, tmpPath);
 						ArchiveUtil.extract(tmpFile, tmpPath, Duration.ofMinutes(10));
 						System.out.println("Done");
 					} catch (Throwable e) {
@@ -179,12 +179,14 @@ public class Main {
 				}
 
 				// find the content directory within the extracted stuff
-				Optional<Path> contentParent = Files.walk(tmpPath, 3, FileVisitOption.FOLLOW_LINKS)
-													.filter(p -> Files.isDirectory(p) && p.getFileName().toString().equals(CONTENT_DIR))
-													.map(Path::getParent)
-													.findFirst();
+				try (Stream<Path> pathStream = Files.walk(tmpPath, 3, FileVisitOption.FOLLOW_LINKS)) {
+					Optional<Path> contentParent = pathStream
+						.filter(p -> Files.isDirectory(p) && p.getFileName().toString().equals(CONTENT_DIR))
+						.map(Path::getParent)
+						.findFirst();
 
-				cli.putOption("content-path", contentParent.orElseThrow(IllegalArgumentException::new).toString());
+					cli.putOption("content-path", contentParent.orElseThrow(IllegalArgumentException::new).toString());
+				}
 			} else {
 				System.err.println("content-path must be specified!");
 				System.exit(2);
@@ -312,7 +314,7 @@ public class Main {
 				while ((l = br.readLine()) != null) {
 					Path p = Paths.get(l);
 					if (!Files.exists(p)) {
-						System.err.println("Input path does not exist: " + p.toString());
+						System.err.println("Input path does not exist: " + p);
 						System.exit(4);
 					}
 					inPaths.add(p);
@@ -735,29 +737,30 @@ public class Main {
 			System.exit(4);
 		}
 
-		Umod umod = new Umod(umodFile);
-		ByteBuffer buffer = ByteBuffer.allocate(1024 * 8);
-		for (Umod.UmodFile f : umod.files) {
-			if (f.name.startsWith("System\\Manifest")) continue;
+		try (Umod umod = new Umod(umodFile)) {
+			ByteBuffer buffer = ByteBuffer.allocate(1024 * 8);
+			for (Umod.UmodFile f : umod.files) {
+				if (f.name.startsWith("System\\Manifest")) continue;
 
-			System.out.printf("Unpacking %s ", f.name);
-			Path out = dest.resolve(Util.filePath(f.name));
+				System.out.printf("Unpacking %s ", f.name);
+				Path out = dest.resolve(Util.filePath(f.name));
 
-			if (!Files.exists(out)) Files.createDirectories(out);
+				if (!Files.exists(out)) Files.createDirectories(out);
 
-			out = out.resolve(Util.fileName(f.name));
+				out = out.resolve(Util.fileName(f.name));
 
-			System.out.printf("to %s%n", out);
+				System.out.printf("to %s%n", out);
 
-			try (FileChannel fileChannel = FileChannel.open(out, StandardOpenOption.WRITE, StandardOpenOption.CREATE,
-															StandardOpenOption.TRUNCATE_EXISTING);
-				 SeekableByteChannel fileData = f.read()) {
+				try (FileChannel fileChannel = FileChannel.open(out, StandardOpenOption.WRITE, StandardOpenOption.CREATE,
+																StandardOpenOption.TRUNCATE_EXISTING);
+					 SeekableByteChannel fileData = f.read()) {
 
-				while (fileData.read(buffer) > 0) {
-					fileData.read(buffer);
-					buffer.flip();
-					fileChannel.write(buffer);
-					buffer.clear();
+					while (fileData.read(buffer) > 0) {
+						fileData.read(buffer);
+						buffer.flip();
+						fileChannel.write(buffer);
+						buffer.clear();
+					}
 				}
 			}
 		}
