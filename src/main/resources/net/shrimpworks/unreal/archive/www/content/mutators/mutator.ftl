@@ -44,18 +44,14 @@
 				<#list mutator.item.weapons as m>
 					<div class="mini-head">${m.name}</div>
 					<div class="mini-detail">${m.description?replace("|", "<br/>")?no_esc}</div>
-        <#else>
-					None
-				</#list>
+        <#else></#list>
 			</#assign>
 
 			<#assign vehicleList>
 				<#list mutator.item.vehicles as m>
 					<div class="mini-head">${m.name}</div>
 					<div class="mini-detail">${m.description?replace("|", "<br/>")?no_esc}</div>
-        <#else>
-					None
-				</#list>
+        <#else></#list>
 			</#assign>
 
 			<#assign author><@authorLink mutator.item.authorName /></#assign>
@@ -80,8 +76,8 @@
 					'${mutator.item.description}',
 					'${author}',
 					'${dateFmtShort(mutator.item.releaseDate)}',
-					'${mutator.item.hasConfigMenu?string("Yes", "No")}',
-					'${mutator.item.hasKeybinds?string("Yes", "No")}',
+					'${mutator.item.hasConfigMenu?string("Yes", "")}',
+					'${mutator.item.hasKeybinds?string("Yes", "")}',
 					'${mutatorList}',
 					'${weaponsList}',
 					'${vehicleList}',
