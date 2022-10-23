@@ -6,9 +6,11 @@ import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.FileTime;
 import java.util.Collections;
+import java.util.Set;
 
 import net.shrimpworks.unreal.archive.YAML;
 
@@ -23,6 +25,16 @@ public class ContentEditor {
 		this.contentManager = contentManager;
 	}
 
+	private Content checkoutContent(String hash) {
+		Content content = contentManager.checkout(hash);
+		if (content == null) {
+			System.err.println("Content for provided hash does not exist!");
+			System.exit(4);
+		}
+
+		return content;
+	}
+
 	/**
 	 * Spawns a text editor, loading the YAML document of the content specified,
 	 * which may be modified and then written back to the repository.
@@ -32,11 +44,7 @@ public class ContentEditor {
 	 * @throws InterruptedException failed to wait for text editor result
 	 */
 	public void edit(String hash) throws IOException, InterruptedException {
-		Content content = contentManager.forHash(hash);
-		if (content == null) {
-			System.err.println("Content for provided hash does not exist!");
-			System.exit(4);
-		}
+		Content content = checkoutContent(hash);
 
 		Path yaml = Files.write(Files.createTempFile(content.hash, ".yml"), YAML.toString(content).getBytes(StandardCharsets.UTF_8),
 								StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
@@ -61,11 +69,12 @@ public class ContentEditor {
 	}
 
 	public void set(String hash, String attribute, String newValue) throws ReflectiveOperationException, IOException {
-		Content content = contentManager.checkout(hash);
-		if (content == null) {
-			System.err.println("Content for provided hash does not exist!");
-			System.exit(4);
+		if (attribute.equalsIgnoreCase("attach")) {
+			attach(hash, newValue);
+			return;
 		}
+
+		Content content = checkoutContent(hash);
 
 		Field field = content.getClass().getField(attribute);
 		Object old = field.get(content);
@@ -92,6 +101,32 @@ public class ContentEditor {
 		}
 
 		if (contentManager.checkin(new IndexResult<>(content, Collections.emptySet()), null)) {
+			System.out.println("Stored changes!");
+		} else {
+			System.out.println("Failed to apply");
+		}
+	}
+
+	public void attach(String hash, String attachment) throws IOException {
+		Content content = checkoutContent(hash);
+
+		Path attfile = Paths.get(attachment);
+
+		if (!Files.exists(attfile)) {
+			System.err.printf("Attachment file \"%s\" does not exist!%n", attachment);
+			System.exit(5);
+		}
+
+		if (!Incoming.FileType.IMAGE.matches(attachment)) {
+			System.err.printf("Attachment file \"%s\" is not an image!%n", attachment);
+			System.exit(6);
+		}
+
+		Set<IndexResult.NewAttachment> attachments = Set.of(
+			new IndexResult.NewAttachment(Content.AttachmentType.IMAGE, attfile.getFileName().toString(), attfile)
+		);
+
+		if (contentManager.checkin(new IndexResult<>(content, attachments), null)) {
 			System.out.println("Stored changes!");
 		} else {
 			System.out.println("Failed to apply");
