@@ -201,7 +201,7 @@ Supports S3-compatible storage implementations.
 - `--s3-url=https://__BUCKET__.s3.eu-west-2.amazonaws.com/__NAME__`
   -  (provide the public URL of your storage bucket in the appropriate region. 
      `__BUCKET__` and `__NAME__`  will be replaced by the bucket and uploaded
-     filenames respectively
+     filenames respectively)
 
 Note: Amazon S3 bucket policy to allow public downloads:
 

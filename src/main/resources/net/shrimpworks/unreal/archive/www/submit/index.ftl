@@ -13,18 +13,19 @@
 			<div id="upload-controls" class="display-block">
 				<h2>Choose Files to Submit</h2>
 
-				<!--				<input type="radio" name="type" value="upload" id="rupload" checked>-->
-				<!--				<label for="rupload">Upload Files From your Computer</label>-->
-
-				<!--				<input type="radio" name="type" value="url" id="rurl">-->
-				<!--				<label for="rurl">Submit via a URL</label>-->
-
-				<!--				<hr />-->
-
 				<div id="upload" class="display-block">
 					<input type="file" id="files" accept=".zip,.rar,.7z,.ace,.gz,.bz2,.tar,.tgz,.exe,.umod,.ut2mod,.ut4mod" multiple style="display:none">
 					<button id="select-files"><img src="${staticPath()}/images/icons/file-plus.svg" alt="Add files"/> Select Files</button>
 					<button id="upload-files"><img src="${staticPath()}/images/icons/upload.svg" alt="Upload"/> Upload!</button>
+					<select id="upload-type">
+						<option value="auto">Auto-Detect File Types</option>
+						<option value="map">Map</option>
+						<option value="mappack">Map Pack</option>
+						<option value="mutator">Mutator</option>
+						<option value="skin">Skin</option>
+						<option value="model">Model</option>
+						<option value="voice">Voice</option>
+					</select>
 				</div>
 
 				<div id="url">
@@ -108,6 +109,7 @@
 		let selectFilesButton = document.querySelector('#select-files');
 		let fileSelector = document.querySelector('#files');
 		let uploadFilesButton = document.querySelector('#upload-files');
+		let uploadTypeOption = document.querySelector('#upload-type');
 		let uploadUrlButton = document.querySelector('#upload-url');
 		let abortButton = document.querySelector('#abort');
 
@@ -117,7 +119,8 @@
 		let infoBlurb = document.querySelector('#words');
 
 		let uploadControls = document.querySelector('#upload-controls');
-		let progressControls = document.querySelector('#progress-controls')
+		let progressControls = document.querySelector('#progress-controls');
+		let progressBar = document.querySelector('#progress');
 
 		// let uploadFiles = document.querySelector('#upload');
 		// let uploadUrl = document.querySelector('#url');
@@ -144,21 +147,22 @@
 			}
 		});
 
+	  uploadTypeOption.addEventListener('change', () => {
+			if (uploadTypeOption.value !== "auto") {
+				if (!confirm("Caution!\n\n" +
+						"Only use a forced type if auto-detection doesn't identify the uploaded content first!\n\n" +
+						"The forced type will be applied to ALL selected files.\n\n" +
+						"Continue?")) {
+					uploadTypeOption.value = "auto";
+				}
+			}
+		});
+
 		if (location.hash) {
 			toggleProgress(true);
 			abortButton.innerText = "Upload Another";
 			pollJob(location.hash.substring(1), true);
 		}
-
-		// document.querySelectorAll('input[name=type]').forEach(e => e.addEventListener('change', () => {
-		//   if (document.querySelector('#rupload').checked) {
-		// 	  uploadFiles.classList.add("display-block");
-		// 	  uploadUrl.classList.remove("display-block");
-		//   } else {
-		// 	  uploadFiles.classList.remove("display-block");
-		// 	  uploadUrl.classList.add("display-block");
-		//   }
-		// }));
 
 		function resetFilesList() {
 			while (filesList.childNodes.length > 0) filesList.removeChild(filesList.childNodes[0]);
@@ -201,6 +205,10 @@
 				data.append('files', files[i]);
 			}
 
+			if (uploadTypeOption.value !== "auto") {
+		  	data.append('forceType', uploadTypeOption.value);
+			}
+
 			currentRequest.addEventListener('load', e => {
 				abortButton.innerText = "Upload Another";
 
@@ -209,7 +217,7 @@
 			});
 
 			currentRequest.upload.addEventListener('progress', e => {
-				document.querySelector('#progress').value = Math.round((e.loaded / e.total) * 100);
+		  	progressBar.value = Math.round((e.loaded / e.total) * 100);
 			});
 
 			currentRequest.responseType = 'json';

@@ -18,6 +18,20 @@
 	display: none;
 }
 
+#select-files { grid-area: select-files }
+#upload-files {	grid-area: upload-files; }
+#upload-type  {	grid-area: upload-type; }
+#upload-controls #upload.display-block {
+	display: grid !important;
+	grid-template-columns: 60% auto;
+	grid-template-rows: 35px 35px;
+	grid-template-areas:
+		'select-files upload-files'
+		'upload-type  upload-files';
+	grid-gap: 5px;
+	align-items: stretch;
+}
+
 #upload-controls #url {
 	display: none;
 }
@@ -89,11 +103,19 @@
 
 #abort {
 	display: inline-block;
-	width: calc(100% - 76%);
+	grid-area: abort;
 }
 
 #progress {
 	display: inline-block;
-	width: 75% !important;
-	height: 100%;
+	grid-area: progress;
+}
+
+#progress-controls.display-block {
+	display: grid !important;
+	grid-template-columns: 70% auto;
+	grid-template-rows: 35px 35px;
+	grid-template-areas: 'progress abort';
+	grid-gap: 5px;
+	align-items: stretch;
 }
