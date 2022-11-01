@@ -1,7 +1,7 @@
 <header>
 	<div class="page">
 		<div class="heading">
-			<a href="${relPath(siteRoot + "/index.html")}" class="header">
+			<a href="/index.html" class="header">
 				<img src="${staticPath()}/images/logo.png" alt="Unreal Archive" width="80" height="80"/>
 				<span class="a">UNREAL</span><span class="b">ARCHIVE</span>
 			</a>
