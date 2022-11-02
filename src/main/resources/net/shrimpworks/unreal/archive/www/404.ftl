@@ -1,3 +1,6 @@
+<!-- since the 404 page only applies to online hosted content, we can force the homepage to the root -->
+<#assign homeOverride="/index.html" />
+
 <#include "_header.ftl">
 <#include "macros.ftl">
 
