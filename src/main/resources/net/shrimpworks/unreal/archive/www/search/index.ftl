@@ -10,7 +10,7 @@
 
 	<form id="search-form">
 		<span>
-			<input type="search" id="q"/>
+			<input type="search" id="q" autofocus="autofocus" />
 			<button><img src="${staticPath()}/images/icons/search.svg" alt="Search"/> Search</button>
 		</span>
 		<span>
