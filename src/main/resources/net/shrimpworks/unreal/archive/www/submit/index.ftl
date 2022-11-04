@@ -1,4 +1,4 @@
-<#assign extraCss="submit.css"/>
+<#assign extraCss="submit.css?v=20221104"/>
 <#include "../_header.ftl">
 <#include "../macros.ftl">
 
@@ -20,7 +20,7 @@
 					<select id="upload-type">
 						<option value="auto">Auto-Detect File Types</option>
 						<option value="map">Map</option>
-						<option value="mappack">Map Pack</option>
+						<option value="map_pack">Map Pack</option>
 						<option value="mutator">Mutator</option>
 						<option value="skin">Skin</option>
 						<option value="model">Model</option>
