@@ -31,8 +31,8 @@
 
 		<div class="info">
 
-			<#assign skinsList><#list skin.item.skins as s><div>${s}</div></#list></#assign>
-			<#assign faceList><#list skin.item.faces as s><div>${s}</div></#list></#assign>
+			<#assign skinsList><#list skin.item.skins?sort as s><div>${s}</div></#list></#assign>
+			<#assign faceList><#list skin.item.faces?sort as s><div>${s}</div></#list></#assign>
 
 			<#assign author><@authorLink skin.item.authorName /></#assign>
 			<#assign

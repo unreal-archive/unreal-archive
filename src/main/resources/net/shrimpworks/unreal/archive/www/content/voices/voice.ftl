@@ -31,7 +31,7 @@
 
 		<div class="info">
 
-			<#assign voicesList><#list voice.item.voices as v><div>${v}</div><#else>Unknown</#list></#assign>
+			<#assign voicesList><#list voice.item.voices?sort as v><div>${v}</div><#else>Unknown</#list></#assign>
 
 			<#assign author><@authorLink voice.item.authorName /></#assign>
 			<#assign

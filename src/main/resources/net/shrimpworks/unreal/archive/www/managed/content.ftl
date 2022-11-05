@@ -33,12 +33,6 @@
 			<div class="label-value">
 				<label>Release Date</label><span>${managed.managed.releaseDate!"-"}</span>
 			</div>
-<#--			<div class="label-value">-->
-<#--				<label>Date Added</label><span>${managed.managed.createdDate}</span>-->
-<#--			</div>-->
-<#--			<div class="label-value">-->
-<#--				<label>Last Updated</label><span>${managed.managed.updatedDate}</span>-->
-<#--			</div>-->
 			<div class="label-value">
 				<label>Summary</label><span>${managed.managed.description}</span>
 			</div>

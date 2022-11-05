@@ -4,16 +4,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.regex.Matcher;
 
 import net.shrimpworks.unreal.archive.content.ContentType;
 import net.shrimpworks.unreal.archive.content.Incoming;
 import net.shrimpworks.unreal.archive.content.IndexLog;
-import net.shrimpworks.unreal.archive.content.IndexUtils;
 import net.shrimpworks.unreal.archive.content.Submission;
-import net.shrimpworks.unreal.archive.content.skins.Skin;
 
 import org.junit.jupiter.api.Test;
 

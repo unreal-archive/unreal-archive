@@ -31,8 +31,8 @@
 
 		<div class="info">
 
-			<#assign modelList><#list model.item.models as m><div>${m}</div><#else></#list></#assign>
-			<#assign skinsList><#list model.item.skins as s><div>${s}</div><#else></#list></#assign>
+			<#assign modelList><#list model.item.models?sort as m><div>${m}</div><#else></#list></#assign>
+			<#assign skinsList><#list model.item.skins?sort as s><div>${s}</div><#else></#list></#assign>
 
 			<#assign author><@authorLink model.item.authorName /></#assign>
 			<#assign

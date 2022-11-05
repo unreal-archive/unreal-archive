@@ -136,7 +136,7 @@
 					</tr>
 					</thead>
 					<tbody>
-						<#list pack.item.maps?sort as m>
+						<#list pack.item.maps?sort_by("name") as m>
 						<tr>
 							<td>${m.name}</td>
 							<td class="nomobile">${m.title}</td>

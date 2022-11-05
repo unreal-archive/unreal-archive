@@ -32,7 +32,7 @@
 		<div class="info">
 
 			<#assign mutatorList>
-				<#list mutator.item.mutators as m>
+				<#list mutator.item.mutators?sort_by("name") as m>
 					<div class="mini-head">${m.name}</div>
 					<div class="mini-detail">${m.description?replace("|", "<br/>")?no_esc}</div>
 				<#else>
@@ -41,14 +41,14 @@
 			</#assign>
 
 			<#assign weaponsList>
-				<#list mutator.item.weapons as m>
+				<#list mutator.item.weapons?sort_by("name") as m>
 					<div class="mini-head">${m.name}</div>
 					<div class="mini-detail">${m.description?replace("|", "<br/>")?no_esc}</div>
         <#else></#list>
 			</#assign>
 
 			<#assign vehicleList>
-				<#list mutator.item.vehicles as m>
+				<#list mutator.item.vehicles?sort_by("name") as m>
 					<div class="mini-head">${m.name}</div>
 					<div class="mini-detail">${m.description?replace("|", "<br/>")?no_esc}</div>
         <#else></#list>
