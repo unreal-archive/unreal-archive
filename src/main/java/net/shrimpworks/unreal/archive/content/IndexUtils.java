@@ -3,6 +3,7 @@ package net.shrimpworks.unreal.archive.content;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.channels.Channels;
 import java.nio.charset.Charset;
 import java.nio.charset.MalformedInputException;
@@ -337,7 +338,7 @@ public class IndexUtils {
 			Charset encoding = encodings.remove(0);
 			try (BufferedReader br = new BufferedReader(Channels.newReader(file.asChannel(), encoding))) {
 				return (br.lines().collect(Collectors.toList()));
-			} catch (MalformedInputException ex) {
+			} catch (MalformedInputException | UncheckedIOException ex) {
 				if (encodings.isEmpty()) {
 					incoming.log.log(IndexLog.EntryType.CONTINUE, "Could not read file file as " + encoding.name() + ", giving up");
 					break;
