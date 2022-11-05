@@ -56,7 +56,12 @@ public class ModelIndexHandler implements IndexHandler<Model> {
 			// they don't seem to have skins, just characters, so that's all we'll record
 			characterDescriptors(incoming)
 				.forEach(v -> {
-					m.models.add(v.getOrDefault("CharName", "Unknown").trim());
+					String maybeFaction = v.getOrDefault("Faction", "");
+					if (!maybeFaction.isBlank()) {
+						m.models.add(maybeFaction + ": " + v.getOrDefault("CharName", "Unknown").trim());
+					} else {
+						m.models.add(v.getOrDefault("CharName", "Unknown").trim());
+					}
 
 					if (m.name == null || m.name.equals(origName)) m.name = v.getOrDefault("CharName", "Unknown").trim();
 				});
@@ -81,7 +86,8 @@ public class ModelIndexHandler implements IndexHandler<Model> {
 		} else {
 			// find model and skin information via .int files
 			modelDescriptors(incoming).forEach(d -> {
-				if (d.containsKey("Description") && Model.NAME_MATCH.matcher(d.get("Name")).matches() && !d.get("Description").trim().isBlank()) {
+				if (d.containsKey("Description") && Model.NAME_MATCH.matcher(d.get("Name")).matches() &&
+					!d.get("Description").trim().isBlank()) {
 					if (m.name == null || m.name.equals(origName)) m.name = d.get("Description");
 					m.models.add(d.get("Description").trim());
 				}
