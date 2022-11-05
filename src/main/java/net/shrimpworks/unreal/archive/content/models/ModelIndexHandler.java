@@ -81,7 +81,7 @@ public class ModelIndexHandler implements IndexHandler<Model> {
 		} else {
 			// find model and skin information via .int files
 			modelDescriptors(incoming).forEach(d -> {
-				if (d.containsKey("Description") && Model.NAME_MATCH.matcher(d.get("Name")).matches()) {
+				if (d.containsKey("Description") && Model.NAME_MATCH.matcher(d.get("Name")).matches() && !d.get("Description").trim().isBlank()) {
 					if (m.name == null || m.name.equals(origName)) m.name = d.get("Description");
 					m.models.add(d.get("Description").trim());
 				}

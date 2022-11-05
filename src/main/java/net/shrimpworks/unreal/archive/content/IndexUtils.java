@@ -3,8 +3,9 @@ package net.shrimpworks.unreal.archive.content;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.channels.Channels;
+import java.nio.charset.Charset;
+import java.nio.charset.MalformedInputException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -319,19 +320,35 @@ public class IndexUtils {
 	public static List<String> textContent(Incoming incoming, Incoming.FileType... fileTypes) throws IOException {
 		List<String> lines = new ArrayList<>();
 		for (Incoming.IncomingFile f : incoming.files(fileTypes)) {
-			try (BufferedReader br = new BufferedReader(Channels.newReader(f.asChannel(), StandardCharsets.UTF_8.name()))) {
-				lines.addAll(br.lines().collect(Collectors.toList()));
-			} catch (UncheckedIOException e) {
-				incoming.log.log(IndexLog.EntryType.INFO, "Could not read file as UTF-8, trying ISO-8859-1", e);
-				try (BufferedReader br = new BufferedReader(Channels.newReader(f.asChannel(), StandardCharsets.ISO_8859_1.name()))) {
-					lines.addAll(br.lines().collect(Collectors.toList()));
-				} catch (UncheckedIOException ex) {
-					incoming.log.log(IndexLog.EntryType.CONTINUE, "Failed to load text content from incoming package", e);
-				}
-			}
+			lines.addAll(textContent(incoming, f,
+									 new ArrayList<>(List.of(StandardCharsets.UTF_8, StandardCharsets.ISO_8859_1, Charset.forName("Cp1252"),
+															 StandardCharsets.US_ASCII))
+			));
 		}
 
 		return lines;
+	}
+
+	/**
+	 * Attempts to read the contents of a text file using one of the given file encodings, in order.
+	 */
+	private static List<String> textContent(Incoming incoming, Incoming.IncomingFile file, List<Charset> encodings) throws IOException {
+		while (!encodings.isEmpty()) {
+			Charset encoding = encodings.remove(0);
+			try (BufferedReader br = new BufferedReader(Channels.newReader(file.asChannel(), encoding))) {
+				return (br.lines().collect(Collectors.toList()));
+			} catch (MalformedInputException ex) {
+				if (encodings.isEmpty()) {
+					incoming.log.log(IndexLog.EntryType.CONTINUE, "Could not read file file as " + encoding.name() + ", giving up");
+					break;
+				}
+
+				// try another encoding if available
+				incoming.log.log(IndexLog.EntryType.CONTINUE,
+								 "Could not read file file as " + encoding.name() + ", trying " + encodings.get(0).name());
+			}
+		}
+		return List.of();
 	}
 
 	/**
@@ -375,7 +392,7 @@ public class IndexUtils {
 	/**
 	 * Attempt to find a player count for a map, based on included text files.
 	 *
-	 * @param incoming       content being indexed
+	 * @param incoming content being indexed
 	 * @return an author if found, or unknown
 	 * @throws IOException failed to read files
 	 */
@@ -402,12 +419,36 @@ public class IndexUtils {
 		return intFiles.stream()
 					   .map(f -> {
 						   try {
-							   return new IntFile(f.asChannel(), syntheticRoots);
+							   return readIntFile(
+								   incoming, f, syntheticRoots,
+								   new ArrayList<>(List.of(StandardCharsets.UTF_8, StandardCharsets.ISO_8859_1, Charset.forName("Cp1252"),
+														   StandardCharsets.US_ASCII))
+							   );
 						   } catch (IOException e) {
 							   incoming.log.log(IndexLog.EntryType.CONTINUE, "Couldn't load INT file " + f.fileName(), e);
 							   return null;
 						   }
 					   });
+	}
+
+	/**
+	 * Attempts to read the contents of an int file using one of the given file encodings, in order.
+	 */
+	private static IntFile readIntFile(Incoming incoming, Incoming.IncomingFile intFile, boolean syntheticRoots,
+									   List<Charset> encodings) throws IOException {
+		while (!encodings.isEmpty()) {
+			Charset encoding = encodings.remove(0);
+			try {
+				return new IntFile(intFile.asChannel(), syntheticRoots, encoding);
+			} catch (MalformedInputException ex) {
+				if (encodings.isEmpty()) throw ex;
+
+				// try another encoding if available
+				incoming.log.log(IndexLog.EntryType.CONTINUE,
+								 "Could not read int file as " + encoding.name() + ", trying " + encodings.get(0).name());
+			}
+		}
+		throw new IOException("Failed to load int file");
 	}
 
 	public static String friendlyName(String name) {

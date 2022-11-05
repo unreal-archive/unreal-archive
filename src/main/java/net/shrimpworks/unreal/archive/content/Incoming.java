@@ -293,7 +293,7 @@ public class Incoming implements Closeable {
 					if (!umodMaybe.isEmpty()) return umodMaybe.iterator().next().fileDate();
 				}
 			} catch (IOException e) {
-				throw new IllegalStateException("Failed to get file size for " + file, e);
+				throw new IllegalStateException("Failed to get file date for " + file, e);
 			}
 			return LocalDateTime.now();
 		}

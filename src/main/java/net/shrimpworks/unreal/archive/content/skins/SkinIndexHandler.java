@@ -71,7 +71,7 @@ public class SkinIndexHandler implements IndexHandler<Skin> {
 						s.skins.add(nameMatch.group(1).trim());
 					}
 				} else {
-					if (d.containsKey("Description") && Skin.NAME_MATCH.matcher(d.get("Name")).matches()) {
+					if (d.containsKey("Description") && Skin.NAME_MATCH.matcher(d.get("Name")).matches() && !d.get("Description").trim().isBlank()) {
 						if (s.name == null || s.name.equals(origName)) s.name = d.get("Description");
 						s.skins.add(d.get("Description").trim());
 					} else if (!s.teamSkins && Skin.TEAM_MATCH.matcher(d.get("Name")).matches()) {
