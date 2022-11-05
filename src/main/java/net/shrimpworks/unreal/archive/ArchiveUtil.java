@@ -201,7 +201,7 @@ public class ArchiveUtil {
 	private static String[] rarCmd(Path source, Path destination) {
 		return new String[] {
 				unrarBin(),
-				"e",                   // extract
+				"x",                   // extract
 				"-y",                  // yes to all
 				source.toString(),     // file to extract
 				destination.toString() // destination directory
