@@ -50,6 +50,9 @@ public class ModelIndexHandler implements IndexHandler<Model> {
 
 		String origName = m.name;
 
+		m.models = new ArrayList<>();
+		m.skins = new ArrayList<>();
+
 		if (!incoming.files(Incoming.FileType.PACKAGE).isEmpty()) {
 			// UT3 content includes .UPK files
 
