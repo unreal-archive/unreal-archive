@@ -71,7 +71,8 @@ public class SkinIndexHandler implements IndexHandler<Skin> {
 						s.skins.add(nameMatch.group(1).trim());
 					}
 				} else {
-					if (d.containsKey("Description") && Skin.NAME_MATCH.matcher(d.get("Name")).matches() && !d.get("Description").trim().isBlank()) {
+					if (d.containsKey("Description") && Skin.NAME_MATCH.matcher(d.get("Name")).matches() &&
+						!d.get("Description").trim().isBlank()) {
 						if (s.name == null || s.name.equals(origName)) s.name = d.get("Description");
 						s.skins.add(d.get("Description").trim());
 					} else if (!s.teamSkins && Skin.TEAM_MATCH.matcher(d.get("Name")).matches()) {
@@ -175,35 +176,27 @@ public class SkinIndexHandler implements IndexHandler<Skin> {
 	}
 
 	public static List<IntFile.MapValue> playerDescriptors(Incoming incoming) {
-		return incoming.files(Incoming.FileType.PLAYER).stream()
-					   .map(f -> {
-						   try {
-							   return new IntFile(f.asChannel());
-						   } catch (IOException e) {
-							   incoming.log.log(IndexLog.EntryType.CONTINUE, "Couldn't load UPL file " + f.fileName(), e);
-							   return null;
-						   }
-					   })
-					   .filter(Objects::nonNull)
-					   .flatMap(intFile -> {
-						   List<IntFile.MapValue> vals = new ArrayList<>();
+		return IndexUtils.readIntFiles(incoming, incoming.files(Incoming.FileType.PLAYER))
+						 .filter(Objects::nonNull)
+						 .flatMap(intFile -> {
+							 List<IntFile.MapValue> vals = new ArrayList<>();
 
-						   IntFile.Section section = intFile.section("public");
-						   if (section == null) return Stream.empty();
+							 IntFile.Section section = intFile.section("public");
+							 if (section == null) return Stream.empty();
 
-						   IntFile.ListValue objects = section.asList("Player");
-						   for (IntFile.Value value : objects.values) {
-							   if (value instanceof IntFile.MapValue
-								   && ((IntFile.MapValue)value).containsKey("DefaultName")) {
+							 IntFile.ListValue objects = section.asList("Player");
+							 for (IntFile.Value value : objects.values) {
+								 if (value instanceof IntFile.MapValue
+									 && ((IntFile.MapValue)value).containsKey("DefaultName")) {
 
-								   vals.add((IntFile.MapValue)value);
-							   }
-						   }
+									 vals.add((IntFile.MapValue)value);
+								 }
+							 }
 
-						   return vals.stream();
-					   })
-					   .filter(Objects::nonNull)
-					   .collect(Collectors.toList());
+							 return vals.stream();
+						 })
+						 .filter(Objects::nonNull)
+						 .collect(Collectors.toList());
 	}
 
 	private String game(Incoming incoming) throws IOException {
