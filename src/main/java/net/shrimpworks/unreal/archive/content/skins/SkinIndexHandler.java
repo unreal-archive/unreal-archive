@@ -47,12 +47,7 @@ public class SkinIndexHandler implements IndexHandler<Skin> {
 
 		String origName = s.name;
 
-		try {
-			if (s.releaseDate != null && s.releaseDate.compareTo(IndexUtils.RELEASE_UT99) < 0) s.game = "Unreal";
-			s.game = game(incoming);
-		} catch (Exception e) {
-			log.log(IndexLog.EntryType.CONTINUE, "Could not determine game for skin", e);
-		}
+		s.game = IndexUtils.game(incoming).name;
 
 		if (!incoming.files(Incoming.FileType.PLAYER).isEmpty()) {
 			playerDescriptors(incoming).forEach(p -> {
@@ -84,11 +79,7 @@ public class SkinIndexHandler implements IndexHandler<Skin> {
 			});
 		}
 
-		try {
-			s.author = IndexUtils.findAuthor(incoming);
-		} catch (IOException e) {
-			log.log(IndexLog.EntryType.CONTINUE, "Failed attempt to read author", e);
-		}
+		s.author = IndexUtils.findAuthor(incoming);
 
 		try {
 			// see if there are any images the author may have included in the package
@@ -197,14 +188,6 @@ public class SkinIndexHandler implements IndexHandler<Skin> {
 						 })
 						 .filter(Objects::nonNull)
 						 .collect(Collectors.toList());
-	}
-
-	private String game(Incoming incoming) throws IOException {
-		if (incoming.submission.override.get("game", null) != null) return incoming.submission.override.get("game", "Unreal Tournament");
-
-		if (!incoming.files(Incoming.FileType.PLAYER).isEmpty()) return "Unreal Tournament 2004";
-
-		return IndexUtils.game(incoming.files(Incoming.FileType.PACKAGES));
 	}
 
 }

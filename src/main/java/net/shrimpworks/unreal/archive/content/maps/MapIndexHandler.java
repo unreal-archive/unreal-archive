@@ -69,7 +69,7 @@ public class MapIndexHandler implements IndexHandler<Map> {
 			gameOverride = true;
 			m.game = incoming.submission.override.get("game", "Unreal Tournament");
 		} else {
-			m.game = game(incoming);
+			m.game = IndexUtils.game(incoming).name;
 		}
 
 		Set<IndexResult.NewAttachment> attachments = new HashSet<>();
@@ -261,19 +261,6 @@ public class MapIndexHandler implements IndexHandler<Map> {
 		}
 
 		return false;
-	}
-
-	private String game(Incoming incoming) {
-		if (incoming.submission.override.get("game", null) != null) return incoming.submission.override.get("game", "Unreal Tournament");
-
-		for (Incoming.IncomingFile f : incoming.files(Incoming.FileType.MAP)) {
-			if (f.fileName().toLowerCase().endsWith(".unr")) return "Unreal Tournament";
-			if (f.fileName().toLowerCase().endsWith(".ut2")) return "Unreal Tournament 2004";
-			if (f.fileName().toLowerCase().endsWith(".ut3")) return "Unreal Tournament 3";
-			if (f.fileName().toLowerCase().endsWith(".un2")) return "Unreal 2";
-		}
-
-		return IndexUtils.UNKNOWN;
 	}
 
 	public static java.util.Map<String, Double> themes(Package pkg) {

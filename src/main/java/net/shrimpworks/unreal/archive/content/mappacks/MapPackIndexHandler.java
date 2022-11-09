@@ -61,7 +61,7 @@ public class MapPackIndexHandler implements IndexHandler<MapPack> {
 			gameOverride = true;
 			m.game = incoming.submission.override.get("game", "Unreal Tournament");
 		} else {
-			m.game = game(maps.iterator().next());
+			m.game = IndexUtils.game(incoming).name;
 		}
 
 		try (Package map = map(maps.iterator().next())) {
@@ -207,15 +207,6 @@ public class MapPackIndexHandler implements IndexHandler<MapPack> {
 		listConsumer.accept(images);
 
 		return p;
-	}
-
-	private String game(Incoming.IncomingFile incoming) {
-		if (incoming.fileName().toLowerCase().endsWith(".unr")) return "Unreal Tournament";
-		if (incoming.fileName().toLowerCase().endsWith(".ut2")) return "Unreal Tournament 2004";
-		if (incoming.fileName().toLowerCase().endsWith(".ut3")) return "Unreal Tournament 3";
-		if (incoming.fileName().toLowerCase().endsWith(".un2")) return "Unreal 2";
-
-		return IndexUtils.UNKNOWN;
 	}
 
 	private Package map(Incoming.IncomingFile file) {

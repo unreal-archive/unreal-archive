@@ -46,18 +46,9 @@ public class VoiceIndexHandler implements IndexHandler<Voice> {
 			}
 		});
 
-		try {
-			if (v.releaseDate != null && v.releaseDate.compareTo(IndexUtils.RELEASE_UT99) < 0) v.game = "Unreal";
-			v.game = game(incoming);
-		} catch (Exception e) {
-			log.log(IndexLog.EntryType.CONTINUE, "Could not determine game for model", e);
-		}
+		v.game = IndexUtils.game(incoming).name;
 
-		try {
-			v.author = IndexUtils.findAuthor(incoming, true);
-		} catch (IOException e) {
-			log.log(IndexLog.EntryType.CONTINUE, "Failed attempt to read author", e);
-		}
+		v.author = IndexUtils.findAuthor(incoming, true);
 
 		try {
 			// see if there are any images the author may have included in the package
@@ -108,12 +99,6 @@ public class VoiceIndexHandler implements IndexHandler<Voice> {
 						 })
 						 .filter(Objects::nonNull)
 						 .collect(Collectors.toList());
-	}
-
-	private String game(Incoming incoming) throws IOException {
-		if (incoming.submission.override.get("game", null) != null) return incoming.submission.override.get("game", "Unreal Tournament");
-
-		return IndexUtils.game(incoming.files(Incoming.FileType.PACKAGES));
 	}
 
 }

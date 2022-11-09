@@ -33,7 +33,7 @@ public class Incoming implements Closeable {
 
 	public enum FileType {
 		CODE(true, "u"),
-		MAP(true, "unr", "ut2", "ut3"),
+		MAP(true, "unr", "ut2", "ut3", "un2", "run"),
 		PACKAGE(true, "upk"), /* UT3 catch-all format */
 		TEXTURE(true, "utx"),
 		MUSIC(true, "umx", "ogg"),

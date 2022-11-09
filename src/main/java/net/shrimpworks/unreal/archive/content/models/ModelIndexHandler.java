@@ -1,7 +1,6 @@
 package net.shrimpworks.unreal.archive.content.models;
 
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -104,18 +103,9 @@ public class ModelIndexHandler implements IndexHandler<Model> {
 			});
 		}
 
-		try {
-			if (m.releaseDate != null && m.releaseDate.compareTo(IndexUtils.RELEASE_UT99) < 0) m.game = "Unreal";
-			m.game = game(incoming);
-		} catch (Exception e) {
-			log.log(IndexLog.EntryType.CONTINUE, "Could not determine game for model", e);
-		}
+		m.game = IndexUtils.game(incoming).name;
 
-		try {
-			m.author = IndexUtils.findAuthor(incoming);
-		} catch (IOException e) {
-			log.log(IndexLog.EntryType.CONTINUE, "Failed attempt to read author", e);
-		}
+		m.author = IndexUtils.findAuthor(incoming);
 
 		try {
 			// see if there are any images the author may have included in the package
@@ -160,12 +150,6 @@ public class ModelIndexHandler implements IndexHandler<Model> {
 						 })
 						 .filter(Objects::nonNull)
 						 .collect(Collectors.toList());
-	}
-
-	private String game(Incoming incoming) throws IOException {
-		if (incoming.submission.override.get("game", null) != null) return incoming.submission.override.get("game", "Unreal Tournament");
-
-		return IndexUtils.game(incoming.files(Incoming.FileType.PACKAGES));
 	}
 
 	private List<IntFile.MapValue> characterDescriptors(Incoming incoming) {

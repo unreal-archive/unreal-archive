@@ -59,20 +59,31 @@ public class IndexUtils {
 
 	public static final String SHOT_NAME = "%s_shot_%s_%d.png";
 
-	public static String game(Set<Incoming.IncomingFile> files) throws IOException {
-		if (files.isEmpty()) return UNKNOWN;
+	public static Games game(Incoming incoming) {
+		if (incoming.submission.override.get("game", null) != null) {
+			return Games.byName(incoming.submission.override.get("game", Games.UNREAL_TOURNAMENT.name));
+		}
 
-		if (files.stream().anyMatch(f -> Util.extension(f.file).equalsIgnoreCase("ut2"))) return Games.UNREAL_TOURNAMENT_2004.name;
-		if (files.stream().anyMatch(f -> Util.extension(f.file).equalsIgnoreCase("upl"))) return Games.UNREAL_TOURNAMENT_2004.name;
-		if (files.stream().anyMatch(f -> Util.extension(f.file).equalsIgnoreCase("usx"))) return Games.UNREAL_TOURNAMENT_2004.name;
-		if (files.stream().anyMatch(f -> Util.extension(f.file).equalsIgnoreCase("ut3"))) return Games.UNREAL_TOURNAMENT_3.name;
-		if (files.stream().anyMatch(f -> Util.extension(f.file).equalsIgnoreCase("upk"))) return Games.UNREAL_TOURNAMENT_3.name;
+		Set<Incoming.IncomingFile> files = incoming.files(Incoming.FileType.PACKAGES);
+		if (files.isEmpty()) return Games.UNKNOWN;
+
+		if (!incoming.files(Incoming.FileType.PLAYER, Incoming.FileType.STATICMESH).isEmpty()) return Games.UNREAL_TOURNAMENT_2004;
+		if (!incoming.files(Incoming.FileType.PACKAGE).isEmpty()) return Games.UNREAL_TOURNAMENT_3;
+
+		if (files.stream().anyMatch(f -> Util.extension(f.file).equalsIgnoreCase("ut2"))) return Games.UNREAL_TOURNAMENT_2004;
+		if (files.stream().anyMatch(f -> Util.extension(f.file).equalsIgnoreCase("ut3"))) return Games.UNREAL_TOURNAMENT_3;
+		if (files.stream().anyMatch(f -> Util.extension(f.file).equalsIgnoreCase("run"))) return Games.RUNE;
+		if (files.stream().anyMatch(f -> Util.extension(f.file).equalsIgnoreCase("un2"))) return Games.UNREAL_2;
 
 		try (Package pkg = new Package(new PackageReader(files.iterator().next().asChannel()))) {
-			if (pkg.version < 68) return Games.UNREAL.name;
-			else if (pkg.version < 117) return "Unreal Tournament";
-			else if (pkg.version < 200) return "Unreal Tournament 2004";
-			else return "Unreal Tournament 3";
+			if (pkg.version < 68) return Games.UNREAL;
+			// FIXME Rune uses version 69 it seems, which overlaps with UT
+			else if (pkg.version < 117) return Games.UNREAL_TOURNAMENT;
+			else if (pkg.version < 200) return Games.UNREAL_TOURNAMENT_2004;
+			else return Games.UNREAL_TOURNAMENT_3;
+		} catch (Exception e) {
+			incoming.log.log(IndexLog.EntryType.CONTINUE, "Could not determine game for content", e);
+			return Games.UNKNOWN;
 		}
 	}
 
@@ -358,9 +369,8 @@ public class IndexUtils {
 	 *
 	 * @param incoming content being indexed
 	 * @return an author if found, or unknown
-	 * @throws IOException failed to read files
 	 */
-	public static String findAuthor(Incoming incoming) throws IOException {
+	public static String findAuthor(Incoming incoming) {
 		return findAuthor(incoming, false);
 	}
 
@@ -371,20 +381,23 @@ public class IndexUtils {
 	 * @param incoming       content being indexed
 	 * @param searchIntFiles also search within .int file content
 	 * @return an author if found, or unknown
-	 * @throws IOException failed to read files
 	 */
-	public static String findAuthor(Incoming incoming, boolean searchIntFiles) throws IOException {
+	public static String findAuthor(Incoming incoming, boolean searchIntFiles) {
 		Incoming.FileType[] types = searchIntFiles
 			? new Incoming.FileType[] { Incoming.FileType.TEXT, Incoming.FileType.HTML, Incoming.FileType.INT }
 			: new Incoming.FileType[] { Incoming.FileType.TEXT, Incoming.FileType.HTML };
 
-		List<String> lines = IndexUtils.textContent(incoming, types);
+		try {
+			List<String> lines = IndexUtils.textContent(incoming, types);
 
-		for (String s : lines) {
-			Matcher m = AUTHOR_MATCH.matcher(s);
-			if (m.matches() && !m.group(5).trim().isEmpty()) {
-				return m.group(5).trim();
+			for (String s : lines) {
+				Matcher m = AUTHOR_MATCH.matcher(s);
+				if (m.matches() && !m.group(5).trim().isEmpty()) {
+					return m.group(5).trim();
+				}
 			}
+		} catch (IOException e) {
+			incoming.log.log(IndexLog.EntryType.CONTINUE, "Failed attempt to read author", e);
 		}
 
 		return UNKNOWN;
