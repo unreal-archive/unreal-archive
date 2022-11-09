@@ -11,13 +11,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
@@ -27,7 +31,7 @@ import net.shrimpworks.unreal.archive.YAML;
 public class Indexer {
 
 	static final Set<String> INCLUDE_TYPES = new HashSet<>(Arrays.asList(
-			"zip", "rar", "ace", "7z", "cab", "tgz", "gz", "tar", "bz2", "exe", "umod", "ut2mod", "ut4mod"
+		"zip", "rar", "ace", "7z", "cab", "tgz", "gz", "tar", "bz2", "exe", "umod", "ut2mod", "ut4mod"
 	));
 
 	private final ContentManager contentManager;
@@ -70,37 +74,59 @@ public class Indexer {
 	 * implementation, which further enriches it, and finally returns it via a
 	 * {@link Consumer}.
 	 *
-	 * @param force     if content has already been indexed, index it again
-	 * @param forceType if not null, use the specified content type, rather than
-	 *                  attempting to discover it automatically
-	 * @param inputPath directories or file paths to index
+	 * @param force       if content has already been indexed, index it again
+	 * @param newOnly     if true, only attempt to index content with unknown file hashes
+	 * @param concurrency number of worker threads to use for indexing; defaults to 1.
+	 *                    useful when indexing large directories of content
+	 * @param forceType   if not null, use the specified content type, rather than
+	 *                    attempting to discover it automatically
+	 * @param inputPath   directories or file paths to index
 	 * @throws IOException file access failure
 	 */
 	public void index(boolean force, boolean newOnly, int concurrency, ContentType forceType, Path... inputPath) throws IOException {
 		final List<IndexLog> indexLogs = new ArrayList<>();
 
-		// go through all the files in the input path and index them if new
-		List<Submission> all = new ArrayList<>();
-		for (Path p : inputPath) {
-			all.addAll(findFiles(p, newOnly));
+		// create a task to feed workers with incoming files asynchronously
+		final BlockingDeque<Submission> all = new LinkedBlockingDeque<>();
+		final CompletableFuture<Void> filesTask = CompletableFuture.runAsync(() -> {
+			for (Path p : inputPath) {
+				try {
+					findFiles(p, newOnly, all);
+				} catch (IOException ex) {
+					throw new RuntimeException("Failed to find files in path " + p, ex);
+				}
+			}
+		});
+
+		// keep a counter of number of files processed
+		final AtomicInteger done = new AtomicInteger();
+
+		// generate the requested number of workers according to concurrency specified
+		final CompletableFuture<?>[] workers = new CompletableFuture[concurrency];
+		for (int i = 0; i < concurrency; i++) {
+			workers[i] = CompletableFuture.runAsync(() -> {
+				do {
+					try {
+						// keep waiting for files
+						Submission sub = all.pollFirst(500, TimeUnit.MILLISECONDS);
+						if (sub == null) continue;
+
+						IndexLog log = new IndexLog();
+						indexLogs.add(log);
+
+						indexFile(sub, log, force, forceType, result -> {
+							events.indexed(sub, result, log);
+							events.progress(done.incrementAndGet(), all.size(), sub.filePath);
+						});
+					} catch (InterruptedException e) {
+						System.err.printf("Error encountered while processing index queue: %s%n", e.getMessage());
+					}
+				} while (!filesTask.isDone() || !all.isEmpty()); // end when after we've completed work, and there are no more files incoming
+			});
 		}
 
-		events.starting(all.size());
-
-		AtomicInteger done = new AtomicInteger();
-
-		ForkJoinPool fjPool = new ForkJoinPool(concurrency);
-		fjPool.submit(() -> all.parallelStream().sorted().forEach(sub -> {
-						  IndexLog log = new IndexLog();
-						  indexLogs.add(log);
-
-						  indexFile(sub, log, force, forceType, result -> {
-							  events.indexed(sub, result, log);
-
-							  events.progress(done.incrementAndGet(), all.size(), sub.filePath);
-						  });
-					  })
-		).join();
+		// wait for all workers to complete
+		CompletableFuture.allOf(workers).join();
 
 		int errorCount = 0;
 
@@ -111,8 +137,7 @@ public class Indexer {
 		events.completed(indexLogs.size(), errorCount);
 	}
 
-	private List<Submission> findFiles(Path inputPath, boolean newOnly) throws IOException {
-		List<Submission> all = new ArrayList<>();
+	private void findFiles(Path inputPath, boolean newOnly, Deque<Submission> all) throws IOException {
 		if (Files.isDirectory(inputPath)) {
 			Files.walkFileTree(inputPath, new SimpleFileVisitor<>() {
 
@@ -126,8 +151,9 @@ public class Indexer {
 
 							Submission sub;
 							// if there's a submission file
-							if (Files.exists(Paths.get(file.toString() + ".yml"))) {
-								sub = YAML.fromFile(Paths.get(file.toString() + ".yml"), Submission.class);
+							Path subFile = Paths.get(file + ".yml");
+							if (Files.exists(subFile)) {
+								sub = YAML.fromFile(subFile, Submission.class);
 								sub.filePath = file;
 							} else {
 								sub = new Submission(file);
@@ -135,7 +161,7 @@ public class Indexer {
 
 							SubmissionOverride override = this.override.get(file.getParent());
 							if (override != null) sub.override = override;
-							all.add(sub);
+							all.addLast(sub);
 						}
 					} catch (Throwable t) {
 						throw new IOException("Failed to read file " + file, t);
@@ -156,8 +182,9 @@ public class Indexer {
 		} else {
 			Submission sub;
 			// if there's a submission file
-			if (Files.exists(Paths.get(inputPath.toString() + ".yml"))) {
-				sub = YAML.fromFile(Paths.get(inputPath.toString() + ".yml"), Submission.class);
+			Path subFile = Paths.get(inputPath + ".yml");
+			if (Files.exists(subFile)) {
+				sub = YAML.fromFile(subFile, Submission.class);
 				sub.filePath = inputPath;
 			} else {
 				sub = new Submission(inputPath);
@@ -170,12 +197,10 @@ public class Indexer {
 
 			all.add(sub);
 		}
-
-		return all;
 	}
 
 	private void indexFile(
-			Submission sub, IndexLog log, boolean force, ContentType forceType, Consumer<Optional<IndexResult<? extends Content>>> done) {
+		Submission sub, IndexLog log, boolean force, ContentType forceType, Consumer<Optional<IndexResult<? extends Content>>> done) {
 		try (Incoming incoming = new Incoming(sub, log)) {
 			Content content = prepContent(incoming, force, forceType);
 

@@ -166,7 +166,6 @@ public class ContentManager {
 	// if something changed, the content will be written out, within a new directory structure if needed
 	// and the old file will be removed
 
-	@SuppressWarnings("unchecked")
 	public Content checkout(String hash) {
 		ContentHolder out = this.content.get(hash);
 		if (out != null) {
