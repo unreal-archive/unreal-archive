@@ -46,7 +46,7 @@ public class Incoming implements Closeable {
 		INT(false, "int"),
 		INI(false, "ini"),
 		UCL(false, "ucl"),
-		UMOD(true, "umod", "ut2mod", "ut4mod"),
+		UMOD(true, "umod", "ut2mod", "ut4mod", "rmod"),
 		TEXT(false, "txt"),
 		HTML(false, "html", "htm"),
 		IMAGE(false, "jpg", "jpeg", "bmp", "png", "gif"),

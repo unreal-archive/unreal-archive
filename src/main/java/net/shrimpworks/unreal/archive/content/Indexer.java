@@ -121,7 +121,8 @@ public class Indexer {
 					} catch (InterruptedException e) {
 						System.err.printf("Error encountered while processing index queue: %s%n", e.getMessage());
 					}
-				} while (!filesTask.isDone() || !all.isEmpty()); // end when after we've completed work, and there are no more files incoming
+				} while (!filesTask.isDone() || !all.isEmpty());
+				// end when after we've completed work, and there are no more files incoming
 			});
 		}
 
@@ -143,6 +144,33 @@ public class Indexer {
 
 				final Map<Path, SubmissionOverride> override = new HashMap<>();
 
+				private SubmissionOverride findOverride(Path file) {
+					Path parent = file.getParent();
+					if (override.containsKey(parent)) return override.get(parent);
+
+					// there's no immediate override in this directory, so walk up the free
+					SubmissionOverride result = null;
+					while (parent != null) {
+						if (override.containsKey(parent)) {
+							result = override.get(parent);
+							break;
+						}
+						parent = parent.getParent();
+					}
+
+					// this is a bit of double work, but we will do it once per subdirectory, rather than once per file
+					if (result != null) {
+						parent = file.getParent();
+						// as long as there's no override in a specific directory, add the top most parent
+						while (parent != null && !override.containsKey(parent)) {
+							override.put(parent, result);
+							parent = parent.getParent();
+						}
+					}
+
+					return result;
+				}
+
 				@Override
 				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 					try {
@@ -159,7 +187,7 @@ public class Indexer {
 								sub = new Submission(file);
 							}
 
-							SubmissionOverride override = this.override.get(file.getParent());
+							SubmissionOverride override = findOverride(file);
 							if (override != null) sub.override = override;
 							all.addLast(sub);
 						}
