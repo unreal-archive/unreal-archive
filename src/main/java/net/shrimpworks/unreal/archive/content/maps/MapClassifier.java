@@ -9,6 +9,7 @@ import net.shrimpworks.unreal.archive.content.Incoming;
 public class MapClassifier implements Classifier {
 
 	private static final Set<String> IGNORED_FILES = Set.of("Screen.int", "CTFScreen.int", "XMaps.int");
+	private static final Set<String> IGNORED_FILE_TYPES = Set.of("exe", "dll");
 
 	@Override
 	public boolean classify(Incoming incoming) {
@@ -19,6 +20,9 @@ public class MapClassifier implements Classifier {
 
 		// a map definitely probably won't have any associated .int files
 		if (ints.stream().anyMatch(i -> !IGNORED_FILES.contains(i.fileName()))) return false;
+
+		// definitely ignore these, it could be a mod
+		if (incoming.files().stream().anyMatch(i -> IGNORED_FILE_TYPES.contains(Util.extension(i.fileName())))) return false;
 
 		// a bit naive, if there's a one-map mod, it would pass here
 		if (maps.size() == 1) return true;

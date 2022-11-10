@@ -34,7 +34,7 @@ import static net.shrimpworks.unreal.archive.content.mutators.Mutator.UT3_MUTATO
 public class MutatorClassifier implements Classifier {
 
 	// if any of these types are present, its probably part of a mod, mutator, or weapon mod, so rather exclude it
-	private static final List<String> INVALID_CLASSES = List.of(".voice", "tournamentgameinfo", "tournamentplayer");
+	private static final List<String> INVALID_CLASSES = List.of(".voice", "tournamentgameinfo", "tournamentplayer", "gameinfo");
 
 	private static final List<String> INVALID_UT3_SECTIONS = List.of("UTUIDataProvider_GameModeInfo".toLowerCase());
 

@@ -251,6 +251,10 @@ public class Indexer {
 				try {
 					Content current = contentManager.forHash(incoming.hash);
 
+					// hmm, post indexing cleanup... not great.
+					result.content.name = result.content.name.trim();
+					result.content.author = result.content.author.trim();
+
 					// check if the item is a variation of existing content
 					if (current == null) {
 						Optional<Content> maybeNewest = contentManager.search(result.content.game, result.content.contentType,
