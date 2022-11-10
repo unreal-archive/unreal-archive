@@ -2,6 +2,7 @@ package net.shrimpworks.unreal.archive.content.skins;
 
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 
 import net.shrimpworks.unreal.archive.content.Classifier;
@@ -51,7 +52,7 @@ public class SkinClassifier implements Classifier {
 	}
 
 	private boolean utSkin(Incoming incoming, Set<Incoming.IncomingFile> intFiles) {
-		boolean[] seemsToBeASkin = new boolean[] { false };
+		final AtomicBoolean seemsToBeASkin = new AtomicBoolean(false);
 
 		// search int files for objects describing a skin
 		IndexUtils.readIntFiles(incoming, intFiles)
@@ -70,7 +71,7 @@ public class SkinClassifier implements Classifier {
 
 							  Matcher m = Skin.NAME_MATCH.matcher(((IntFile.MapValue)value).get("Name"));
 							  if (m.matches()) {
-								  seemsToBeASkin[0] = true;
+								  seemsToBeASkin.set(true);
 								  return;
 							  }
 						  }
@@ -78,11 +79,11 @@ public class SkinClassifier implements Classifier {
 
 				  });
 
-		return seemsToBeASkin[0];
+		return seemsToBeASkin.get();
 	}
 
 	private boolean unrealSkin(Incoming incoming, Set<Incoming.IncomingFile> intFiles) {
-		boolean[] seemsToBeASkin = new boolean[] { false };
+		final AtomicBoolean seemsToBeASkin = new AtomicBoolean(false);
 
 		// search int files for objects describing a skin
 		IndexUtils.readIntFiles(incoming, intFiles)
@@ -101,7 +102,7 @@ public class SkinClassifier implements Classifier {
 
 							  Matcher m = Skin.NAME_MATCH_UNREAL.matcher(((IntFile.MapValue)value).get("Name"));
 							  if (m.matches()) {
-								  seemsToBeASkin[0] = true;
+								  seemsToBeASkin.set(true);
 								  return;
 							  }
 						  }
@@ -109,7 +110,7 @@ public class SkinClassifier implements Classifier {
 
 				  });
 
-		return seemsToBeASkin[0];
+		return seemsToBeASkin.get();
 	}
 
 	private boolean ut2004Skin(Incoming incoming, Set<Incoming.IncomingFile> playerFiles) {

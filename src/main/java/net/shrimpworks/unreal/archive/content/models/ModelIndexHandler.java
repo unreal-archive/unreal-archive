@@ -136,13 +136,15 @@ public class ModelIndexHandler implements IndexHandler<Model> {
 
 							 IntFile.ListValue objects = section.asList("Object");
 							 for (IntFile.Value value : objects.values) {
-								 if (value instanceof IntFile.MapValue
-									 && ((IntFile.MapValue)value).containsKey("Name")
-									 && ((IntFile.MapValue)value).containsKey("MetaClass")
-									 && ((IntFile.MapValue)value).containsKey("Description")
-									 && ((IntFile.MapValue)value).get("MetaClass").equalsIgnoreCase(Model.UT_PLAYER_CLASS)) {
-
-									 vals.add((IntFile.MapValue)value);
+								 if (!(value instanceof IntFile.MapValue)) continue;
+								 IntFile.MapValue mapVal = (IntFile.MapValue)value;
+								 if (mapVal.containsKey("Name")
+									 && mapVal.containsKey("MetaClass")
+									 && mapVal.containsKey("Description")
+									 && (mapVal.get("MetaClass").equalsIgnoreCase(Model.UT_PLAYER_CLASS)
+										 || (mapVal.get("MetaClass").equalsIgnoreCase(Model.RUNE_PLAYER_CLASS)))
+								 ) {
+									 vals.add(mapVal);
 								 }
 							 }
 

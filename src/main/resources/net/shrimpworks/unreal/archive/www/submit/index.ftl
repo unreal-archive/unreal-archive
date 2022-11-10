@@ -158,6 +158,26 @@
 			}
 		});
 
+	  fileSelector.addEventListener('change', e => {
+		  resetFilesList();
+
+		  for (let i = 0; i < e.target.files.length; i++) {
+			  let f = e.target.files[i];
+			  let name = document.createElement("div");
+			  name.innerText = f.name;
+			  name.classList.add("name");
+			  let size = document.createElement("div");
+			  size.innerText = (f.size / 1024 / 1024).toFixed(1) + " mb";
+			  size.classList.add("size");
+			  let row = document.createElement("div");
+			  row.classList.add("file");
+			  row.append(name, size);
+			  filesList.append(row);
+		  }
+
+		  if (!filesList.classList.contains("display-block")) filesList.classList.add("display-block");
+	  });
+
 		if (location.hash) {
 			toggleProgress(true);
 			abortButton.innerText = "Upload Another";
@@ -174,26 +194,6 @@
 		function resetLog() {
 			while (logLines.childNodes.length > 0) logLines.removeChild(logLines.childNodes[0]);
 		}
-
-		fileSelector.addEventListener('change', e => {
-			resetFilesList();
-
-			for (let i = 0; i < e.target.files.length; i++) {
-				let f = e.target.files[i];
-				let name = document.createElement("div");
-				name.innerText = f.name;
-				name.classList.add("name");
-				let size = document.createElement("div");
-				size.innerText = (f.size / 1024 / 1024).toFixed(1) + " mb";
-				size.classList.add("size");
-				let row = document.createElement("div");
-				row.classList.add("file");
-				row.append(name, size);
-				filesList.append(row);
-			}
-
-			if (!filesList.classList.contains("display-block")) filesList.classList.add("display-block");
-		});
 
 		function upload() {
 			currentRequest = new XMLHttpRequest();

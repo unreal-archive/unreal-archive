@@ -1,9 +1,9 @@
 package net.shrimpworks.unreal.archive.content.mutators;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.shrimpworks.unreal.archive.content.Classifier;
 import net.shrimpworks.unreal.archive.content.Incoming;
@@ -34,11 +34,9 @@ import static net.shrimpworks.unreal.archive.content.mutators.Mutator.UT3_MUTATO
 public class MutatorClassifier implements Classifier {
 
 	// if any of these types are present, its probably part of a mod, mutator, or weapon mod, so rather exclude it
-	private static final List<String> INVALID_CLASSES = Arrays.asList(
-		".voice", "tournamentgameinfo", "tournamentplayer"
-	);
+	private static final List<String> INVALID_CLASSES = List.of(".voice", "tournamentgameinfo", "tournamentplayer");
 
-	private static final List<String> INVALID_UT3_SECTIONS = Arrays.asList("UTUIDataProvider_GameModeInfo".toLowerCase());
+	private static final List<String> INVALID_UT3_SECTIONS = List.of("UTUIDataProvider_GameModeInfo".toLowerCase());
 
 	@Override
 	public boolean classify(Incoming incoming) {
@@ -47,8 +45,7 @@ public class MutatorClassifier implements Classifier {
 		Set<Incoming.IncomingFile> uclFiles = incoming.files(Incoming.FileType.UCL);
 		Set<Incoming.IncomingFile> codeFiles = incoming.files(Incoming.FileType.CODE);
 
-		Set<Incoming.IncomingFile> miscFiles = incoming.files(Incoming.FileType.MAP,
-															  Incoming.FileType.PLAYER);
+		Set<Incoming.IncomingFile> miscFiles = incoming.files(Incoming.FileType.MAP, Incoming.FileType.PLAYER);
 
 		// if there are other types of files, we can probably assume its something like a mod
 		if (!miscFiles.isEmpty()) return false;
@@ -64,14 +61,14 @@ public class MutatorClassifier implements Classifier {
 	}
 
 	private boolean checkUTMutator(Incoming incoming, Set<Incoming.IncomingFile> intFiles) {
-		boolean[] seemsToBeAMutator = new boolean[] { false };
-		boolean[] probablyNotAMutator = new boolean[] { false };
+		final AtomicBoolean seemsToBeAMutator = new AtomicBoolean(false);
+		final AtomicBoolean probablyNotAMutator = new AtomicBoolean(false);
 
 		// search int files for objects describing a skin
 		IndexUtils.readIntFiles(incoming, intFiles)
 				  .filter(Objects::nonNull)
 				  .forEach(intFile -> {
-					  if (probablyNotAMutator[0]) return;
+					  if (probablyNotAMutator.get()) return;
 
 					  IntFile.Section section = intFile.section("public");
 					  if (section == null) return;
@@ -85,44 +82,44 @@ public class MutatorClassifier implements Classifier {
 
 						  // exclude things which may indicate a mod or similar
 						  if (INVALID_CLASSES.stream().anyMatch(s -> mapVal.get("MetaClass").toLowerCase().contains(s))) {
-							  probablyNotAMutator[0] = true;
+							  probablyNotAMutator.set(true);
 							  return;
 						  }
 
 						  if (Mutator.UT_MUTATOR_CLASS.equalsIgnoreCase(mapVal.get("MetaClass"))) {
-							  seemsToBeAMutator[0] = true;
+							  seemsToBeAMutator.set(true);
 						  }
 					  }
 				  });
 
-		return !probablyNotAMutator[0] && seemsToBeAMutator[0];
+		return !probablyNotAMutator.get() && seemsToBeAMutator.get();
 	}
 
 	private boolean checkUT2004Mutator(Incoming incoming, Set<Incoming.IncomingFile> uclFiles) {
-		boolean[] seemsToBeAMutator = new boolean[] { false };
-		boolean[] probablyNotAMutator = new boolean[] { false };
+		final AtomicBoolean seemsToBeAMutator = new AtomicBoolean(false);
+		final AtomicBoolean probablyNotAMutator = new AtomicBoolean(false);
 
 		// search int files for objects describing a skin
 		IndexUtils.readIntFiles(incoming, uclFiles, true)
 				  .filter(Objects::nonNull)
 				  .forEach(uclFile -> {
-					  if (probablyNotAMutator[0]) return;
+					  if (probablyNotAMutator.get()) return;
 
 					  IntFile.Section section = uclFile.section("root");
 					  if (section == null) return;
 
 					  if (section.keys().contains("Map")
 						  || section.keys().contains("Game")) {
-						  probablyNotAMutator[0] = true;
+						  probablyNotAMutator.set(true);
 						  return;
 					  }
 
 					  if (section.keys().contains("Mutator")) {
-						  seemsToBeAMutator[0] = true;
+						  seemsToBeAMutator.set(true);
 					  }
 				  });
 
-		return !probablyNotAMutator[0] && seemsToBeAMutator[0];
+		return !probablyNotAMutator.get() && seemsToBeAMutator.get();
 	}
 
 	private boolean checkUT3Mutator(Incoming incoming, Set<Incoming.IncomingFile> iniFiles) {

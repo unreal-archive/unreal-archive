@@ -1,9 +1,9 @@
 package net.shrimpworks.unreal.archive.content.voices;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.shrimpworks.unreal.archive.content.Classifier;
 import net.shrimpworks.unreal.archive.content.Incoming;
@@ -34,8 +34,8 @@ import net.shrimpworks.unreal.packages.IntFile;
 public class VoiceClassifier implements Classifier {
 
 	// if any of these types are present, its probably part of a mod, mutator, or weapon mod, so rather exclude it
-	private static final List<String> INVALID_CLASSES = Arrays.asList(
-			"engine.mutator", "botpack.tournamentweapon", "botpack.tournamentgameinfo", "botpack.tournamentplayer"
+	private static final List<String> INVALID_CLASSES = List.of(
+		"engine.mutator", "botpack.tournamentweapon", "botpack.tournamentgameinfo", "botpack.tournamentplayer"
 	);
 
 	@Override
@@ -61,14 +61,14 @@ public class VoiceClassifier implements Classifier {
 	}
 
 	private boolean checkVoice(Incoming incoming, Set<Incoming.IncomingFile> intFiles) {
-		boolean[] seemsToBeAVoice = new boolean[] { false };
-		boolean[] probablyNotAVoice = new boolean[] { false };
+		final AtomicBoolean seemsToBeAVoice = new AtomicBoolean(false);
+		final AtomicBoolean probablyNotAVoice = new AtomicBoolean(false);
 
 		// search int files for objects describing a skin
 		IndexUtils.readIntFiles(incoming, intFiles)
 				  .filter(Objects::nonNull)
 				  .forEach(intFile -> {
-					  if (probablyNotAVoice[0]) return;
+					  if (probablyNotAVoice.get()) return;
 
 					  IntFile.Section section = intFile.section("public");
 					  if (section == null) return;
@@ -82,24 +82,24 @@ public class VoiceClassifier implements Classifier {
 
 						  // exclude things which may indicate a mod or similar
 						  if (INVALID_CLASSES.contains(mapVal.get("MetaClass").toLowerCase())) {
-							  probablyNotAVoice[0] = true;
+							  probablyNotAVoice.set(true);
 							  return;
 						  }
 
 						  // UT2003/4 check
 						  if (mapVal.get("MetaClass").equalsIgnoreCase(Voice.UT2_VOICE_CLASS)) {
-							  seemsToBeAVoice[0] = true;
+							  seemsToBeAVoice.set(true);
 							  return;
 						  }
 
 						  // UT check
 						  if (Voice.UT_VOICE_MATCH.matcher(mapVal.get("MetaClass")).matches()) {
-							  seemsToBeAVoice[0] = true;
+							  seemsToBeAVoice.set(true);
 						  }
 					  }
 				  });
 
-		return !probablyNotAVoice[0] && seemsToBeAVoice[0];
+		return !probablyNotAVoice.get() && seemsToBeAVoice.get();
 	}
 
 }

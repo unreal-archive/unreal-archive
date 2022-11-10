@@ -67,7 +67,14 @@ public class GameTypes {
 		new GameType("Alien Swarm", "AO-"),
 		new GameType("Movies, Machinimas and Entries", "MOV-"),
 		new GameType("Double Domination", "DDOM"),
-		new GameType("Invasion", "DM-INV-", "DM-(INV)-")
+		new GameType("Invasion", "DM-INV-", "DM-(INV)-"),
+		// Rune gametypes
+		new GameType("Arena Match", "AR-"),
+		new GameType("Headball", "HB-"),
+		new GameType("Sarkball", "SB-"),
+		new GameType("Siege", "SG-"),
+		new GameType("Thirsty Vikings", "TV-"),
+		new GameType("Capture the Torch", "CTT-")
 	);
 
 	/**
