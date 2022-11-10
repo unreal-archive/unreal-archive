@@ -493,6 +493,8 @@ public class IndexUtils {
 				shippedPackages = ShippedPackages.UNREAL_TOURNAMENT_2004; break;
 			case UNREAL_TOURNAMENT_3:
 				shippedPackages = ShippedPackages.UNREAL_TOURNAMENT_3; break;
+			case RUNE:
+				shippedPackages = ShippedPackages.RUNE; break;
 			case UNREAL_TOURNAMENT:
 			default:
 				shippedPackages = ShippedPackages.UNREAL_TOURNAMENT;

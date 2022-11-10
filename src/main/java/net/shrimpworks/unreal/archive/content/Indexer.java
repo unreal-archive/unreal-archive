@@ -84,20 +84,21 @@ public class Indexer {
 	public void index(boolean force, boolean newOnly, int concurrency, ContentType forceType, Path... inputPath) throws IOException {
 		final List<IndexLog> indexLogs = new ArrayList<>();
 
+		// keep a counter of number of files processed
+		final AtomicInteger done = new AtomicInteger();
+		final AtomicInteger allFound = new AtomicInteger();
+
 		// create a task to feed workers with incoming files asynchronously
 		final BlockingDeque<Submission> all = new LinkedBlockingDeque<>();
 		final CompletableFuture<Void> filesTask = CompletableFuture.runAsync(() -> {
 			for (Path p : inputPath) {
 				try {
-					findFiles(p, newOnly, all);
+					findFiles(p, newOnly, all, allFound);
 				} catch (IOException ex) {
 					throw new RuntimeException("Failed to find files in path " + p, ex);
 				}
 			}
 		});
-
-		// keep a counter of number of files processed
-		final AtomicInteger done = new AtomicInteger();
 
 		// generate the requested number of workers according to concurrency specified
 		final CompletableFuture<?>[] workers = new CompletableFuture[concurrency];
@@ -114,7 +115,7 @@ public class Indexer {
 
 						indexFile(sub, log, force, forceType, result -> {
 							events.indexed(sub, result, log);
-							events.progress(done.incrementAndGet(), all.size(), sub.filePath);
+							events.progress(done.incrementAndGet(), allFound.get(), sub.filePath);
 						});
 					} catch (InterruptedException e) {
 						System.err.printf("Error encountered while processing index queue: %s%n", e.getMessage());
@@ -136,38 +137,11 @@ public class Indexer {
 		events.completed(indexLogs.size(), errorCount);
 	}
 
-	private void findFiles(Path inputPath, boolean newOnly, Deque<Submission> all) throws IOException {
+	private void findFiles(Path inputPath, boolean newOnly, Deque<Submission> all, AtomicInteger allFound) throws IOException {
 		if (Files.isDirectory(inputPath)) {
 			Files.walkFileTree(inputPath, new SimpleFileVisitor<>() {
 
-				final Map<Path, SubmissionOverride> override = new HashMap<>();
-
-				private SubmissionOverride findOverride(Path file) {
-					Path parent = file.getParent();
-					if (override.containsKey(parent)) return override.get(parent);
-
-					// there's no immediate override in this directory, so walk up the free
-					SubmissionOverride result = null;
-					while (parent != null) {
-						if (override.containsKey(parent)) {
-							result = override.get(parent);
-							break;
-						}
-						parent = parent.getParent();
-					}
-
-					// this is a bit of double work, but we will do it once per subdirectory, rather than once per file
-					if (result != null) {
-						parent = file.getParent();
-						// as long as there's no override in a specific directory, add the top most parent
-						while (parent != null && !override.containsKey(parent)) {
-							override.put(parent, result);
-							parent = parent.getParent();
-						}
-					}
-
-					return result;
-				}
+				final Map<Path, SubmissionOverride> overrides = new HashMap<>();
 
 				@Override
 				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
@@ -185,9 +159,10 @@ public class Indexer {
 								sub = new Submission(file);
 							}
 
-							SubmissionOverride override = findOverride(file);
+							SubmissionOverride override = findOverride(file, overrides);
 							if (override != null) sub.override = override;
 							all.addLast(sub);
+							allFound.incrementAndGet();
 						}
 					} catch (Throwable t) {
 						throw new IOException("Failed to read file " + file, t);
@@ -199,7 +174,7 @@ public class Indexer {
 				public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
 					// check if there's an override for this directory
 					if (Files.exists(dir.resolve("_override.yml"))) {
-						override.put(dir, YAML.fromFile(dir.resolve("_override.yml"), SubmissionOverride.class));
+						overrides.put(dir, YAML.fromFile(dir.resolve("_override.yml"), SubmissionOverride.class));
 					}
 					return super.preVisitDirectory(dir, attrs);
 				}
@@ -216,13 +191,52 @@ public class Indexer {
 				sub = new Submission(inputPath);
 			}
 
-			// even a single file should respect directory overrides
-			if (Files.exists(inputPath.getParent().resolve("_override.yml"))) {
-				sub.override = YAML.fromFile(inputPath.getParent().resolve("_override.yml"), SubmissionOverride.class);
+			SubmissionOverride override = findOverride(inputPath, new HashMap<>());
+			if (override != null) sub.override = override;
+			all.add(sub);
+			allFound.incrementAndGet();
+		}
+	}
+
+	private SubmissionOverride findOverride(Path file, Map<Path, SubmissionOverride> override) {
+		Path parent = file.getParent();
+		if (override.containsKey(parent)) return override.get(parent);
+
+		// there's no immediate override in this directory, so walk up the free
+		SubmissionOverride result = null;
+		while (parent != null) {
+			// there's already an override for this page
+			if (override.containsKey(parent)) {
+				result = override.get(parent);
+				break;
 			}
 
-			all.add(sub);
+			// no existing override - maybe there's an override file here
+			try {
+				if (Files.exists(parent.resolve("_override.yml"))) {
+					result = YAML.fromFile(parent.resolve("_override.yml"), SubmissionOverride.class);
+					override.put(parent, result);
+					break;
+				}
+			} catch (IOException e) {
+				throw new RuntimeException("Failed to read override file in path " + parent, e);
+			}
+
+			// keep walking up the tree
+			parent = parent.getParent();
 		}
+
+		// this is a bit of double work, but we will do it once per subdirectory, rather than once per file
+		if (result != null) {
+			parent = file.getParent();
+			// as long as there's no override in a specific directory, add the top most parent
+			while (parent != null && !override.containsKey(parent)) {
+				override.put(parent, result);
+				parent = parent.getParent();
+			}
+		}
+
+		return result;
 	}
 
 	private void indexFile(
