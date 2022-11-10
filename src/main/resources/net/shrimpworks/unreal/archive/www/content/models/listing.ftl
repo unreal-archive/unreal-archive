@@ -11,7 +11,7 @@
 
 	<@heading bg=[ogImage]>
 		<span class="crumbs">
-			<a href="${relPath(sectionPath + "/index.html")}">Models</a>
+			<a href="${relPath(sectionPath + "/index.html")}">Models &amp; Characters</a>
 			/</span> <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
 		<span class="crumbs">
 			<#if page?? && game.groups.all.letters?size gt 1>/ ${page.letter.letter}</#if>

@@ -32,7 +32,7 @@
 		</li>
 		<li style='background-image: url("${staticPath()}/images/contents/t_models.png")'>
 			<span class="meta">${count.Model!"0"}</span>
-			<a href="models/index.html">Models</a>
+			<a href="models/index.html">Models &amp; Characters</a>
 		</li>
 		<li style='background-image: url("${staticPath()}/images/contents/t_skins.png")'>
 			<span class="meta">${count.Skin!"0"}</span>

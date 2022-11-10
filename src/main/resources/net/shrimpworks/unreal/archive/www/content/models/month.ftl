@@ -6,7 +6,7 @@
 
 	<@heading bg=[ogImage]>
 		<span class="crumbs">
-			<a href="${relPath(sectionPath + "/index.html")}">Models</a>
+			<a href="${relPath(sectionPath + "/index.html")}">Models &amp; Characters</a>
 			/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
 			/ <a href="${relPath(game.path + "/releases/${year?c}/index.html")}">${year?c}</a>
 			/</span> ${monthNames[month-1]}

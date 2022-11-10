@@ -5,7 +5,7 @@
 <#include "../../macros.ftl">
 
 	<@heading bg=[ogImage]>
-		Models
+		Models &amp; Characters
 	</@heading>
 
 	<@content class="biglist">
