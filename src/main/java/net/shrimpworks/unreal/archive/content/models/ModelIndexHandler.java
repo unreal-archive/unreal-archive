@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.content.Content;
+import net.shrimpworks.unreal.archive.content.Games;
 import net.shrimpworks.unreal.archive.content.Incoming;
 import net.shrimpworks.unreal.archive.content.IndexHandler;
 import net.shrimpworks.unreal.archive.content.IndexLog;
@@ -51,6 +52,8 @@ public class ModelIndexHandler implements IndexHandler<Model> {
 
 		m.models = new ArrayList<>();
 		m.skins = new ArrayList<>();
+
+		m.game = IndexUtils.game(incoming).name;
 
 		if (!incoming.files(Incoming.FileType.PACKAGE).isEmpty()) {
 			// UT3 content includes .UPK files
@@ -92,6 +95,10 @@ public class ModelIndexHandler implements IndexHandler<Model> {
 					!d.get("Description").trim().isBlank()) {
 					if (m.name == null || m.name.equals(origName)) m.name = d.get("Description");
 					m.models.add(d.get("Description").trim());
+
+					if (d.get("MetaClass").equalsIgnoreCase(Model.RUNE_PLAYER_CLASS)) {
+						m.game = Games.RUNE.name;
+					}
 				}
 			});
 
@@ -102,8 +109,6 @@ public class ModelIndexHandler implements IndexHandler<Model> {
 				}
 			});
 		}
-
-		m.game = IndexUtils.game(incoming).name;
 
 		m.author = IndexUtils.findAuthor(incoming);
 
