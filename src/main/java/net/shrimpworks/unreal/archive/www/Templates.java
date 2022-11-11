@@ -400,6 +400,8 @@ public class Templates {
 		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
 			if (args.isEmpty()) throw new TemplateModelException("Wrong arguments, expecting a date");
 
+			if (args.get(0).toString().equalsIgnoreCase("Unknown")) return args.get(0).toString();
+
 			TemporalAccessor date;
 			if (args.get(0).toString().matches("\\d{4}-\\d{2}-\\d{2}")) date = IN_FMT.parse(args.get(0).toString());
 			else date = IN_FMT_SHORT.parse(args.get(0).toString() + "-01");
