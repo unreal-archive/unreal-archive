@@ -21,7 +21,7 @@ public class ArchiveUtil {
 	private static final Duration KILL_WAIT = Duration.ofSeconds(1);
 
 	private static final Set<String> ARCHIVES = new HashSet<>(Arrays.asList(
-			"zip", "z", "gz", "7z", "lzh", "lza", "exe", "rar"
+		"zip", "z", "gz", "7z", "lzh", "lza", "exe", "rar"
 	));
 
 	private static final boolean IS_WINDOWS = System.getProperty("os.name", "").toLowerCase(Locale.ROOT).startsWith("windows");
@@ -49,17 +49,17 @@ public class ArchiveUtil {
 	}
 
 	public static Path extract(Path source, Path destination, Duration timeout)
-			throws IOException, InterruptedException, BadArchiveException {
+		throws IOException, InterruptedException, BadArchiveException {
 		return extract(source, destination, timeout, false, new HashSet<>());
 	}
 
 	public static Path extract(Path source, Path destination, Duration timeout, boolean recursive)
-			throws IOException, InterruptedException, BadArchiveException {
+		throws IOException, InterruptedException, BadArchiveException {
 		return extract(source, destination, timeout, recursive, new HashSet<>());
 	}
 
 	private static Path extract(Path source, Path destination, Duration timeout, boolean recursive, Set<Path> visited)
-			throws IOException, InterruptedException, BadArchiveException {
+		throws IOException, InterruptedException, BadArchiveException {
 
 		if (!Files.isDirectory(destination)) Files.createDirectories(destination);
 
@@ -149,8 +149,8 @@ public class ArchiveUtil {
 			// find 7z executable on *nix
 			try {
 				final Process which = new ProcessBuilder()
-						.command("which", NIX_SEVENZIP_CMD)
-						.start();
+					.command("which", NIX_SEVENZIP_CMD)
+					.start();
 				final byte[] bytes = which.getInputStream().readAllBytes();
 				sevenZip = new String(bytes, StandardCharsets.UTF_8).trim();
 			} catch (Exception e) {
@@ -175,8 +175,8 @@ public class ArchiveUtil {
 			// find unrar executable on *nix
 			try {
 				final Process which = new ProcessBuilder()
-						.command("which", NIX_UNRAR_CMD)
-						.start();
+					.command("which", NIX_UNRAR_CMD)
+					.start();
 				final byte[] bytes = which.getInputStream().readAllBytes();
 				unrar = new String(bytes, StandardCharsets.UTF_8).trim();
 			} catch (Exception e) {
@@ -189,32 +189,36 @@ public class ArchiveUtil {
 
 	private static String[] sevenZipCmd(Path source, Path destination) {
 		return new String[] {
-				sevenZipBin(),
-				"x",                          // extract
-				"-bd",                        // no progress
-				"-y",                         // yes to all
-				source.toString(),            // file to extract
-				"-o" + destination.toString() // destination directory
+			sevenZipBin(),
+			"x",                          // extract
+			"-bd",                        // no progress
+			"-y",                         // yes to all
+			"-aou",                          // overwrite mode: rename
+			"-pPASSWORD",                  // use password "password" by default - prevents sticking archives with passwords
+			source.toString(),            // file to extract
+			"-o" + destination.toString() // destination directory
 		};
 	}
 
 	private static String[] rarCmd(Path source, Path destination) {
 		return new String[] {
-				unrarBin(),
-				"x",                   // extract
-				"-y",                  // yes to all
-				source.toString(),     // file to extract
-				destination.toString() // destination directory
+			unrarBin(),
+			"x",                   // extract
+			"-y",                  // yes to all
+			"-or",                   // rename files (overwrite mode?)
+			"-pPASSWORD",           // use password "password" by default - prevents sticking archives with passwords
+			source.toString(),     // file to extract
+			destination.toString() // destination directory
 		};
 	}
 
 	private static Path exec(String[] cmd, Path source, Path destination, Duration timeout, Set<Integer> expectedResults)
-			throws IOException, InterruptedException, BadArchiveException {
+		throws IOException, InterruptedException, BadArchiveException {
 
 		Process process = new ProcessBuilder()
-				.command(cmd)
-				.directory(destination.toFile())
-				.start();
+			.command(cmd)
+			.directory(destination.toFile())
+			.start();
 		boolean b = process.waitFor(timeout.toMillis(), TimeUnit.MILLISECONDS);
 		if (!b) {
 			process.destroyForcibly().waitFor(KILL_WAIT.toMillis(), TimeUnit.MILLISECONDS);
@@ -231,20 +235,20 @@ public class ArchiveUtil {
 	}
 
 	public static Path createZip(Path source, Path destination, Duration timeout)
-			throws IOException, InterruptedException, IllegalStateException {
+		throws IOException, InterruptedException, IllegalStateException {
 
 		if (!Files.isDirectory(source)) throw new IllegalArgumentException("Source is expected to be a directory");
 
 		Process process = new ProcessBuilder()
-				.command(
-						sevenZipBin(),
-						"a",                    // add to archive
-						"-tzip",                // set zip archive type
-						destination.toString(), // destination zip file
-						source.toString()       // source directory
-				)
-				.directory(source.toFile())
-				.start();
+			.command(
+				sevenZipBin(),
+				"a",                    // add to archive
+				"-tzip",                // set zip archive type
+				destination.toString(), // destination zip file
+				source.toString()       // source directory
+			)
+			.directory(source.toFile())
+			.start();
 		boolean b = process.waitFor(timeout.toMillis(), TimeUnit.MILLISECONDS);
 		if (!b) {
 			process.destroyForcibly().waitFor(KILL_WAIT.toMillis(), TimeUnit.MILLISECONDS);
