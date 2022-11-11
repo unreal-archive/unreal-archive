@@ -48,7 +48,7 @@
 								<li>
 									${g.name}
 									<#if g.description?? && g.description?length gt 0>
-										<div class="meta">${g.description}</div>
+										<div class="meta">${g.description?replace("|", "<br/>")?no_esc}</div>
 									</#if>
 								</li>
 							</#list>
@@ -62,7 +62,7 @@
 								<li>
 									${m.name}
 									<#if m.description?? && m.description?length gt 0>
-										<div class="meta">${m.description}</div>
+										<div class="meta">${m.description?replace("|", "<br/>")?no_esc}</div>
 									</#if>
 								</li>
 							</#list>
