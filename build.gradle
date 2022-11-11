@@ -93,7 +93,7 @@ processResources.doLast {
 	def cssDate = cssSource.max {f -> f.lastModified()}
 	def cssOut = destFile.parent.resolve("static/css/all.css")
 	cssOut.write('') // truncate output if needed
-	cssSource.each { f -> cssOut << f.text.replaceAll("/\\*.+?\\*/", "").replaceAll("\n", "").replaceAll("\\s{2,}", " ") }
+	cssSource.each { f -> cssOut << f.text.replaceAll("\n", "").replaceAll("/\\*.+?\\*/", "").replaceAll("\\s{2,}", " ") }
 	staticList.append(destFile.getParent().relativize(cssOut)).append("\t").append(cssDate.lastModified()).append("\n")
 
 	Files.write(destFile, staticList.toString().replaceAll("\\\\", "/").getBytes(StandardCharsets.UTF_8),

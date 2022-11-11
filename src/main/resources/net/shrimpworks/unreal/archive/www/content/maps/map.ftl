@@ -104,7 +104,7 @@
 					'${map.item.hash}'
 			]
 
-			styles={"10": "nomobile"}
+			styles={"11": "nomobile"}
 			>
 
 			<@meta title="Map Information" labels=labels values=values styles=styles/>

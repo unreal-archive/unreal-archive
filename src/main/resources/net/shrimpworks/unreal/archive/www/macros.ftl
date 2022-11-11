@@ -55,7 +55,7 @@
 	<#compress>
 	<div class="screenshots">
 		<#if attachments?size == 0>
-			<img src="${staticPath()}/images/none.png" class="thumb" alt="no image"/>
+			<img src="${staticPath()}/images/none.png" class="thumb nomobile" alt="no image"/>
 		<#else>
 			<#list attachments as a>
 				<#if a.type == "IMAGE">
@@ -113,7 +113,7 @@
 					<th>Name</th>
 					<th>Size</th>
 					<th class="nomobile">Hash</th>
-					<th>Also In</th>
+					<th class="nomobile">Also In</th>
 				</tr>
 				</thead>
 				<tbody>
@@ -122,13 +122,13 @@
 						<td>${f.name}</td>
 						<td>${fileSize(f.fileSize)}</td>
 						<td class="nomobile">${f.hash}</td>
-						<#if alsoIn[f.hash]??>
-							<td>
-								<a href="${relPath(siteRoot + "/files/" + f.hash[0..1] + "/" + f.hash + ".html")}">${alsoIn[f.hash]}</a>
-							</td>
-						<#else>
-							<td>-</td>
-						</#if>
+						<td class="nomobile">
+						  <#if alsoIn[f.hash]??>
+							<a href="${relPath(siteRoot + "/files/" + f.hash[0..1] + "/" + f.hash + ".html")}">${alsoIn[f.hash]}</a>
+							<#else>
+							-
+							</#if>
+						</td>
 					</tr>
 				</#list>
 				</tbody>
@@ -194,7 +194,7 @@
 					<th>&nbsp;</th>
 					<th align="left">Requires</th>
 					<th align="left">Status</th>
-					<th>&nbsp;</th>
+					<th class="nomobile">&nbsp;</th>
 				</tr>
 				</thead>
 				<tbody>
@@ -211,7 +211,7 @@
 								<td>${dep.name}</td>
 							</#if>
 							<td>${dep.status}</td>
-							<td>
+							<td class="nomobile">
 								<#if dep.status == "OK">
 									File is included
 								</#if>
@@ -263,7 +263,7 @@
 
 <#macro tline timeline game activeYear=0 activeMonth=0>
 	<#compress>
-	<div id="timeline">
+	<div id="timeline" class="nomobile">
 		<#assign tlMax=0 />
 		<#list timeline as year, months>
 			<#list months as month, count>
