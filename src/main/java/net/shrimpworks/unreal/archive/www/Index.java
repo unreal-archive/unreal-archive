@@ -33,6 +33,11 @@ public class Index implements PageGenerator {
 	}
 
 	@Override
+	public void done() {
+		// nothing to do
+	}
+
+	@Override
 	public Set<SiteMap.Page> generate() {
 		Map<String, Long> contentCount = new HashMap<>();
 		content.countByType().forEach((k, v) -> contentCount.put(k.getSimpleName(), v));

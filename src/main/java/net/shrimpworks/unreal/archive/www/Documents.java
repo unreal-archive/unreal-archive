@@ -48,6 +48,11 @@ public class Documents implements PageGenerator {
 				 });
 	}
 
+	@Override
+	public void done() {
+		groups.clear();
+	}
+
 	/**
 	 * Generate one or more HTML pages of output.
 	 *

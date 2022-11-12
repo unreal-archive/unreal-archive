@@ -40,6 +40,11 @@ public class Latest extends ContentPageGenerator {
 	}
 
 	@Override
+	public void done() {
+		allContent.clear();
+	}
+
+	@Override
 	public Set<SiteMap.Page> generate() {
 		TreeMap<LocalDate, List<ContentEntity<?>>> contentFiles = new TreeMap<>(
 			allContent.stream()

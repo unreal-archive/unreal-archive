@@ -46,6 +46,11 @@ public class ManagedContent implements PageGenerator {
 			   });
 	}
 
+	@Override
+	public void done() {
+		groups.clear();
+	}
+
 	/**
 	 * Generate one or more HTML pages of output.
 	 *

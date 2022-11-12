@@ -38,6 +38,11 @@ public class Skins extends GenericContentPage<Skin> {
 	}
 
 	@Override
+	public void done() {
+		games.clear();
+	}
+
+	@Override
 	public Set<SiteMap.Page> generate() {
 		Templates.PageSet pages = pageSet("content/skins");
 

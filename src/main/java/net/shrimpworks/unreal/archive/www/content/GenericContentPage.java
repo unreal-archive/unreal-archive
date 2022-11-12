@@ -167,6 +167,10 @@ public abstract class GenericContentPage<T extends Content> extends ContentPageG
 	public class GameList {
 
 		public final TreeMap<String, Game> games = new TreeMap<>();
+
+		public void clear() {
+			games.clear();
+		}
 	}
 
 	public class Game {

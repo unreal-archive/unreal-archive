@@ -1,6 +1,7 @@
 package net.shrimpworks.unreal.archive.content;
 
 import java.io.IOException;
+import java.lang.ref.SoftReference;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,8 +21,8 @@ import net.shrimpworks.unreal.archive.storage.DataStore;
 
 public class ContentManager {
 
-	private static final int CONTENT_INITIAL_SIZE = 50000;
-	private static final int FILES_INITIAL_SIZE = CONTENT_INITIAL_SIZE * 5;
+	private static final int CONTENT_INITIAL_SIZE = 60000;
+	private static final int FILES_INITIAL_SIZE = CONTENT_INITIAL_SIZE * 3;
 	private static final int VARIATION_INITIAL_SIZE = CONTENT_INITIAL_SIZE / 4;
 
 	private final Path path;
@@ -42,8 +43,8 @@ public class ContentManager {
 		this.imageStore = imageStore;
 		this.attachmentStore = attachmentStore;
 		this.content = new ConcurrentHashMap<>(CONTENT_INITIAL_SIZE);
-		this.contentFileMap = new ConcurrentHashMap<>(500000);
-		this.variationsMap = new ConcurrentHashMap<>(50000);
+		this.contentFileMap = new ConcurrentHashMap<>(FILES_INITIAL_SIZE);
+		this.variationsMap = new ConcurrentHashMap<>(VARIATION_INITIAL_SIZE);
 
 		this.changes = new HashSet<>();
 
@@ -75,7 +76,7 @@ public class ContentManager {
 	}
 
 	public long fileSize() {
-		return content.values().parallelStream().mapToLong(c -> c.content.fileSize).sum();
+		return content.values().parallelStream().mapToLong(c -> c.fileSize).sum();
 	}
 
 	public Map<Class<? extends Content>, Long> countByType() {
@@ -84,20 +85,20 @@ public class ContentManager {
 
 	public Map<Class<? extends Content>, Long> countByType(String game) {
 		return content.values().parallelStream()
-					  .filter(c -> c.content.variationOf == null && !c.content.deleted())
-					  .filter(c -> game == null || c.content.game.equals(game))
-					  .collect(Collectors.groupingBy(v -> v.content.getClass(), Collectors.counting()));
+					  .filter(c -> !c.isVariation && !c.deleted)
+					  .filter(c -> game == null || c.content().game.equals(game))
+					  .collect(Collectors.groupingBy(v -> v.content().getClass(), Collectors.counting()));
 	}
 
 	public Map<String, Long> countByGame() {
 		return content.values().parallelStream()
-					  .filter(c -> c.content.variationOf == null && !c.content.deleted())
-					  .collect(Collectors.groupingBy(v -> v.content.game, Collectors.counting()));
+					  .filter(c -> !c.isVariation && !c.deleted)
+					  .collect(Collectors.groupingBy(v -> v.content().game, Collectors.counting()));
 	}
 
 	public Collection<Content> search(String game, String type, String name, String author) {
 		return content.values().parallelStream()
-					  .map(c -> c.content)
+					  .map(ContentHolder::content)
 					  .filter(c -> {
 						  boolean match = (game == null || c.game.equalsIgnoreCase(game));
 						  match = match && (type == null || c.contentType.equalsIgnoreCase(type));
@@ -110,21 +111,21 @@ public class ContentManager {
 
 	public Collection<Content> all() {
 		return content.values().parallelStream()
-					  .map(c -> c.content)
-					  .filter(c -> !c.deleted())
+					  .filter(c -> !c.deleted)
+					  .map(ContentHolder::content)
 					  .collect(Collectors.toSet());
 	}
 
 	public Collection<Content> forName(String name) {
 		return content.values().parallelStream()
-					  .filter(c -> c.content.name.equalsIgnoreCase(name))
-					  .map(c -> c.content)
+					  .map(ContentHolder::content)
+					  .filter(c -> c.name.equalsIgnoreCase(name))
 					  .collect(Collectors.toSet());
 	}
 
 	public Content forHash(String hash) {
 		ContentHolder contentHolder = content.get(hash);
-		if (contentHolder != null) return contentHolder.content;
+		if (contentHolder != null) return contentHolder.content();
 
 		return null;
 	}
@@ -132,8 +133,8 @@ public class ContentManager {
 	@SuppressWarnings("unchecked")
 	public <T extends Content> Collection<T> get(Class<T> type) {
 		return content.values().parallelStream()
-					  .map(c -> c.content)
-					  .filter(c -> type.isAssignableFrom(c.getClass()))
+					  .filter(c -> type.isAssignableFrom(c.type))
+					  .map(ContentHolder::content)
 					  .map(c -> (T)c)
 					  .collect(Collectors.toSet());
 	}
@@ -170,9 +171,9 @@ public class ContentManager {
 		ContentHolder out = this.content.get(hash);
 		if (out != null) {
 			try {
-				return YAML.fromString(YAML.toString(out.content), Content.class);
+				return YAML.fromString(YAML.toString(out.content()), Content.class);
 			} catch (IOException e) {
-				throw new IllegalStateException("Cannot clone content " + out.content);
+				throw new IllegalStateException("Cannot clone content " + out.content());
 			}
 		}
 		return null;
@@ -181,7 +182,7 @@ public class ContentManager {
 	public boolean checkin(IndexResult<? extends Content> indexed, Submission submission) throws IOException {
 		ContentHolder current = this.content.get(indexed.content.hash);
 
-		if (current == null || (!indexed.content.equals(current.content) || !indexed.files.isEmpty())) {
+		if (current == null || (!indexed.content.equals(current.content()) || !indexed.files.isEmpty())) {
 			// lets store the content \o/
 			Path next = indexed.content.contentPath(path);
 			Files.createDirectories(next);
@@ -248,11 +249,35 @@ public class ContentManager {
 	private static class ContentHolder {
 
 		private final Path path;
-		private final Content content;
+		private final boolean deleted;
+		private final boolean isVariation;
+		private final int fileSize;
+		private final Class<?> type;
+		private SoftReference<Content> content;
 
 		public ContentHolder(Path path, Content content) {
 			this.path = path;
-			this.content = content;
+			this.deleted = content.deleted();
+			this.isVariation = content.isVariation();
+			this.fileSize = content.fileSize;
+			this.type = content.getClass();
+			this.content = !deleted && !isVariation ? new SoftReference<>(content) : null;
+		}
+
+		public Content content() {
+			Content has = content == null ? null : content.get();
+			if (has != null) {
+				return has;
+			} else {
+				try {
+					// this in itself will cause a lot of object churn
+					Content newContent = YAML.fromFile(path, Content.class);
+					this.content = new SoftReference<>(newContent);
+					return newContent;
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
 		}
 	}
 }

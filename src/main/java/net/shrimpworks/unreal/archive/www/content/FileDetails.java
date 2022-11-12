@@ -34,6 +34,11 @@ public class FileDetails extends ContentPageGenerator {
 	}
 
 	@Override
+	public void done() {
+		contentFiles.clear();
+	}
+
+	@Override
 	public Set<SiteMap.Page> generate() {
 		Templates.PageSet pages = pageSet("content/files");
 		contentFiles.entrySet().parallelStream().forEach(e -> {

@@ -35,6 +35,11 @@ public class Maps extends GenericContentPage<Map> {
 	}
 
 	@Override
+	public void done() {
+		games.clear();
+	}
+
+	@Override
 	public Set<SiteMap.Page> generate() {
 		Templates.PageSet pages = pageSet("content/maps");
 

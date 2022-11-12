@@ -37,6 +37,11 @@ public class Mutators extends GenericContentPage<Mutator> {
 	}
 
 	@Override
+	public void done() {
+		games.clear();
+	}
+
+	@Override
 	public Set<SiteMap.Page> generate() {
 		Templates.PageSet pages = pageSet("content/mutators");
 

@@ -53,6 +53,11 @@ public class Authors extends ContentPageGenerator {
 			  });
 	}
 
+	@Override
+	public void done() {
+		letters.clear();
+	}
+
 	private String pageSelection(String author) {
 		char first;
 

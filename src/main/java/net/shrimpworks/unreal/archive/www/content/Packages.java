@@ -53,6 +53,11 @@ public class Packages extends ContentPageGenerator {
 	}
 
 	@Override
+	public void done() {
+		contentFiles.clear();
+	}
+
+	@Override
 	public Set<SiteMap.Page> generate() {
 		Templates.PageSet pages = pageSet("content/packages");
 

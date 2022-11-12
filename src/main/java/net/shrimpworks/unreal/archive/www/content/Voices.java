@@ -37,6 +37,11 @@ public class Voices extends GenericContentPage<Voice> {
 	}
 
 	@Override
+	public void done() {
+		games.clear();
+	}
+
+	@Override
 	public Set<SiteMap.Page> generate() {
 		Templates.PageSet pages = pageSet("content/voices");
 		pages.add("games.ftl", SiteMap.Page.monthly(0.6f), SECTION)

@@ -60,6 +60,11 @@ public class GameTypes implements PageGenerator {
 				 });
 	}
 
+	@Override
+	public void done() {
+		games.clear();
+	}
+
 	/**
 	 * Generate one or more HTML pages of output.
 	 *

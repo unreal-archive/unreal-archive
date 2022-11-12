@@ -46,6 +46,11 @@ public interface SiteMap extends PageGenerator {
 		}
 
 		@Override
+		public void done() {
+			pages.clear();
+		}
+
+		@Override
 		public Set<Page> generate() {
 			Templates.PageSet genPages = new Templates.PageSet("", features, root, root, root);
 

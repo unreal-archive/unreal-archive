@@ -618,6 +618,7 @@ public class Main {
 		generators.parallelStream().forEach(g -> {
 			System.out.printf("Generating %s pages%n", g.getClass().getSimpleName());
 			allPages.addAll(g.generate());
+			g.done();
 		});
 
 		System.out.println("Generating sitemap");
