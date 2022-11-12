@@ -41,7 +41,6 @@ import net.shrimpworks.unreal.archive.content.Indexer;
 import net.shrimpworks.unreal.archive.content.Scanner;
 import net.shrimpworks.unreal.archive.content.Submission;
 import net.shrimpworks.unreal.archive.docs.DocumentManager;
-import net.shrimpworks.unreal.archive.managed.Managed;
 import net.shrimpworks.unreal.archive.managed.ManagedContentManager;
 import net.shrimpworks.unreal.archive.mirror.LocalMirrorClient;
 import net.shrimpworks.unreal.archive.mirror.Mirror;
@@ -263,20 +262,6 @@ public class Main {
 		return gametypes;
 	}
 
-	private static void managedSync(ManagedContentManager managedContent, CLI cli) {
-		// FIXME move into managed content manager (see gametypes)
-
-		final DataStore contentStore = store(DataStore.StoreContent.CONTENT, cli);
-		Set<Managed> synced = managedContent.sync(contentStore);
-
-		if (synced.isEmpty()) {
-			System.out.println("No files were synced.");
-		} else {
-			System.out.printf("Synced %d files:%n", synced.size());
-			synced.forEach(m -> System.out.printf(" - %s%n", m.title));
-		}
-	}
-
 	public static DataStore store(DataStore.StoreContent contentType, CLI cli) {
 		String stringType = cli.option(contentType.name().toLowerCase() + "-store", cli.option("store", null));
 		if (stringType == null) {
@@ -385,7 +370,13 @@ public class Main {
 			System.err.println("  add <game> <game type name> <release name> <file>");
 			System.err.println("    convenience, which adds a gametype if it does not yet exist, adds a release,");
 			System.err.println("    and indexes the release. a `sync` command afterwards is still required to sync");
-			System.err.println("    download files to mirrors");
+			System.err.println("    download files to mirrors. optional arguments:");
+			System.err.println("      --title");
+			System.err.println("      --version");
+			System.err.println("      --releaseDate");
+			System.err.println("      --description");
+			System.err.println("      --platform");
+			System.err.println("      --index");
 			System.err.println("  addmirror <game> <game type name> <release name> <url>");
 			System.err.println("    adds a secondary mirror to the gametype specified");
 			System.exit(2);
@@ -459,13 +450,85 @@ public class Main {
 	private static void managed(ManagedContentManager managedContent, CLI cli) throws IOException {
 		if (cli.commands().length < 2) {
 			System.err.println("A managed content operation is required:");
+			System.err.println("  init <game> <group> <path> <title>");
+			System.err.println("    initialises a new managed content structure under the specified game");
+			System.err.println("  add <game> <group> <path> <title> <file>");
+			System.err.println("    convenience, which adds a new managed content if it does not yet exist");
+			System.err.println("    and adds a file. a `sync` command afterwards is still required to sync");
+			System.err.println("    download files to mirrors. optional arguments:");
+			System.err.println("      --title");
+			System.err.println("      --version");
+			System.err.println("      --description");
+			System.err.println("      --platform");
 			System.err.println("  sync");
-			System.err.println("    synchronises downloads, files, and dependencies for unsynced items");
+			System.err.println("    synchronises files for unsynced items");
 			System.exit(2);
 		}
+
 		switch (cli.commands()[1]) {
+			case "init": {
+				if (cli.commands().length < 3) {
+					System.err.println("A game name is required");
+					System.exit(1);
+				}
+				if (cli.commands().length < 4) {
+					System.err.println("A game type name is required");
+					System.exit(1);
+				}
+
+				Path managedPath = managedContent.init(
+					Games.byName(cli.commands()[2]),
+					cli.commands()[3],
+					cli.commands()[4],
+					cli.commands()[5]
+				);
+				System.out.println("Initialised content in directory:");
+				System.out.printf("  - %s%n", managedPath.toAbsolutePath());
+				System.out.println("\nPopulate the appropriate files, add images, etc.");
+				System.out.println("To upload managed files, execute the `sync` command.");
+				break;
+			}
 			case "sync": {
-				managedSync(managedContent, cli);
+				managedContent.sync(store(DataStore.StoreContent.CONTENT, cli), cli);
+				break;
+			}
+			case "add": {
+				if (cli.commands().length < 3) {
+					System.err.println("A game name is required");
+					System.exit(1);
+				}
+				if (cli.commands().length < 4) {
+					System.err.println("A group name is required");
+					System.exit(1);
+				}
+				if (cli.commands().length < 5) {
+					System.err.println("A Managed content path is required");
+					System.exit(1);
+				}
+				if (cli.commands().length < 6) {
+					System.err.println("A Managed content title is required");
+					System.exit(1);
+				}
+				if (cli.commands().length < 7) {
+					System.err.println("A local file to add is required");
+					System.exit(1);
+				}
+
+				final Path localFile = Paths.get(cli.commands()[6]).toAbsolutePath();
+				if (!Files.exists(localFile)) {
+					System.err.printf("Local file %s was not found%n", localFile);
+					System.exit(1);
+				}
+
+				managedContent.addFile(
+					store(DataStore.StoreContent.CONTENT, cli),
+					Games.byName(cli.commands()[2]),
+					cli.commands()[3],
+					cli.commands()[4],
+					cli.commands()[5],
+					localFile,
+					cli
+				);
 				break;
 			}
 			default:

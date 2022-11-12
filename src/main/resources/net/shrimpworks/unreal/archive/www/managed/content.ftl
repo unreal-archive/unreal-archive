@@ -25,17 +25,21 @@
 			<div class="label-value">
 				<label>Author</label><span><@authorLink managed.managed.authorName /></span>
 			</div>
-			<#if managed.managed.homepage??>
+			<#if managed.managed.homepage?? && managed.managed.homepage?has_content>
 				<div class="label-value">
 					<label> </label><span><a href="${managed.managed.homepage}">Homepage</a></span>
 				</div>
 			</#if>
-			<div class="label-value">
-				<label>Release Date</label><span>${managed.managed.releaseDate!"-"}</span>
-			</div>
-			<div class="label-value">
-				<label>Summary</label><span>${managed.managed.description}</span>
-			</div>
+			<#if managed.managed.releaseDate?? && managed.managed.releaseDate?has_content>
+				<div class="label-value">
+					<label>Release Date</label><span>${managed.managed.releaseDate!"-"}</span>
+				</div>
+			</#if>
+			<#if managed.managed.description?? && managed.managed.description?has_content>
+				<div class="label-value">
+					<label>Summary</label><span>${managed.managed.description}</span>
+				</div>
+      </#if>
 
 			<section class="downloads">
 				<h2><img src="${staticPath()}/images/icons/download.svg" alt="Downloads"/> Downloads</h2>

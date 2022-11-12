@@ -19,6 +19,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.imageio.ImageIO;
@@ -88,7 +89,7 @@ public class GameTypeManager {
 	public Set<GameType> all() {
 		return gameTypes.stream()
 						.filter(g -> g.variationOf == null)
-						.filter(g -> !g.gametype.deleted)
+						.filter(g -> !g.gametype.deleted())
 						.map(g -> g.gametype)
 						.collect(Collectors.toSet());
 	}
@@ -96,7 +97,7 @@ public class GameTypeManager {
 	public Set<GameType> variations(GameType gameType) {
 		return gameTypes.stream()
 						.filter(g -> g.variationOf != null && g.variationOf.gametype.equals(gameType))
-						.filter(g -> !g.gametype.deleted)
+						.filter(g -> !g.gametype.deleted())
 						.map(g -> g.gametype)
 						.collect(Collectors.toSet());
 	}
@@ -130,7 +131,7 @@ public class GameTypeManager {
 		return init(game, gameType, "template.md", gt -> {});
 	}
 
-	private Path init(Games game, String gameType, String template, GameTypePostInitialiser initialiser) throws IOException {
+	private Path init(Games game, String gameType, String template, Consumer<GameType> initialised) throws IOException {
 		// create path
 		final Path path = Files.createDirectories(gameTypePath(game, gameType));
 		final String neatName = Util.capitalWords(gameType);
@@ -157,7 +158,7 @@ public class GameTypeManager {
 		release.files.add(file);
 		gt.releases.add(release);
 
-		initialiser.gametypeInitialised(gt);
+		initialised.accept(gt);
 
 		Path yml = Util.safeFileName(path.resolve("gametype.yml"));
 		Path md = Util.safeFileName(path.resolve(DOCUMENT_FILE));
@@ -182,8 +183,8 @@ public class GameTypeManager {
 
 	private Optional<GameTypeHolder> findGametype(Games game, String gameType) {
 		return gameTypes.stream()
-						.filter(g -> !g.gametype.deleted)
-						.filter(g -> g.gametype.game.equals(game.name) && g.gametype.name.equalsIgnoreCase(gameType))
+						.filter(g -> !g.gametype.deleted())
+						.filter(g -> g.gametype.game().equals(game.name) && g.gametype.name().equalsIgnoreCase(gameType))
 						.findFirst();
 	}
 
@@ -253,7 +254,7 @@ public class GameTypeManager {
 	private GameTypeHolder getGameType(GameType gameType) {
 		return gameTypes.stream()
 						.filter(g -> gameType.equals(g.gametype))
-						.findFirst().orElseThrow(() -> new IllegalArgumentException("GameType was not found: " + gameType.name));
+						.findFirst().orElseThrow(() -> new IllegalArgumentException("GameType was not found: " + gameType.name()));
 	}
 
 	public void syncReleases(DataStore contentStore) {
@@ -266,7 +267,7 @@ public class GameTypeManager {
 	}
 
 	private void syncReleases(DataStore contentStore, GameType gameType) {
-		System.out.println("Syncing gametype: " + gameType.name);
+		System.out.println("Syncing gametype: " + gameType.name());
 
 		GameType clone;
 		try {
@@ -362,8 +363,8 @@ public class GameTypeManager {
 
 	private void indexReleases(Games game, String gameType, String releaseFile, DataStore imagesStore) {
 		gameTypes.stream()
-				 .filter(g -> !g.gametype.deleted)
-				 .filter(g -> g.gametype.game.equals(game.name) && g.gametype.name.equalsIgnoreCase(gameType))
+				 .filter(g -> !g.gametype.deleted())
+				 .filter(g -> g.gametype.game().equals(game.name()) && g.gametype.name().equalsIgnoreCase(gameType))
 				 .findFirst().ifPresentOrElse(g -> {
 
 					 GameType clone;

@@ -9,28 +9,38 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import net.shrimpworks.unreal.archive.CLI;
+import net.shrimpworks.unreal.archive.Platform;
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.YAML;
 import net.shrimpworks.unreal.archive.content.Content;
+import net.shrimpworks.unreal.archive.content.Games;
+import net.shrimpworks.unreal.archive.content.IndexUtils;
 import net.shrimpworks.unreal.archive.storage.DataStore;
 
 public class ManagedContentManager {
 
+	private final Path root;
+
 	private final Map<Managed, ManagedContentHolder> content;
 
-	public ManagedContentManager(Path path) throws IOException {
+	public ManagedContentManager(Path root) throws IOException {
+		this.root = root;
 		this.content = new HashMap<>();
 
 		// load contents from path into content
-		Files.walkFileTree(path, new SimpleFileVisitor<>() {
+		Files.walkFileTree(root, new SimpleFileVisitor<>() {
 			@Override
 			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 				if (Util.extension(file).equalsIgnoreCase("yml")) {
@@ -94,11 +104,103 @@ public class ManagedContentManager {
 		return holder.path.getParent();
 	}
 
-	private Path path(Managed managed) {
-		return content.get(managed).path;
+	public void addFile(DataStore contentStore, Games game, String group, String path, String title, Path localFile, CLI cli)
+		throws IOException {
+		ManagedContentHolder managed = findManaged(game, group, path, title)
+			.or(() -> {
+				try {
+					init(game, group, path, title, "template-minimal.md", newGt -> {
+						newGt.downloads.clear();
+						newGt.links.clear();
+						newGt.description = "";
+						newGt.titleImage = "";
+					});
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+				return findManaged(game, group, path, title);
+			}).orElseThrow();
+
+		Managed.ManagedFile dl = new Managed.ManagedFile();
+		dl.title = cli.option("title", title);
+		dl.localFile = localFile.toString();
+		dl.originalFilename = Util.fileName(localFile);
+		dl.version = cli.option("version", title);
+		dl.description = cli.option("description", dl.description);
+		dl.platform = Platform.valueOf(cli.option("platform", Platform.ANY.toString()));
+
+		managed.managed.downloads.add(dl);
+
+		// update with the release
+		Files.write(managed.path, YAML.toString(managed.managed).getBytes(StandardCharsets.UTF_8),
+					StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 	}
 
-	public Set<Managed> sync(DataStore contentStore) {
+	public void sync(DataStore contentStore, CLI cli) {
+		Set<Managed> synced = sync(contentStore);
+
+		if (synced.isEmpty()) {
+			System.out.println("No files were synced.");
+		} else {
+			System.out.printf("Synced %d files:%n", synced.size());
+			synced.forEach(m -> System.out.printf(" - %s%n", m.title));
+		}
+	}
+
+	public Path init(Games game, String group, String path, String title) throws IOException {
+		return init(game, group, path, title, "template.md", gt -> {
+		});
+	}
+
+	private Path init(Games game, String group, String path, String title, String template, Consumer<Managed> initialised)
+		throws IOException {
+		// create path
+		final String neatName = Util.capitalWords(title);
+
+		Managed man = new Managed();
+
+		// create the basic definition
+		man.createdDate = LocalDate.now();
+		man.updatedDate = LocalDate.now();
+		man.game = game.name;
+		man.group = group;
+		man.path = path;
+		man.title = neatName;
+		man.author = IndexUtils.UNKNOWN;
+		man.document = "readme.md";
+		man.titleImage = "title.png";
+
+		Managed.ManagedFile sampleFile = new Managed.ManagedFile();
+		sampleFile.title = neatName + " Download";
+		sampleFile.version = "1.0";
+		sampleFile.localFile = "/path/to/file.zip";
+		man.downloads.add(sampleFile);
+
+		initialised.accept(man);
+
+		final Path outPath = Files.createDirectories(man.contentPath(root));
+
+		Path yml = Util.safeFileName(outPath.resolve("managed.yml"));
+		Path md = Util.safeFileName(outPath.resolve("readme.md"));
+
+		if (!Files.exists(yml)) {
+			Files.write(yml, YAML.toString(man).getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE);
+		}
+
+		if (!Files.exists(md)) {
+			Files.copy(Managed.class.getResourceAsStream(template), md);
+		}
+
+		content.put(man, new ManagedContentHolder(yml, man));
+
+		return outPath;
+	}
+
+	public Path managedPath(Games game, String group, String path, String title) {
+		return root.resolve(Util.slug(group)).resolve(game.name).resolve(path).resolve(Util.slug(title));
+	}
+
+	private Set<Managed> sync(DataStore contentStore) {
 		Set<Managed> synced = new HashSet<>();
 
 		// collect items to be synced
@@ -141,7 +243,7 @@ public class ManagedContentManager {
 	}
 
 	public void storeDownloadFile(DataStore contentStore, Managed managed, Managed.ManagedFile file, Path localFile, boolean[] success)
-			throws IOException {
+		throws IOException {
 		contentStore.store(localFile, String.join("/", remotePath(managed), localFile.getFileName().toString()), (url, ex) -> {
 			try {
 				// record download
@@ -168,8 +270,22 @@ public class ManagedContentManager {
 		});
 	}
 
+	private Path path(Managed managed) {
+		return content.get(managed).path;
+	}
+
 	private String remotePath(Managed managed) {
 		return String.join("/", managed.contentType(), managed.game, managed.path);
+	}
+
+	private Optional<ManagedContentHolder> findManaged(Games game, String group, String path, String title) {
+		return content.values().stream()
+					  .filter(m -> !m.managed.deleted())
+					  .filter(m -> m.managed.game().equalsIgnoreCase(game.name))
+					  .filter(m -> m.managed.group.equalsIgnoreCase(group))
+					  .filter(m -> m.managed.path.equalsIgnoreCase(path))
+					  .filter(m -> m.managed.title.equalsIgnoreCase(title))
+					  .findFirst();
 	}
 
 	private static class ManagedContentHolder {

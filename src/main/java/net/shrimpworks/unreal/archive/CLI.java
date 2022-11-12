@@ -43,7 +43,7 @@ public class CLI {
 					props.put(p, fileProps.getProperty(p));
 				}
 			} catch (IOException e) {
-				System.err.println("Failed to read properties from file " + confFile + ": " + e.toString());
+				System.err.println("Failed to read properties from file " + confFile + ": " + e);
 			}
 		}
 
