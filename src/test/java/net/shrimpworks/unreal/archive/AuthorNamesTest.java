@@ -1,6 +1,7 @@
 package net.shrimpworks.unreal.archive;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
@@ -24,12 +25,22 @@ public class AuthorNamesTest {
 	}
 
 	@Test
-	public void handleAliasTest() {
+	public void autoAliasTest() {
 		AuthorNames name = new AuthorNames(new HashMap<>(), Set.of());
 		name.maybeAutoAlias("Mike \"Mr. Banan\" Bananas");
 		assertEquals("Mike \"Mr. Banan\" Bananas", name.cleanName("Mike \"Mr. Banan\" Bananas"));
 		assertEquals("Mike \"Mr. Banan\" Bananas", name.cleanName("Mike Bananas"));
 		assertEquals("Mike \"Mr. Banan\" Bananas", name.cleanName("Mr. Banan"));
+
+		name.maybeAutoAlias("M. \"Banan\" Bananas");
+		assertEquals("M. \"Banan\" Bananas", name.cleanName("Banan"));
+		assertEquals("M. \"Banan\" Bananas", name.cleanName("M. Bananas"));
+	}
+
+	@Test
+	public void accentAliasTest() {
+		AuthorNames name = new AuthorNames(Map.of("mike bénané", "Mike Bananas"), Set.of());
+		assertEquals("Mike Bananas", name.cleanName("Mike Bénané"));
 	}
 
 	@Test
@@ -39,6 +50,19 @@ public class AuthorNamesTest {
 		name.maybeAutoAlias("Mr. Banan");
 		assertEquals("Mike \"Mr. Banan\" Bananas", name.cleanName("Mike \"Mr. Banan\" Bananas"));
 		assertEquals("Mr. Banan", name.cleanName("Mr. Banan"));
+	}
+
+	@Test
+	public void emailAddressString() {
+		AuthorNames name = new AuthorNames(new HashMap<>(), Set.of());
+		assertEquals("Mike Bananas", name.cleanName("Mike Bananas mike@banan.com"));
+		assertEquals("Mike Bananas", name.cleanName("Mike Bananas mike@banan.co.uk"));
+	}
+
+	@Test
+	public void emailAddressName() {
+		AuthorNames name = new AuthorNames(new HashMap<>(), Set.of());
+		assertEquals("mike", name.cleanName("mike@banan.co.uk"));
 	}
 
 }

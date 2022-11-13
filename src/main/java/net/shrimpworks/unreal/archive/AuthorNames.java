@@ -13,13 +13,14 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class AuthorNames {
 
 	public static Optional<AuthorNames> instance = Optional.empty();
 
 	private static final Pattern EMAIL = Pattern.compile(
-		"(-? ?)?\\(?([A-Za-z0-9.-]+@[^.]+\\.[A-Za-z]+)\\)?"); // excessively simple, intentionally
+		"(-? ?)?\\(?([A-Za-z0-9.-]+@[A-Za-z0-9.]+)\\)?"); // excessively simple, intentionally
 	private static final Pattern URL = Pattern.compile(
 		"(-? ?)?\\(?((https?://)?(www\\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\\.[a-zA-Z0-9()]{2,6}\\b([-a-zA-Z0-9()!@:%_+.~#?&/=]*))\\)?"
 	);
@@ -36,20 +37,21 @@ public class AuthorNames {
 	public AuthorNames(Path aliasPath) throws IOException {
 		this.aliases = new HashMap<>();
 		this.nonAutoAliases = new HashSet<>();
-		Files.walk(aliasPath, 0, FileVisitOption.FOLLOW_LINKS)
-			 .filter(p -> !Files.isDirectory(p))
-			 .filter(p -> Util.extension(p).equalsIgnoreCase("txt"))
-			 .filter(p -> !Util.fileName(p).equalsIgnoreCase("exclude.txt"))
-			 .forEach(path -> {
-				 try {
-					 List<String> names = Files.readAllLines(path);
-					 for (String name : names.subList(1, names.size())) {
-						 aliases.put(name.toLowerCase(), names.get(0));
-					 }
-				 } catch (IOException e) {
-					 throw new RuntimeException("Failed to process names from file " + path, e);
-				 }
-			 });
+		try (Stream<Path> fileStream = Files.walk(aliasPath, 2, FileVisitOption.FOLLOW_LINKS)) {
+			fileStream.filter(p -> !Files.isDirectory(p))
+					  .filter(p -> Util.extension(p).equalsIgnoreCase("txt"))
+					  .filter(p -> !Util.fileName(p).equalsIgnoreCase("exclude.txt"))
+					  .forEach(path -> {
+						  try {
+							  List<String> names = Files.readAllLines(path);
+							  for (String name : names.subList(1, names.size())) {
+								  aliases.put(name.toLowerCase(), names.get(0));
+							  }
+						  } catch (IOException e) {
+							  throw new RuntimeException("Failed to process names from file " + path, e);
+						  }
+					  });
+		}
 
 		final Path exclude = aliasPath.resolve("no-auto-alias").resolve("exclude.txt");
 		if (Files.exists(exclude)) {
@@ -64,6 +66,10 @@ public class AuthorNames {
 	public AuthorNames(Map<String, String> aliases, Set<String> nonAutoAliases) {
 		this.aliases = aliases;
 		this.nonAutoAliases = nonAutoAliases;
+	}
+
+	public int aliasCount() {
+		return aliases.size();
 	}
 
 	/**

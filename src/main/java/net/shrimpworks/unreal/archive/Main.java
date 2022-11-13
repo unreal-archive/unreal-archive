@@ -37,6 +37,7 @@ import net.shrimpworks.unreal.archive.content.GameTypeManager;
 import net.shrimpworks.unreal.archive.content.Games;
 import net.shrimpworks.unreal.archive.content.Incoming;
 import net.shrimpworks.unreal.archive.content.IndexLog;
+import net.shrimpworks.unreal.archive.content.IndexUtils;
 import net.shrimpworks.unreal.archive.content.Indexer;
 import net.shrimpworks.unreal.archive.content.Scanner;
 import net.shrimpworks.unreal.archive.content.Submission;
@@ -542,6 +543,7 @@ public class Main {
 
 		// default to mirror last 7 days of changes
 		LocalDate since = LocalDate.now().minusDays(7);
+		LocalDate until = LocalDate.now();
 
 		try {
 			if (!cli.option("since", "").isBlank()) since = LocalDate.parse(cli.option("since", ""));
@@ -549,15 +551,21 @@ public class Main {
 			System.err.println("Failed to parse date input " + cli.option("since", ""));
 			System.exit(-1);
 		}
+		try {
+			if (!cli.option("until", "").isBlank()) until = LocalDate.parse(cli.option("until", ""));
+		} catch (DateTimeParseException e) {
+			System.err.println("Failed to parse date input " + cli.option("until", ""));
+			System.exit(-1);
+		}
 
-		System.out.printf("Mirroring files added since %s to %s with concurrency of %s%n",
-						  since, mirrorStore, cli.option("concurrency", "3"));
+		System.out.printf("Mirroring files added since %s until %s to %s with concurrency of %s%n",
+						  since, until, mirrorStore, cli.option("concurrency", "3"));
 
 		Mirror mirror = new Mirror(
 			contentManager, gameTypeManager, managed,
 			mirrorStore,
 			Integer.parseInt(cli.option("concurrency", "3")),
-			since,
+			since, until,
 			((total, remaining, last) -> System.out.printf("\r[ %-6s / %-6s ] Processed %-40s",
 														   total - remaining, total, last.name()))
 		);
@@ -631,8 +639,12 @@ public class Main {
 		// prepare author names and aliases
 		Path authorPath = contentPath(cli).resolve(AUTHORS_DIR);
 		AuthorNames names = new AuthorNames(authorPath);
-		contentManager.all().parallelStream().forEach(c -> names.maybeAutoAlias(c.author));
+		contentManager.all().parallelStream()
+					  .filter(c -> !IndexUtils.UNKNOWN.equalsIgnoreCase(c.author()))
+					  .sorted((a, b) -> Integer.compare(a.author().length(), b.author().length()) * -1)
+					  .forEach(c -> names.maybeAutoAlias(c.author));
 		AuthorNames.instance = Optional.of(names);
+		System.out.printf("Found %d author aliases and names%n", names.aliasCount());
 
 		final Set<SiteMap.Page> allPages = ConcurrentHashMap.newKeySet();
 

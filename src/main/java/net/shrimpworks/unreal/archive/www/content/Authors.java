@@ -48,8 +48,11 @@ public class Authors extends ContentPageGenerator {
 			  .sorted(Map.Entry.comparingByKey())
 			  .forEach(e -> {
 				  String authorName = names.cleanName(e.getValue().get(0).author());
-				  LetterGroup letter = letters.computeIfAbsent(pageSelection(authorName), LetterGroup::new);
-				  letter.add(authorName, e.getValue());
+				  String pageLetter = pageSelection(authorName);
+				  if (pageLetter != null) {
+					  LetterGroup letter = letters.computeIfAbsent(pageLetter, LetterGroup::new);
+					  letter.add(authorName, e.getValue());
+				  }
 			  });
 	}
 
@@ -61,11 +64,15 @@ public class Authors extends ContentPageGenerator {
 	private String pageSelection(String author) {
 		char first;
 
-		String normalised = Normalizer.normalize(author.toUpperCase(Locale.ENGLISH), Normalizer.Form.NFD);
+		String normalised = Normalizer.normalize(author.toUpperCase(Locale.ENGLISH), Normalizer.Form.NFKD).toUpperCase();
 
 		if (normalised.startsWith("\"")) normalised = normalised.substring(1);
+		if (normalised.startsWith("'")) normalised = normalised.substring(1);
 
-		if (Character.isDigit(normalised.charAt(0))) first = '0';
+		// skip names which are nothing but unprintable characters
+		if (normalised.replaceAll("([^A-Za-z0-9])", "").trim().isBlank()) return null;
+
+		else if (Character.isDigit(normalised.charAt(0))) first = '0';
 		else if (Character.isAlphabetic(normalised.charAt(0))) first = normalised.charAt(0);
 		else first = '_';
 

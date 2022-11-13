@@ -48,13 +48,14 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 	private volatile Thread mirrorThread;
 
 	public Mirror(ContentManager cm, GameTypeManager gm, ManagedContentManager mm,
-				  DataStore mirrorStore, int concurrency, LocalDate since, Progress progress) {
+				  DataStore mirrorStore, int concurrency, LocalDate since, LocalDate until, Progress progress) {
 		this.cm = cm;
 		this.gm = gm;
 		this.mm = mm;
 		this.mirrorStore = mirrorStore;
 
 		final LocalDate sinceFilter = since.minusDays(1);
+		final LocalDate untilFilter = until.plusDays(1);
 
 		this.content = Stream.concat(
 									 cm.all().stream(),
@@ -65,6 +66,7 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 							 )
 							 .filter(c -> !c.deleted())
 							 .filter(c -> c.addedDate().toLocalDate().isAfter(sinceFilter))
+							 .filter(c -> c.addedDate().toLocalDate().isBefore(untilFilter))
 							 .collect(Collectors.toCollection(ConcurrentLinkedDeque::new));
 
 		this.retryQueue = new ConcurrentLinkedDeque<>();
