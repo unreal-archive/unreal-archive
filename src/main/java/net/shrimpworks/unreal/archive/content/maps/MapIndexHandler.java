@@ -92,6 +92,11 @@ public class MapIndexHandler implements IndexHandler<Map> {
 				else m.playerCount = IndexUtils.findPlayerCount(incoming);
 			}
 
+			// special case for 1 on 1 maps, which sometimes don't contain the 1on1 at the start
+			if (m.gametype.equalsIgnoreCase("DeathMatch") && m.name.startsWith("DM") && m.name.toLowerCase().contains("1on1")) {
+				m.gametype = "1 on 1";
+			}
+
 			// Find map themes
 			m.themes.clear();
 			m.themes.putAll(themes(map));
