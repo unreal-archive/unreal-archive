@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.ContentManager;
 import net.shrimpworks.unreal.archive.content.Games;
 import net.shrimpworks.unreal.archive.content.skins.Skin;
@@ -19,12 +20,12 @@ public class Skins extends GenericContentPage<Skin> {
 	private static final String SECTION = "Skins";
 	private static final String SUBGROUP = "all";
 
-	private final GameList games;
-
 	public Skins(ContentManager content, Path output, Path staticRoot, SiteFeatures localImages) {
 		super(content, output, output.resolve("skins"), staticRoot, localImages);
+	}
 
-		this.games = new GameList();
+	private GameList loadContent(ContentManager content) {
+		final GameList games = new GameList();
 
 		content.get(Skin.class).stream()
 			   .filter(s -> !s.deleted)
@@ -35,15 +36,13 @@ public class Skins extends GenericContentPage<Skin> {
 				   g.add(s);
 			   });
 
-	}
-
-	@Override
-	public void done() {
-		games.clear();
+		return games;
 	}
 
 	@Override
 	public Set<SiteMap.Page> generate() {
+		GameList games = loadContent(content);
+
 		Templates.PageSet pages = pageSet("content/skins");
 
 		pages.add("games.ftl", SiteMap.Page.monthly(0.8f), SECTION)
@@ -106,13 +105,14 @@ public class Skins extends GenericContentPage<Skin> {
 	}
 
 	private void skinPage(Templates.PageSet pages, ContentInfo<Skin> skin) {
-		localImages(skin.item, root.resolve(skin.path).getParent());
+		final Content item = skin.item();
+		localImages(item, root.resolve(skin.path).getParent());
 
-		pages.add("skin.ftl", SiteMap.Page.monthly(0.9f, skin.item.firstIndex), String.join(" / ", SECTION,
-																							skin.page.letter.group.game.game.bigName,
-																							skin.item.name))
+		pages.add("skin.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex), String.join(" / ", SECTION,
+																					   skin.page.letter.group.game.game.bigName,
+																					   item.name))
 			 .put("skin", skin)
-			 .write(Paths.get(skin.path.toString() + ".html"));
+			 .write(Paths.get(skin.path + ".html"));
 
 		// since variations are not top-level things, we need to generate them here
 		for (ContentInfo<Skin> variation : skin.variations) {

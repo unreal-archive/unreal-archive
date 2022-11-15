@@ -5,6 +5,7 @@ import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Set;
 
+import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.ContentManager;
 import net.shrimpworks.unreal.archive.content.Games;
 import net.shrimpworks.unreal.archive.content.mappacks.MapPack;
@@ -18,12 +19,12 @@ public class MapPacks extends GenericContentPage<MapPack> {
 
 	private static final String LETTER_SUBGROUP = "all";
 
-	private final GameList games;
-
 	public MapPacks(ContentManager content, Path output, Path staticRoot, SiteFeatures features) {
 		super(content, output, output.resolve("mappacks"), staticRoot, features);
+	}
 
-		this.games = new GameList();
+	private GameList loadContent(ContentManager content) {
+		final GameList games = new GameList();
 
 		content.get(MapPack.class).stream()
 			   .filter(m -> !m.deleted)
@@ -33,15 +34,14 @@ public class MapPacks extends GenericContentPage<MapPack> {
 				   Game g = games.games.computeIfAbsent(p.game, Game::new);
 				   g.add(p);
 			   });
-	}
 
-	@Override
-	public void done() {
-		games.clear();
+		return games;
 	}
 
 	@Override
 	public Set<SiteMap.Page> generate() {
+		GameList games = loadContent(content);
+
 		Templates.PageSet pages = pageSet("content/mappacks");
 
 		pages.add("games.ftl", SiteMap.Page.monthly(0.6f), SECTION)
@@ -89,14 +89,15 @@ public class MapPacks extends GenericContentPage<MapPack> {
 	}
 
 	private void packPage(Templates.PageSet pages, ContentInfo<MapPack> pack) {
-		localImages(pack.item, pack.path.getParent());
+		final Content item = pack.item();
+		localImages(item, pack.path.getParent());
 
-		pages.add("mappack.ftl", SiteMap.Page.monthly(0.9f, pack.item.firstIndex), String.join(" / ", SECTION,
-																							   pack.page.letter.group.game.game.bigName,
-																							   pack.page.letter.group.name, pack.item.name))
+		pages.add("mappack.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex), String.join(" / ", SECTION,
+																						  pack.page.letter.group.game.game.bigName,
+																						  pack.page.letter.group.name, item.name))
 			 .put("pack", pack)
 			 .put("gametype", pack.page.letter.group)
-			 .write(Paths.get(pack.path.toString() + ".html"));
+			 .write(Paths.get(pack.path + ".html"));
 
 		for (ContentInfo<MapPack> variation : pack.variations) {
 			packPage(pages, variation);

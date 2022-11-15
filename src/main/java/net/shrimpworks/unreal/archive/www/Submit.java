@@ -18,11 +18,6 @@ public class Submit implements PageGenerator {
 	}
 
 	@Override
-	public void done() {
-		// nothing to do
-	}
-
-	@Override
 	public Set<SiteMap.Page> generate() {
 		Templates.PageSet pages = new Templates.PageSet("submit", features, siteRoot, staticRoot, root);
 		pages.add("index.ftl", SiteMap.Page.of(1f, SiteMap.ChangeFrequency.weekly), "Submit Content")

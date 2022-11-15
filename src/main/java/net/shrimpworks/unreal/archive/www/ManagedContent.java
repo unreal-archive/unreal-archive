@@ -26,15 +26,15 @@ public class ManagedContent implements PageGenerator {
 	private final Path staticRoot;
 	private final SiteFeatures features;
 
-	private final Map<String, ContentGroup> groups;
-
 	public ManagedContent(ManagedContentManager content, Path root, Path staticRoot, SiteFeatures features) {
 		this.content = content;
 		this.siteRoot = root;
 		this.staticRoot = staticRoot;
 		this.features = features;
+	}
 
-		this.groups = new HashMap<>();
+	private Map<String, ContentGroup> loadGroups(ManagedContentManager content) {
+		final Map<String, ContentGroup> groups = new HashMap<>();
 
 		content.all().stream()
 			   .filter(d -> d.published)
@@ -44,11 +44,8 @@ public class ManagedContent implements PageGenerator {
 				   ContentGroup group = groups.computeIfAbsent(d.group, g -> new ContentGroup(null, g, 0));
 				   group.add(d);
 			   });
-	}
 
-	@Override
-	public void done() {
-		groups.clear();
+		return groups;
 	}
 
 	/**
@@ -58,6 +55,8 @@ public class ManagedContent implements PageGenerator {
 	 */
 	@Override
 	public Set<SiteMap.Page> generate() {
+		final Map<String, ContentGroup> groups = loadGroups(content);
+
 		Templates.PageSet pages = new Templates.PageSet("managed", features, siteRoot, staticRoot, siteRoot);
 		try {
 			// create the root landing page, for reasons

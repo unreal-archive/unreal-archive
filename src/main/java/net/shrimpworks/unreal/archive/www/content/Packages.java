@@ -30,13 +30,21 @@ public class Packages extends ContentPageGenerator {
 													   .flatMap(p -> p.ext.stream())
 													   .collect(Collectors.toSet());
 
-	private final Map<Games, Map<String, Map<Content.ContentFile, List<Content>>>> contentFiles;
+	private final GameTypeManager gameTypes;
+	private final ManagedContentManager managed;
 
 	public Packages(ContentManager content, GameTypeManager gameTypes, ManagedContentManager managed, Path output, Path staticRoot,
 					SiteFeatures features) {
 		super(content, output, output.resolve("packages"), staticRoot, features);
 
-		this.contentFiles = new HashMap<>();
+		this.gameTypes = gameTypes;
+		this.managed = managed;
+	}
+
+	public Map<Games, Map<String, Map<Content.ContentFile, List<Content>>>> loadContentFiles(ContentManager content,
+																							 GameTypeManager gameTypes,
+																							 ManagedContentManager managed) {
+		final Map<Games, Map<String, Map<Content.ContentFile, List<Content>>>> contentFiles = new HashMap<>();
 		content.all()
 			   .forEach(c -> {
 				   for (Content.ContentFile f : c.files) {
@@ -48,17 +56,13 @@ public class Packages extends ContentPageGenerator {
 					   }
 				   }
 			   });
-		System.out.printf("Found %d games with %d packages%n", contentFiles.size(),
-						  contentFiles.values().stream().mapToInt(Map::size).sum());
-	}
-
-	@Override
-	public void done() {
-		contentFiles.clear();
+		return contentFiles;
 	}
 
 	@Override
 	public Set<SiteMap.Page> generate() {
+		Map<Games, Map<String, Map<Content.ContentFile, List<Content>>>> contentFiles = loadContentFiles(content, gameTypes, managed);
+
 		Templates.PageSet pages = pageSet("content/packages");
 
 		contentFiles.entrySet().parallelStream().forEach(game -> {

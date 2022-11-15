@@ -28,12 +28,22 @@ import static net.shrimpworks.unreal.archive.Util.authorSlug;
 public class Authors extends ContentPageGenerator {
 
 	private static final String SECTION = "Authors";
-
-	public final TreeMap<String, LetterGroup> letters = new TreeMap<>();
+	private final AuthorNames names;
+	private final GameTypeManager gameTypes;
+	private final ManagedContentManager managed;
 
 	public Authors(AuthorNames names, ContentManager content, GameTypeManager gameTypes, ManagedContentManager managed, Path output,
 				   Path staticRoot, SiteFeatures features) {
 		super(content, output, output.resolve("authors"), staticRoot, features);
+
+		this.names = names;
+		this.gameTypes = gameTypes;
+		this.managed = managed;
+
+	}
+
+	private TreeMap<String, LetterGroup> loadLetters(AuthorNames names, ContentManager content, GameTypeManager gameTypes, ManagedContentManager managed) {
+		final TreeMap<String, LetterGroup> letters = new TreeMap<>();
 
 		Stream.concat(Stream.concat(content.all().stream(),
 									gameTypes.all().stream()), managed.all().stream())
@@ -54,11 +64,8 @@ public class Authors extends ContentPageGenerator {
 					  letter.add(authorName, e.getValue());
 				  }
 			  });
-	}
 
-	@Override
-	public void done() {
-		letters.clear();
+		return letters;
 	}
 
 	private String pageSelection(String author) {
@@ -81,6 +88,7 @@ public class Authors extends ContentPageGenerator {
 
 	@Override
 	public Set<SiteMap.Page> generate() {
+		final TreeMap<String, LetterGroup> letters = loadLetters(names, content, gameTypes, managed);
 
 		Templates.PageSet pages = pageSet("content/authors");
 

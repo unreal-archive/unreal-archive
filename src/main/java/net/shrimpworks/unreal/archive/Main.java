@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -150,7 +151,7 @@ public class Main {
 			if (in.isEmpty()) return defaultValue;
 			else return in;
 		} catch (IOException e) {
-			System.err.println("Failed to read user input: " + e.toString());
+			System.err.printf("Failed to read user input: %s", e);
 			System.exit(254);
 		}
 		return defaultValue;
@@ -585,8 +586,7 @@ public class Main {
 
 		Path output = Files.createDirectories(Paths.get(cli.commands()[1])).toAbsolutePath();
 
-		System.out.printf("Writing files to %s with concurrency of %s%n",
-						  output.toString(), cli.option("concurrency", "3"));
+		System.out.printf("Writing files to %s with concurrency of %s%n", output, cli.option("concurrency", "3"));
 
 		LocalMirrorClient mirror = new LocalMirrorClient(
 			contentManager,
@@ -623,11 +623,12 @@ public class Main {
 		final boolean withSearch = Boolean.parseBoolean(cli.option("with-search", "false"));
 		final boolean withSubmit = Boolean.parseBoolean(cli.option("with-submit", "false"));
 		final boolean withLatest = Boolean.parseBoolean(cli.option("with-latest", "false"));
+		final boolean withFiles = Boolean.parseBoolean(cli.option("with-files", "true"));
 		final boolean withPackages = Boolean.parseBoolean(cli.option("with-packages", "false"));
 		final boolean localImages = Boolean.parseBoolean(cli.option("local-images", "false"));
 		if (localImages) System.out.println("Will download a local copy of content images, this will take additional time.");
 
-		final SiteFeatures features = new SiteFeatures(localImages, withLatest, withSubmit, withSearch);
+		final SiteFeatures features = new SiteFeatures(localImages, withLatest, withSubmit, withSearch, withFiles);
 
 		final Path staticOutput = outputPath.resolve("static");
 
@@ -660,8 +661,7 @@ public class Main {
 					new Skins(contentManager, outputPath, staticOutput, features),
 					new Models(contentManager, outputPath, staticOutput, features),
 					new Voices(contentManager, outputPath, staticOutput, features),
-					new Mutators(contentManager, outputPath, staticOutput, features),
-					new FileDetails(contentManager, outputPath, staticOutput, features)
+					new Mutators(contentManager, outputPath, staticOutput, features)
 				));
 			if (withPackages) generators.add(new Packages(contentManager, gameTypeManager, managed, outputPath, staticOutput, features));
 		}
@@ -689,12 +689,15 @@ public class Main {
 		if (features.submit) generators.add(new Submit(outputPath, staticOutput, features));
 		if (features.search) generators.add(new Search(outputPath, staticOutput, features));
 		if (features.latest) generators.add(new Latest(contentManager, gameTypeManager, managed, outputPath, staticOutput, features));
+		if (features.files) generators.add(new FileDetails(contentManager, outputPath, staticOutput, features));
 
-		generators.parallelStream().forEach(g -> {
-			System.out.printf("Generating %s pages%n", g.getClass().getSimpleName());
-			allPages.addAll(g.generate());
-			g.done();
-		});
+		ForkJoinPool myPool = new ForkJoinPool(Integer.parseInt(cli.option("concurrency", "4")));
+		myPool.submit(() -> {
+			generators.parallelStream().forEach(g -> {
+				System.out.printf("Generating %s pages%n", g.getClass().getSimpleName());
+				allPages.addAll(g.generate());
+			});
+		}).join();
 
 		System.out.println("Generating sitemap");
 		allPages.addAll(SiteMap.siteMap(SiteMap.SITE_ROOT, outputPath, allPages, 50000, features).generate());

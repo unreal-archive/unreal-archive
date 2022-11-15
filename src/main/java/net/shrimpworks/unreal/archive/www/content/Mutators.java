@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.ContentManager;
 import net.shrimpworks.unreal.archive.content.Games;
 import net.shrimpworks.unreal.archive.content.mutators.Mutator;
@@ -19,12 +20,12 @@ public class Mutators extends GenericContentPage<Mutator> {
 	private static final String SECTION = "Mutators";
 	private static final String SUBGROUP = "all";
 
-	private final GameList games;
-
 	public Mutators(ContentManager content, Path output, Path staticRoot, SiteFeatures localImages) {
 		super(content, output, output.resolve("mutators"), staticRoot, localImages);
+	}
 
-		this.games = new GameList();
+	private GameList loadContent(ContentManager content) {
+		final GameList games = new GameList();
 
 		content.get(Mutator.class).stream()
 			   .filter(m -> !m.deleted)
@@ -34,15 +35,14 @@ public class Mutators extends GenericContentPage<Mutator> {
 				   Game g = games.games.computeIfAbsent(m.game, Game::new);
 				   g.add(m);
 			   });
-	}
 
-	@Override
-	public void done() {
-		games.clear();
+		return games;
 	}
 
 	@Override
 	public Set<SiteMap.Page> generate() {
+		GameList games = loadContent(content);
+
 		Templates.PageSet pages = pageSet("content/mutators");
 
 		pages.add("games.ftl", SiteMap.Page.monthly(0.6f), SECTION)
@@ -105,11 +105,12 @@ public class Mutators extends GenericContentPage<Mutator> {
 	}
 
 	private void mutatorPage(Templates.PageSet pages, ContentInfo<Mutator> mutator) {
-		localImages(mutator.item, root.resolve(mutator.path).getParent());
+		final Content item = mutator.item();
+		localImages(item, root.resolve(mutator.path).getParent());
 
-		pages.add("mutator.ftl", SiteMap.Page.monthly(0.9f, mutator.item.firstIndex), String.join(" / ", SECTION,
-																								  mutator.page.letter.group.game.game.bigName,
-																								  mutator.item.name))
+		pages.add("mutator.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex), String.join(" / ", SECTION,
+																						  mutator.page.letter.group.game.game.bigName,
+																						  item.name))
 			 .put("mutator", mutator)
 			 .write(Paths.get(mutator.path + ".html"));
 

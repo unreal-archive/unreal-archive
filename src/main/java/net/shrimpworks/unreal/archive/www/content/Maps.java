@@ -16,12 +16,12 @@ public class Maps extends GenericContentPage<Map> {
 
 	private static final String SECTION = "Maps";
 
-	private final GameList games;
-
 	public Maps(ContentManager content, Path output, Path staticRoot, SiteFeatures features) {
 		super(content, output, output.resolve("maps"), staticRoot, features);
+	}
 
-		this.games = new GameList();
+	private GameList loadContent(ContentManager content) {
+		final GameList games = new GameList();
 
 		content.get(Map.class).stream()
 			   .filter(m -> !m.deleted)
@@ -32,15 +32,13 @@ public class Maps extends GenericContentPage<Map> {
 				   g.add(m);
 			   });
 
-	}
-
-	@Override
-	public void done() {
-		games.clear();
+		return games;
 	}
 
 	@Override
 	public Set<SiteMap.Page> generate() {
+		GameList games = loadContent(content);
+
 		Templates.PageSet pages = pageSet("content/maps");
 
 		pages.add("games.ftl", SiteMap.Page.monthly(0.6f), SECTION)
@@ -106,14 +104,15 @@ public class Maps extends GenericContentPage<Map> {
 	}
 
 	private void mapPage(Templates.PageSet pages, ContentInfo<Map> map) {
-		localImages(map.item, root.resolve(map.path).getParent());
+		final Map item = map.item();
+		localImages(item, root.resolve(map.path).getParent());
 
-		pages.add("map.ftl", SiteMap.Page.monthly(0.9f, map.item.firstIndex), String.join(" / ", SECTION,
-																						  map.page.letter.group.game.game.bigName,
-																						  map.page.letter.group.name,
-																						  map.item.title))
+		pages.add("map.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex), String.join(" / ", SECTION,
+																					  map.page.letter.group.game.game.bigName,
+																					  map.page.letter.group.name,
+																					  item.title))
 			 .put("map", map)
-			 .write(map.item.pagePath(siteRoot));
+			 .write(item.pagePath(siteRoot));
 		for (ContentInfo<Map> variation : map.variations) {
 			this.mapPage(pages, variation);
 		}

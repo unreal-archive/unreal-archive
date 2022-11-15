@@ -5,7 +5,6 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -39,8 +38,6 @@ public class GameTypes implements PageGenerator {
 	private final Path staticRoot;
 	private final SiteFeatures features;
 
-	private final Map<String, Game> games;
-
 	public GameTypes(GameTypeManager gametypes, ContentManager content, Path root, Path staticRoot,
 					 SiteFeatures features) {
 		this.gametypes = gametypes;
@@ -49,8 +46,10 @@ public class GameTypes implements PageGenerator {
 		this.root = root.resolve(slug("gametypes"));
 		this.staticRoot = staticRoot;
 		this.features = features;
+	}
 
-		this.games = new HashMap<>();
+	private Map<String, Game> loadGames(GameTypeManager gametypes) {
+		final Map<String, Game> games = new HashMap<>();
 
 		gametypes.all().stream()
 				 .sorted()
@@ -58,11 +57,8 @@ public class GameTypes implements PageGenerator {
 					 Game game = games.computeIfAbsent(d.game, Game::new);
 					 game.add(d, gametypes.variations(d).stream().sorted().collect(Collectors.toList()));
 				 });
-	}
 
-	@Override
-	public void done() {
-		games.clear();
+		return games;
 	}
 
 	/**
@@ -72,6 +68,8 @@ public class GameTypes implements PageGenerator {
 	 */
 	@Override
 	public Set<SiteMap.Page> generate() {
+		final Map<String, Game> games = loadGames(gametypes);
+
 		Templates.PageSet pages = new Templates.PageSet("content/gametypes", features, siteRoot, staticRoot, root);
 		try {
 			pages.add("games.ftl", SiteMap.Page.monthly(0.6f), SECTION)
@@ -212,10 +210,8 @@ public class GameTypes implements PageGenerator {
 					if (file.deleted) continue;
 					Map<String, Integer> fileMap = filesAlsoIn.computeIfAbsent(slug(file.originalFilename), s -> new HashMap<>());
 					for (Content.ContentFile cf : file.files) {
-						Collection<Content> containing = content.containingFile(cf.hash);
-						if (!containing.isEmpty()) {
-							fileMap.put(cf.hash, containing.size());
-						}
+						int alsoInCount = content.containingFileCount(cf.hash);
+						if (alsoInCount > 0) fileMap.put(cf.hash, alsoInCount);
 					}
 				}
 			}

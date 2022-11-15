@@ -28,8 +28,8 @@ public class ContentManager {
 	private final Path path;
 	private final Map<String, ContentHolder> content;
 
-	private final Map<String, Collection<Content>> contentFileMap;
-	private final Map<String, Collection<Content>> variationsMap;
+	private final Map<String, Collection<ContentHolder>> contentFileMap;
+	private final Map<String, Collection<ContentHolder>> variationsMap;
 
 	private final DataStore contentStore;
 	private final DataStore imageStore;
@@ -52,17 +52,20 @@ public class ContentManager {
 			files.forEach(file -> {
 				try {
 					Content c = YAML.fromFile(file, Content.class);
-					content.put(c.hash, new ContentHolder(file, c));
+					ContentHolder holder = new ContentHolder(file, c);
+					content.put(c.hash, holder);
 
 					// while reading this content, also index its individual files for later quick lookup
 					for (Content.ContentFile contentFile : c.files) {
-						Collection<Content> fileSet = contentFileMap.computeIfAbsent(contentFile.hash, h -> ConcurrentHashMap.newKeySet());
-						fileSet.add(c);
+						Collection<ContentHolder> fileSet = contentFileMap.computeIfAbsent(contentFile.hash,
+																						   h -> ConcurrentHashMap.newKeySet());
+						fileSet.add(holder);
 					}
 
 					if (c.variationOf != null) {
-						Collection<Content> variations = variationsMap.computeIfAbsent(c.variationOf, h -> ConcurrentHashMap.newKeySet());
-						variations.add(c);
+						Collection<ContentHolder> variations = variationsMap.computeIfAbsent(c.variationOf,
+																							 h -> ConcurrentHashMap.newKeySet());
+						variations.add(holder);
 					}
 				} catch (Exception e) {
 					throw new RuntimeException(e);
@@ -140,13 +143,26 @@ public class ContentManager {
 	}
 
 	/**
+	 * Convenience which return the count of all content which contains
+	 * the provided file hash.
+	 *
+	 * @param hash file hash
+	 * @return count of content items containing the hash
+	 */
+	public int containingFileCount(String hash) {
+		return contentFileMap.getOrDefault(hash, Collections.emptySet()).size();
+	}
+
+	/**
 	 * Return all content which contains the provided file hash.
 	 *
 	 * @param hash file hash
 	 * @return content containing the hash
 	 */
 	public Collection<Content> containingFile(String hash) {
-		return contentFileMap.getOrDefault(hash, Collections.emptySet());
+		return contentFileMap.getOrDefault(hash, Collections.emptySet())
+							 .parallelStream().map(ContentHolder::content)
+							 .collect(Collectors.toSet());
 	}
 
 	/**
@@ -157,7 +173,9 @@ public class ContentManager {
 	 * @return content variations for the content specified by the hash
 	 */
 	public Collection<Content> variationsOf(String hash) {
-		return variationsMap.getOrDefault(hash, Collections.emptySet());
+		return variationsMap.getOrDefault(hash, Collections.emptySet())
+							.parallelStream().map(ContentHolder::content)
+							.collect(Collectors.toSet());
 	}
 
 	// intent: when some content is going to be worked on, a clone is checked out.

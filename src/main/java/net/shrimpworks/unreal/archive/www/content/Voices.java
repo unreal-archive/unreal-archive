@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.ContentManager;
 import net.shrimpworks.unreal.archive.content.Games;
 import net.shrimpworks.unreal.archive.content.voices.Voice;
@@ -19,12 +20,12 @@ public class Voices extends GenericContentPage<Voice> {
 	private static final String SECTION = "Voices";
 	private static final String SUBGROUP = "all";
 
-	private final GameList games;
-
 	public Voices(ContentManager content, Path output, Path staticRoot, SiteFeatures localImages) {
 		super(content, output, output.resolve("voices"), staticRoot, localImages);
+	}
 
-		this.games = new GameList();
+	private GameList loadContent(ContentManager content) {
+		final GameList games = new GameList();
 
 		content.get(Voice.class).stream()
 			   .filter(v -> !v.deleted)
@@ -34,15 +35,14 @@ public class Voices extends GenericContentPage<Voice> {
 				   Game g = games.games.computeIfAbsent(v.game, Game::new);
 				   g.add(v);
 			   });
-	}
 
-	@Override
-	public void done() {
-		games.clear();
+		return games;
 	}
 
 	@Override
 	public Set<SiteMap.Page> generate() {
+		GameList games = loadContent(content);
+
 		Templates.PageSet pages = pageSet("content/voices");
 		pages.add("games.ftl", SiteMap.Page.monthly(0.6f), SECTION)
 			 .put("games", games)
@@ -104,13 +104,14 @@ public class Voices extends GenericContentPage<Voice> {
 	}
 
 	private void voicePage(Templates.PageSet pages, ContentInfo<Voice> voice) {
-		localImages(voice.item, root.resolve(voice.path).getParent());
+		final Content item = voice.item();
+		localImages(item, root.resolve(voice.path).getParent());
 
-		pages.add("voice.ftl", SiteMap.Page.monthly(0.9f, voice.item.firstIndex), String.join(" / ", SECTION,
-																							  voice.page.letter.group.game.game.bigName,
-																							  voice.item.name))
+		pages.add("voice.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex), String.join(" / ", SECTION,
+																						voice.page.letter.group.game.game.bigName,
+																						item.name))
 			 .put("voice", voice)
-			 .write(Paths.get(voice.path.toString() + ".html"));
+			 .write(Paths.get(voice.path + ".html"));
 
 		// since variations are not top-level things, we need to generate them here
 		for (ContentInfo<Voice> variation : voice.variations) {

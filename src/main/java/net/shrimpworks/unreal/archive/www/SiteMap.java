@@ -31,7 +31,8 @@ public interface SiteMap extends PageGenerator {
 
 		private final String rootUrl;
 		private final Path root;
-		private final List<Page> pages;
+		private final Set<Page> allPages;
+		private final int pageLimit;
 		private final SiteFeatures features;
 
 		public SiteMapImpl(String rootUrl, Path root, Set<Page> pages, int pageLimit, SiteFeatures features) {
@@ -39,19 +40,21 @@ public interface SiteMap extends PageGenerator {
 			if (!rootUrl.endsWith("/")) this.rootUrl = rootUrl + "/";
 			else this.rootUrl = rootUrl;
 			this.root = root;
-			this.pages = pages.stream()
-							  .sorted(Collections.reverseOrder())
-							  .limit(pageLimit)
-							  .collect(Collectors.toList());
+			this.allPages = pages;
+			this.pageLimit = pageLimit;
 		}
 
-		@Override
-		public void done() {
-			pages.clear();
+		private List<Page> loadPages(Set<Page> pages, int pageLimit) {
+			return pages.stream()
+						.sorted(Collections.reverseOrder())
+						.limit(pageLimit)
+						.collect(Collectors.toList());
 		}
 
 		@Override
 		public Set<Page> generate() {
+			final List<Page> pages = loadPages(allPages, pageLimit);
+
 			Templates.PageSet genPages = new Templates.PageSet("", features, root, root, root);
 
 			pages.stream().filter(p -> p.path == null).forEach(System.out::println);

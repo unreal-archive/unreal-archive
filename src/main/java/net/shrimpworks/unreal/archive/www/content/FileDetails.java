@@ -18,12 +18,12 @@ import net.shrimpworks.unreal.archive.www.Templates;
 
 public class FileDetails extends ContentPageGenerator {
 
-	private final Map<Content.ContentFile, List<Content>> contentFiles;
-
 	public FileDetails(ContentManager content, Path output, Path staticRoot, SiteFeatures features) {
 		super(content, output, output.resolve("files"), staticRoot, features);
+	}
 
-		this.contentFiles = new HashMap<>();
+	private Map<Content.ContentFile, List<Content>> loadContentFiles(ContentManager content) {
+		final Map<Content.ContentFile, List<Content>> contentFiles = new HashMap<>();
 		content.all()
 			   .forEach(c -> {
 				   for (Content.ContentFile f : c.files) {
@@ -31,15 +31,13 @@ public class FileDetails extends ContentPageGenerator {
 					   contents.add(c);
 				   }
 			   });
-	}
-
-	@Override
-	public void done() {
-		contentFiles.clear();
+		return contentFiles;
 	}
 
 	@Override
 	public Set<SiteMap.Page> generate() {
+		final Map<Content.ContentFile, List<Content>> contentFiles = loadContentFiles(content);
+
 		Templates.PageSet pages = pageSet("content/files");
 		contentFiles.entrySet().parallelStream().forEach(e -> {
 			// we're only interested in multi-use files

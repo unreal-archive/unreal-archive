@@ -21,31 +21,34 @@ import net.shrimpworks.unreal.archive.www.Templates;
 
 public class Latest extends ContentPageGenerator {
 
-	private final Set<ContentEntity<?>> allContent;
+	private final GameTypeManager gameTypes;
+	private final ManagedContentManager managed;
 
 	public Latest(ContentManager content, GameTypeManager gameTypes, ManagedContentManager managed, Path output, Path staticRoot,
 				  SiteFeatures features) {
 		super(content, output, output.resolve("latest"), staticRoot, features);
 
-		Set<String> variations = content.all().stream().map(c -> c.variationOf).filter(Objects::nonNull).collect(Collectors.toSet());
-
-		this.allContent = Stream.concat(Stream.concat(
-											// exclude content which are variations of existing things
-											content.all().stream().filter(c -> !variations.contains(c.hash)),
-											gameTypes.all().stream()),
-										managed.all().stream())
-								.filter(c -> !c.deleted())
-								.filter(c -> !c.isVariation())
-								.collect(Collectors.toSet());
+		this.gameTypes = gameTypes;
+		this.managed = managed;
 	}
 
-	@Override
-	public void done() {
-		allContent.clear();
+	private Set<ContentEntity<?>> loadAllContent(ContentManager content, GameTypeManager gameTypes, ManagedContentManager managed) {
+		Set<String> variations = content.all().stream().map(c -> c.variationOf).filter(Objects::nonNull).collect(Collectors.toSet());
+
+		return Stream.concat(Stream.concat(
+								 // exclude content which are variations of existing things
+								 content.all().stream().filter(c -> !variations.contains(c.hash)),
+								 gameTypes.all().stream()),
+							 managed.all().stream())
+					 .filter(c -> !c.deleted())
+					 .filter(c -> !c.isVariation())
+					 .collect(Collectors.toSet());
 	}
 
 	@Override
 	public Set<SiteMap.Page> generate() {
+		final Set<ContentEntity<?>> allContent = loadAllContent(content, gameTypes, managed);
+
 		TreeMap<LocalDate, List<ContentEntity<?>>> contentFiles = new TreeMap<>(
 			allContent.stream()
 					  .sorted((a, b) -> -a.addedDate().compareTo(b.addedDate()))

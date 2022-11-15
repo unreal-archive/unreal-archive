@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.ContentManager;
 import net.shrimpworks.unreal.archive.content.Games;
 import net.shrimpworks.unreal.archive.content.models.Model;
@@ -19,12 +20,12 @@ public class Models extends GenericContentPage<Model> {
 	private static final String SECTION = "Models";
 	private static final String SUBGROUP = "all";
 
-	private final GameList games;
-
 	public Models(ContentManager content, Path output, Path staticRoot, SiteFeatures localImages) {
 		super(content, output, output.resolve("models"), staticRoot, localImages);
+	}
 
-		this.games = new GameList();
+	private GameList loadContent(ContentManager content) {
+		final GameList games = new GameList();
 
 		content.get(Model.class).stream()
 			   .filter(m -> !m.deleted)
@@ -35,15 +36,13 @@ public class Models extends GenericContentPage<Model> {
 				   g.add(m);
 			   });
 
-	}
-
-	@Override
-	public void done() {
-		games.clear();
+		return games;
 	}
 
 	@Override
 	public Set<SiteMap.Page> generate() {
+		GameList games = loadContent(content);
+
 		Templates.PageSet pages = pageSet("content/models");
 
 		pages.add("games.ftl", SiteMap.Page.monthly(0.6f), SECTION)
@@ -106,11 +105,12 @@ public class Models extends GenericContentPage<Model> {
 	}
 
 	private void modelPage(Templates.PageSet pages, ContentInfo<Model> model) {
-		localImages(model.item, root.resolve(model.path).getParent());
+		final Content item = model.item();
+		localImages(item, root.resolve(model.path).getParent());
 
-		pages.add("model.ftl", SiteMap.Page.monthly(0.9f, model.item.firstIndex), String.join(" / ", SECTION,
-																							  model.page.letter.group.game.game.bigName,
-																							  model.item.name))
+		pages.add("model.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex), String.join(" / ", SECTION,
+																						model.page.letter.group.game.game.bigName,
+																						item.name))
 			 .put("model", model)
 			 .write(Paths.get(model.path + ".html"));
 

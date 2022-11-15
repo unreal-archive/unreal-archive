@@ -283,7 +283,8 @@ public abstract class GenericContentPage<T extends Content> extends ContentPageG
 	public class ContentInfo<Y extends T> implements Comparable<ContentInfo<Y>> {
 
 		public final Page page;
-		public final Y item;
+		public final String itemHash;
+		private final String itemName;
 		public final Path path;
 
 		public final Collection<ContentInfo<Y>> variations;
@@ -294,15 +295,14 @@ public abstract class GenericContentPage<T extends Content> extends ContentPageG
 		@SuppressWarnings("unchecked")
 		public ContentInfo(Page page, Y item) {
 			this.page = page;
-			this.item = item;
+			this.itemHash = item.hash;
+			this.itemName = item.name;
 			this.path = item.slugPath(siteRoot);
 
 			this.alsoIn = new HashMap<>();
 			for (Content.ContentFile f : item.files) {
-				Collection<Content> containing = content.containingFile(f.hash);
-				if (containing.size() > 1) {
-					alsoIn.put(f.hash, containing.size() - 1);
-				}
+				int alsoInCount = content.containingFileCount(f.hash);
+				if (alsoInCount > 1) alsoIn.put(f.hash, alsoInCount - 1);
 			}
 
 			this.variations = content.variationsOf(item.hash).stream()
@@ -316,14 +316,19 @@ public abstract class GenericContentPage<T extends Content> extends ContentPageG
 			} else {
 				releaseDate = Optional.empty();
 			}
+		}
 
-			Collections.sort(this.item.downloads);
-			Collections.sort(this.item.files);
+		public Y item() {
+			final Content item = content.forHash(itemHash);
+//			Collections.sort(item.downloads);
+//			Collections.sort(item.files);
+
+			return (Y)item;
 		}
 
 		@Override
 		public int compareTo(ContentInfo<Y> o) {
-			return item.name.toLowerCase().compareTo(o.item.name.toLowerCase());
+			return itemName.toLowerCase().compareTo(o.itemName.toLowerCase());
 		}
 	}
 }

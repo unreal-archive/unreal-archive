@@ -28,17 +28,16 @@ public class Documents implements PageGenerator {
 	private final Path staticRoot;
 	private final SiteFeatures features;
 
-	private final Map<String, DocumentGroup> groups;
-
 	public Documents(DocumentManager documents, Path root, Path staticRoot, SiteFeatures features) {
 		this.documents = documents;
 		this.siteRoot = root;
 		this.root = root.resolve("documents");
 		this.staticRoot = staticRoot;
 		this.features = features;
+	}
 
-		this.groups = new HashMap<>();
-
+	private Map<String, DocumentGroup> loadGroups(DocumentManager documents) {
+		final Map<String, DocumentGroup> groups = new HashMap<>();
 		documents.all().stream()
 				 .filter(d -> d.published)
 				 .sorted(Comparator.reverseOrder())
@@ -46,11 +45,7 @@ public class Documents implements PageGenerator {
 					 DocumentGroup group = groups.computeIfAbsent(d.game, g -> new DocumentGroup(null, g));
 					 group.add(d);
 				 });
-	}
-
-	@Override
-	public void done() {
-		groups.clear();
+		return groups;
 	}
 
 	/**
@@ -60,6 +55,8 @@ public class Documents implements PageGenerator {
 	 */
 	@Override
 	public Set<SiteMap.Page> generate() {
+		final Map<String, DocumentGroup> groups = loadGroups(documents);
+
 		Templates.PageSet pages = new Templates.PageSet("docs", features, siteRoot, staticRoot, root);
 		try {
 			// create the root landing page, for reasons

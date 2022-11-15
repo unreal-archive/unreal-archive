@@ -18,11 +18,6 @@ public class Search implements PageGenerator {
 	}
 
 	@Override
-	public void done() {
-		// nothing to do
-	}
-
-	@Override
 	public Set<SiteMap.Page> generate() {
 		Templates.PageSet pages = new Templates.PageSet("search", features, siteRoot, staticRoot, root);
 		pages.add("index.ftl", SiteMap.Page.of(0f, SiteMap.ChangeFrequency.never), "Search")
