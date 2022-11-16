@@ -20,7 +20,7 @@ public class AuthorNames {
 	public static Optional<AuthorNames> instance = Optional.empty();
 
 	private static final Pattern EMAIL = Pattern.compile(
-		"(-? ?)?\\(?([A-Za-z0-9.-]+@[A-Za-z0-9.]+)\\)?"); // excessively simple, intentionally
+		"(-? ?)?\\(?([A-Za-z0-9.-]+@[A-Za-z0-9]+\\.[A-Za-z0-9.]+)\\)?"); // excessively simple, intentionally
 	private static final Pattern URL = Pattern.compile(
 		"(-? ?)?\\(?((https?://)?(www\\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\\.[a-zA-Z0-9()]{2,6}\\b([-a-zA-Z0-9()!@:%_+.~#?&/=]*))\\)?"
 	);
@@ -78,6 +78,7 @@ public class AuthorNames {
 	 */
 	public void maybeAutoAlias(String author) {
 		if (nonAutoAliases.contains(author.toLowerCase().strip())) return;
+		if (aliases.containsKey(author.trim())) return;
 
 		String aliased = aliases.getOrDefault(author.toLowerCase().strip(), author).strip();
 		if (nonAutoAliases.contains(aliased)) return;

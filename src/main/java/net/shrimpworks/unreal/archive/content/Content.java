@@ -186,7 +186,7 @@ public abstract class Content implements ContentEntity<Content> {
 	@JsonIgnore
 	@Override
 	public boolean isVariation() {
-		return variationOf != null;
+		return variationOf != null && !variationOf.isBlank();
 	}
 
 	/**

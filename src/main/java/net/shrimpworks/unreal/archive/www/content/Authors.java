@@ -45,10 +45,8 @@ public class Authors extends ContentPageGenerator {
 	private TreeMap<String, LetterGroup> loadLetters(AuthorNames names, ContentManager content, GameTypeManager gameTypes, ManagedContentManager managed) {
 		final TreeMap<String, LetterGroup> letters = new TreeMap<>();
 
-		Stream.concat(Stream.concat(content.all().stream(),
+		Stream.concat(Stream.concat(content.all(false).stream(),
 									gameTypes.all().stream()), managed.all().stream())
-			  .filter(c -> !c.deleted())
-			  .filter(c -> !c.isVariation())
 			  .filter(c -> c.author().length() > 2)
 			  .filter(c -> !c.author().equalsIgnoreCase("Unknown"))
 			  .filter(c -> !c.author().equalsIgnoreCase("Various"))

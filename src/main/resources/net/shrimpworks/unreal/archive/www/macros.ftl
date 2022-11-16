@@ -117,7 +117,7 @@
 				</tr>
 				</thead>
 				<tbody>
-				<#list files as f>
+				<#list files?sort_by("name") as f>
 					<tr>
 						<td>${f.name}</td>
 						<td>${fileSize(f.fileSize)}</td>

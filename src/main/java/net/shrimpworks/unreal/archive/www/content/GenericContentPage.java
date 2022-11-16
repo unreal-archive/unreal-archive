@@ -164,6 +164,19 @@ public abstract class GenericContentPage<T extends Content> extends ContentPageG
 		});
 	}
 
+	GameList loadContent(Class<T> type, ContentManager content) {
+		final GameList games = new GameList();
+
+		content.get(type, false, false).stream()
+			   .sorted()
+			   .forEach(m -> {
+				   Game g = games.games.computeIfAbsent(m.game, Game::new);
+				   g.add(m);
+			   });
+
+		return games;
+	}
+
 	public class GameList {
 
 		public final TreeMap<String, Game> games = new TreeMap<>();
@@ -320,8 +333,6 @@ public abstract class GenericContentPage<T extends Content> extends ContentPageG
 
 		public Y item() {
 			final Content item = content.forHash(itemHash);
-//			Collections.sort(item.downloads);
-//			Collections.sort(item.files);
 
 			return (Y)item;
 		}

@@ -3,7 +3,6 @@ package net.shrimpworks.unreal.archive.www.content;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -33,15 +32,10 @@ public class Latest extends ContentPageGenerator {
 	}
 
 	private Set<ContentEntity<?>> loadAllContent(ContentManager content, GameTypeManager gameTypes, ManagedContentManager managed) {
-		Set<String> variations = content.all().stream().map(c -> c.variationOf).filter(Objects::nonNull).collect(Collectors.toSet());
-
 		return Stream.concat(Stream.concat(
-								 // exclude content which are variations of existing things
-								 content.all().stream().filter(c -> !variations.contains(c.hash)),
+								 content.all(false).stream(),
 								 gameTypes.all().stream()),
 							 managed.all().stream())
-					 .filter(c -> !c.deleted())
-					 .filter(c -> !c.isVariation())
 					 .collect(Collectors.toSet());
 	}
 

@@ -24,24 +24,9 @@ public class Skins extends GenericContentPage<Skin> {
 		super(content, output, output.resolve("skins"), staticRoot, localImages);
 	}
 
-	private GameList loadContent(ContentManager content) {
-		final GameList games = new GameList();
-
-		content.get(Skin.class).stream()
-			   .filter(s -> !s.deleted)
-			   .filter(s -> s.variationOf == null || s.variationOf.isEmpty())
-			   .sorted()
-			   .forEach(s -> {
-				   Game g = games.games.computeIfAbsent(s.game, Game::new);
-				   g.add(s);
-			   });
-
-		return games;
-	}
-
 	@Override
 	public Set<SiteMap.Page> generate() {
-		GameList games = loadContent(content);
+		GameList games = loadContent(Skin.class, content);
 
 		Templates.PageSet pages = pageSet("content/skins");
 

@@ -20,24 +20,9 @@ public class Maps extends GenericContentPage<Map> {
 		super(content, output, output.resolve("maps"), staticRoot, features);
 	}
 
-	private GameList loadContent(ContentManager content) {
-		final GameList games = new GameList();
-
-		content.get(Map.class).stream()
-			   .filter(m -> !m.deleted)
-			   .filter(m -> m.variationOf == null || m.variationOf.isEmpty())
-			   .sorted()
-			   .forEach(m -> {
-				   Game g = games.games.computeIfAbsent(m.game, Game::new);
-				   g.add(m);
-			   });
-
-		return games;
-	}
-
 	@Override
 	public Set<SiteMap.Page> generate() {
-		GameList games = loadContent(content);
+		GameList games = loadContent(Map.class, content);
 
 		Templates.PageSet pages = pageSet("content/maps");
 

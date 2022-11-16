@@ -24,24 +24,9 @@ public class Voices extends GenericContentPage<Voice> {
 		super(content, output, output.resolve("voices"), staticRoot, localImages);
 	}
 
-	private GameList loadContent(ContentManager content) {
-		final GameList games = new GameList();
-
-		content.get(Voice.class).stream()
-			   .filter(v -> !v.deleted)
-			   .filter(v -> v.variationOf == null || v.variationOf.isEmpty())
-			   .sorted()
-			   .forEach(v -> {
-				   Game g = games.games.computeIfAbsent(v.game, Game::new);
-				   g.add(v);
-			   });
-
-		return games;
-	}
-
 	@Override
 	public Set<SiteMap.Page> generate() {
-		GameList games = loadContent(content);
+		GameList games = loadContent(Voice.class, content);
 
 		Templates.PageSet pages = pageSet("content/voices");
 		pages.add("games.ftl", SiteMap.Page.monthly(0.6f), SECTION)

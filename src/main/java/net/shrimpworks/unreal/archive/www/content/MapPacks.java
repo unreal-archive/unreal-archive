@@ -23,24 +23,9 @@ public class MapPacks extends GenericContentPage<MapPack> {
 		super(content, output, output.resolve("mappacks"), staticRoot, features);
 	}
 
-	private GameList loadContent(ContentManager content) {
-		final GameList games = new GameList();
-
-		content.get(MapPack.class).stream()
-			   .filter(m -> !m.deleted)
-			   .filter(m -> m.variationOf == null || m.variationOf.isEmpty())
-			   .sorted()
-			   .forEach(p -> {
-				   Game g = games.games.computeIfAbsent(p.game, Game::new);
-				   g.add(p);
-			   });
-
-		return games;
-	}
-
 	@Override
 	public Set<SiteMap.Page> generate() {
-		GameList games = loadContent(content);
+		GameList games = loadContent(MapPack.class, content);
 
 		Templates.PageSet pages = pageSet("content/mappacks");
 

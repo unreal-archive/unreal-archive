@@ -113,8 +113,13 @@ public class ContentManager {
 	}
 
 	public Collection<Content> all() {
+		return all(true);
+	}
+
+	public Collection<Content> all(boolean withVariations) {
 		return content.values().parallelStream()
 					  .filter(c -> !c.deleted)
+					  .filter(c -> withVariations || !c.isVariation)
 					  .map(ContentHolder::content)
 					  .collect(Collectors.toSet());
 	}
@@ -133,10 +138,16 @@ public class ContentManager {
 		return null;
 	}
 
-	@SuppressWarnings("unchecked")
 	public <T extends Content> Collection<T> get(Class<T> type) {
+		return get(type, true, true);
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T extends Content> Collection<T> get(Class<T> type, boolean withDeleted, boolean withVariations) {
 		return content.values().parallelStream()
 					  .filter(c -> type.isAssignableFrom(c.type))
+					  .filter(c -> withDeleted || !c.deleted)
+					  .filter(c -> withVariations || !c.isVariation)
 					  .map(ContentHolder::content)
 					  .map(c -> (T)c)
 					  .collect(Collectors.toSet());
