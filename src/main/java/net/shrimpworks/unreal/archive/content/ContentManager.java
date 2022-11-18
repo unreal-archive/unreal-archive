@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -102,6 +103,7 @@ public class ContentManager {
 	public Collection<Content> search(String game, String type, String name, String author) {
 		return content.values().parallelStream()
 					  .map(ContentHolder::content)
+					  .filter(Objects::nonNull)
 					  .filter(c -> {
 						  boolean match = (game == null || c.game.equalsIgnoreCase(game));
 						  match = match && (type == null || c.contentType.equalsIgnoreCase(type));
@@ -121,12 +123,14 @@ public class ContentManager {
 					  .filter(c -> !c.deleted)
 					  .filter(c -> withVariations || !c.isVariation)
 					  .map(ContentHolder::content)
+					  .filter(Objects::nonNull)
 					  .collect(Collectors.toSet());
 	}
 
 	public Collection<Content> forName(String name) {
 		return content.values().parallelStream()
 					  .map(ContentHolder::content)
+					  .filter(Objects::nonNull)
 					  .filter(c -> c.name.equalsIgnoreCase(name))
 					  .collect(Collectors.toSet());
 	}
@@ -149,6 +153,7 @@ public class ContentManager {
 					  .filter(c -> withDeleted || !c.deleted)
 					  .filter(c -> withVariations || !c.isVariation)
 					  .map(ContentHolder::content)
+					  .filter(Objects::nonNull)
 					  .map(c -> (T)c)
 					  .collect(Collectors.toSet());
 	}
@@ -173,6 +178,7 @@ public class ContentManager {
 	public Collection<Content> containingFile(String hash) {
 		return contentFileMap.getOrDefault(hash, Collections.emptySet())
 							 .parallelStream().map(ContentHolder::content)
+							 .filter(Objects::nonNull)
 							 .collect(Collectors.toSet());
 	}
 
@@ -186,6 +192,7 @@ public class ContentManager {
 	public Collection<Content> variationsOf(String hash) {
 		return variationsMap.getOrDefault(hash, Collections.emptySet())
 							.parallelStream().map(ContentHolder::content)
+							.filter(Objects::nonNull)
 							.collect(Collectors.toSet());
 	}
 
@@ -304,9 +311,10 @@ public class ContentManager {
 					this.content = new SoftReference<>(newContent);
 					return newContent;
 				} catch (IOException e) {
-					throw new RuntimeException(e);
+					e.printStackTrace(System.err);
 				}
 			}
+			return null;
 		}
 	}
 }
