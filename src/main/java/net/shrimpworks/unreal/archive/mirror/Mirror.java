@@ -58,11 +58,11 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 		final LocalDate untilFilter = until.plusDays(1);
 
 		this.content = Stream.concat(
-									 cm.all().stream(),
-									 Stream.concat(
-											 gm.all().stream(),
-											 mm.all().stream()
-									 )
+								 cm.all().stream(),
+								 Stream.concat(
+									 gm.all().stream(),
+									 mm.all().stream()
+								 )
 							 )
 							 .filter(c -> !c.deleted())
 							 .filter(c -> c.addedDate().toLocalDate().isAfter(sinceFilter))
@@ -186,11 +186,15 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 		private void mirrorManaged(Managed managed) throws MirrorFailedException {
 			for (Managed.ManagedFile download : managed.downloads) {
 				try {
-					Content.Download dl = download.downloads.stream().filter(d -> d.main).findFirst().get();
-					Path localFile = Util.downloadTo(
+					Path localFile = Paths.get(download.localFile);
+					final boolean hasLocalFile = Files.exists(localFile);
+					if (!hasLocalFile) {
+						Content.Download dl = download.downloads.stream().filter(d -> d.main).findFirst().get();
+						localFile = Util.downloadTo(
 							dl.url.replaceAll(" ", "%20"),
 							Files.createTempDirectory("ua-mirror").resolve(Util.fileName(download.localFile))
-					);
+						);
+					}
 
 					try {
 						boolean[] success = { false };
@@ -199,7 +203,7 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 							throw new MirrorFailedException("Mirror of managed file failed", null, download.originalFilename, managed);
 						}
 					} finally {
-						Files.deleteIfExists(localFile);
+						if (!hasLocalFile) Files.deleteIfExists(localFile);
 					}
 				} catch (Exception ex) {
 					throw new MirrorFailedException(ex.getMessage(), ex, download.originalFilename, managed);
@@ -211,11 +215,15 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 			for (GameType.Release release : gameType.releases) {
 				for (GameType.ReleaseFile releaseFile : release.files) {
 					try {
-						Content.Download dl = releaseFile.downloads.stream().filter(d -> d.main).findFirst().get();
-						Path localFile = Util.downloadTo(
+						Path localFile = Paths.get(releaseFile.localFile);
+						final boolean hasLocalFile = Files.exists(localFile);
+						if (!hasLocalFile) {
+							Content.Download dl = releaseFile.downloads.stream().filter(d -> d.main).findFirst().get();
+							localFile = Util.downloadTo(
 								dl.url,
 								Files.createTempDirectory("ua-mirror").resolve(releaseFile.originalFilename)
-						);
+							);
+						}
 
 						try {
 							boolean[] success = { false };
@@ -224,7 +232,7 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 								throw new MirrorFailedException("Mirror of gametype failed", null, releaseFile.originalFilename, gameType);
 							}
 						} finally {
-							Files.deleteIfExists(localFile);
+							if (!hasLocalFile) Files.deleteIfExists(localFile);
 						}
 					} catch (Exception ex) {
 						throw new MirrorFailedException(ex.getMessage(), ex, releaseFile.originalFilename, gameType);

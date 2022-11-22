@@ -10,6 +10,9 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.FileVisitOption;
@@ -33,7 +36,7 @@ public final class Util {
 
 	private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
 
-	private static final Map<String, String> MIME_TYPES = new HashMap<String, String>() {{
+	private static final Map<String, String> MIME_TYPES = new HashMap<>() {{
 		put("bmp", "image/bmp");
 		put("bz", "application/x-bzip");
 		put("bz2", "application/x-bzip2");
@@ -76,7 +79,7 @@ public final class Util {
 
 	private static final int HASH_BUFFER_SIZE = 1024 * 50; // 50kb read buffer
 
-	private Util() { }
+	private Util() {}
 
 	public static String extension(Path path) {
 		return extension(path.toString());
@@ -300,5 +303,15 @@ public final class Util {
 		Files.setLastModifiedTime(dest, Files.getLastModifiedTime(source));
 
 		return dest;
+	}
+
+	public static void proggers(String group, String name, int max, int progress) {
+		try {
+			HttpClient.newHttpClient().send(HttpRequest.newBuilder(URI.create(
+				String.format("https://proggers.cloud/progress/%s/%s?max=%d&progress=%d", group, name, max, progress)
+			)).POST(HttpRequest.BodyPublishers.noBody()).build(), HttpResponse.BodyHandlers.discarding());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

@@ -17,6 +17,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -136,8 +138,8 @@ public class ManagedContentManager {
 					StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 	}
 
-	public void sync(DataStore contentStore, CLI cli) {
-		Set<Managed> synced = sync(contentStore);
+	public void sync(DataStore contentStore, CLI cli, BiConsumer<Integer, Integer> progress) {
+		Set<Managed> synced = sync(contentStore, progress);
 
 		if (synced.isEmpty()) {
 			System.out.println("No files were synced.");
@@ -200,7 +202,7 @@ public class ManagedContentManager {
 		return root.resolve(Util.slug(group)).resolve(game.name).resolve(path).resolve(Util.slug(title));
 	}
 
-	private Set<Managed> sync(DataStore contentStore) {
+	private Set<Managed> sync(DataStore contentStore, BiConsumer<Integer, Integer> progress) {
 		Set<Managed> synced = new HashSet<>();
 
 		// collect items to be synced
@@ -210,6 +212,9 @@ public class ManagedContentManager {
 													  return !d.synced && Files.exists(f);
 												  }))
 												  .collect(Collectors.toSet());
+
+		long total = toSync.stream().mapToLong(m -> m.managed.downloads.stream().filter(d -> !d.synced).count()).sum();
+		AtomicInteger counter = new AtomicInteger();
 
 		toSync.forEach(m -> {
 			Managed clone;
@@ -230,6 +235,8 @@ public class ManagedContentManager {
 				} catch (IOException e) {
 					throw new RuntimeException(String.format("Failed to sync file %s: %s%n", d.localFile, e));
 				}
+
+				progress.accept((int)total, counter.incrementAndGet());
 			});
 
 			if (success[0]) {

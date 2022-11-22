@@ -19,6 +19,7 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -491,7 +492,9 @@ public class Main {
 				break;
 			}
 			case "sync": {
-				managedContent.sync(store(DataStore.StoreContent.CONTENT, cli), cli);
+				managedContent.sync(store(DataStore.StoreContent.CONTENT, cli), cli, (total, progress) -> {
+					if (!cli.option("proggers", "").isBlank()) Util.proggers(cli.option("proggers", ""), "sync_managed", total, progress);
+				});
 				break;
 			}
 			case "add": {
@@ -567,8 +570,13 @@ public class Main {
 			mirrorStore,
 			Integer.parseInt(cli.option("concurrency", "3")),
 			since, until,
-			((total, remaining, last) -> System.out.printf("\r[ %-6s / %-6s ] Processed %-40s",
-														   total - remaining, total, last.name()))
+			((total, remaining, last) -> {
+				System.out.printf("\r[ %-6s / %-6s ] Processed %-40s",
+								  total - remaining, total, last.name());
+				if (!cli.option("proggers", "").isBlank()) {
+					Util.proggers(cli.option("proggers", ""), "sync_mirror", (int)total, (int)(total - remaining));
+				}
+			})
 		);
 		mirror.mirror();
 
@@ -642,7 +650,7 @@ public class Main {
 		AuthorNames names = new AuthorNames(authorPath);
 		contentManager.all().parallelStream()
 					  .filter(c -> !IndexUtils.UNKNOWN.equalsIgnoreCase(c.author()))
-					  .sorted((a, b) -> Integer.compare(a.author().length(), b.author().length()) * -1)
+					  .sorted(Comparator.comparingInt(a -> a.author().length()))
 					  .forEach(c -> names.maybeAutoAlias(c.author));
 		AuthorNames.instance = Optional.of(names);
 		System.out.printf("Found %d author aliases and names%n", names.aliasCount());
