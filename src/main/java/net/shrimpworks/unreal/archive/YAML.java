@@ -48,6 +48,10 @@ public class YAML {
 						   .build();
 	}
 
+	public static byte[] toBytes(Object object) throws IOException {
+		return MAPPER.writeValueAsBytes(object);
+	}
+
 	public static String toString(Object object) throws IOException {
 		return MAPPER.writeValueAsString(object);
 	}

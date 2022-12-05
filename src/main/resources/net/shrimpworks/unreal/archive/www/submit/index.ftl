@@ -141,6 +141,9 @@
 
 		abortButton.addEventListener('click', () => {
 			toggleProgress(false);
+			// reset force type selector
+			uploadTypeOption.value = "auto";
+
 			if (currentRequest) {
 				currentRequest.abort();
 				currentRequest = null;

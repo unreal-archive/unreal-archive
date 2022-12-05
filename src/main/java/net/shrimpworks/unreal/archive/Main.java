@@ -48,6 +48,7 @@ import net.shrimpworks.unreal.archive.managed.ManagedContentManager;
 import net.shrimpworks.unreal.archive.mirror.LocalMirrorClient;
 import net.shrimpworks.unreal.archive.mirror.Mirror;
 import net.shrimpworks.unreal.archive.storage.DataStore;
+import net.shrimpworks.unreal.archive.wiki.WikiManager;
 import net.shrimpworks.unreal.archive.www.Documents;
 import net.shrimpworks.unreal.archive.www.Index;
 import net.shrimpworks.unreal.archive.www.MESSubmitter;
@@ -58,6 +59,7 @@ import net.shrimpworks.unreal.archive.www.SiteFeatures;
 import net.shrimpworks.unreal.archive.www.SiteMap;
 import net.shrimpworks.unreal.archive.www.Submit;
 import net.shrimpworks.unreal.archive.www.Templates;
+import net.shrimpworks.unreal.archive.www.Wiki;
 import net.shrimpworks.unreal.archive.www.content.Authors;
 import net.shrimpworks.unreal.archive.www.content.FileDetails;
 import net.shrimpworks.unreal.archive.www.content.GameTypes;
@@ -78,6 +80,7 @@ public class Main {
 	private static final String GAMETYPES_DIR = "gametypes";
 	private static final String MANAGED_DIR = "managed";
 	private static final String AUTHORS_DIR = "authors";
+	private static final String WIKIS_DIR = "wikis";
 
 	private static final Path TMP = Paths.get(System.getProperty("java.io.tmpdir"));
 	private static final String CONTENT_URL = System.getenv().getOrDefault("UA_CONTENT_URL",
@@ -117,7 +120,7 @@ public class Main {
 				localMirror(contentManager(cli), cli);
 				break;
 			case "www":
-				www(contentManager(cli), documentManager(cli), managedContent(cli), gameTypeManager(cli), cli);
+				www(contentManager(cli), documentManager(cli), managedContent(cli), gameTypeManager(cli), wikiManager(cli), cli);
 				break;
 			case "search-submit":
 				searchSubmit(contentManager(cli), documentManager(cli), managedContent(cli), cli);
@@ -136,12 +139,19 @@ public class Main {
 			case "install":
 				install(contentManager(cli), cli);
 				break;
+			case "wiki":
+				wiki(wikiManager(cli));
+				break;
 			default:
-				System.out.printf("Command \"%s\" has not been implemented!%n%n", cli.commands()[0]);
+				System.out.printf("Command \"%s\" does not exist!%n%n", cli.commands()[0]);
 				usage();
 		}
 
 		System.exit(0);
+	}
+
+	private static void wiki(WikiManager cli) throws IOException {
+		// nothing to do
 	}
 
 	private static String userPrompt(String prompt, String defaultValue) {
@@ -263,6 +273,17 @@ public class Main {
 						  gametypes.size(), (System.currentTimeMillis() - start) / 1000f);
 
 		return gametypes;
+	}
+
+	private static WikiManager wikiManager(CLI cli) throws IOException {
+		Path contentPath = contentPath(cli);
+
+		final long start = System.currentTimeMillis();
+		final WikiManager wikis = new WikiManager(contentPath.resolve(WIKIS_DIR));
+		System.err.printf("Loaded wikis index with %d pages in %.2fs%n",
+						  wikis.size(), (System.currentTimeMillis() - start) / 1000f);
+
+		return wikis;
 	}
 
 	public static DataStore store(DataStore.StoreContent contentType, CLI cli) {
@@ -612,7 +633,7 @@ public class Main {
 	}
 
 	private static void www(ContentManager contentManager, DocumentManager documentManager, ManagedContentManager managed,
-							GameTypeManager gameTypeManager, CLI cli)
+							GameTypeManager gameTypeManager, WikiManager wikiManager, CLI cli)
 		throws IOException {
 		if (cli.commands().length < 2) {
 			System.err.println("An output path must be specified!");
@@ -633,10 +654,11 @@ public class Main {
 		final boolean withLatest = Boolean.parseBoolean(cli.option("with-latest", "false"));
 		final boolean withFiles = Boolean.parseBoolean(cli.option("with-files", "true"));
 		final boolean withPackages = Boolean.parseBoolean(cli.option("with-packages", "false"));
+		final boolean withWikis = Boolean.parseBoolean(cli.option("with-wikis", "false"));
 		final boolean localImages = Boolean.parseBoolean(cli.option("local-images", "false"));
 		if (localImages) System.out.println("Will download a local copy of content images, this will take additional time.");
 
-		final SiteFeatures features = new SiteFeatures(localImages, withLatest, withSubmit, withSearch, withFiles);
+		final SiteFeatures features = new SiteFeatures(localImages, withLatest, withSubmit, withSearch, withFiles, withWikis);
 
 		final Path staticOutput = outputPath.resolve("static");
 
@@ -692,6 +714,10 @@ public class Main {
 
 		if (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("packages")) {
 			generators.add(new Packages(contentManager, gameTypeManager, managed, outputPath, staticOutput, features));
+		}
+
+		if (features.wikis || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("wiki"))) {
+			generators.add(new Wiki(outputPath, staticOutput, features, wikiManager));
 		}
 
 		if (features.submit) generators.add(new Submit(outputPath, staticOutput, features));

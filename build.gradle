@@ -62,13 +62,15 @@ dependencies {
 
 	implementation 'org.freemarker:freemarker:2.3.31'
 
-	implementation 'com.backblaze.b2:b2-sdk-core:6.1.0'
-	implementation 'com.backblaze.b2:b2-sdk-httpclient:6.1.0'
+	implementation 'com.backblaze.b2:b2-sdk-core:6.1.1'
+	implementation 'com.backblaze.b2:b2-sdk-httpclient:6.1.1'
 
 	// S3 compatible storage client
 	implementation 'io.minio:minio:8.4.5'
 
 	implementation 'com.vladsch.flexmark:flexmark:0.64.0'
+
+	implementation 'org.jsoup:jsoup:1.15.3'
 
 	testImplementation 'org.junit.jupiter:junit-jupiter:5.9.0'
 }

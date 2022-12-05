@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import net.shrimpworks.unreal.archive.Util;
@@ -49,7 +50,7 @@ public class GameTypes implements PageGenerator {
 	}
 
 	private Map<String, Game> loadGames(GameTypeManager gametypes) {
-		final Map<String, Game> games = new HashMap<>();
+		final Map<String, Game> games = new TreeMap<>();
 
 		gametypes.all().stream()
 				 .sorted()

@@ -58,15 +58,19 @@ public class Scanner {
 		AtomicInteger done = new AtomicInteger();
 
 		ForkJoinPool fjPool = new ForkJoinPool(concurrency);
-		fjPool.submit(() -> all.parallelStream().sorted().forEach(path -> {
-						  events.progress(done.incrementAndGet(), all.size(), path);
+		try {
+			fjPool.submit(() -> all.parallelStream().sorted().forEach(path -> {
+							  events.progress(done.incrementAndGet(), all.size(), path);
 
-						  Submission sub = new Submission(path);
-						  IndexLog log = new IndexLog();
+							  Submission sub = new Submission(path);
+							  IndexLog log = new IndexLog();
 
-						  scanFile(sub, log, events::scanned);
-					  })
-		).join();
+							  scanFile(sub, log, events::scanned);
+						  })
+			).join();
+		} finally {
+			fjPool.shutdown();
+		}
 
 		events.completed(done.get());
 	}

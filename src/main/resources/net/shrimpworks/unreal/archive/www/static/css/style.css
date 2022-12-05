@@ -239,6 +239,10 @@ header .header img {
 	margin: 0;
 }
 
+.readable li {
+	margin: 0.5em auto;
+}
+
 section.intro h1 {
 	margin: 0;
 }
@@ -522,17 +526,17 @@ table {
 	border-collapse: collapse;
 }
 
-table thead {
+section:not(.readable) table thead {
 	background-color: var(--table-header-bg);
 	color: var(--table-header-color);
 	font-variant: small-caps;
 }
 
-table tbody tr:nth-child(odd) {
+section:not(.readable) table tbody tr:nth-child(odd) {
 	background-color: var(--table-row-alt-bg);
 }
 
-table :not(thead) > tr:hover {
+section:not(.readable) table :not(thead) > tr:hover {
 	background-color: var(--table-row-hover);
 }
 
@@ -576,7 +580,7 @@ article.document :not(pre) > code {
 	background-color: var(--document-meta-bg);
 }
 
-article.document pre {
+article.document pre, .mw-code {
 	padding: 10px;
 	border: 1px solid var(--document-meta-border);
 	background-color: var(--document-meta-bg);

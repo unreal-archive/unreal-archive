@@ -364,7 +364,7 @@ public class GameTypeManager {
 	private void indexReleases(Games game, String gameType, String releaseFile, DataStore imagesStore) {
 		gameTypes.stream()
 				 .filter(g -> !g.gametype.deleted())
-				 .filter(g -> g.gametype.game().equals(game.name()) && g.gametype.name().equalsIgnoreCase(gameType))
+				 .filter(g -> g.gametype.game().equals(game.name) && g.gametype.name().equalsIgnoreCase(gameType))
 				 .findFirst().ifPresentOrElse(g -> {
 
 					 GameType clone;
