@@ -175,13 +175,13 @@ public class MutatorIndexHandler implements IndexHandler<Mutator> {
 						  IntFile.Section section = iniFile.section(name);
 						  if (name.toLowerCase().endsWith(UT3_MUTATOR_SECTION.toLowerCase())) {
 							  // add mutator
-							  mutator.mutators.add(sectionToNameDesc(section, mutator));
+							  mutator.mutators.add(sectionToNameDesc(section, mutator.name));
 						  } else if (name.toLowerCase().endsWith(UT3_WEAPON_SECTION.toLowerCase())) {
 							  // add weapon
-							  mutator.weapons.add(sectionToNameDesc(section, mutator));
+							  mutator.weapons.add(sectionToNameDesc(section, mutator.name));
 						  } else if (name.toLowerCase().endsWith(UT3_VEHICLE_SECTION.toLowerCase())) {
 							  // add vehicle
-							  mutator.vehicles.add(sectionToNameDesc(section, mutator));
+							  mutator.vehicles.add(sectionToNameDesc(section, mutator.name));
 						  }
 
 						  // check for custom configuration things
@@ -192,11 +192,11 @@ public class MutatorIndexHandler implements IndexHandler<Mutator> {
 				  });
 	}
 
-	private NameDescription sectionToNameDesc(IntFile.Section section, Mutator mutator) {
+	public static NameDescription sectionToNameDesc(IntFile.Section section, String defaultName) {
 		IntFile.Value friendlyName = section.value("FriendlyName");
 		IntFile.Value description = section.value("Description");
 
-		String nameString = mutator.name();
+		String nameString = defaultName;
 		String descString = "";
 		if (friendlyName != null) nameString = friendlyName.toString();
 		if (description != null) descString = description.toString();

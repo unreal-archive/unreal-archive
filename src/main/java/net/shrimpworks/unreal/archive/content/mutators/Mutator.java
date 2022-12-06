@@ -22,7 +22,7 @@ public class Mutator extends Content {
 
 	static final String UT2_KEYBINDINGS_CLASS = "Xinterface.GUIUserKeyBinding";
 
-	static final String UT3_MUTATOR_SECTION = "UTUIDataProvider_Mutator";
+	public static final String UT3_MUTATOR_SECTION = "UTUIDataProvider_Mutator";
 	static final String UT3_WEAPON_SECTION = "UTUIDataProvider_Weapon";
 	static final String UT3_VEHICLE_SECTION = "UTUIDataProvider_Vehicle";
 

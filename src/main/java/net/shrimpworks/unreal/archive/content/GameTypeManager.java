@@ -30,6 +30,7 @@ import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.YAML;
 import net.shrimpworks.unreal.archive.content.gametypes.GameType;
 import net.shrimpworks.unreal.archive.content.mutators.Mutator;
+import net.shrimpworks.unreal.archive.content.mutators.MutatorIndexHandler;
 import net.shrimpworks.unreal.archive.storage.DataStore;
 import net.shrimpworks.unreal.packages.IntFile;
 import net.shrimpworks.unreal.packages.Package;
@@ -128,7 +129,8 @@ public class GameTypeManager {
 	}
 
 	public Path init(Games game, String gameType) throws IOException {
-		return init(game, gameType, "template.md", gt -> {});
+		return init(game, gameType, "template.md", gt -> {
+		});
 	}
 
 	private Path init(Games game, String gameType, String template, Consumer<GameType> initialised) throws IOException {
@@ -178,6 +180,7 @@ public class GameTypeManager {
 
 	@FunctionalInterface
 	private interface GameTypePostInitialiser {
+
 		void gametypeInitialised(GameType gameType);
 	}
 
@@ -484,7 +487,9 @@ public class GameTypeManager {
 	private List<NameDescription> findMutators(Incoming incoming) {
 		Set<Incoming.IncomingFile> uclFiles = incoming.files(Incoming.FileType.UCL);
 		Set<Incoming.IncomingFile> intFiles = incoming.files(Incoming.FileType.INT);
+		Set<Incoming.IncomingFile> iniFiles = incoming.files(Incoming.FileType.INI);
 
+		// FIXME use mutator indexer
 		if (!uclFiles.isEmpty()) {
 			// find mutator information via .ucl files (mutator names, descriptions, weapons and vehicles)
 			return IndexUtils.readIntFiles(incoming, uclFiles, true)
@@ -518,6 +523,21 @@ public class GameTypeManager {
 							 .map(mapVal -> new NameDescription(mapVal.get("Description")))
 							 .sorted(Comparator.comparing(a -> a.name))
 							 .collect(Collectors.toList());
+		} else if (!iniFiles.isEmpty()) {
+			return IndexUtils.readIntFiles(incoming, iniFiles)
+							 .filter(Objects::nonNull)
+							 .flatMap(iniFile -> iniFile.sections().stream().map(name -> {
+								 IntFile.Section section = iniFile.section(name);
+								 if (section == null) return null;
+								 if (name.toLowerCase().endsWith(Mutator.UT3_MUTATOR_SECTION.toLowerCase())) {
+									 // add mutator
+									 return MutatorIndexHandler.sectionToNameDesc(section, "Unknown Mutator");
+								 }
+								 return null;
+							 }))
+							 .filter(Objects::nonNull)
+							 .sorted(Comparator.comparing(a -> a.name))
+							 .collect(Collectors.toList());
 		}
 
 		return List.of();
@@ -537,63 +557,62 @@ public class GameTypeManager {
 			}
 		}
 
+		// FIXME use map indexer
 		return mapFiles.stream()
 					   .map(mf -> new FileAndPackage(mf, new Package(new PackageReader(mf.asChannel()))))
 					   .map(fp -> {
 						   final String mapName = Util.plainName(fp.f.file);
 						   String title = "";
 						   String author = "";
+						   Content.Attachment[] attachment = { null };
 
 						   Collection<ExportedObject> maybeLevelInfo = fp.p.objectsByClassName("LevelInfo");
-						   if (maybeLevelInfo == null || maybeLevelInfo.isEmpty()) {
-							   return null;
+						   if (maybeLevelInfo != null && !maybeLevelInfo.isEmpty()) {
+
+							   // if there are multiple LevelInfos in a map, try to find the right one...
+							   Object level = maybeLevelInfo.stream()
+															.map(ExportedObject::object)
+															.filter(l -> l.property("Title") != null || l.property("Author") != null)
+															.findFirst()
+															.orElse(maybeLevelInfo.iterator().next().object());
+
+							   // read some basic level info
+							   Property authorProp = level.property("Author");
+							   Property titleProp = level.property("Title");
+							   Property screenshot = level.property("Screenshot");
+
+							   if (authorProp != null) author = ((StringProperty)authorProp).value.trim();
+							   if (titleProp != null) title = ((StringProperty)titleProp).value.trim();
+
+							   try {
+								   List<BufferedImage> screenshots = IndexUtils.screenshots(incoming, fp.p, screenshot);
+								   if (!screenshots.isEmpty()) {
+									   System.out.printf("Storing screenshot for map %s%n", fp.f.fileName());
+									   Path imgPath = Files.createTempFile(Util.slug(mapName), ".png");
+									   ImageIO.write(screenshots.get(0), "png", imgPath.toFile());
+
+									   imageStore.store(
+										   imgPath,
+										   Paths.get("")
+												.relativize(gameType.contentPath(Paths.get(""))).resolve("maps")
+												.resolve(imgPath.getFileName().toString())
+												.toString(),
+										   (url, ex) -> {
+											   if (ex == null && url != null) {
+												   attachment[0] = new Content.Attachment(
+													   Content.AttachmentType.IMAGE, imgPath.getFileName().toString(), url
+												   );
+											   }
+										   });
+								   }
+							   } catch (Exception e) {
+								   System.err.printf("Failed to save screenshot for map %s%n", mapName);
+								   e.printStackTrace();
+							   }
 						   }
-
-						   // if there are multiple LevelInfos in a map, try to find the right one...
-						   Object level = maybeLevelInfo.stream()
-														.map(ExportedObject::object)
-														.filter(l -> l.property("Title") != null || l.property("Author") != null)
-														.findFirst()
-														.orElse(maybeLevelInfo.iterator().next().object());
-
-						   // read some basic level info
-						   Property authorProp = level.property("Author");
-						   Property titleProp = level.property("Title");
-						   Property screenshot = level.property("Screenshot");
-
-						   if (authorProp != null) author = ((StringProperty)authorProp).value.trim();
-						   if (titleProp != null) title = ((StringProperty)titleProp).value.trim();
 
 						   if (author.isBlank()) author = "Unknown";
 						   if (title.isBlank()) title = mapName;
-
-						   Content.Attachment[] attachment = { null };
-
-						   try {
-							   List<BufferedImage> screenshots = IndexUtils.screenshots(incoming, fp.p, screenshot);
-							   if (!screenshots.isEmpty()) {
-								   System.out.printf("Storing screenshot for map %s%n", fp.f.fileName());
-								   Path imgPath = Files.createTempFile(Util.slug(mapName), ".png");
-								   ImageIO.write(screenshots.get(0), "png", imgPath.toFile());
-
-								   imageStore.store(
-									   imgPath,
-									   Paths.get("")
-											.relativize(gameType.contentPath(Paths.get(""))).resolve("maps")
-											.resolve(imgPath.getFileName().toString())
-											.toString(),
-									   (url, ex) -> {
-										   if (ex == null && url != null) {
-											   attachment[0] = new Content.Attachment(
-												   Content.AttachmentType.IMAGE, imgPath.getFileName().toString(), url
-											   );
-										   }
-									   });
-							   }
-						   } catch (Exception e) {
-							   System.err.printf("Failed to save screenshot for map %s%n", mapName);
-							   e.printStackTrace();
-						   }
 
 						   return new GameType.GameTypeMap(mapName, title, author, attachment[0]);
 					   })
