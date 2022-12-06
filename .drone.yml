@@ -4,7 +4,7 @@ type: docker
 
 steps:
   - name: test
-    image: gradle:7.6-jdk17
+    image: gradle:7.6-jdk17-focal
     commands:
       - apt-get update && apt-get install -y p7zip-full unrar git-restore-mtime
       - git restore-mtime ./src/main/resources/
@@ -28,7 +28,7 @@ steps:
         - refs/heads/master
 
   - name: www
-    image: gradle:7.6-jdk17
+    image: gradle:7.6-jdk17-focal
     environment:
       DRONE_TOKEN:
         from_secret: DRONE_TOKEN
