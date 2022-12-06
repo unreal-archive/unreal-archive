@@ -11,14 +11,14 @@ steps:
       - gradle test --no-daemon
 
   - name: publish
-    image: gradle:7.6-jdk17
+    image: gradle:7.6-jdk17-focal
     environment:
       ARTEFACTS_USER:
         from_secret: ARTEFACTS_USER
       ARTEFACTS_PASSWORD:
         from_secret: ARTEFACTS_PASSWORD
     commands:
-      - apt-get update && apt-get install git-restore-mtime
+      - apt-get update && apt-get install git-restore-mtime curl
       - git restore-mtime ./src/main/resources/
       - gradle --no-daemon publish execJar
       - "export CI_BUILD=$(gradle properties | grep 'version:' | sed 's/version: //') && \
