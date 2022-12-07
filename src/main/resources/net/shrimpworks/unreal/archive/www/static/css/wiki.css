@@ -106,7 +106,9 @@
 .wiki table.wikitable {
 	width: inherit;
 	border-radius: 5px;
-	background-color: var(--table-row-alt-bg);
+}
+.wiki table.wikitable[style*="margin: 0;"] {
+	width: 100%;
 }
 
 .wiki table.wikitable th {
@@ -114,6 +116,19 @@
 	color: var(--table-header-color);
 	font-variant: small-caps;
 	padding: 10px;
+}
+
+.wiki table.wikitable tr:nth-child(even) {
+	background-color: var(--table-row-alt-bg);
+}
+
+/*
+  meta info block (liandri wiki)
+ */
+.wiki table.meta {
+	font-size: 1em;
+	font-family: var(--body-font-family);
+	width: inherit;
 }
 
 /*

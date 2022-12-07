@@ -154,8 +154,7 @@ article section.readable {
 	color: var(--body-color);
 }
 
-
-table thead {
+table thead, table th {
 	border-bottom: 1px solid #000;
 	text-align: left;
 }

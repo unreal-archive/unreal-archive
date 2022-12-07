@@ -150,10 +150,16 @@ public class Wiki implements PageGenerator {
 	private String sanitisedPageHtml(WikiManager.Wiki wiki, WikiPage page, Set<String> linkingCandidates, Path out, Path pagePath,
 									 Path imagesPath) {
 		Document document = Jsoup.parse(page.parse.text.text);
+		document.outputSettings().prettyPrint(false);
 
 		wiki.deleteElements.forEach(selector -> document.select(selector).remove());
 
-		// remove empty paragraphs
+		// strip comments
+		document.forEachNode(n -> {
+			if (n.nodeName().equals("#comment")) n.remove();
+		});
+
+		// remove empty paragraphs (these seem to happen under .ambox blocks)
 		document.select("p").stream()
 				.filter(n -> n.childrenSize() == 1 && n.child(0).tagName().equalsIgnoreCase("br"))
 				.forEach(Node::remove);
@@ -203,7 +209,16 @@ public class Wiki implements PageGenerator {
 					 .forEach(i -> i.attr("src", pagePath.getParent().relativize(imagesPath).resolve(href.group(1)).toString()));
 				});
 
-		return document.outerHtml();
+		// special magic formatting for special style Liandri wiki tables
+		document.select("table[style*=\"background: #ddd\"]")
+			.forEach(t -> {
+				t.removeAttr("style");
+				t.addClass("meta");
+				t.select("td[style*=\"font-size\"]").removeAttr("style");
+				t.select("td div[style*=\"font-size\"]").removeAttr("style");
+			});
+
+		return document.select("body").html().trim();
 	}
 
 	private void copyFiles(WikiManager.Wiki wiki, WikiPage page, Path imagesPath) throws IOException {
