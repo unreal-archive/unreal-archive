@@ -1,13 +1,80 @@
 .wiki div.toc {
-
 }
 
 .wiki div.toc ul {
 	list-style: none;
+	margin: 0;
+	padding-left: 1.5em;
+}
+
+.wiki div.toc ul li {
+	margin: inherit;
+	margin-bottom: 0.3em;
 }
 
 .wiki dt {
 	font-weight: bold;
+}
+
+/*
+  sections
+*/
+.wiki .readable.categoryPages li {
+	display: inline-block;
+	width: 33%;
+}
+
+.wiki .readable.categories, .wiki .readable.updates {
+	max-width: 75%;
+	margin: 0 auto;
+}
+
+.wiki .readable.categories h4, .wiki .readable.updates h4 {
+	background-color: var(--table-row-alt-bg);
+}
+
+/*
+  links
+*/
+.wiki a.external, .wiki a.extiw {
+	background: url(../images/icons/external-link.svg) center right no-repeat;
+	padding-right: 20px;
+	background-size: 20px 20px;
+}
+
+/*
+  image gallery
+*/
+.wiki ul.gallery {
+	list-style: none;
+}
+
+.wiki ul.gallery li {
+	display: inline-block;
+	vertical-align: top;
+}
+
+/*
+  spacing
+*/
+.wiki div.center {
+	text-align: center;
+}
+.wiki div.floatright, .wiki .thumb.tright {
+	clear: right;
+	float: right;
+}
+
+.wiki h2, .wiki h3 {
+	margin-top: 20px;
+	border-radius: 0;
+}
+
+.wiki div.infobox[style*="float"] {
+	border-radius: 5px;
+	background-color: var(--table-row-alt-bg);
+	padding: 10px;
+	margin: 10px
 }
 
 /*
@@ -34,6 +101,22 @@
 }
 
 /*
+  wikitable thing
+ */
+.wiki table.wikitable {
+	width: inherit;
+	border-radius: 5px;
+	background-color: var(--table-row-alt-bg);
+}
+
+.wiki table.wikitable th {
+	background-color: var(--table-header-bg);
+	color: var(--table-header-color);
+	font-variant: small-caps;
+	padding: 10px;
+}
+
+/*
   code blocks
  */
 .wiki .mw-code {
@@ -42,11 +125,15 @@
 }
 
 .wiki .mw-code pre {
-	padding: 0 0 0 40px !important;
+	padding: 0 0 0 10px !important;
 	margin: 0.7em 0;
 	border: 0 !important;
 	background: none !important;
 	tab-size: 4;
+}
+
+.wiki .mw-code ol pre {
+	padding: 0 0 0 50px !important;
 }
 
 .wiki .mw-code ol {

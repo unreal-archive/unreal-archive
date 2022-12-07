@@ -3,7 +3,13 @@ package net.shrimpworks.unreal.archive.www;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.jsoup.Jsoup;
@@ -11,10 +17,14 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 
+import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.wiki.WikiManager;
 import net.shrimpworks.unreal.archive.wiki.WikiPage;
 
 public class Wiki implements PageGenerator {
+
+	private static final Pattern FILE_LINK = Pattern.compile(".?/File:(.*)");
+	private static final String IMG_PATH = "w/images";
 
 	private final Path root;
 	private final Path siteRoot;
@@ -24,7 +34,7 @@ public class Wiki implements PageGenerator {
 	private final WikiManager wikiManager;
 
 	public Wiki(Path output, Path staticRoot, SiteFeatures features, WikiManager wikiManager) {
-		this.root = output.resolve("wiki");
+		this.root = output.resolve("wikis");
 		this.siteRoot = output;
 		this.staticRoot = staticRoot;
 		this.features = features;
@@ -33,59 +43,115 @@ public class Wiki implements PageGenerator {
 
 	@Override
 	public Set<SiteMap.Page> generate() {
-		Templates.PageSet pages = new Templates.PageSet("wiki", features, siteRoot, staticRoot, root);
+		Templates.PageSet pages = new Templates.PageSet("wikis", features, siteRoot, staticRoot, root);
 
-		WikiManager.Wiki wiki = wikiManager.wiki("Unreal Wiki");
+		wikiManager.all().forEach(wiki -> buildWiki(wiki, pages));
 
-		Set<WikiPage> candidates = wiki.all().stream()
-									   .filter(p -> p.parse.categories.stream().noneMatch(c -> c.name.contains("-specific_")))
-									   .filter(p -> p.parse.categories.stream().noneMatch(c -> c.name.contains("Subclasses_of_")))
-									   .filter(p -> p.parse.templates.stream().noneMatch(
-										   c -> c.name.contains("Template:Infobox class/core"))).collect(Collectors.toSet());
+		// generate wiki landing page
+		pages.add("wikis.ftl", SiteMap.Page.of(0.75f, SiteMap.ChangeFrequency.weekly), "Wikis")
+			 .put("wikis", wikiManager.all())
+			 .write(root.resolve("index.html"));
 
-		Set<String> linkingCandidates = candidates.stream().map(p -> p.name.replaceAll(" ", "_")).collect(Collectors.toSet());
+		return pages.pages;
+	}
+
+	public void buildWiki(WikiManager.Wiki wiki, Templates.PageSet pages) {
+		Path out = root.resolve(Util.slug(wiki.name));
+
+		Map<String, Set<WikiPage>> categories = new ConcurrentHashMap<>();
+		Set<String> users = ConcurrentHashMap.newKeySet();
+		Set<String> discussions = ConcurrentHashMap.newKeySet();
+
+		Set<WikiPage> candidates = wiki.all().parallelStream()
+									   .filter(p -> p.parse.categories
+										   .stream().noneMatch(c -> wiki.skipCategories.stream().anyMatch(c.name::contains))
+									   )
+									   .filter(p -> p.parse.templates
+										   .stream().noneMatch(c -> wiki.skipTemplates.stream().anyMatch(c.name::contains))
+									   )
+									   .peek(p -> {
+										   // collect category associations
+										   p.parse.categories.stream()
+															 .filter(c -> c.name != null && !c.name.isBlank())
+															 .forEach(c -> categories.computeIfAbsent(c.name, n -> new HashSet<>()).add(p));
+
+										   // collect users
+										   if (p.name.startsWith("User:")) {
+											   users.add(p.name.substring(p.name.indexOf(':') + 1));
+										   }
+										   // collect discussion pages
+										   if (p.name.startsWith("Talk:")) {
+											   discussions.add(p.name.substring(p.name.indexOf(':') + 1));
+										   }
+									   })
+									   .collect(Collectors.toSet());
+
+		Set<String> linkingCandidates = candidates.parallelStream()
+												  .map(p -> p.name.replaceAll(" ", "_").replaceAll("'", "%27"))
+												  .collect(Collectors.toSet());
+
+		final Path imagesPath = out.resolve(IMG_PATH);
+		try {
+			Files.createDirectories(imagesPath);
+
+			// copy wiki image stuff
+			if (wiki.title != null && !wiki.title.isBlank()) {
+				Files.copy(wiki.path.resolve(wiki.title), out.resolve(wiki.title), StandardCopyOption.REPLACE_EXISTING);
+			}
+		} catch (IOException e) {
+			throw new RuntimeException("Failed to create images output path", e);
+		}
 
 		candidates
+			.parallelStream()
 			.forEach(page -> {
 				try {
+					// dump images for this page
+					copyFiles(wiki, page, imagesPath);
+
 					Path pagePath;
-					if (page.name.contains("/")) {
-						pagePath = Files.createDirectories(root.resolve(page.name.substring(0, page.name.lastIndexOf('/'))))
+					if (page.name.equals(wiki.homepage)) {
+						pagePath = out.resolve("index.html");
+					} else if (page.name.contains("/")) {
+						pagePath = Files.createDirectories(
+											out.resolve(page.name.substring(0, page.name.lastIndexOf('/')).replaceAll(" ", "_"))
+										)
 										.resolve(String.format(
 													 "%s.html", page.name.substring(page.name.lastIndexOf('/') + 1)
 												 ).replaceAll(" ", "_")
 										);
 					} else {
-						pagePath = root.resolve(String.format("%s.html", page.name.replaceAll(" ", "_")));
+						pagePath = out.resolve(String.format("%s.html", page.name.replaceAll(" ", "_")));
 					}
 
-					pages.add("page.ftl", SiteMap.Page.of(0.75f, SiteMap.ChangeFrequency.weekly), String.join(" / ", wiki.name, page.name))
-						 .put("page", sanitisedPageHtml(page, linkingCandidates))
+					Set<WikiPage> categoryPages = new HashSet<>();
+					if (page.name.toLowerCase().startsWith("category:")) {
+						categoryPages.addAll(categories.getOrDefault(page.name.substring(page.name.indexOf(':') + 1).replaceAll(" ", "_"),
+																	 Set.of()));
+					}
+
+					pages.add("page.ftl", SiteMap.Page.of(0.75f, SiteMap.ChangeFrequency.monthly),
+							  String.join(" / ", "Wikis", wiki.name, page.name))
+						 .put("text", sanitisedPageHtml(wiki, page, linkingCandidates, out, pagePath, imagesPath))
+						 .put("page", page)
+						 .put("wiki", wiki)
+						 .put("categoryPages", categoryPages)
+						 .put("wikiPath", out)
+						 .put("hasUserPage", users.contains(page.revision.user))
+						 .put("hasDiscussion", discussions.contains(page.name))
 						 .write(pagePath);
-				} catch (IOException e) {
+				} catch (Exception e) {
+					System.err.println("Failed generating page: " + page.name);
 					e.printStackTrace();
 				}
 			});
-
-		return pages.pages;
 	}
 
-	private String sanitisedPageHtml(WikiPage page, Set<String> linkingCandidates) {
+	private String sanitisedPageHtml(WikiManager.Wiki wiki, WikiPage page, Set<String> linkingCandidates, Path out, Path pagePath,
+									 Path imagesPath) {
 		Document document = Jsoup.parse(page.parse.text.text);
 
-		// remove edit links from section titles
-		document.select("span.mw-editsection").remove();
-
-		// remove "please improve" blocks
-		document.select("table.ambox").stream()
-//				.filter(n -> n.outerHtml().contains("improve this article"))
-				.forEach(Node::remove);
-
-		// remove "recent edits" blocks
-		document.select("#recent-edits").remove();
-
-		// remove little edit button things in nav boxes
-		document.select(".noprint.plainlinks").remove();
+		wiki.deleteElements.forEach(selector -> document.select(selector).remove());
 
 		// remove empty paragraphs
 		document.select("p").stream()
@@ -95,32 +161,59 @@ public class Wiki implements PageGenerator {
 		// fix local links
 		document.select("a").stream()
 				.filter(a -> a.hasAttr("href") && a.attr("href").startsWith("/"))
+				.filter(a -> !a.attr("href").startsWith("/File:"))
 				.forEach(a -> {
 					String target = a.attr("href").substring(1);
+					if (target.isEmpty()) target = wiki.homepage;
 					String targetPage = target;
-					targetPage = wikiManager.wiki("Unreal Wiki").redirects.getOrDefault(targetPage, targetPage);
+
 					if (target.indexOf("#") > 0) targetPage = target.substring(0, target.indexOf("#"));
 
-					if (a.attr("href").contains("?redlink") || !linkingCandidates.contains(targetPage.replaceAll(" ", "_"))) {
-						// remove links to pages that don't exist or we're not tracking
+					// resolve redirects automatically
+					targetPage = wiki.redirects.getOrDefault(targetPage, targetPage);
+
+					if (!targetPage.equals("index") // special case - support Main Page -> index rename
+						&& (a.attr("href").contains("?redlink") || !linkingCandidates.contains(targetPage.replaceAll(" ", "_")))) {
+						// remove links to pages that don't exist, or we're not tracking
 						a.replaceWith(new Element("span").addClass("redlink").text(a.text()));
 					} else {
-						// resolve redirects automatically
+						// make links to pages relative
+						targetPage = String.format("%s.html", targetPage.replaceAll(" ", "_"));
+						targetPage = String.format("./%s", pagePath.getParent().relativize(out.resolve(targetPage)));
 
+						// put anchors back on
 						if (target.indexOf("#") > 0) targetPage = String.format("%s%s", targetPage, target.substring(target.indexOf("#")));
 
-						// make links to pages relative
-						a.attr("href", String.format("./%s.html", targetPage.replaceAll(" ", "_")));
+						a.attr("href", targetPage);
 					}
 				});
 
 		// remove custom formatting from inline tables
-		document.select("table:not([class])").stream()
-				.forEach(t -> {
-					t.select("tr").removeAttr("style");
+		document.select("table:not([class])")
+				.forEach(t -> t.select("tr").removeAttr("style"));
+
+		// update image links
+		document.select("a[href*=\"File:\"]")
+				.forEach(a -> {
+					Matcher href = FILE_LINK.matcher(a.attr("href"));
+					if (href.find()) {
+						a.attr("href", pagePath.getParent().relativize(imagesPath).resolve(href.group(1)).toString());
+					}
+					a.select("img")
+					 .forEach(i -> i.attr("src", pagePath.getParent().relativize(imagesPath).resolve(href.group(1)).toString()));
 				});
 
 		return document.outerHtml();
+	}
+
+	private void copyFiles(WikiManager.Wiki wiki, WikiPage page, Path imagesPath) throws IOException {
+		Path sourceRoot = wiki.path.resolve("content").resolve(wiki.imagesPath);
+		for (String image : page.parse.images) {
+			if (Files.exists(sourceRoot.resolve(image))
+				&& !Files.exists(imagesPath.resolve(image))) {
+				Files.copy(sourceRoot.resolve(image), imagesPath.resolve(image), StandardCopyOption.REPLACE_EXISTING);
+			}
+		}
 	}
 
 }
