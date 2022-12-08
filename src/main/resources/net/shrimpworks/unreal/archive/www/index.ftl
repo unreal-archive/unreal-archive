@@ -46,7 +46,7 @@
 			<a href="wikis/index.html">Wikis</a>
 		</li>
 		<li style='background-image: url("${staticPath()}/images/games/All.png")'>
-			<a href="authors/index.html">Browse Authors</a>
+			<a href="authors/index.html">Browse by Author</a>
 		</li>
 	</ul>
 </@content>
