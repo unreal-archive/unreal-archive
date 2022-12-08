@@ -68,7 +68,11 @@
 .wiki div.floatright, .wiki .thumb.tright {
 	clear: right;
 	float: right;
+}
+.wiki .thumb .thumbinner {
+	padding: 10px;
 	text-align: center;
+	font-size: 0.8em;
 }
 
 .wiki h2, .wiki h3 {

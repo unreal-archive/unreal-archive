@@ -218,9 +218,12 @@ public class Wiki implements PageGenerator {
 				t.select("td div[style*=\"font-size\"]").removeAttr("style");
 			});
 
-		// special magic formatting for special style Liandri wiki tables
+		// formatting for thumbnails
 		document.select(".thumb .thumbinner")
 			.forEach(t -> t.addClass("meta"));
+
+		// remove useless magnifier elements
+		document.select("div.magnify").remove();
 
 		return document.select("body").html().trim();
 	}

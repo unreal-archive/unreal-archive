@@ -42,8 +42,9 @@
 			<span class="meta">${count.Voice!"0"}</span>
 			<a href="voices/index.html">Voices</a>
 		</li>
-	</ul>
-	<ul style="grid-template-columns: 100%; grid-template-areas: 'block'; padding-top: 15px">
+		<li style='background-image: url("${staticPath()}/images/wikis.png")'>
+			<a href="wikis/index.html">Wikis</a>
+		</li>
 		<li style='background-image: url("${staticPath()}/images/games/All.png")'>
 			<a href="authors/index.html">Browse Authors</a>
 		</li>
