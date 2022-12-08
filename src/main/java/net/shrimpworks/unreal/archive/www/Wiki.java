@@ -137,7 +137,7 @@ public class Wiki implements PageGenerator {
 						 .put("wiki", wiki)
 						 .put("categoryPages", categoryPages)
 						 .put("wikiPath", out)
-						 .put("hasUserPage", users.contains(page.revision.user))
+						 .put("hasUserPage", page.revision != null && users.contains(page.revision.user))
 						 .put("hasDiscussion", discussions.contains(page.name))
 						 .write(pagePath);
 				} catch (Exception e) {
@@ -210,13 +210,17 @@ public class Wiki implements PageGenerator {
 				});
 
 		// special magic formatting for special style Liandri wiki tables
-		document.select("table[style*=\"background: #ddd\"]")
+		document.select("table[style*=\"background: #ddd\"],table.infobox")
 			.forEach(t -> {
 				t.removeAttr("style");
 				t.addClass("meta");
 				t.select("td[style*=\"font-size\"]").removeAttr("style");
 				t.select("td div[style*=\"font-size\"]").removeAttr("style");
 			});
+
+		// special magic formatting for special style Liandri wiki tables
+		document.select(".thumb .thumbinner")
+			.forEach(t -> t.addClass("meta"));
 
 		return document.select("body").html().trim();
 	}

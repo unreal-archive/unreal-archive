@@ -13,7 +13,7 @@ public class WikiPage {
 	public String name;
 	public WikiPageRevision revision;
 	public ZonedDateTime timestamp;
-	public boolean isRedirect;
+	public transient boolean isRedirect;
 
 	@ConstructorProperties({ "parse", "name", "revision", "timestamp" })
 	public WikiPage(WikiParse parse, String name, WikiPageRevision revision, ZonedDateTime timestamp) {

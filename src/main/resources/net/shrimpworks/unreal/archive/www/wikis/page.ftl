@@ -50,15 +50,17 @@
 				<label>&nbsp;</label><span><a href="./Talk:${page.name?replace(" ", "_")}.html">Discussion</a></span>
 			</#if>
 			<label>Capture Time</label><span>${page.timestamp}</span>
-			<label>Updated Time</label><span>${page.revision.timestamp}</span>
-			<label>Updated by</label><span>
-				<#if hasUserPage>
-					<a href="./${relPath(wikiPath + "/User:" + page.revision.user?replace(" ", "_") + ".html")}">${page.revision.user}</a>
-				<#else>
-            ${page.revision.user}
-				</#if>
-			</span>
-			<label>Comment</label><span>${page.revision.comment}</span>
+			<#if page.revision??>
+				<label>Updated Time</label><span>${page.revision.timestamp}</span>
+				<label>Updated by</label><span>
+					<#if hasUserPage>
+						<a href="./${relPath(wikiPath + "/User:" + page.revision.user?replace(" ", "_") + ".html")}">${page.revision.user}</a>
+					<#else>
+						${page.revision.user}
+					</#if>
+				</span>
+				<label>Comment</label><span>${page.revision.comment}</span>
+      </#if>
 			<label>Original URL</label><span><a href="${wiki.url}/${page.name}">${wiki.url}/${page.name}</a></span>
 			<label>Licence</label><span><a href="${wiki.licence.url}">${wiki.licence.name}</a></span>
 		</div>

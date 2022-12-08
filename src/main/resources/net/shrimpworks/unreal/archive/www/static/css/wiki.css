@@ -33,6 +33,11 @@
 	background-color: var(--table-row-alt-bg);
 }
 
+.wiki .readable.categories li {
+	display: inline-block;
+	width: 50%;
+}
+
 /*
   links
 */
@@ -63,6 +68,7 @@
 .wiki div.floatright, .wiki .thumb.tright {
 	clear: right;
 	float: right;
+	text-align: center;
 }
 
 .wiki h2, .wiki h3 {
@@ -90,6 +96,7 @@
 	color: var(--table-header-color);
 	font-variant: small-caps;
 	padding: 10px;
+	text-align: center;
 }
 
 .wiki table.navbox tr.navbox-body {

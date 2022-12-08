@@ -20,12 +20,13 @@ import net.shrimpworks.unreal.archive.YAML;
 
 public class WikiManager {
 
-	private static final Pattern REDIRECT = Pattern.compile("#REDIRECT ?\\[\\[(.*)]]");
+	private static final Pattern REDIRECT = Pattern.compile("#REDIRECT ?\\[\\[([^]]+)]].*", Pattern.DOTALL);
 
 	private final Map<String, Wiki> wikis;
 
 	public static void main(String[] args) throws IOException {
-		convert(Paths.get("./unreal-archive-data/wikis/liandri"));
+//		convert(Paths.get("./unreal-archive-data/wikis/beyondunreal"));
+		clean(Paths.get("./unreal-archive-data/wikis/liandri"));
 	}
 
 	public static void convert(Path wikiRoot) throws IOException {
@@ -35,7 +36,32 @@ public class WikiManager {
 				 try {
 					 WikiPage pg = JSON.fromFile(f, WikiPage.class);
 					 Files.write(f.resolveSibling(String.format("%s.yml", Util.plainName(f))), YAML.toBytes(pg));
+					 System.out.println("rewrite " + f);
 					 Files.deleteIfExists(f);
+				 } catch (IOException e) {
+					 throw new RuntimeException(e);
+				 }
+			 });
+	}
+
+	public static void clean(Path wikiRoot) throws IOException {
+		Wiki wiki = YAML.fromFile(wikiRoot.resolve("wiki.yml"), Wiki.class);
+		Files.walk(wikiRoot.resolve("content"), FileVisitOption.FOLLOW_LINKS)
+			 .filter(f -> Files.isRegularFile(f) && Util.extension(f).equalsIgnoreCase("yml"))
+			 .forEach(f -> {
+				 try {
+					 WikiPage pg = YAML.fromFile(f, WikiPage.class);
+					 boolean delete =
+						 pg.parse.categories.stream()
+											.anyMatch(c -> wiki.skipCategories.stream().anyMatch(c.name::contains))
+						 || pg.parse.templates.stream()
+											  .anyMatch(c -> wiki.skipTemplates.stream().anyMatch(c.name::contains));
+
+					 if (delete) {
+						 System.out.println("Deleting " + f);
+						 Files.deleteIfExists(f);
+						 Files.deleteIfExists(f.getParent().resolve("Talk:" + Util.fileName(f)));
+					 }
 				 } catch (IOException e) {
 					 throw new RuntimeException(e);
 				 }
@@ -94,7 +120,7 @@ public class WikiManager {
 
 	public static final class Wiki {
 
-		public Path path;
+		public transient Path path;
 		public String name;
 		public String owner;
 		public String url;
@@ -107,10 +133,10 @@ public class WikiManager {
 		public Set<String> deleteElements;
 		public boolean publish;
 
-		public InterWikiList interWiki = new InterWikiList(Set.of());
+		public transient InterWikiList interWiki = new InterWikiList(Set.of());
 
-		public final Map<String, String> redirects = new ConcurrentHashMap<>();
-		private final Map<String, WikiPageHolder> pages = new ConcurrentHashMap<>();
+		public transient final Map<String, String> redirects = new ConcurrentHashMap<>();
+		private transient final Map<String, WikiPageHolder> pages = new ConcurrentHashMap<>();
 
 		public void addPage(Path path, WikiPage page) {
 			WikiPageHolder pageHolder = new WikiPageHolder(path);
@@ -138,6 +164,7 @@ public class WikiManager {
 	}
 
 	public static class WikiLicence {
+
 		public String name;
 		public String url;
 	}
