@@ -75,16 +75,20 @@ public class IndexUtils {
 		if (files.stream().anyMatch(f -> Util.extension(f.file).equalsIgnoreCase("run"))) return Games.RUNE;
 		if (files.stream().anyMatch(f -> Util.extension(f.file).equalsIgnoreCase("un2"))) return Games.UNREAL_2;
 
-		try (Package pkg = new Package(new PackageReader(files.iterator().next().asChannel()))) {
-			if (pkg.version < 68) return Games.UNREAL;
-			// FIXME Rune uses version 69 it seems, which overlaps with UT
-			else if (pkg.version < 117) return Games.UNREAL_TOURNAMENT;
-			else if (pkg.version < 200) return Games.UNREAL_TOURNAMENT_2004;
-			else return Games.UNREAL_TOURNAMENT_3;
-		} catch (Exception e) {
-			incoming.log.log(IndexLog.EntryType.CONTINUE, "Could not determine game for content", e);
-			return Games.UNKNOWN;
+		for (Incoming.IncomingFile file : files) {
+			try (Package pkg = new Package(new PackageReader(file.asChannel()))) {
+				if (pkg.version < 68) return Games.UNREAL;
+				// FIXME Rune uses version 69 it seems, which overlaps with UT
+				else if (pkg.version < 117) return Games.UNREAL_TOURNAMENT;
+				else if (pkg.version < 200) return Games.UNREAL_TOURNAMENT_2004;
+				else return Games.UNREAL_TOURNAMENT_3;
+			} catch (Exception e) {
+				incoming.log.log(IndexLog.EntryType.CONTINUE, "Could not determine game from file " + file.fileName(), e);
+			}
 		}
+
+		incoming.log.log(IndexLog.EntryType.CONTINUE, "Could not determine game for content");
+		return Games.UNKNOWN;
 	}
 
 	/**
