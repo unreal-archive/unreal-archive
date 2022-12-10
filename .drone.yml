@@ -6,7 +6,7 @@ steps:
   - name: test
     image: gradle:7.6-jdk17-focal
     commands:
-      - apt-get update && apt-get install -y p7zip-full unrar git-restore-mtime
+      - apt-get update && apt-get install -y p7zip-full unrar git-restore-mtime curl
       - git restore-mtime ./src/main/resources/
       - gradle test --no-daemon
 
@@ -18,7 +18,6 @@ steps:
       ARTEFACTS_PASSWORD:
         from_secret: ARTEFACTS_PASSWORD
     commands:
-      - apt-get update && apt-get install -y git-restore-mtime curl
       - git restore-mtime ./src/main/resources/
       - gradle --no-daemon publish execJar
       - "export CI_BUILD=$(gradle properties | grep 'version:' | sed 's/version: //') && \

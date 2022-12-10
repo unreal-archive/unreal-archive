@@ -309,7 +309,8 @@ public class Main {
 		boolean force = Boolean.parseBoolean(cli.option("force", "false"));
 		boolean newOnly = Boolean.parseBoolean(cli.option("new-only", "false"));
 		int concurrency = Integer.parseInt(cli.option("concurrency", "1"));
-		ContentType forceType = (!cli.option("type", "").isEmpty()) ? ContentType.valueOf(cli.option("type", "").toUpperCase()) : null;
+		ContentType forceType = !cli.option("type", "").isEmpty() ? ContentType.valueOf(cli.option("type", "").toUpperCase()) : null;
+		Games forceGame = !cli.option("game", "").isEmpty() ? Games.byName(cli.option("game", "")) : null;
 
 		Indexer indexer = new Indexer(contentManager, new Indexer.CLIEventPrinter(verbose));
 
@@ -334,7 +335,7 @@ public class Main {
 			paths = cliPaths(cli, 1, contentManager).toArray(Path[]::new);
 		}
 
-		indexer.index(force, newOnly, concurrency, forceType, paths);
+		indexer.index(force, newOnly, concurrency, forceType, forceGame, paths);
 	}
 
 	private static void scan(ContentManager contentManager, CLI cli) throws IOException {

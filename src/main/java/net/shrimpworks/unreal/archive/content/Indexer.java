@@ -78,10 +78,11 @@ public class Indexer {
 	 *                    useful when indexing large directories of content
 	 * @param forceType   if not null, use the specified content type, rather than
 	 *                    attempting to discover it automatically
+	 * @param forceGame   if not null, forces this game
 	 * @param inputPath   directories or file paths to index
 	 * @throws IOException file access failure
 	 */
-	public void index(boolean force, boolean newOnly, int concurrency, ContentType forceType, Path... inputPath) throws IOException {
+	public void index(boolean force, boolean newOnly, int concurrency, ContentType forceType, Games forceGame, Path... inputPath) throws IOException {
 		final List<IndexLog> indexLogs = new ArrayList<>();
 
 		// keep a counter of number of files processed
@@ -109,6 +110,8 @@ public class Indexer {
 						// keep waiting for files
 						Submission sub = all.pollFirst(500, TimeUnit.MILLISECONDS);
 						if (sub == null) continue;
+
+						if (forceGame != null) sub.override.overrides.put("game", forceGame.name);
 
 						IndexLog log = new IndexLog();
 						indexLogs.add(log);

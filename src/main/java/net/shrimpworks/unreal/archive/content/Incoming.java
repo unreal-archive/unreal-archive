@@ -39,7 +39,7 @@ public class Incoming implements Closeable {
 		MUSIC(true, "umx", "ogg"),
 		SOUNDS(true, "uax"),
 		ANIMATION(true, "ukx"),
-		STATICMESH(true, "usx"),
+		STATICMESH(true, "usx", "usm"), /* usm added to Unreal 227g */
 		PREFAB(true, "upx"),
 		PHYSICS(true, "ka"),
 		PLAYER(true, "upl"),

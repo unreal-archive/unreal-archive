@@ -54,7 +54,7 @@ publishing {
 
 dependencies {
 	implementation 'net.shrimpworks:unreal-package-lib:1.9.20'
-	implementation 'net.shrimpworks:package-dependency:1.3.17'
+	implementation 'net.shrimpworks:package-dependency:1.3.19'
 
 	implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.0'
 	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.14.0'
@@ -66,7 +66,7 @@ dependencies {
 	implementation 'com.backblaze.b2:b2-sdk-httpclient:6.1.1'
 
 	// S3 compatible storage client
-	implementation 'io.minio:minio:8.4.5'
+	implementation 'io.minio:minio:8.4.6'
 
 	implementation 'com.vladsch.flexmark:flexmark:0.64.0'
 
