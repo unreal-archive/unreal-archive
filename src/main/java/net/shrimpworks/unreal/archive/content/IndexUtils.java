@@ -67,7 +67,7 @@ public class IndexUtils {
 		Set<Incoming.IncomingFile> files = incoming.files(Incoming.FileType.PACKAGES);
 		if (files.isEmpty()) return Games.UNKNOWN;
 
-		if (!incoming.submission.filePath.toString().contains("227")) return Games.UNREAL; // sometimes people name the packages after 227
+		if (incoming.submission.filePath.toString().contains("227")) return Games.UNREAL; // sometimes people name the packages after 227
 
 		if (!incoming.files(Incoming.FileType.PLAYER).isEmpty()) return Games.UNREAL_TOURNAMENT_2004;
 		if (!incoming.files(Incoming.FileType.PACKAGE).isEmpty()) return Games.UNREAL_TOURNAMENT_3;
