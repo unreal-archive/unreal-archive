@@ -18,6 +18,7 @@ steps:
       ARTEFACTS_PASSWORD:
         from_secret: ARTEFACTS_PASSWORD
     commands:
+      - apt-get update && apt-get install -y git-restore-mtime curl
       - git restore-mtime ./src/main/resources/
       - gradle --no-daemon publish execJar
       - "export CI_BUILD=$(gradle properties | grep 'version:' | sed 's/version: //') && \
