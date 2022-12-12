@@ -38,7 +38,7 @@
 </@content>
 
 <script type="application/javascript">
-	const searchRoot = "./api";
+	const searchRoot = "./api/ua";
 	let pageSize = 30;
 
 	document.addEventListener("DOMContentLoaded", function() {
