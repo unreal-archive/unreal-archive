@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.ContentManager;
+import net.shrimpworks.unreal.archive.wiki.WikiManager;
 
 /**
  * Submits contents to Minimum Effort Search instance.
@@ -31,21 +32,10 @@ public class MESSubmitter {
 	private static final String ADD_ENDPOINT = "/index/add";
 	private static final String ADD_BATCH_ENDPOINT = "/index/addBatch";
 
-	private final ContentManager contentManager;
-	private final String rootUrl;
-	private final String mseUrl;
-	private final String mseToken;
-	private final int batchSize;
-
-	public MESSubmitter(ContentManager contentManager, String rootUrl, String mseUrl, String mseToken, int batchSize) {
-		this.contentManager = contentManager;
-		this.rootUrl = rootUrl;
-		this.mseUrl = mseUrl;
-		this.mseToken = mseToken;
-		this.batchSize = batchSize;
-	}
-
-	public void submit(Consumer<Double> progress, Consumer<Boolean> done) throws IOException {
+	public void submit(
+		ContentManager contentManager, String rootUrl, String mseUrl, String mseToken, int batchSize,
+		Consumer<Double> progress, Consumer<Boolean> done
+	) throws IOException {
 		Collection<Content> contents = contentManager.all();
 		Path root = Paths.get("");
 		final int count = contents.size();
@@ -56,22 +46,22 @@ public class MESSubmitter {
 		for (Content content : contents) {
 			if (content.variationOf != null) continue;
 			Map<String, Object> doc = Map.of(
-					"id", content.hash,
-					"score", 1.0d,
-					"fields", Map.of(
-							"name", content.name.replaceAll("-", "\\\\-"),
-							"game", content.game,
-							"type", content.friendlyType(),
-							"author", content.authorName().replaceAll("-", "\\\\-"),
-							"url", rootUrl + "/" + content.slugPath(root).toString() + ".html",
-							"date", content.releaseDate,
-							"description", content.autoDescription(),
-							"image", content.attachments.stream()
-														.filter(a -> a.type == Content.AttachmentType.IMAGE)
-														.map(a -> a.url)
-														.findFirst().orElse(""),
-							"keywords", String.join(" ", content.autoTags())
-					)
+				"id", content.hash,
+				"score", 1.0d,
+				"fields", Map.of(
+					"name", content.name.replaceAll("-", "\\\\-"),
+					"game", content.game,
+					"type", content.friendlyType(),
+					"author", content.authorName().replaceAll("-", "\\\\-"),
+					"url", rootUrl + "/" + content.slugPath(root).toString() + ".html",
+					"date", content.releaseDate,
+					"description", content.autoDescription(),
+					"image", content.attachments.stream()
+												.filter(a -> a.type == Content.AttachmentType.IMAGE)
+												.map(a -> a.url)
+												.findFirst().orElse(""),
+					"keywords", String.join(" ", content.autoTags())
+				)
 			);
 
 			batchDocs.add(doc);
@@ -88,6 +78,11 @@ public class MESSubmitter {
 
 		progress.accept(1.0d);
 		done.accept(true);
+	}
+
+	public void submit(WikiManager wikiManager, String site_url, String mse_wiki_url, String mse_wiki_token, int batchSize,
+					   Consumer<Double> progress, Consumer<Boolean> done) {
+
 	}
 
 	private static boolean post(String url, String token, String payload) throws IOException {

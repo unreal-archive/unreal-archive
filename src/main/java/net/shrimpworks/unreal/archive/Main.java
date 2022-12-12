@@ -123,7 +123,7 @@ public class Main {
 				www(contentManager(cli), documentManager(cli), managedContent(cli), gameTypeManager(cli), wikiManager(cli), cli);
 				break;
 			case "search-submit":
-				searchSubmit(contentManager(cli), documentManager(cli), managedContent(cli), cli);
+				searchSubmit(contentManager(cli), documentManager(cli), managedContent(cli), wikiManager(cli), cli);
 				break;
 			case "summary":
 				summary(contentManager(cli));
@@ -741,24 +741,42 @@ public class Main {
 	}
 
 	private static void searchSubmit(ContentManager contentManager, DocumentManager documentManager,
-									 ManagedContentManager managedContentManager, CLI cli) throws IOException {
+									 ManagedContentManager managedContentManager, WikiManager wikiManager, CLI cli) throws IOException {
 		// TODO documents, managed content, and gametypes
 
 		// meh
 		Path authorPath = contentPath(cli).resolve(AUTHORS_DIR);
 		AuthorNames names = new AuthorNames(authorPath);
-		contentManager.all().parallelStream().forEach(c -> names.maybeAutoAlias(c.author));
+		contentManager.all().parallelStream()
+					  .filter(c -> !IndexUtils.UNKNOWN.equalsIgnoreCase(c.author()))
+					  .sorted(Comparator.comparingInt(a -> a.author().length()))
+					  .forEach(c -> names.maybeAutoAlias(c.author));
 		AuthorNames.instance = Optional.of(names);
 
 		final long start = System.currentTimeMillis();
 
-		System.out.printf("Submitting content to search instance at %s%n", System.getenv().getOrDefault("MSE_URL", ""));
-		new MESSubmitter(contentManager,
+		MESSubmitter submitter = new MESSubmitter();
+
+		System.out.printf("Submitting content to search instance at %s%n",
+						  System.getenv().getOrDefault("MSE_CONTENT_URL", System.getenv().getOrDefault("MSE_URL", ""))
+		);
+
+		submitter.submit(contentManager,
 						 System.getenv().getOrDefault("SITE_URL", ""),
-						 System.getenv().getOrDefault("MSE_URL", ""),
-						 System.getenv().getOrDefault("MSE_TOKEN", ""), 50)
-			.submit(percent -> System.out.printf("\r%.1f%% complete", percent * 100d),
-					done -> System.out.printf("%nSearch submission complete in %.2fs%n", (System.currentTimeMillis() - start) / 1000f));
+						 System.getenv().getOrDefault("MSE_CONTENT_URL", System.getenv().getOrDefault("MSE_URL", "")),
+						 System.getenv().getOrDefault("MSE_CONTENT_TOKEN", System.getenv().getOrDefault("MSE_TOKEN", "")), 50,
+						 percent -> System.out.printf("\r%.1f%% complete", percent * 100d),
+						 done -> System.out.printf("%nSearch submission complete in %.2fs%n",
+												   (System.currentTimeMillis() - start) / 1000f));
+
+		System.out.printf("Submitting wikis to search instance at %s%n", System.getenv().getOrDefault("MSE_WIKI_URL", ""));
+		submitter.submit(wikiManager,
+						 System.getenv().getOrDefault("SITE_URL", ""),
+						 System.getenv().getOrDefault("MSE_WIKI_URL", ""),
+						 System.getenv().getOrDefault("MSE_WIKI_TOKEN", ""), 50,
+						 percent -> System.out.printf("\r%.1f%% complete", percent * 100d),
+						 done -> System.out.printf("%nSearch submission complete in %.2fs%n",
+												   (System.currentTimeMillis() - start) / 1000f));
 	}
 
 	private static void summary(ContentManager contentManager) {
