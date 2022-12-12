@@ -130,9 +130,14 @@ public class Wiki implements PageGenerator {
 																	 Set.of()));
 					}
 
+					Document document = Jsoup.parse(page.parse.text.text);
+					document.outputSettings().prettyPrint(false);
+					sanitisedPageHtml(document, wiki);
+					fixLinks(document, wiki, linkingCandidates, out, pagePath, pagePath);
+
 					pages.add("page.ftl", SiteMap.Page.of(0.75f, SiteMap.ChangeFrequency.monthly),
 							  String.join(" / ", "Wikis", wiki.name, page.name))
-						 .put("text", sanitisedPageHtml(wiki, page, linkingCandidates, out, pagePath, imagesPath))
+						 .put("text", document.select("body").html().trim())
 						 .put("page", page)
 						 .put("wiki", wiki)
 						 .put("categoryPages", categoryPages)
@@ -147,23 +152,8 @@ public class Wiki implements PageGenerator {
 			});
 	}
 
-	private String sanitisedPageHtml(WikiManager.Wiki wiki, WikiPage page, Set<String> linkingCandidates, Path out, Path pagePath,
-									 Path imagesPath) {
-		Document document = Jsoup.parse(page.parse.text.text);
-		document.outputSettings().prettyPrint(false);
-
-		wiki.deleteElements.forEach(selector -> document.select(selector).remove());
-
-		// strip comments
-		document.forEachNode(n -> {
-			if (n.nodeName().equals("#comment")) n.remove();
-		});
-
-		// remove empty paragraphs (these seem to happen under .ambox blocks)
-		document.select("p").stream()
-				.filter(n -> n.childrenSize() == 1 && n.child(0).tagName().equalsIgnoreCase("br"))
-				.forEach(Node::remove);
-
+	private static void fixLinks(Document document, WikiManager.Wiki wiki, Set<String> linkingCandidates, Path out, Path pagePath,
+								 Path imagesPath) {
 		// fix local links
 		document.select("a").stream()
 				.filter(a -> a.hasAttr("href") && a.attr("href").startsWith("/"))
@@ -194,10 +184,6 @@ public class Wiki implements PageGenerator {
 					}
 				});
 
-		// remove custom formatting from inline tables
-		document.select("table:not([class])")
-				.forEach(t -> t.select("tr").removeAttr("style"));
-
 		// update image links
 		document.select("a[href*=\"File:\"]")
 				.forEach(a -> {
@@ -209,23 +195,40 @@ public class Wiki implements PageGenerator {
 					 .forEach(i -> i.attr("src", pagePath.getParent().relativize(imagesPath).resolve(href.group(1)).toString()));
 				});
 
+	}
+
+	public static void sanitisedPageHtml(Document document, WikiManager.Wiki wiki) {
+		wiki.deleteElements.forEach(selector -> document.select(selector).remove());
+
+		// strip comments
+		document.forEachNode(n -> {
+			if (n.nodeName().equals("#comment")) n.remove();
+		});
+
+		// remove empty paragraphs (these seem to happen under .ambox blocks)
+		document.select("p").stream()
+				.filter(n -> n.childrenSize() == 1 && n.child(0).tagName().equalsIgnoreCase("br"))
+				.forEach(Node::remove);
+
+		// remove custom formatting from inline tables
+		document.select("table:not([class])")
+				.forEach(t -> t.select("tr").removeAttr("style"));
+
 		// special magic formatting for special style Liandri wiki tables
 		document.select("table[style*=\"background: #ddd\"],table.infobox")
-			.forEach(t -> {
-				t.removeAttr("style");
-				t.addClass("meta");
-				t.select("td[style*=\"font-size\"]").removeAttr("style");
-				t.select("td div[style*=\"font-size\"]").removeAttr("style");
-			});
+				.forEach(t -> {
+					t.removeAttr("style");
+					t.addClass("meta");
+					t.select("td[style*=\"font-size\"]").removeAttr("style");
+					t.select("td div[style*=\"font-size\"]").removeAttr("style");
+				});
 
 		// formatting for thumbnails
 		document.select(".thumb .thumbinner")
-			.forEach(t -> t.addClass("meta"));
+				.forEach(t -> t.addClass("meta"));
 
 		// remove useless magnifier elements
 		document.select("div.magnify").remove();
-
-		return document.select("body").html().trim();
 	}
 
 	private void copyFiles(WikiManager.Wiki wiki, WikiPage page, Path imagesPath) throws IOException {

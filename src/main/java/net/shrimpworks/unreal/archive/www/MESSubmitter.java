@@ -1,6 +1,8 @@
 package net.shrimpworks.unreal.archive.www;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -11,14 +13,20 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
+import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.ContentManager;
 import net.shrimpworks.unreal.archive.wiki.WikiManager;
+import net.shrimpworks.unreal.archive.wiki.WikiPage;
 
 /**
  * Submits contents to Minimum Effort Search instance.
@@ -36,7 +44,7 @@ public class MESSubmitter {
 		ContentManager contentManager, String rootUrl, String mseUrl, String mseToken, int batchSize,
 		Consumer<Double> progress, Consumer<Boolean> done
 	) throws IOException {
-		Collection<Content> contents = contentManager.all();
+		Collection<Content> contents = contentManager.all(false);
 		Path root = Paths.get("");
 		final int count = contents.size();
 		int i = 0;
@@ -44,7 +52,6 @@ public class MESSubmitter {
 		final List<Map<String, Object>> batchDocs = new ArrayList<>(batchSize);
 
 		for (Content content : contents) {
-			if (content.variationOf != null) continue;
 			Map<String, Object> doc = Map.of(
 				"id", content.hash,
 				"score", 1.0d,
@@ -80,9 +87,73 @@ public class MESSubmitter {
 		done.accept(true);
 	}
 
-	public void submit(WikiManager wikiManager, String site_url, String mse_wiki_url, String mse_wiki_token, int batchSize,
-					   Consumer<Double> progress, Consumer<Boolean> done) {
+	public void submit(WikiManager wikiManager, String rootUrl, String mseUrl, String mseToken, int batchSize,
+					   Consumer<Double> progress, Consumer<Boolean> done) throws IOException {
+		Set<String> stopWords = stopWords();
 
+		for (WikiManager.Wiki wiki : wikiManager.all()) {
+			int i = 0;
+
+			Set<WikiPage> candidates = wiki.all().parallelStream()
+										   .filter(p -> p.parse.categories
+											   .stream().noneMatch(c -> wiki.skipCategories.stream().anyMatch(c.name::contains))
+										   )
+										   .filter(p -> p.parse.templates
+											   .stream().noneMatch(c -> wiki.skipTemplates.stream().anyMatch(c.name::contains))
+										   )
+										   .collect(Collectors.toSet());
+
+			final List<Map<String, Object>> batchDocs = new ArrayList<>(batchSize);
+
+			for (WikiPage page : candidates) {
+				Document document = Jsoup.parse(page.parse.text.text);
+				document.outputSettings().prettyPrint(false);
+				Wiki.sanitisedPageHtml(document, wiki);
+				document.select("pre").remove();           // remove code blocks...
+				document.select(".toc").remove();          // remove table of contents
+				document.select(".navbox").remove();       // remove table of contents
+				document.select(".infobox-class").remove();// remove table of contents
+
+				String content = document.select("body").text().toLowerCase();
+				// remove non-alphanumerics
+				content = content.replaceAll("[^A-Za-z0-9-'\" ]", "");
+				// expensive - distinct terms only
+				//content = Arrays.stream(content.split(" ")).distinct().collect(Collectors.joining(" "));
+				// remove stop words
+				content = " " + content + " ";
+				for (String s : stopWords) content = content.replaceAll(" " + s + " ", " ");
+
+				Map<String, Object> doc = Map.of(
+					"id", wiki.name + page.name,
+					"score", 1.0d,
+					"fields", Map.of(
+						"name", wiki.name + " - " + page.name.replaceAll("-", "\\\\-"),
+						"wiki", wiki.name,
+						"url", String.format("%s/wikis/%s/%s.html", rootUrl, Util.slug(wiki.name), page.name.replaceAll(" ", "_")),
+						"content", content.trim())
+				);
+
+				batchDocs.add(doc);
+
+				if (batchDocs.size() >= batchSize) {
+					post(mseUrl + ADD_BATCH_ENDPOINT, mseToken, JSON_MAPPER.writeValueAsString(Map.of("docs", batchDocs)));
+					batchDocs.clear();
+				}
+
+				i++;
+
+				if (i % 500 == 0) progress.accept((double)i / (double)(candidates.size()));
+			}
+		}
+	}
+
+	private static Set<String> stopWords() throws IOException {
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(MESSubmitter.class.getResourceAsStream("stopWords.txt")))) {
+			return br.lines()
+					 .map(String::trim)
+					 .filter(s -> !s.isBlank() && !s.startsWith("#"))
+					 .collect(Collectors.toSet());
+		}
 	}
 
 	private static boolean post(String url, String token, String payload) throws IOException {
