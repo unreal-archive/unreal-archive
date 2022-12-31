@@ -49,7 +49,7 @@ public class Maps extends GenericContentPage<Map> {
 																	  .flatMap(l -> l.pages.stream())
 																	  .flatMap(e -> e.items.stream())
 																	  .sorted()
-																	  .collect(Collectors.toList());
+																	  .toList();
 					pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName, gt.getKey()))
 						 .put("gametype", gt.getValue())
 						 .put("maps", all)

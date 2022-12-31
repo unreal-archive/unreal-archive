@@ -98,7 +98,7 @@ public class VoiceIndexHandler implements IndexHandler<Voice> {
 							 return foundVoices.stream();
 						 })
 						 .filter(Objects::nonNull)
-						 .collect(Collectors.toList());
+						 .toList();
 	}
 
 }

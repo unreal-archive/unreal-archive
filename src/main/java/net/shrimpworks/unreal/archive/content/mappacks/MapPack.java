@@ -52,10 +52,10 @@ public class MapPack extends Content {
 		List<String> tags = new ArrayList<>(super.autoTags());
 		tags.add(gametype.toLowerCase());
 		tags.addAll(maps.stream().filter(m -> m.name.contains("-"))
-						.map(m -> m.name.split("-")[0].toLowerCase()).distinct().collect(Collectors.toList()));
+						.map(m -> m.name.split("-")[0].toLowerCase()).distinct().toList());
 		tags.addAll(maps.stream().filter(m -> m.name.contains("-"))
-						.map(m -> m.name.split("-")[1].toLowerCase()).distinct().collect(Collectors.toList()));
-		tags.addAll(themes.keySet().stream().map(String::toLowerCase).collect(Collectors.toList()));
+						.map(m -> m.name.split("-")[1].toLowerCase()).distinct().toList());
+		tags.addAll(themes.keySet().stream().map(String::toLowerCase).toList());
 		return tags;
 	}
 

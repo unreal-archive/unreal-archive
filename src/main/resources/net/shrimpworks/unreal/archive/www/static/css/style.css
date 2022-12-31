@@ -243,6 +243,10 @@ header .header img {
 	margin: 0.5em auto;
 }
 
+.readable p {
+	margin: 0.8em 0.5em;
+}
+
 section.intro h1 {
 	margin: 0;
 }

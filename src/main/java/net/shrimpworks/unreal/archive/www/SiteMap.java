@@ -48,7 +48,7 @@ public interface SiteMap extends PageGenerator {
 			return pages.stream()
 						.sorted(Collections.reverseOrder())
 						.limit(pageLimit)
-						.collect(Collectors.toList());
+						.toList();
 		}
 
 		@Override

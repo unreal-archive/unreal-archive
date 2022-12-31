@@ -156,7 +156,7 @@ public class ModelIndexHandler implements IndexHandler<Model> {
 							 return vals.stream();
 						 })
 						 .filter(Objects::nonNull)
-						 .collect(Collectors.toList());
+						 .toList();
 	}
 
 	private List<IntFile.MapValue> characterDescriptors(Incoming incoming) {
@@ -175,7 +175,7 @@ public class ModelIndexHandler implements IndexHandler<Model> {
 
 						 })
 						 .filter(Objects::nonNull)
-						 .collect(Collectors.toList());
+						 .toList();
 
 	}
 

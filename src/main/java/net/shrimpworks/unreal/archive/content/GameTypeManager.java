@@ -450,7 +450,7 @@ public class GameTypeManager {
 							 .map(v -> (IntFile.MapValue)v)
 							 .map(mapVal -> new NameDescription(mapVal.get("FallbackName"), mapVal.getOrDefault("FallbackDesc", "")))
 							 .sorted(Comparator.comparing(a -> a.name))
-							 .collect(Collectors.toList());
+							 .toList();
 		} else if (!intFiles.isEmpty()) {
 			// search int files for objects describing a mutator and related things
 			return IndexUtils.readIntFiles(incoming, intFiles)
@@ -469,7 +469,7 @@ public class GameTypeManager {
 							 .filter(mapVal -> mapVal.get("Parent").equalsIgnoreCase("Game Types"))
 							 .map(mapVal -> new NameDescription(mapVal.get("Caption")))
 							 .sorted(Comparator.comparing(a -> a.name))
-							 .collect(Collectors.toList());
+							 .toList();
 		}
 
 		return List.of();
@@ -505,7 +505,7 @@ public class GameTypeManager {
 							 .map(v -> (IntFile.MapValue)v)
 							 .map(mapVal -> new NameDescription(mapVal.get("FallbackName"), mapVal.getOrDefault("FallbackDesc", "")))
 							 .sorted(Comparator.comparing(a -> a.name))
-							 .collect(Collectors.toList());
+							 .toList();
 		} else if (!intFiles.isEmpty()) {
 			// search int files for objects describing a mutator and related things
 			return IndexUtils.readIntFiles(incoming, intFiles)
@@ -522,7 +522,7 @@ public class GameTypeManager {
 							 .filter(mapVal -> Mutator.UT_MUTATOR_CLASS.equalsIgnoreCase(mapVal.get("MetaClass")))
 							 .map(mapVal -> new NameDescription(mapVal.get("Description")))
 							 .sorted(Comparator.comparing(a -> a.name))
-							 .collect(Collectors.toList());
+							 .toList();
 		} else if (!iniFiles.isEmpty()) {
 			return IndexUtils.readIntFiles(incoming, iniFiles)
 							 .filter(Objects::nonNull)
@@ -537,7 +537,7 @@ public class GameTypeManager {
 							 }))
 							 .filter(Objects::nonNull)
 							 .sorted(Comparator.comparing(a -> a.name))
-							 .collect(Collectors.toList());
+							 .toList();
 		}
 
 		return List.of();
@@ -618,7 +618,7 @@ public class GameTypeManager {
 					   })
 					   .filter(Objects::nonNull)
 					   .sorted(Comparator.comparing(a -> a.name))
-					   .collect(Collectors.toList());
+					   .toList();
 	}
 
 	private String remotePath(GameType gametype) {

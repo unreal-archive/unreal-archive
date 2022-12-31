@@ -45,7 +45,7 @@ public class Models extends GenericContentPage<Model> {
 																						.flatMap(l -> l.pages.stream())
 																						.flatMap(e -> e.items.stream())
 																						.sorted()
-																						.collect(Collectors.toList());
+																						.toList();
 				pages.add("listing.ftl", SiteMap.Page.monthly(0.65f), String.join(" / ", SECTION, game.bigName))
 					 .put("game", g.getValue())
 					 .put("timeline", timeline)

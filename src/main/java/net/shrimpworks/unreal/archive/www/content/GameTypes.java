@@ -56,7 +56,7 @@ public class GameTypes implements PageGenerator {
 				 .sorted()
 				 .forEach(d -> {
 					 Game game = games.computeIfAbsent(d.game, Game::new);
-					 game.add(d, gametypes.variations(d).stream().sorted().collect(Collectors.toList()));
+					 game.add(d, gametypes.variations(d).stream().sorted().toList());
 				 });
 
 		return games;
@@ -162,7 +162,7 @@ public class GameTypes implements PageGenerator {
 		public void add(GameType g, List<GameType> variations) {
 			gametypes.add(new GameTypeInfo(g, this, variations.stream()
 															  .map(v -> new GameTypeInfo(v, this, g))
-															  .collect(Collectors.toList())));
+															  .toList()));
 			this.count++;
 		}
 	}

@@ -133,7 +133,7 @@ public class Wiki implements PageGenerator {
 					Document document = Jsoup.parse(page.parse.text.text);
 					document.outputSettings().prettyPrint(false);
 					sanitisedPageHtml(document, wiki);
-					fixLinks(document, wiki, linkingCandidates, out, pagePath, pagePath);
+					fixLinks(document, wiki, linkingCandidates, out, pagePath, imagesPath);
 
 					pages.add("page.ftl", SiteMap.Page.of(0.75f, SiteMap.ChangeFrequency.monthly),
 							  String.join(" / ", "Wikis", wiki.name, page.name))

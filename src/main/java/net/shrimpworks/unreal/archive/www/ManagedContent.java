@@ -39,7 +39,7 @@ public class ManagedContent implements PageGenerator {
 		content.all().stream()
 			   .filter(d -> d.published)
 			   .sorted(Comparator.reverseOrder())
-			   .collect(Collectors.toList())
+			   .toList()
 			   .forEach(d -> {
 				   ContentGroup group = groups.computeIfAbsent(d.group, g -> new ContentGroup(null, g, 0));
 				   group.add(d);

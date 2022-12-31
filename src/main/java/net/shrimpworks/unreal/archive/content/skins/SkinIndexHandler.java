@@ -163,7 +163,7 @@ public class SkinIndexHandler implements IndexHandler<Skin> {
 							 return vals.stream();
 						 })
 						 .filter(Objects::nonNull)
-						 .collect(Collectors.toList());
+						 .toList();
 	}
 
 	public static List<IntFile.MapValue> playerDescriptors(Incoming incoming) {
@@ -187,7 +187,7 @@ public class SkinIndexHandler implements IndexHandler<Skin> {
 							 return vals.stream();
 						 })
 						 .filter(Objects::nonNull)
-						 .collect(Collectors.toList());
+						 .toList();
 	}
 
 }

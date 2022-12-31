@@ -142,7 +142,7 @@ public class MESSubmitter {
 
 				i++;
 
-				if (i % 500 == 0) progress.accept((double)i / (double)(candidates.size()));
+				if (i % 100 == 0) progress.accept((double)i / (double)(candidates.size()));
 			}
 		}
 	}

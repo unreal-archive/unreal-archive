@@ -65,7 +65,7 @@ public class Mutator extends Content {
 		tags.add(name.toLowerCase());
 		if (!weapons.isEmpty()) tags.add("weapons");
 		if (!vehicles.isEmpty()) tags.add("vehicles");
-		tags.addAll(mutators.stream().map(m -> m.name.toLowerCase()).collect(Collectors.toList()));
+		tags.addAll(mutators.stream().map(m -> m.name.toLowerCase()).toList());
 		return tags;
 	}
 

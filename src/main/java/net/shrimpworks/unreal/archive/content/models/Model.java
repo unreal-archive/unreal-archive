@@ -52,8 +52,8 @@ public class Model extends Content {
 	public List<String> autoTags() {
 		List<String> tags = new ArrayList<>(super.autoTags());
 		tags.add(name.toLowerCase());
-		tags.addAll(models.stream().map(String::toLowerCase).collect(Collectors.toList()));
-		tags.addAll(skins.stream().map(String::toLowerCase).collect(Collectors.toList()));
+		tags.addAll(models.stream().map(String::toLowerCase).toList());
+		tags.addAll(skins.stream().map(String::toLowerCase).toList());
 		return tags;
 	}
 

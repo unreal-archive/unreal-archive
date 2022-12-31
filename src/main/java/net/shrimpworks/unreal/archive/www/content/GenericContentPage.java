@@ -77,7 +77,7 @@ public abstract class GenericContentPage<T extends Content> extends ContentPageG
 		// find all the images
 		List<Content.Attachment> images = content.attachments.stream()
 															 .filter(a -> a.type == Content.AttachmentType.IMAGE)
-															 .collect(Collectors.toList());
+															 .toList();
 
 		// we're creating a sub-directory here, to create a nicer looking on-disk structure
 		Path imgPath = localPath.resolve("images");
@@ -322,7 +322,7 @@ public abstract class GenericContentPage<T extends Content> extends ContentPageG
 									 .filter(p -> p.getClass().isAssignableFrom(item.getClass()))
 									 .map(p -> new ContentInfo<>(page, (Y)p))
 									 .sorted()
-									 .collect(Collectors.toList());
+									 .toList();
 
 			if (item.releaseDate() != null && !item.releaseDate().equals("Unknown")) {
 				releaseDate = Optional.of(LocalDate.parse(item.releaseDate(), RELEASE_DATE_FORMAT));

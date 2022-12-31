@@ -45,7 +45,7 @@ public class Mutators extends GenericContentPage<Mutator> {
 																						  .flatMap(l -> l.pages.stream())
 																						  .flatMap(e -> e.items.stream())
 																						  .sorted()
-																						  .collect(Collectors.toList());
+																						  .toList();
 				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName))
 					 .put("game", g.getValue())
 					 .put("timeline", timeline)

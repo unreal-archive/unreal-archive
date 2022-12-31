@@ -76,7 +76,7 @@ public class Map extends Content {
 			tags.add(name.split("-")[0].toLowerCase());
 			tags.add(name.split("-")[1].toLowerCase());
 		}
-		tags.addAll(themes.keySet().stream().map(String::toLowerCase).collect(Collectors.toList()));
+		tags.addAll(themes.keySet().stream().map(String::toLowerCase).toList());
 		return tags;
 	}
 

@@ -45,7 +45,7 @@ public class Voice extends Content {
 	public List<String> autoTags() {
 		List<String> tags = new ArrayList<>(super.autoTags());
 		tags.add(name.toLowerCase());
-		tags.addAll(voices.stream().map(String::toLowerCase).collect(Collectors.toList()));
+		tags.addAll(voices.stream().map(String::toLowerCase).toList());
 		return tags;
 	}
 

@@ -355,7 +355,7 @@ public class IndexUtils {
 		while (!encodings.isEmpty()) {
 			Charset encoding = encodings.remove(0);
 			try (BufferedReader br = new BufferedReader(Channels.newReader(file.asChannel(), encoding))) {
-				return (br.lines().collect(Collectors.toList()));
+				return (br.lines().toList());
 			} catch (MalformedInputException | UncheckedIOException ex) {
 				if (encodings.isEmpty()) {
 					incoming.log.log(IndexLog.EntryType.CONTINUE, "Could not read file file as " + encoding.name() + ", giving up");

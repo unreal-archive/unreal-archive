@@ -68,6 +68,7 @@ public class GameTypes {
 		new GameType("Double Domination", "DDOM"),
 		new GameType("Invasion", "DM-INV-", "DM-(INV)-"),
 		new GameType("UT2D", "UT2D-"),
+		new GameType("Kilter's Bombing Run", "KBR-", "VKBR-"),
 		// Rune gametypes
 		new GameType("Arena Match", "AR-"),
 		new GameType("Headball", "HB-"),
@@ -84,7 +85,7 @@ public class GameTypes {
 		String lower = mapName.toLowerCase();
 		List<String> sortedPrefixes = mapMapping.keySet().stream()
 												.sorted((a, b) -> -Integer.compare(a.length(), b.length()))
-												.collect(Collectors.toList());
+												.toList();
 		for (String p : sortedPrefixes) {
 			if (lower.startsWith(p.toLowerCase())) return mapMapping.get(p);
 		}
