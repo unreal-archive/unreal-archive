@@ -32,6 +32,7 @@ jlink {
 	mergedModuleName = "unreal.archive.merged"
 	options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
 
+	imageName = "${project.name}"
 	imageZip = file("$buildDir/${project.name}_${project.version}.zip")
 
 	jpackage {
