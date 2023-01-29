@@ -20,7 +20,7 @@ steps:
     commands:
       - apt-get update && apt-get install -y git-restore-mtime
       - git restore-mtime ./src/main/resources/
-      - gradle --no-daemon publish
+      - gradle --no-daemon jlinkZip publish
 
   - name: www
     image: gradle:7.6-jdk17-focal
