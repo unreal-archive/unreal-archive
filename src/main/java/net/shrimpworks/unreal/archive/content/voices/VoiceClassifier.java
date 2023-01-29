@@ -74,9 +74,8 @@ public class VoiceClassifier implements Classifier {
 					  if (section == null) return;
 
 					  IntFile.ListValue objects = section.asList("Object");
-					  for (IntFile.Value value : objects.values) {
-						  if (!(value instanceof IntFile.MapValue)) continue;
-						  IntFile.MapValue mapVal = (IntFile.MapValue)value;
+					  for (IntFile.Value value : objects.values()) {
+						  if (!(value instanceof IntFile.MapValue mapVal)) continue;
 
 						  if (!mapVal.containsKey("MetaClass")) continue;
 

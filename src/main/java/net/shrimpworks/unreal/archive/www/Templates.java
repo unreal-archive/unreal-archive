@@ -6,12 +6,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,11 +28,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
-import com.vladsch.flexmark.html.HtmlRenderer;
-import com.vladsch.flexmark.parser.Parser;
-import com.vladsch.flexmark.util.ast.Node;
-import com.vladsch.flexmark.util.data.MutableDataSet;
 import freemarker.core.Environment;
 import freemarker.core.HTMLOutputFormat;
 import freemarker.template.Configuration;
@@ -65,10 +60,6 @@ public class Templates {
 	private static final String[] MONTH_NAMES = new DateFormatSymbols().getMonths();
 
 	private static final Configuration TPL_CONFIG = new Configuration(Configuration.VERSION_2_3_27);
-
-	private static final MutableDataSet MD_OPTIONS = new MutableDataSet();
-	private static final Parser MD_PARSER = Parser.builder(MD_OPTIONS).build();
-	private static final HtmlRenderer MD_RENDERER = HtmlRenderer.builder(MD_OPTIONS).build();
 
 	private static final Map<String, Object> TPL_VARS = new HashMap<>();
 
@@ -199,26 +190,21 @@ public class Templates {
 		}
 
 		for (ThumbConfig conf : thumbConfig) {
-			Files.walk(conf.path, conf.noSubDirectories ? 1 : 5)
-				 .filter(Util::image)
-				 .filter(f -> !Util.fileName(f).startsWith(String.format("%s_", conf.name)))
-				 .forEach(f -> {
-					 try {
-						 Util.thumbnail(f, f.getParent().resolve(String.format("%s_%s", conf.name, Util.fileName(f))), conf.maxWidth);
-					 } catch (IOException e) {
-						 throw new RuntimeException("Failed to generate thumbnail for file " + f.toAbsolutePath(), e);
-					 }
-				 });
+			try (Stream<Path> files = Files.walk(conf.path, conf.noSubDirectories ? 1 : 5)) {
+				files
+					.filter(Util::image)
+					.filter(f -> !Util.fileName(f).startsWith(String.format("%s_", conf.name)))
+					.forEach(f -> {
+						try {
+							Util.thumbnail(f, f.getParent().resolve(String.format("%s_%s", conf.name, Util.fileName(f))), conf.maxWidth);
+						} catch (IOException e) {
+							throw new RuntimeException("Failed to generate thumbnail for file " + f.toAbsolutePath(), e);
+						}
+					});
+			}
 		}
 
 		return true;
-	}
-
-	public static String renderMarkdown(ReadableByteChannel document) throws IOException {
-		try (Reader reader = Channels.newReader(document, StandardCharsets.UTF_8.name())) {
-			Node node = MD_PARSER.parseReader(reader);
-			return MD_RENDERER.render(node);
-		}
 	}
 
 	private static class ThumbConfig {

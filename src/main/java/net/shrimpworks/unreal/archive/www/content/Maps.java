@@ -3,7 +3,6 @@ package net.shrimpworks.unreal.archive.www.content;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import net.shrimpworks.unreal.archive.content.ContentManager;
 import net.shrimpworks.unreal.archive.content.Games;
@@ -104,7 +103,7 @@ public class Maps extends GenericContentPage<Map> {
 	}
 
 	@Override
-	String gameSubGroup(Map item) {
+	protected String gameSubGroup(Map item) {
 		return item.gametype;
 	}
 

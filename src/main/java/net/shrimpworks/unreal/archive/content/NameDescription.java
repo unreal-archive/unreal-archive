@@ -30,10 +30,9 @@ public class NameDescription {
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
-		if (!(o instanceof NameDescription)) return false;
-		NameDescription that = (NameDescription)o;
-		return Objects.equals(name, that.name) &&
-			   Objects.equals(description, that.description);
+		if (!(o instanceof NameDescription other)) return false;
+		return Objects.equals(name, other.name) &&
+			   Objects.equals(description, other.description);
 	}
 
 	@Override

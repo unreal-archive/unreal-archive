@@ -8,7 +8,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import net.shrimpworks.unreal.archive.Util;
@@ -140,9 +139,8 @@ public class ModelIndexHandler implements IndexHandler<Model> {
 							 if (section == null) return Stream.empty();
 
 							 IntFile.ListValue objects = section.asList("Object");
-							 for (IntFile.Value value : objects.values) {
-								 if (!(value instanceof IntFile.MapValue)) continue;
-								 IntFile.MapValue mapVal = (IntFile.MapValue)value;
+							 for (IntFile.Value value : objects.values()) {
+								 if (!(value instanceof IntFile.MapValue mapVal)) continue;
 								 if (mapVal.containsKey("Name")
 									 && mapVal.containsKey("MetaClass")
 									 && mapVal.containsKey("Description")
@@ -167,7 +165,7 @@ public class ModelIndexHandler implements IndexHandler<Model> {
 							 if (section == null) return Stream.empty();
 
 							 return section.asList("+Characters")
-								 .values
+								 .values()
 								 .stream()
 								 .filter(v -> v instanceof IntFile.MapValue)
 								 .map(v -> (IntFile.MapValue)v)

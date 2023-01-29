@@ -59,7 +59,7 @@ public class Scanner {
 
 		ForkJoinPool fjPool = new ForkJoinPool(concurrency);
 		try {
-			fjPool.submit(() -> all.parallelStream().sorted().forEach(path -> {
+			fjPool.submit(() -> all.parallelStream().sorted().forEachOrdered(path -> {
 							  events.progress(done.incrementAndGet(), all.size(), path);
 
 							  Submission sub = new Submission(path);
@@ -145,28 +145,14 @@ public class Scanner {
 		}
 	}
 
-	public static class ScanResult {
-
-		public final Path filePath;
-		public final boolean known;
-		public final ContentType oldType;
-		public final ContentType newType;
-		public final Throwable failed;
-
-		public ScanResult(Path filePath, boolean known, ContentType oldType, ContentType newType, Throwable failed) {
-			this.filePath = filePath;
-			this.known = known;
-			this.oldType = oldType;
-			this.newType = newType;
-			this.failed = failed;
-		}
+	public record ScanResult(Path filePath, boolean known, ContentType oldType, ContentType newType, Throwable failed) {
 
 		@Override
-		public String toString() {
-			return String.format("ScanResult [filePath=%s, known=%s, oldType=%s, newType=%s, failed=%s]",
-								 filePath, known, oldType, newType, failed);
+			public String toString() {
+				return String.format("ScanResult [filePath=%s, known=%s, oldType=%s, newType=%s, failed=%s]",
+									 filePath, known, oldType, newType, failed);
+			}
 		}
-	}
 
 	public interface ScannerEvents {
 

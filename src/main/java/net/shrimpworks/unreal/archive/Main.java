@@ -408,7 +408,7 @@ public class Main {
 		}
 
 		switch (cli.commands()[1]) {
-			case "init": {
+			case "init" -> {
 				if (cli.commands().length < 3) {
 					System.err.println("A game name is required");
 					System.exit(1);
@@ -424,20 +424,17 @@ public class Main {
 				System.out.printf("  - %s%n", gametypePath.toAbsolutePath());
 				System.out.println("\nPopulate the appropriate files, add images, etc.");
 				System.out.println("To upload gametype files, execute the `sync` command.");
-				break;
 			}
-			case "sync": {
+			case "sync" -> {
 				final DataStore dataStore = store(DataStore.StoreContent.CONTENT, cli);
 				gametypes.sync(dataStore);
-				break;
 			}
-			case "index": {
+			case "index" -> {
 				final DataStore imageStore = store(DataStore.StoreContent.IMAGES, cli);
 				Games game = Games.byName(cli.commands()[2]);
 				gametypes.index(imageStore, game, cli.commands()[3], cli.commands()[4]);
-				break;
 			}
-			case "add": {
+			case "add" -> {
 				if (cli.commands().length < 3) {
 					System.err.println("A game name is required");
 					System.exit(1);
@@ -464,11 +461,11 @@ public class Main {
 				final DataStore imageStore = store(DataStore.StoreContent.IMAGES, cli);
 				Games game = Games.byName(cli.commands()[2]);
 				gametypes.addRelease(imageStore, game, cli.commands()[3], cli.commands()[4], localFile, cli);
-				break;
 			}
-			default:
+			default -> {
 				System.err.println("Unknown game type operation" + cli.commands()[1]);
 				System.exit(3);
+			}
 		}
 	}
 
@@ -491,7 +488,7 @@ public class Main {
 		}
 
 		switch (cli.commands()[1]) {
-			case "init": {
+			case "init" -> {
 				if (cli.commands().length < 3) {
 					System.err.println("A game name is required");
 					System.exit(1);
@@ -511,15 +508,13 @@ public class Main {
 				System.out.printf("  - %s%n", managedPath.toAbsolutePath());
 				System.out.println("\nPopulate the appropriate files, add images, etc.");
 				System.out.println("To upload managed files, execute the `sync` command.");
-				break;
 			}
-			case "sync": {
+			case "sync" -> {
 				managedContent.sync(store(DataStore.StoreContent.CONTENT, cli), cli, (total, progress) -> {
 					if (!cli.option("proggers", "").isBlank()) Util.proggers(cli.option("proggers", ""), "sync_managed", total, progress);
 				});
-				break;
 			}
-			case "add": {
+			case "add" -> {
 				if (cli.commands().length < 3) {
 					System.err.println("A game name is required");
 					System.exit(1);
@@ -556,11 +551,11 @@ public class Main {
 					localFile,
 					cli
 				);
-				break;
 			}
-			default:
+			default -> {
 				System.err.println("Unknown managed content operation" + cli.commands()[1]);
 				System.exit(3);
+			}
 		}
 	}
 
@@ -985,14 +980,7 @@ public class Main {
 			.map(hash -> {
 				Content content = cm.forHash(hash);
 				if (content == null) throw new IllegalArgumentException(String.format("Hash %s does not match any known content!", hash));
-				return content.downloads.stream()
-										.filter(d -> d.main)
-										.findFirst()
-										.orElseThrow(() -> new IllegalStateException(
-														 String.format("Could not find a download for content hash %s!", hash
-														 )
-													 )
-										).url;
+				return content.mainDownload().url;
 			})
 			.toArray(String[]::new);
 

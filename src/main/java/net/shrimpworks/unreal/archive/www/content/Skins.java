@@ -5,7 +5,6 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.ContentManager;
@@ -106,7 +105,7 @@ public class Skins extends GenericContentPage<Skin> {
 	}
 
 	@Override
-	String gameSubGroup(Skin item) {
+	protected String gameSubGroup(Skin item) {
 		return SUBGROUP;
 	}
 }

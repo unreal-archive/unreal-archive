@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.content.Content;
@@ -293,6 +292,7 @@ public abstract class GenericContentPage<T extends Content> extends ContentPageG
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public class ContentInfo<Y extends T> implements Comparable<ContentInfo<Y>> {
 
 		public final Page page;
@@ -305,7 +305,6 @@ public abstract class GenericContentPage<T extends Content> extends ContentPageG
 
 		public final Optional<LocalDate> releaseDate;
 
-		@SuppressWarnings("unchecked")
 		public ContentInfo(Page page, Y item) {
 			this.page = page;
 			this.itemHash = item.hash;

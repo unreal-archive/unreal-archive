@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import javax.imageio.ImageIO;
 
 public final class Util {
@@ -272,20 +273,18 @@ public final class Util {
 	}
 
 	public static void copyTree(Path source, Path dest) throws IOException {
-		Files.walk(source, FileVisitOption.FOLLOW_LINKS)
-			 .forEach(p -> {
-				 if (Files.isRegularFile(p)) {
-					 Path relPath = source.relativize(p);
-					 Path copyPath = dest.resolve(relPath);
-
-					 try {
-						 if (!Files.isDirectory(copyPath.getParent())) Files.createDirectories(copyPath.getParent());
-						 Files.copy(p, copyPath, StandardCopyOption.REPLACE_EXISTING);
-					 } catch (IOException e) {
-						 e.printStackTrace();
-					 }
-				 }
-			 });
+		try (Stream<Path> files = Files.walk(source, FileVisitOption.FOLLOW_LINKS)) {
+			files.filter(Files::isRegularFile).forEach(p -> {
+				Path relPath = source.relativize(p);
+				Path copyPath = dest.resolve(relPath);
+				try {
+					if (!Files.isDirectory(copyPath.getParent())) Files.createDirectories(copyPath.getParent());
+					Files.copy(p, copyPath, StandardCopyOption.REPLACE_EXISTING);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			});
+		}
 	}
 
 	public static Path thumbnail(Path source, Path dest, int width) throws IOException {

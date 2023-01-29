@@ -13,7 +13,6 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import org.jetbrains.annotations.NotNull;
 
 import net.shrimpworks.unreal.archive.AuthorNames;
 import net.shrimpworks.unreal.archive.ContentEntity;
@@ -166,20 +165,19 @@ public class GameType implements ContentEntity<GameType> {
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
-		if (!(o instanceof GameType)) return false;
-		GameType gameType = (GameType)o;
-		return deleted == gameType.deleted &&
-			   Objects.equals(contentType, gameType.contentType) &&
-			   Objects.equals(addedDate, gameType.addedDate) &&
-			   Objects.equals(game, gameType.game) &&
-			   Objects.equals(name, gameType.name) &&
-			   Objects.equals(author, gameType.author) &&
-			   Objects.equals(description, gameType.description) &&
-			   Objects.equals(titleImage, gameType.titleImage) &&
-			   Objects.equals(bannerImage, gameType.bannerImage) &&
-			   Objects.equals(links, gameType.links) &&
-			   Objects.equals(credits, gameType.credits) &&
-			   Objects.equals(releases, gameType.releases);
+		if (!(o instanceof GameType other)) return false;
+		return deleted == other.deleted &&
+			   Objects.equals(contentType, other.contentType) &&
+			   Objects.equals(addedDate, other.addedDate) &&
+			   Objects.equals(game, other.game) &&
+			   Objects.equals(name, other.name) &&
+			   Objects.equals(author, other.author) &&
+			   Objects.equals(description, other.description) &&
+			   Objects.equals(titleImage, other.titleImage) &&
+			   Objects.equals(bannerImage, other.bannerImage) &&
+			   Objects.equals(links, other.links) &&
+			   Objects.equals(credits, other.credits) &&
+			   Objects.equals(releases, other.releases);
 	}
 
 	@Override
@@ -210,20 +208,19 @@ public class GameType implements ContentEntity<GameType> {
 		public boolean deleted = false;             // if deleted, prevents from syncing and will not publish
 
 		@Override
-		public int compareTo(@NotNull GameType.Release o) {
+		public int compareTo(GameType.Release o) {
 			return o.releaseDate.compareTo(releaseDate);
 		}
 
 		@Override
 		public boolean equals(Object o) {
 			if (this == o) return true;
-			if (!(o instanceof Release)) return false;
-			Release release = (Release)o;
-			return deleted == release.deleted
-				   && Objects.equals(title, release.title)
-				   && Objects.equals(version, release.version)
-				   && Objects.equals(releaseDate, release.releaseDate)
-				   && Objects.equals(description, release.description);
+			if (!(o instanceof Release other)) return false;
+			return deleted == other.deleted
+				   && Objects.equals(title, other.title)
+				   && Objects.equals(version, other.version)
+				   && Objects.equals(releaseDate, other.releaseDate)
+				   && Objects.equals(description, other.description);
 		}
 
 		@Override
@@ -252,23 +249,26 @@ public class GameType implements ContentEntity<GameType> {
 		public int otherFiles;                      // count of non-content files (readme, html, etc)
 		public Map<String, List<Content.Dependency>> dependencies = new HashMap<>();// packages this content depends on
 
+		public Content.Download mainDownload() {
+			return downloads.stream().filter(d -> d.main).findFirst().orElse(null);
+		}
+
 		@Override
 		public boolean equals(Object o) {
 			if (this == o) return true;
-			if (!(o instanceof ReleaseFile)) return false;
-			ReleaseFile that = (ReleaseFile)o;
-			return fileSize == that.fileSize
-				   && synced == that.synced
-				   && deleted == that.deleted
-				   && otherFiles == that.otherFiles
-				   && Objects.equals(title, that.title)
-				   && Objects.equals(localFile, that.localFile)
-				   && Objects.equals(downloads, that.downloads)
-				   && Objects.equals(originalFilename, that.originalFilename)
-				   && Objects.equals(hash, that.hash)
-				   && platform == that.platform
-				   && Objects.equals(files, that.files)
-				   && Objects.equals(dependencies, that.dependencies);
+			if (!(o instanceof ReleaseFile other)) return false;
+			return fileSize == other.fileSize
+				   && synced == other.synced
+				   && deleted == other.deleted
+				   && otherFiles == other.otherFiles
+				   && Objects.equals(title, other.title)
+				   && Objects.equals(localFile, other.localFile)
+				   && Objects.equals(downloads, other.downloads)
+				   && Objects.equals(originalFilename, other.originalFilename)
+				   && Objects.equals(hash, other.hash)
+				   && platform == other.platform
+				   && Objects.equals(files, other.files)
+				   && Objects.equals(dependencies, other.dependencies);
 		}
 
 		@Override

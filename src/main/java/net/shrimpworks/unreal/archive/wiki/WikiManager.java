@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import net.shrimpworks.unreal.archive.JSON;
 import net.shrimpworks.unreal.archive.Util;
@@ -30,42 +31,44 @@ public class WikiManager {
 	}
 
 	public static void convert(Path wikiRoot) throws IOException {
-		Files.walk(wikiRoot.resolve("content"), FileVisitOption.FOLLOW_LINKS)
-			 .filter(f -> Files.isRegularFile(f) && Util.extension(f).equalsIgnoreCase("json"))
-			 .forEach(f -> {
-				 try {
-					 WikiPage pg = JSON.fromFile(f, WikiPage.class);
-					 Files.write(f.resolveSibling(String.format("%s.yml", Util.plainName(f))), YAML.toBytes(pg));
-					 System.out.println("rewrite " + f);
-					 Files.deleteIfExists(f);
-				 } catch (IOException e) {
-					 throw new RuntimeException(e);
-				 }
-			 });
+		try (Stream<Path> files = Files.walk(wikiRoot.resolve("content"), FileVisitOption.FOLLOW_LINKS)) {
+			files.filter(f -> Files.isRegularFile(f) && Util.extension(f).equalsIgnoreCase("json"))
+				 .forEach(f -> {
+					 try {
+						 WikiPage pg = JSON.fromFile(f, WikiPage.class);
+						 Files.write(f.resolveSibling(String.format("%s.yml", Util.plainName(f))), YAML.toBytes(pg));
+						 System.out.println("rewrite " + f);
+						 Files.deleteIfExists(f);
+					 } catch (IOException e) {
+						 throw new RuntimeException(e);
+					 }
+				 });
+		}
 	}
 
 	public static void clean(Path wikiRoot) throws IOException {
 		Wiki wiki = YAML.fromFile(wikiRoot.resolve("wiki.yml"), Wiki.class);
-		Files.walk(wikiRoot.resolve("content"), FileVisitOption.FOLLOW_LINKS)
-			 .filter(f -> Files.isRegularFile(f) && Util.extension(f).equalsIgnoreCase("yml"))
-			 .forEach(f -> {
-				 try {
-					 WikiPage pg = YAML.fromFile(f, WikiPage.class);
-					 boolean delete =
-						 pg.parse.categories.stream()
-											.anyMatch(c -> wiki.skipCategories.stream().anyMatch(c.name::contains))
-						 || pg.parse.templates.stream()
-											  .anyMatch(c -> wiki.skipTemplates.stream().anyMatch(c.name::contains));
+		try (Stream<Path> files = Files.walk(wikiRoot.resolve("content"), FileVisitOption.FOLLOW_LINKS)) {
+			files.filter(f -> Files.isRegularFile(f) && Util.extension(f).equalsIgnoreCase("yml"))
+				 .forEach(f -> {
+					 try {
+						 WikiPage pg = YAML.fromFile(f, WikiPage.class);
+						 boolean delete =
+							 pg.parse.categories.stream()
+												.anyMatch(c -> wiki.skipCategories.stream().anyMatch(c.name::contains))
+							 || pg.parse.templates.stream()
+												  .anyMatch(c -> wiki.skipTemplates.stream().anyMatch(c.name::contains));
 
-					 if (delete) {
-						 System.out.println("Deleting " + f);
-						 Files.deleteIfExists(f);
-						 Files.deleteIfExists(f.getParent().resolve("Talk:" + Util.fileName(f)));
+						 if (delete) {
+							 System.out.println("Deleting " + f);
+							 Files.deleteIfExists(f);
+							 Files.deleteIfExists(f.getParent().resolve("Talk:" + Util.fileName(f)));
+						 }
+					 } catch (IOException e) {
+						 throw new RuntimeException(e);
 					 }
-				 } catch (IOException e) {
-					 throw new RuntimeException(e);
-				 }
-			 });
+				 });
+		}
 	}
 
 	public WikiManager(Path wikiRoot) throws IOException {
@@ -74,36 +77,39 @@ public class WikiManager {
 		// exit if there's no wiki content
 		if (!Files.exists(wikiRoot)) return;
 
-		Files.list(wikiRoot).forEach(d -> {
-			try {
-				if (Files.exists(d.resolve("wiki.yml"))) {
-					// cool it's a wiki, lets load it and its pages
-					Wiki wiki = YAML.fromFile(d.resolve("wiki.yml"), Wiki.class);
-					wiki.path = d;
-					if (Files.exists(d.resolve("interwiki.yml"))) {
-						wiki.interWiki = YAML.fromFile(d.resolve("interwiki.yml"), InterWikiList.class);
-					}
-					// create a redirect from the homepage to index
-					wiki.redirects.put("Main_Page", "index");
-					wiki.redirects.put("Main Page", "index");
-					wikis.put(wiki.name, wiki);
+		try (Stream<Path> list = Files.list(wikiRoot)) {
+			list.forEach(d -> {
+				try {
+					if (Files.exists(d.resolve("wiki.yml"))) {
+						// cool it's a wiki, lets load it and its pages
+						Wiki wiki = YAML.fromFile(d.resolve("wiki.yml"), Wiki.class);
+						wiki.path = d;
+						if (Files.exists(d.resolve("interwiki.yml"))) {
+							wiki.interWiki = YAML.fromFile(d.resolve("interwiki.yml"), InterWikiList.class);
+						}
+						// create a redirect from the homepage to index
+						wiki.redirects.put("Main_Page", "index");
+						wiki.redirects.put("Main Page", "index");
+						wikis.put(wiki.name, wiki);
 
-					Files.walk(d.resolve("content"))
-						 .parallel()
-						 .filter(f -> Files.isRegularFile(f) && Util.extension(f).equalsIgnoreCase("yml"))
-						 .forEach(f -> {
-							 try {
-								 WikiPage pg = YAML.fromFile(f, WikiPage.class);
-								 wiki.addPage(f, pg);
-							 } catch (IOException e) {
-								 throw new RuntimeException(e);
-							 }
-						 });
+						try (Stream<Path> files = Files.walk(d.resolve("content"))) {
+							files.parallel()
+								 .filter(f -> Files.isRegularFile(f) && Util.extension(f).equalsIgnoreCase("yml"))
+								 .forEach(f -> {
+									 try {
+										 WikiPage pg = YAML.fromFile(f, WikiPage.class);
+										 wiki.addPage(f, pg);
+									 } catch (IOException e) {
+										 throw new RuntimeException(e);
+									 }
+								 });
+						}
+					}
+				} catch (IOException e) {
+					throw new RuntimeException(e);
 				}
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-		});
+			});
+		}
 	}
 
 	public Wiki wiki(String name) {

@@ -187,17 +187,17 @@ public class MapIndexHandler implements IndexHandler<Map> {
 		IndexUtils.readIntFiles(incoming, incoming.files(Incoming.FileType.INI)).findFirst().ifPresent(ini -> {
 			ini.sections().forEach(s -> {
 				IntFile.Value name = ini.section(s).value("MapName");
-				if (name instanceof IntFile.SimpleValue) m.name = ((IntFile.SimpleValue)name).value.trim();
+				if (name instanceof IntFile.SimpleValue) m.name = ((IntFile.SimpleValue)name).value().trim();
 
 				IntFile.Value title = ini.section(s).value("FriendlyName");
-				if (title instanceof IntFile.SimpleValue) m.title = ((IntFile.SimpleValue)title).value.trim();
+				if (title instanceof IntFile.SimpleValue) m.title = ((IntFile.SimpleValue)title).value().trim();
 
 				IntFile.Value desc = ini.section(s).value("Description");
-				if (desc instanceof IntFile.SimpleValue) m.description = ((IntFile.SimpleValue)desc).value.trim();
+				if (desc instanceof IntFile.SimpleValue) m.description = ((IntFile.SimpleValue)desc).value().trim();
 
 				IntFile.Value players = ini.section(s).value("NumPlayers");
 				if (players instanceof IntFile.SimpleValue) {
-					String playerCount = ((IntFile.SimpleValue)players).value.replaceAll("([Pp]layers)", "");
+					String playerCount = ((IntFile.SimpleValue)players).value().replaceAll("([Pp]layers)", "");
 					if (playerCount.toLowerCase().contains("author")) {
 						m.playerCount = playerCount.substring(0, playerCount.toLowerCase().indexOf("author")).trim();
 						m.author = playerCount.replaceAll(".*(?i)authors?\\s?:?\\s?(.*)", "$1");

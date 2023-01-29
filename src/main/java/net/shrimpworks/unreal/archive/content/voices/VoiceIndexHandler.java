@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import net.shrimpworks.unreal.archive.content.Content;
@@ -71,7 +70,7 @@ public class VoiceIndexHandler implements IndexHandler<Voice> {
 							 final Set<String> foundVoices = new HashSet<>();
 
 							 IntFile.ListValue objects = section.asList("Object");
-							 for (IntFile.Value value : objects.values) {
+							 for (IntFile.Value value : objects.values()) {
 								 IntFile.MapValue mapVal = (IntFile.MapValue)value;
 
 								 if (!mapVal.containsKey("MetaClass")) continue;
@@ -86,7 +85,7 @@ public class VoiceIndexHandler implements IndexHandler<Voice> {
 									 if (nameSection != null) {
 										 IntFile.Value nameVal = nameSection.value("VoicePackName");
 										 if (nameVal instanceof IntFile.SimpleValue) {
-											 maybeName = ((IntFile.SimpleValue)nameVal).value;
+											 maybeName = ((IntFile.SimpleValue)nameVal).value();
 										 }
 									 }
 

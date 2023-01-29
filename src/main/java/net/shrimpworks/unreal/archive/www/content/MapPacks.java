@@ -90,11 +90,11 @@ public class MapPacks extends GenericContentPage<MapPack> {
 	}
 
 	@Override
-	String gameSubGroup(MapPack item) {
+	protected String gameSubGroup(MapPack item) {
 		return item.gametype;
 	}
 
-	String letterSubGroup(MapPack item) {
+	protected String letterSubGroup(MapPack item) {
 		return LETTER_SUBGROUP;
 	}
 }

@@ -45,7 +45,6 @@
 	--paginate-border: #4d7a97;
 
 	--download-button-bg: lightgreen;
-	--download-button-bg-main: greenyellow;
 	--download-button-bg-hover: lawngreen;
 	--download-info-bg-hover: white;
 
@@ -472,10 +471,6 @@ section.downloads .links a {
 	padding: 10px;
 	margin: 5px 0;
 	text-decoration: none;
-}
-
-section.downloads .links a.main {
-	background-color: var(--download-button-bg-main);
 }
 
 section.downloads .links a:hover {

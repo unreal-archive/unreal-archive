@@ -5,7 +5,6 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.ContentManager;
@@ -105,7 +104,7 @@ public class Voices extends GenericContentPage<Voice> {
 	}
 
 	@Override
-	String gameSubGroup(Voice item) {
+	protected String gameSubGroup(Voice item) {
 		return SUBGROUP;
 	}
 

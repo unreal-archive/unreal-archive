@@ -13,12 +13,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.ContentManager;
 import net.shrimpworks.unreal.archive.content.GameTypeManager;
 import net.shrimpworks.unreal.archive.content.gametypes.GameType;
+import net.shrimpworks.unreal.archive.www.Markdown;
 import net.shrimpworks.unreal.archive.www.PageGenerator;
 import net.shrimpworks.unreal.archive.www.SiteFeatures;
 import net.shrimpworks.unreal.archive.www.SiteMap;
@@ -64,8 +66,6 @@ public class GameTypes implements PageGenerator {
 
 	/**
 	 * Generate one or more HTML pages of output.
-	 *
-	 * @return number of individual pages created
 	 */
 	@Override
 	public Set<SiteMap.Page> generate() {
@@ -112,7 +112,7 @@ public class GameTypes implements PageGenerator {
 			// create gallery thumbnails
 			gametype.buildGallery();
 
-			final String page = Templates.renderMarkdown(docChan);
+			final String page = Markdown.renderMarkdown(docChan);
 
 			Path indexPath = gametype.variationOf == null
 				? gametype.indexPath
@@ -234,18 +234,21 @@ public class GameTypes implements PageGenerator {
 		protected void buildGallery() {
 			try {
 				Path gametypePath = gametypes.path(gametype).getParent().toAbsolutePath();
-				this.gallery.putAll(Files.list(gametypePath.resolve("gallery"))
-										 .filter(f -> Files.isRegularFile(f) && Util.image(f))
-										 .sorted()
-										 .collect(Collectors.toMap(f -> gametypePath.relativize(f).toString(), f -> {
-											 try {
-												 Path thumb = Util.thumbnail(f, path.resolve("gallery").resolve("t_" + Util.fileName(f)),
-																			 THUMB_WIDTH);
-												 return path.relativize(thumb).toString();
-											 } catch (Exception e) {
-												 return "";
-											 }
-										 }, (k, v) -> v, () -> new LinkedHashMap<>())));
+				try (Stream<Path> files = Files.list(gametypePath.resolve("gallery"))) {
+					this.gallery.putAll(files
+											.filter(f -> Files.isRegularFile(f) && Util.image(f))
+											.sorted()
+											.collect(Collectors.toMap(f -> gametypePath.relativize(f).toString(), f -> {
+												try {
+													Path thumb = Util.thumbnail(f,
+																				path.resolve("gallery").resolve("t_" + Util.fileName(f)),
+																				THUMB_WIDTH);
+													return path.relativize(thumb).toString();
+												} catch (Exception e) {
+													return "";
+												}
+											}, (k, v) -> v, () -> new LinkedHashMap<>())));
+				}
 			} catch (IOException e) {
 				// pass
 			}
