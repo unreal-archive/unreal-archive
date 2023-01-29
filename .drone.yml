@@ -21,9 +21,6 @@ steps:
       - apt-get update && apt-get install -y git-restore-mtime
       - git restore-mtime ./src/main/resources/
       - gradle --no-daemon publish
-    when:
-      ref:
-        - refs/heads/master
 
   - name: www
     image: gradle:7.6-jdk17-focal
