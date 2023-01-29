@@ -33,7 +33,6 @@ jlink {
 	options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
 
 	imageName = "${project.name}"
-	imageZip = file("$buildDir/${project.name}_${project.version}.zip")
 
 	jpackage {
 		installerType = project.findProperty('installerType')
@@ -47,7 +46,7 @@ repositories {
 	}
 }
 
-def zipBinary = artifacts.add('archives', layout.buildDirectory.file("${project.name}_${project.version}.zip").get().asFile) {
+def zipBinary = artifacts.add('archives', layout.buildDirectory.file("${project.name}.zip").get().asFile) {
 	type 'zip'
 	builtBy 'jlinkZip'
 }
