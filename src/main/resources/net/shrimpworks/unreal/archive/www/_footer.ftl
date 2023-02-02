@@ -1,7 +1,7 @@
 <#compress>
 <footer class="page">
 	<div>
-		<div>Website last generated: <code>${timestamp?string["yyyy-MM-dd HH:mm:ss '('zzz')'"]}</code></div>
+		<div>Unreal Archive ${version}. Website last generated: <code>${timestamp?string["yyyy-MM-dd HH:mm:ss '('zzz')'"]}</code></div>
 		<div><i>${siteName}</i> claims no ownership or copyright over the content
 			listed or hosted here. All content is the property of its respective
 			authors. You download and use the content listed and hosted here at your

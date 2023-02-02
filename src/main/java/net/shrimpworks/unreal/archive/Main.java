@@ -87,6 +87,8 @@ public class Main {
 																		   "https://github.com/unreal-archive/unreal-archive-data/archive/master.zip");
 
 	public static void main(String[] args) throws IOException, InterruptedException, ReflectiveOperationException {
+		System.err.printf("Unreal Archive version %s%n", Util.version());
+
 		final CLI cli = CLI.parse(Collections.emptyMap(), args);
 
 		if (cli.commands().length == 0) {
@@ -669,7 +671,7 @@ public class Main {
 		contentManager.all().parallelStream()
 					  .filter(c -> !IndexUtils.UNKNOWN.equalsIgnoreCase(c.author()))
 					  .sorted(Comparator.comparingInt(a -> a.author().length()))
-					  .forEach(c -> names.maybeAutoAlias(c.author));
+					  .forEachOrdered(c -> names.maybeAutoAlias(c.author));
 		AuthorNames.instance = Optional.of(names);
 		System.out.printf("Found %d author aliases and names%n", names.aliasCount());
 
@@ -745,7 +747,7 @@ public class Main {
 		contentManager.all().parallelStream()
 					  .filter(c -> !IndexUtils.UNKNOWN.equalsIgnoreCase(c.author()))
 					  .sorted(Comparator.comparingInt(a -> a.author().length()))
-					  .forEach(c -> names.maybeAutoAlias(c.author));
+					  .forEachOrdered(c -> names.maybeAutoAlias(c.author));
 		AuthorNames.instance = Optional.of(names);
 
 		final long start = System.currentTimeMillis();
@@ -1019,7 +1021,6 @@ public class Main {
 	}
 
 	private static void usage() {
-		System.out.println("Unreal Archive");
 		System.out.println("Usage: unreal-archive.jar <command> [options]");
 		System.out.println();
 		System.out.println("Commands:");

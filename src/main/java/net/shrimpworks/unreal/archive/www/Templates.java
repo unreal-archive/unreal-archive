@@ -77,6 +77,7 @@ public class Templates {
 		TPL_VARS.put("trunc", new TruncateStringMethod());
 		TPL_VARS.put("slug", new SlugMethod());
 		TPL_VARS.put("authorSlug", new AuthorSlugMethod());
+		TPL_VARS.put("version", Util.version());
 		TPL_VARS.put("siteName", SITE_NAME);
 		TPL_VARS.put("siteUrl", SITE_URL);
 		TPL_VARS.put("dataProjectUrl", DATA_PROJECT_URL);
@@ -163,7 +164,7 @@ public class Templates {
 		return new Tpl(TPL_CONFIG.getTemplate(name), page);
 	}
 
-	public static boolean unpackResources(String resourceList, Path destination) throws IOException {
+	public static void unpackResources(String resourceList, Path destination) throws IOException {
 		final Set<ThumbConfig> thumbConfig = new HashSet<>();
 
 		try (InputStream in = Templates.class.getResourceAsStream(resourceList);
@@ -203,8 +204,6 @@ public class Templates {
 					});
 			}
 		}
-
-		return true;
 	}
 
 	private static class ThumbConfig {
@@ -277,7 +276,7 @@ public class Templates {
 
 	private static class RelPageMethod implements TemplateMethodModelEx {
 
-		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
+		public Object exec(List args) throws TemplateModelException {
 			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a path");
 			TemplateModel pagePath = Environment.getCurrentEnvironment().getVariable("pagePath");
 			if (pagePath == null) throw new TemplateModelException("A pagePath variable was not found");
@@ -288,7 +287,7 @@ public class Templates {
 
 	private static class RelUrlMethod implements TemplateMethodModelEx {
 
-		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
+		public Object exec(List args) throws TemplateModelException {
 			if (args.size() != 2) throw new TemplateModelException("Wrong arguments, expecting two paths");
 
 			String one = args.get(0).toString();
@@ -306,7 +305,7 @@ public class Templates {
 
 	private static class UrlEncodeMethod implements TemplateMethodModelEx {
 
-		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
+		public Object exec(List args) throws TemplateModelException {
 			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a URL to encode");
 
 			return args.get(0).toString().replaceAll("\n", "%0A");
@@ -317,7 +316,7 @@ public class Templates {
 
 		private static final String[] SIZES = { "B", "KB", "MB", "GB", "TB" };
 
-		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
+		public Object exec(List args) throws TemplateModelException {
 			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a file size");
 
 			float size = ((SimpleNumber)args.get(0)).getAsNumber().floatValue();
@@ -336,14 +335,14 @@ public class Templates {
 
 		private static final String ELLIPSIS = "…";
 
-		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
+		public Object exec(List args) throws TemplateModelException {
 			if (args.size() < 2) throw new TemplateModelException("Wrong arguments, expecting a string to truncate and maximum size");
 
 			String string = args.get(0).toString();
 			int maxLength = Integer.parseInt(args.get(1).toString());
 			string = string.length() <= maxLength
 				? string
-				: string.substring(0, Math.min(maxLength, string.length())) + ELLIPSIS;
+				: string.substring(0, maxLength) + ELLIPSIS;
 
 			return string;
 		}
@@ -351,7 +350,7 @@ public class Templates {
 
 	private static class SlugMethod implements TemplateMethodModelEx {
 
-		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
+		public Object exec(List args) throws TemplateModelException {
 			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a string");
 
 			String string = args.get(0).toString();
@@ -361,7 +360,7 @@ public class Templates {
 
 	private static class AuthorSlugMethod implements TemplateMethodModelEx {
 
-		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
+		public Object exec(List args) throws TemplateModelException {
 			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a string");
 
 			String string = args.get(0).toString();
@@ -383,7 +382,7 @@ public class Templates {
 			this.shortDate = shortDate;
 		}
 
-		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
+		public Object exec(List args) throws TemplateModelException {
 			if (args.isEmpty()) throw new TemplateModelException("Wrong arguments, expecting a date");
 
 			if (args.get(0).toString().equalsIgnoreCase("Unknown")) return args.get(0).toString();
@@ -399,7 +398,7 @@ public class Templates {
 
 	private static class FileNameMethod implements TemplateMethodModelEx {
 
-		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
+		public Object exec(List args) throws TemplateModelException {
 			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a file path");
 
 			return Util.fileName(args.get(0).toString());
@@ -408,7 +407,7 @@ public class Templates {
 
 	private static class PlainNameMethod implements TemplateMethodModelEx {
 
-		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
+		public Object exec(List args) throws TemplateModelException {
 			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a file name");
 
 			return Util.plainName(args.get(0).toString());
@@ -417,7 +416,7 @@ public class Templates {
 
 	private static class UrlHostMethod implements TemplateMethodModelEx {
 
-		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
+		public Object exec(List args) throws TemplateModelException {
 			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a URL");
 
 			try {
@@ -431,7 +430,7 @@ public class Templates {
 
 	private static class StaticPathMethod implements TemplateMethodModelEx {
 
-		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
+		public Object exec(List args) throws TemplateModelException {
 			if (!args.isEmpty()) System.err.printf("Deprecation warning: `staticPath` takes no arguments in %s.%n",
 												   Environment.getCurrentEnvironment().getCurrentTemplate().getName());
 

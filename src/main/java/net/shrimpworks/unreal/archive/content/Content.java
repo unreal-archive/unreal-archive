@@ -127,7 +127,8 @@ public abstract class Content implements ContentEntity<Content> {
 
 	@Override
 	public String author() {
-		return author;
+		if (author == null || author.isBlank()) return "Unknown";
+		else return author;
 	}
 
 	@Override

@@ -15,6 +15,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -80,7 +81,22 @@ public final class Util {
 
 	private static final int HASH_BUFFER_SIZE = 1024 * 50; // 50kb read buffer
 
+	private static String VERSION = null;
+
 	private Util() {}
+
+	public static String version() {
+		if (VERSION == null) {
+			try (InputStream in = Main.class.getResourceAsStream("VERSION")) {
+				if (in != null) VERSION = new String(in.readAllBytes(), StandardCharsets.UTF_8);
+				else VERSION = "unknown";
+			} catch (IOException e) {
+				VERSION = "unknown";
+			}
+		}
+
+		return VERSION;
+	}
 
 	public static String extension(Path path) {
 		return extension(path.toString());

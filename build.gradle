@@ -154,6 +154,11 @@ processResources.doLast {
 
 	Files.write(destFile, staticList.toString().replaceAll("\\\\", "/").getBytes(StandardCharsets.UTF_8),
 			StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
+
+	// write version resource file
+	Files.write(buildDir.toPath().resolve('resources/main/net/shrimpworks/unreal/archive/VERSION'),
+			"${project.version}".getBytes(StandardCharsets.UTF_8),
+			StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
 }
 
 jar {
