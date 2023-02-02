@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import net.shrimpworks.unreal.archive.AuthorNames;
 import net.shrimpworks.unreal.archive.Util;
@@ -88,6 +87,20 @@ public class MapPack extends Content {
 		@Override
 		public int compareTo(PackMap o) {
 			return name.compareToIgnoreCase(o.name);
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) return true;
+			if (o == null || getClass() != o.getClass()) return false;
+			PackMap packMap = (PackMap)o;
+			return Objects.equals(name, packMap.name) && Objects.equals(title, packMap.title) &&
+				   Objects.equals(author, packMap.author);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(name, title, author);
 		}
 	}
 }

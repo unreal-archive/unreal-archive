@@ -58,9 +58,7 @@
 							<div class="links">
 								<#list d.downloads as l>
 										<#if l.state == 'OK'>
-											<a href="${urlEncode(l.url)}" <#if l.main>class="main"</#if>>
-													${urlHost(l.url)}
-											</a>
+											<a href="${urlEncode(l.url)}">${urlHost(l.url)}</a>
 										</#if>
 								</#list>
 							</div>

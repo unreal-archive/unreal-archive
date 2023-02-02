@@ -9,46 +9,42 @@ of the content, currently published at
 ## TODO
 
 - More Docs
-- Support mods/gametypes, definitions and browsable output.
-
 
 ## Requirements
 
-- Java JRE 11 for running
-- Java JDK 11 for building
+- Java JRE 17 for running
+- Java JDK 17 for building
 
-Tested with both OpenJDK 11 on Linux and Azul's Zulu Java 11 on Windows.
+Tested with both OpenJDK 17 on Linux and Azul's Zulu Java 17 on Windows.
 
 
 ## Building
 
 The project is build with Gradle. The provided `gradlew` wrapper may be 
-invoked as follows to produce an executable Jar file:
+invoked as follows to produce an executable file:
 
 ### On Linux
 
 ```
-./gradlew execJar
+./gradlew jlink
 ```
 
 To run, execute:
 
 ```
-./build/libs/unreal-archive
-# - or via java -
-java -jar build/libs/unreal-archive-exec.jar
+./build/unreal-archive/bin/unreal-archive
 ```
 
 ### On Windows
 
 ```
-gradlew.bat execJar
+gradlew.bat jlink
 ```
 
 To run, execute:
 
 ```
-java -jar build\libs\unreal-archive-exec.jar
+build\unreal-archive\bin\unreal-archive.bat
 ```
 
 ## Usage and Functionality

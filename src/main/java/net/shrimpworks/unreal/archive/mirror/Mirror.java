@@ -184,29 +184,29 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 		}
 
 		private void mirrorManaged(Managed managed) throws MirrorFailedException {
-			for (Managed.ManagedFile download : managed.downloads) {
+			for (Managed.ManagedFile managedFile : managed.downloads) {
 				try {
-					Path localFile = Paths.get(download.localFile);
+					Path localFile = Paths.get(managedFile.localFile);
 					final boolean hasLocalFile = Files.exists(localFile);
 					if (!hasLocalFile) {
-						Content.Download dl = download.downloads.stream().filter(d -> d.main).findFirst().get();
+						Content.Download dl = managedFile.mainDownload();
 						localFile = Util.downloadTo(
 							dl.url.replaceAll(" ", "%20"),
-							Files.createTempDirectory("ua-mirror").resolve(Util.fileName(download.localFile))
+							Files.createTempDirectory("ua-mirror").resolve(Util.fileName(managedFile.localFile))
 						);
 					}
 
 					try {
 						boolean[] success = { false };
-						mm.storeDownloadFile(mirrorStore, managed, download, localFile, success);
+						mm.storeDownloadFile(mirrorStore, managed, managedFile, localFile, success);
 						if (!success[0]) {
-							throw new MirrorFailedException("Mirror of managed file failed", null, download.originalFilename, managed);
+							throw new MirrorFailedException("Mirror of managed file failed", null, managedFile.originalFilename, managed);
 						}
 					} finally {
 						if (!hasLocalFile) Files.deleteIfExists(localFile);
 					}
 				} catch (Exception ex) {
-					throw new MirrorFailedException(ex.getMessage(), ex, download.originalFilename, managed);
+					throw new MirrorFailedException(ex.getMessage(), ex, managedFile.originalFilename, managed);
 				}
 			}
 		}
@@ -218,7 +218,7 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 						Path localFile = Paths.get(releaseFile.localFile);
 						final boolean hasLocalFile = Files.exists(localFile);
 						if (!hasLocalFile) {
-							Content.Download dl = releaseFile.downloads.stream().filter(d -> d.main).findFirst().get();
+							Content.Download dl = releaseFile.mainDownload();
 							localFile = Util.downloadTo(
 								dl.url,
 								Files.createTempDirectory("ua-mirror").resolve(releaseFile.originalFilename)

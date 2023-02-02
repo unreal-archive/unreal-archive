@@ -3,7 +3,6 @@ package net.shrimpworks.unreal.archive.content;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.channels.ReadableByteChannel;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -166,7 +165,7 @@ public class GameTypeManager {
 		Path md = Util.safeFileName(path.resolve(DOCUMENT_FILE));
 
 		if (!Files.exists(yml)) {
-			Files.write(yml, YAML.toString(gt).getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE);
+			Files.writeString(yml, YAML.toString(gt), StandardOpenOption.CREATE);
 		}
 
 		if (!Files.exists(md)) {
@@ -231,8 +230,8 @@ public class GameTypeManager {
 		rel.files.add(file);
 
 		// update with the release
-		Files.write(gt.path, YAML.toString(gt.gametype).getBytes(StandardCharsets.UTF_8),
-					StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+		Files.writeString(gt.path, YAML.toString(gt.gametype),
+						  StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 
 		if (cli.option("index", "false").equalsIgnoreCase("true")) {
 			// trigger an index
@@ -354,8 +353,8 @@ public class GameTypeManager {
 				}
 
 				// replace existing with updated
-				Files.write(path(gameType), YAML.toString(gameType).getBytes(StandardCharsets.UTF_8),
-							StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+				Files.writeString(path(gameType), YAML.toString(gameType),
+								  StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 
 				success[0] = true;
 			} catch (IOException e) {
@@ -386,7 +385,7 @@ public class GameTypeManager {
 							  if (!Files.exists(f[0])) {
 								  System.out.printf("Downloading %s (%dKB)%n", r.originalFilename, r.fileSize / 1024);
 								  try {
-									  f[0] = Util.downloadTo(r.downloads.stream().filter(m -> m.main).map(m -> m.url).findFirst().get(),
+									  f[0] = Util.downloadTo(r.mainDownload().url,
 															 Files.createTempDirectory("ua-gametype").resolve(r.originalFilename));
 								  } catch (Exception e) {
 									  throw new RuntimeException(String.format("Could not download file %s", releaseFile), e);
@@ -407,8 +406,8 @@ public class GameTypeManager {
 								  clone.maps = findMaps(incoming, clone, imagesStore);
 
 								  // replace existing with updated
-								  Files.write(g.path, YAML.toString(clone).getBytes(StandardCharsets.UTF_8),
-											  StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+								  Files.writeString(g.path, YAML.toString(clone),
+													StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 							  } catch (IOException e) {
 								  System.err.printf("Could not read files and dependencies for release file %s%n", f[0]);
 								  e.printStackTrace();
@@ -443,10 +442,10 @@ public class GameTypeManager {
 								 IntFile.Section section = intFile.section("root");
 								 if (section == null) return null;
 								 IntFile.ListValue game = section.asList("Game");
-								 return game.values.stream();
+								 return game.values().stream();
 							 })
 							 .filter(Objects::nonNull)
-							 .filter(v -> v instanceof IntFile.MapValue && ((IntFile.MapValue)v).value.containsKey("FallbackName"))
+							 .filter(v -> v instanceof IntFile.MapValue && ((IntFile.MapValue)v).value().containsKey("FallbackName"))
 							 .map(v -> (IntFile.MapValue)v)
 							 .map(mapVal -> new NameDescription(mapVal.get("FallbackName"), mapVal.getOrDefault("FallbackDesc", "")))
 							 .sorted(Comparator.comparing(a -> a.name))
@@ -459,12 +458,12 @@ public class GameTypeManager {
 								 IntFile.Section section = intFile.section("public");
 								 if (section == null) return null;
 								 IntFile.ListValue prefs = section.asList("Preferences");
-								 return prefs.values.stream();
+								 return prefs.values().stream();
 							 })
 							 .filter(Objects::nonNull)
 							 .filter(v -> v instanceof IntFile.MapValue
-										  && ((IntFile.MapValue)v).value.containsKey("Caption")
-										  && ((IntFile.MapValue)v).value.containsKey("Parent"))
+										  && ((IntFile.MapValue)v).value().containsKey("Caption")
+										  && ((IntFile.MapValue)v).value().containsKey("Parent"))
 							 .map(v -> (IntFile.MapValue)v)
 							 .filter(mapVal -> mapVal.get("Parent").equalsIgnoreCase("Game Types"))
 							 .map(mapVal -> new NameDescription(mapVal.get("Caption")))
@@ -498,10 +497,10 @@ public class GameTypeManager {
 								 IntFile.Section section = intFile.section("root");
 								 if (section == null) return null;
 								 IntFile.ListValue mutator = section.asList("Mutator");
-								 return mutator.values.stream();
+								 return mutator.values().stream();
 							 })
 							 .filter(Objects::nonNull)
-							 .filter(v -> v instanceof IntFile.MapValue && ((IntFile.MapValue)v).value.containsKey("FallbackName"))
+							 .filter(v -> v instanceof IntFile.MapValue && ((IntFile.MapValue)v).value().containsKey("FallbackName"))
 							 .map(v -> (IntFile.MapValue)v)
 							 .map(mapVal -> new NameDescription(mapVal.get("FallbackName"), mapVal.getOrDefault("FallbackDesc", "")))
 							 .sorted(Comparator.comparing(a -> a.name))
@@ -514,10 +513,10 @@ public class GameTypeManager {
 								 IntFile.Section section = intFile.section("public");
 								 if (section == null) return null;
 								 IntFile.ListValue prefs = section.asList("Object");
-								 return prefs.values.stream();
+								 return prefs.values().stream();
 							 })
 							 .filter(Objects::nonNull)
-							 .filter(v -> v instanceof IntFile.MapValue && ((IntFile.MapValue)v).value.containsKey("MetaClass"))
+							 .filter(v -> v instanceof IntFile.MapValue && ((IntFile.MapValue)v).value().containsKey("MetaClass"))
 							 .map(v -> (IntFile.MapValue)v)
 							 .filter(mapVal -> Mutator.UT_MUTATOR_CLASS.equalsIgnoreCase(mapVal.get("MetaClass")))
 							 .map(mapVal -> new NameDescription(mapVal.get("Description")))
@@ -591,12 +590,13 @@ public class GameTypeManager {
 									   Path imgPath = Files.createTempFile(Util.slug(mapName), ".png");
 									   ImageIO.write(screenshots.get(0), "png", imgPath.toFile());
 
+									   Path emptyPath = Paths.get("");
 									   imageStore.store(
 										   imgPath,
-										   Paths.get("")
-												.relativize(gameType.contentPath(Paths.get(""))).resolve("maps")
-												.resolve(imgPath.getFileName().toString())
-												.toString(),
+										   emptyPath
+											   .relativize(gameType.contentPath(emptyPath)).resolve("maps")
+											   .resolve(imgPath.getFileName().toString())
+											   .toString(),
 										   (url, ex) -> {
 											   if (ex == null && url != null) {
 												   attachment[0] = new Content.Attachment(

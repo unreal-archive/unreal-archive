@@ -2,7 +2,6 @@ package net.shrimpworks.unreal.archive.content;
 
 import java.io.IOException;
 import java.lang.ref.SoftReference;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -266,8 +265,8 @@ public class ContentManager {
 			}
 
 			Path newYml = next.resolve(String.format("%s_[%s].yml", Util.slug(indexed.content.name), indexed.content.hash.substring(0, 8)));
-			Files.write(Util.safeFileName(newYml), YAML.toString(indexed.content).getBytes(StandardCharsets.UTF_8),
-						StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+			Files.writeString(Util.safeFileName(newYml), YAML.toString(indexed.content),
+							  StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 
 			if (current != null && !current.path.equals(newYml)) {
 				// remove old yml file if new file changed

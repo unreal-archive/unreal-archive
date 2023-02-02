@@ -87,9 +87,8 @@ public class MutatorIndexHandler implements IndexHandler<Mutator> {
 
 					  // read mutators
 					  IntFile.ListValue mutators = section.asList("Mutator");
-					  for (IntFile.Value value : mutators.values) {
-						  if (!(value instanceof IntFile.MapValue)) continue;
-						  IntFile.MapValue mapVal = (IntFile.MapValue)value;
+					  for (IntFile.Value value : mutators.values()) {
+						  if (!(value instanceof IntFile.MapValue mapVal)) continue;
 						  if (mapVal.containsKey("FallbackName")) {
 							  mutator.mutators.add(new NameDescription(mapVal.get("FallbackName"),
 																	   mapVal.getOrDefault("FallbackDesc", "")));
@@ -98,9 +97,8 @@ public class MutatorIndexHandler implements IndexHandler<Mutator> {
 
 					  // read weapons
 					  IntFile.ListValue weapons = section.asList("Weapon");
-					  for (IntFile.Value value : weapons.values) {
-						  if (!(value instanceof IntFile.MapValue)) continue;
-						  IntFile.MapValue mapVal = (IntFile.MapValue)value;
+					  for (IntFile.Value value : weapons.values()) {
+						  if (!(value instanceof IntFile.MapValue mapVal)) continue;
 						  if (mapVal.containsKey("FallbackName")) {
 							  mutator.weapons.add(new NameDescription(mapVal.get("FallbackName"),
 																	  mapVal.getOrDefault("FallbackDesc", "")));
@@ -109,9 +107,8 @@ public class MutatorIndexHandler implements IndexHandler<Mutator> {
 
 					  // read vehicles
 					  IntFile.ListValue vehicles = section.asList("Vehicle");
-					  for (IntFile.Value value : vehicles.values) {
-						  if (!(value instanceof IntFile.MapValue)) continue;
-						  IntFile.MapValue mapVal = (IntFile.MapValue)value;
+					  for (IntFile.Value value : vehicles.values()) {
+						  if (!(value instanceof IntFile.MapValue mapVal)) continue;
 						  if (mapVal.containsKey("FallbackName")) {
 							  mutator.vehicles.add(new NameDescription(mapVal.get("FallbackName"),
 																	   mapVal.getOrDefault("FallbackDesc", "")));
@@ -127,9 +124,8 @@ public class MutatorIndexHandler implements IndexHandler<Mutator> {
 					  if (section == null) return;
 
 					  IntFile.ListValue objects = section.asList("Object");
-					  for (IntFile.Value value : objects.values) {
-						  if (!(value instanceof IntFile.MapValue)) continue;
-						  IntFile.MapValue mapVal = (IntFile.MapValue)value;
+					  for (IntFile.Value value : objects.values()) {
+						  if (!(value instanceof IntFile.MapValue mapVal)) continue;
 
 						  if (mapVal.containsKey("MetaClass") && Mutator.UT2_KEYBINDINGS_CLASS.equalsIgnoreCase(mapVal.get("MetaClass"))) {
 							  mutator.hasKeybinds = true;
@@ -147,9 +143,8 @@ public class MutatorIndexHandler implements IndexHandler<Mutator> {
 					  if (section == null) return;
 
 					  IntFile.ListValue objects = section.asList("Object");
-					  for (IntFile.Value value : objects.values) {
-						  if (!(value instanceof IntFile.MapValue)) continue;
-						  IntFile.MapValue mapVal = (IntFile.MapValue)value;
+					  for (IntFile.Value value : objects.values()) {
+						  if (!(value instanceof IntFile.MapValue mapVal)) continue;
 
 						  if (!mapVal.containsKey("MetaClass")) continue;
 

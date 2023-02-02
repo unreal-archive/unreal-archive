@@ -6,12 +6,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,11 +28,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
-import com.vladsch.flexmark.html.HtmlRenderer;
-import com.vladsch.flexmark.parser.Parser;
-import com.vladsch.flexmark.util.ast.Node;
-import com.vladsch.flexmark.util.data.MutableDataSet;
 import freemarker.core.Environment;
 import freemarker.core.HTMLOutputFormat;
 import freemarker.template.Configuration;
@@ -66,10 +61,6 @@ public class Templates {
 
 	private static final Configuration TPL_CONFIG = new Configuration(Configuration.VERSION_2_3_27);
 
-	private static final MutableDataSet MD_OPTIONS = new MutableDataSet();
-	private static final Parser MD_PARSER = Parser.builder(MD_OPTIONS).build();
-	private static final HtmlRenderer MD_RENDERER = HtmlRenderer.builder(MD_OPTIONS).build();
-
 	private static final Map<String, Object> TPL_VARS = new HashMap<>();
 
 	static {
@@ -86,6 +77,7 @@ public class Templates {
 		TPL_VARS.put("trunc", new TruncateStringMethod());
 		TPL_VARS.put("slug", new SlugMethod());
 		TPL_VARS.put("authorSlug", new AuthorSlugMethod());
+		TPL_VARS.put("version", Util.version());
 		TPL_VARS.put("siteName", SITE_NAME);
 		TPL_VARS.put("siteUrl", SITE_URL);
 		TPL_VARS.put("dataProjectUrl", DATA_PROJECT_URL);
@@ -172,7 +164,7 @@ public class Templates {
 		return new Tpl(TPL_CONFIG.getTemplate(name), page);
 	}
 
-	public static boolean unpackResources(String resourceList, Path destination) throws IOException {
+	public static void unpackResources(String resourceList, Path destination) throws IOException {
 		final Set<ThumbConfig> thumbConfig = new HashSet<>();
 
 		try (InputStream in = Templates.class.getResourceAsStream(resourceList);
@@ -199,25 +191,18 @@ public class Templates {
 		}
 
 		for (ThumbConfig conf : thumbConfig) {
-			Files.walk(conf.path, conf.noSubDirectories ? 1 : 5)
-				 .filter(Util::image)
-				 .filter(f -> !Util.fileName(f).startsWith(String.format("%s_", conf.name)))
-				 .forEach(f -> {
-					 try {
-						 Util.thumbnail(f, f.getParent().resolve(String.format("%s_%s", conf.name, Util.fileName(f))), conf.maxWidth);
-					 } catch (IOException e) {
-						 throw new RuntimeException("Failed to generate thumbnail for file " + f.toAbsolutePath(), e);
-					 }
-				 });
-		}
-
-		return true;
-	}
-
-	public static String renderMarkdown(ReadableByteChannel document) throws IOException {
-		try (Reader reader = Channels.newReader(document, StandardCharsets.UTF_8.name())) {
-			Node node = MD_PARSER.parseReader(reader);
-			return MD_RENDERER.render(node);
+			try (Stream<Path> files = Files.walk(conf.path, conf.noSubDirectories ? 1 : 5)) {
+				files
+					.filter(Util::image)
+					.filter(f -> !Util.fileName(f).startsWith(String.format("%s_", conf.name)))
+					.forEach(f -> {
+						try {
+							Util.thumbnail(f, f.getParent().resolve(String.format("%s_%s", conf.name, Util.fileName(f))), conf.maxWidth);
+						} catch (IOException e) {
+							throw new RuntimeException("Failed to generate thumbnail for file " + f.toAbsolutePath(), e);
+						}
+					});
+			}
 		}
 	}
 
@@ -291,7 +276,7 @@ public class Templates {
 
 	private static class RelPageMethod implements TemplateMethodModelEx {
 
-		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
+		public Object exec(List args) throws TemplateModelException {
 			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a path");
 			TemplateModel pagePath = Environment.getCurrentEnvironment().getVariable("pagePath");
 			if (pagePath == null) throw new TemplateModelException("A pagePath variable was not found");
@@ -302,7 +287,7 @@ public class Templates {
 
 	private static class RelUrlMethod implements TemplateMethodModelEx {
 
-		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
+		public Object exec(List args) throws TemplateModelException {
 			if (args.size() != 2) throw new TemplateModelException("Wrong arguments, expecting two paths");
 
 			String one = args.get(0).toString();
@@ -320,7 +305,7 @@ public class Templates {
 
 	private static class UrlEncodeMethod implements TemplateMethodModelEx {
 
-		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
+		public Object exec(List args) throws TemplateModelException {
 			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a URL to encode");
 
 			return args.get(0).toString().replaceAll("\n", "%0A");
@@ -331,7 +316,7 @@ public class Templates {
 
 		private static final String[] SIZES = { "B", "KB", "MB", "GB", "TB" };
 
-		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
+		public Object exec(List args) throws TemplateModelException {
 			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a file size");
 
 			float size = ((SimpleNumber)args.get(0)).getAsNumber().floatValue();
@@ -350,14 +335,14 @@ public class Templates {
 
 		private static final String ELLIPSIS = "…";
 
-		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
+		public Object exec(List args) throws TemplateModelException {
 			if (args.size() < 2) throw new TemplateModelException("Wrong arguments, expecting a string to truncate and maximum size");
 
 			String string = args.get(0).toString();
 			int maxLength = Integer.parseInt(args.get(1).toString());
 			string = string.length() <= maxLength
 				? string
-				: string.substring(0, Math.min(maxLength, string.length())) + ELLIPSIS;
+				: string.substring(0, maxLength) + ELLIPSIS;
 
 			return string;
 		}
@@ -365,7 +350,7 @@ public class Templates {
 
 	private static class SlugMethod implements TemplateMethodModelEx {
 
-		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
+		public Object exec(List args) throws TemplateModelException {
 			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a string");
 
 			String string = args.get(0).toString();
@@ -375,7 +360,7 @@ public class Templates {
 
 	private static class AuthorSlugMethod implements TemplateMethodModelEx {
 
-		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
+		public Object exec(List args) throws TemplateModelException {
 			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a string");
 
 			String string = args.get(0).toString();
@@ -397,7 +382,7 @@ public class Templates {
 			this.shortDate = shortDate;
 		}
 
-		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
+		public Object exec(List args) throws TemplateModelException {
 			if (args.isEmpty()) throw new TemplateModelException("Wrong arguments, expecting a date");
 
 			if (args.get(0).toString().equalsIgnoreCase("Unknown")) return args.get(0).toString();
@@ -413,7 +398,7 @@ public class Templates {
 
 	private static class FileNameMethod implements TemplateMethodModelEx {
 
-		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
+		public Object exec(List args) throws TemplateModelException {
 			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a file path");
 
 			return Util.fileName(args.get(0).toString());
@@ -422,7 +407,7 @@ public class Templates {
 
 	private static class PlainNameMethod implements TemplateMethodModelEx {
 
-		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
+		public Object exec(List args) throws TemplateModelException {
 			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a file name");
 
 			return Util.plainName(args.get(0).toString());
@@ -431,7 +416,7 @@ public class Templates {
 
 	private static class UrlHostMethod implements TemplateMethodModelEx {
 
-		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
+		public Object exec(List args) throws TemplateModelException {
 			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a URL");
 
 			try {
@@ -445,7 +430,7 @@ public class Templates {
 
 	private static class StaticPathMethod implements TemplateMethodModelEx {
 
-		public Object exec(@SuppressWarnings("rawtypes") List args) throws TemplateModelException {
+		public Object exec(List args) throws TemplateModelException {
 			if (!args.isEmpty()) System.err.printf("Deprecation warning: `staticPath` takes no arguments in %s.%n",
 												   Environment.getCurrentEnvironment().getCurrentTemplate().getName());
 

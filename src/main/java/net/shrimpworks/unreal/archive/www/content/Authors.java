@@ -42,7 +42,8 @@ public class Authors extends ContentPageGenerator {
 
 	}
 
-	private TreeMap<String, LetterGroup> loadLetters(AuthorNames names, ContentManager content, GameTypeManager gameTypes, ManagedContentManager managed) {
+	private TreeMap<String, LetterGroup> loadLetters(AuthorNames names, ContentManager content, GameTypeManager gameTypes,
+													 ManagedContentManager managed) {
 		final TreeMap<String, LetterGroup> letters = new TreeMap<>();
 
 		Stream.concat(Stream.concat(content.all(false).stream(),

@@ -62,7 +62,7 @@ public class SkinClassifier implements Classifier {
 					  if (section == null) return;
 
 					  IntFile.ListValue objects = section.asList("Object");
-					  for (IntFile.Value value : objects.values) {
+					  for (IntFile.Value value : objects.values()) {
 						  if (value instanceof IntFile.MapValue
 							  && ((IntFile.MapValue)value).containsKey("Name")
 							  && ((IntFile.MapValue)value).containsKey("Class")
@@ -93,7 +93,7 @@ public class SkinClassifier implements Classifier {
 					  if (section == null) return;
 
 					  IntFile.ListValue objects = section.asList("Object");
-					  for (IntFile.Value value : objects.values) {
+					  for (IntFile.Value value : objects.values()) {
 						  if (value instanceof IntFile.MapValue
 							  && (!((IntFile.MapValue)value).containsKey("Description"))
 							  && ((IntFile.MapValue)value).containsKey("Name")

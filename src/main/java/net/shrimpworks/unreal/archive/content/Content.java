@@ -27,13 +27,13 @@ import net.shrimpworks.unreal.archive.content.voices.Voice;
 // there appears to be weird mapping issues when using @JsonTypeInfo with YAML
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, visible = true, property = "contentType")
 @JsonSubTypes({
-		@JsonSubTypes.Type(value = Map.class, name = "MAP"),
-		@JsonSubTypes.Type(value = MapPack.class, name = "MAP_PACK"),
-		@JsonSubTypes.Type(value = Skin.class, name = "SKIN"),
-		@JsonSubTypes.Type(value = Model.class, name = "MODEL"),
-		@JsonSubTypes.Type(value = Voice.class, name = "VOICE"),
-		@JsonSubTypes.Type(value = Mutator.class, name = "MUTATOR"),
-		@JsonSubTypes.Type(value = UnknownContent.class, name = "UNKNOWN")
+	@JsonSubTypes.Type(value = Map.class, name = "MAP"),
+	@JsonSubTypes.Type(value = MapPack.class, name = "MAP_PACK"),
+	@JsonSubTypes.Type(value = Skin.class, name = "SKIN"),
+	@JsonSubTypes.Type(value = Model.class, name = "MODEL"),
+	@JsonSubTypes.Type(value = Voice.class, name = "VOICE"),
+	@JsonSubTypes.Type(value = Mutator.class, name = "MUTATOR"),
+	@JsonSubTypes.Type(value = UnknownContent.class, name = "UNKNOWN")
 })
 public abstract class Content implements ContentEntity<Content> {
 
@@ -127,7 +127,8 @@ public abstract class Content implements ContentEntity<Content> {
 
 	@Override
 	public String author() {
-		return author;
+		if (author == null || author.isBlank()) return "Unknown";
+		else return author;
 	}
 
 	@Override
@@ -224,7 +225,10 @@ public abstract class Content implements ContentEntity<Content> {
 	}
 
 	public Download mainDownload() {
-		return downloads.stream().filter(d -> d.main).findFirst().orElse(null);
+		return downloads.stream().filter(d -> d.main).findFirst()
+						.orElseThrow(() -> new IllegalStateException(
+							String.format("Could not find a download for content %s!", name())
+						));
 	}
 
 	@Override
@@ -373,7 +377,7 @@ public abstract class Content implements ContentEntity<Content> {
 
 	public static class Download implements Comparable<Download> {
 
-		public final String url;
+		public String url;
 		public final boolean main;
 		public final boolean repack;
 		public DownloadState state;

@@ -50,8 +50,6 @@ public class Documents implements PageGenerator {
 
 	/**
 	 * Generate one or more HTML pages of output.
-	 *
-	 * @return number of individual pages created
 	 */
 	@Override
 	public Set<SiteMap.Page> generate() {
@@ -79,6 +77,7 @@ public class Documents implements PageGenerator {
 			grp = grp.parent;
 		}
 
+		// FIXME looks like this should use grp rather than group?
 		pages.add("group.ftl", SiteMap.Page.weekly(0.6f), String.join(" / ", SECTION, String.join(" / ", group.parentPath.split("/"))))
 			 .put("groupPath", groupPath)
 			 .put("group", group)
@@ -108,7 +107,7 @@ public class Documents implements PageGenerator {
 			final Path docRoot = documents.documentRoot(doc.document);
 			Util.copyTree(docRoot, path);
 
-			final String page = Templates.renderMarkdown(docChan);
+			final String page = Markdown.renderMarkdown(docChan);
 
 			pages.add("document.ftl", SiteMap.Page.monthly(0.8f, doc.document.updatedDate),
 					  String.join(" / ", SECTION, doc.document.game, String.join(" / ", doc.document.path.split("/")), doc.document.title))

@@ -10,10 +10,6 @@ import java.util.function.Consumer;
 import net.shrimpworks.unreal.archive.CLI;
 import net.shrimpworks.unreal.archive.Util;
 
-//import org.apache.http.client.fluent.Request;
-//import org.apache.http.client.fluent.Response;
-//import org.apache.http.entity.ContentType;
-
 /**
  * A simple HTTP storage solution, useful for testing and validation.
  * <p>

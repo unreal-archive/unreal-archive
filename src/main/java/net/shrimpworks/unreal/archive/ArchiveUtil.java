@@ -49,39 +49,29 @@ public class ArchiveUtil {
 	}
 
 	public static Path extract(Path source, Path destination, Duration timeout)
-		throws IOException, InterruptedException, BadArchiveException {
+		throws IOException, InterruptedException {
 		return extract(source, destination, timeout, false, new HashSet<>());
 	}
 
 	public static Path extract(Path source, Path destination, Duration timeout, boolean recursive)
-		throws IOException, InterruptedException, BadArchiveException {
+		throws IOException, InterruptedException {
 		return extract(source, destination, timeout, recursive, new HashSet<>());
 	}
 
 	private static Path extract(Path source, Path destination, Duration timeout, boolean recursive, Set<Path> visited)
-		throws IOException, InterruptedException, BadArchiveException {
+		throws IOException, InterruptedException {
 
 		if (!Files.isDirectory(destination)) Files.createDirectories(destination);
 
 		Path result;
 
 		String ext = Util.extension(source).toLowerCase();
-		switch (ext) {
-			case "zip":
-			case "z":
-			case "gz":
-			case "7z":
-			case "lzh":
-			case "lza":
-			case "exe":
-				result = exec(sevenZipCmd(source, destination), source, destination, timeout, ALLOWED_EXT_SEVENZIP);
-				break;
-			case "rar":
-				result = exec(rarCmd(source, destination), source, destination, timeout, ALLOWED_EXT_UNRAR);
-				break;
-			default:
-				throw new UnsupportedArchiveException(String.format("Format %s not supported for archive %s", ext, source));
-		}
+		result = switch (ext) {
+			case "zip", "z", "gz", "7z", "lzh", "lza", "exe" ->
+				exec(sevenZipCmd(source, destination), source, destination, timeout, ALLOWED_EXT_SEVENZIP);
+			case "rar" -> exec(rarCmd(source, destination), source, destination, timeout, ALLOWED_EXT_UNRAR);
+			default -> throw new UnsupportedArchiveException(String.format("Format %s not supported for archive %s", ext, source));
+		};
 
 		visited.add(source);
 
@@ -89,7 +79,7 @@ public class ArchiveUtil {
 			Set<Path> next = new HashSet<>();
 			Files.walkFileTree(result, new SimpleFileVisitor<>() {
 				@Override
-				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
 					if (!visited.contains(file) && isArchive(file)) next.add(file);
 					return FileVisitResult.CONTINUE;
 				}
@@ -122,7 +112,7 @@ public class ArchiveUtil {
 			}
 
 			@Override
-			public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+			public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
 				try {
 					Files.deleteIfExists(dir);
 				} catch (IOException ex) {
@@ -213,7 +203,7 @@ public class ArchiveUtil {
 	}
 
 	private static Path exec(String[] cmd, Path source, Path destination, Duration timeout, Set<Integer> expectedResults)
-		throws IOException, InterruptedException, BadArchiveException {
+		throws IOException, InterruptedException {
 
 		Process process = new ProcessBuilder()
 			.command(cmd)

@@ -184,14 +184,14 @@ public class MapPackIndexHandler implements IndexHandler<MapPack> {
 
 		IndexUtils.readIntFiles(incoming, iniFile).findFirst().ifPresent(ini -> ini.sections().forEach(s -> {
 			IntFile.Value name = ini.section(s).value("MapName");
-			if (name instanceof IntFile.SimpleValue) p.name = ((IntFile.SimpleValue)name).value.trim();
+			if (name instanceof IntFile.SimpleValue) p.name = ((IntFile.SimpleValue)name).value().trim();
 
 			IntFile.Value title = ini.section(s).value("FriendlyName");
-			if (title instanceof IntFile.SimpleValue) p.title = ((IntFile.SimpleValue)title).value.trim();
+			if (title instanceof IntFile.SimpleValue) p.title = ((IntFile.SimpleValue)title).value().trim();
 
 			IntFile.Value players = ini.section(s).value("NumPlayers");
 			if (players instanceof IntFile.SimpleValue) {
-				String playerCount = ((IntFile.SimpleValue)players).value.replaceAll("([Pp]layers)", "");
+				String playerCount = ((IntFile.SimpleValue)players).value().replaceAll("([Pp]layers)", "");
 				if (playerCount.toLowerCase().contains("author")) {
 					p.author = playerCount.replaceAll(".*(?i)authors?\\s?:?\\s?(.*)", "$1");
 				}

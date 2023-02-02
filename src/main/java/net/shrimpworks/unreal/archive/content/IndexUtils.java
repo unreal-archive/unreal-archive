@@ -19,7 +19,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.imageio.ImageIO;
 
@@ -180,7 +179,7 @@ public class IndexUtils {
 				ini.sections().forEach(s -> {
 					IntFile.Value shot = ini.section(s).value("PreviewImageMarkup");
 					if (shot instanceof IntFile.SimpleValue) {
-						Matcher matcher = IndexUtils.UT3_SCREENSHOT_MATCH.matcher(((IntFile.SimpleValue)shot).value);
+						Matcher matcher = IndexUtils.UT3_SCREENSHOT_MATCH.matcher(((IntFile.SimpleValue)shot).value());
 						if (matcher.find()) {
 							ExportedObject export = map.objectByName(new Name(matcher.group(3)));
 							if (export == null) return;
@@ -492,20 +491,13 @@ public class IndexUtils {
 	}
 
 	public static Map<String, List<Content.Dependency>> dependencies(Games game, Incoming incoming) {
-		ShippedPackages shippedPackages;
-		switch (game) {
-			case UNREAL:
-				shippedPackages = ShippedPackages.UNREAL_GOLD; break;
-			case UNREAL_TOURNAMENT_2004:
-				shippedPackages = ShippedPackages.UNREAL_TOURNAMENT_2004; break;
-			case UNREAL_TOURNAMENT_3:
-				shippedPackages = ShippedPackages.UNREAL_TOURNAMENT_3; break;
-			case RUNE:
-				shippedPackages = ShippedPackages.RUNE; break;
-			case UNREAL_TOURNAMENT:
-			default:
-				shippedPackages = ShippedPackages.UNREAL_TOURNAMENT;
-		}
+		ShippedPackages shippedPackages = switch (game) {
+			case UNREAL -> ShippedPackages.UNREAL_GOLD;
+			case UNREAL_TOURNAMENT_2004 -> ShippedPackages.UNREAL_TOURNAMENT_2004;
+			case UNREAL_TOURNAMENT_3 -> ShippedPackages.UNREAL_TOURNAMENT_3;
+			case RUNE -> ShippedPackages.RUNE;
+			default -> ShippedPackages.UNREAL_TOURNAMENT;
+		};
 
 		Map<String, List<Content.Dependency>> dependencies = new HashMap<>();
 		try {

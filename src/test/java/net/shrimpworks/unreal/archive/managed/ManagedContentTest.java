@@ -10,8 +10,8 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
 
-import com.vladsch.flexmark.html.HtmlRenderer;
-import com.vladsch.flexmark.parser.Parser;
+import org.commonmark.parser.Parser;
+import org.commonmark.renderer.html.HtmlRenderer;
 
 import net.shrimpworks.unreal.archive.ArchiveUtil;
 import net.shrimpworks.unreal.archive.Platform;
@@ -63,7 +63,7 @@ public class ManagedContentTest {
 			final ManagedContentManager cm = new ManagedContentManager(tmpRoot);
 			assertTrue(cm.all().contains(man));
 
-			try (Reader reader = Channels.newReader(cm.document(man), StandardCharsets.UTF_8.name())) {
+			try (Reader reader = Channels.newReader(cm.document(man), StandardCharsets.UTF_8)) {
 				assertNotNull(reader);
 
 				Parser parser = Parser.builder().build();

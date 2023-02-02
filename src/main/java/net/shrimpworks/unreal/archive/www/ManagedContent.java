@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.managed.Managed;
@@ -50,8 +49,6 @@ public class ManagedContent implements PageGenerator {
 
 	/**
 	 * Generate one or more HTML pages of output.
-	 *
-	 * @return number of individual pages created
 	 */
 	@Override
 	public Set<SiteMap.Page> generate() {
@@ -78,6 +75,8 @@ public class ManagedContent implements PageGenerator {
 			groupPath.add(0, grp);
 			grp = grp.parent;
 		}
+
+		// FIXME looks like this should use grp rather than group?
 
 		// exclude the root group just used to kick off the generation process
 		if (!group.name.isEmpty()) {
@@ -112,7 +111,7 @@ public class ManagedContent implements PageGenerator {
 			final Path docRoot = this.content.contentRoot(content.managed);
 			Util.copyTree(docRoot, path);
 
-			final String page = Templates.renderMarkdown(docChan);
+			final String page = Markdown.renderMarkdown(docChan);
 
 			pages.add("content.ftl", SiteMap.Page.monthly(0.85f, content.managed.updatedDate),
 					  String.join(" / ", String.join(" / ", content.managed.fullPath().split("/")), content.managed.title))

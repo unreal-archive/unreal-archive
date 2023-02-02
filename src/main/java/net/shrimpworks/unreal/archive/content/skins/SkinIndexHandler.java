@@ -9,7 +9,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import net.shrimpworks.unreal.archive.content.Content;
@@ -150,7 +149,7 @@ public class SkinIndexHandler implements IndexHandler<Skin> {
 							 if (section == null) return Stream.empty();
 
 							 IntFile.ListValue objects = section.asList("Object");
-							 for (IntFile.Value value : objects.values) {
+							 for (IntFile.Value value : objects.values()) {
 								 if (value instanceof IntFile.MapValue
 									 && ((IntFile.MapValue)value).containsKey("Name")
 									 && ((IntFile.MapValue)value).containsKey("Class")
@@ -176,7 +175,7 @@ public class SkinIndexHandler implements IndexHandler<Skin> {
 							 if (section == null) return Stream.empty();
 
 							 IntFile.ListValue objects = section.asList("Player");
-							 for (IntFile.Value value : objects.values) {
+							 for (IntFile.Value value : objects.values()) {
 								 if (value instanceof IntFile.MapValue
 									 && ((IntFile.MapValue)value).containsKey("DefaultName")) {
 

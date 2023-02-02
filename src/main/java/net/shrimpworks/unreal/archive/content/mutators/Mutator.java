@@ -4,7 +4,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.Games;
@@ -72,14 +71,13 @@ public class Mutator extends Content {
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
-		if (!(o instanceof Mutator)) return false;
+		if (!(o instanceof Mutator other)) return false;
 		if (!super.equals(o)) return false;
-		Mutator mutator = (Mutator)o;
-		return hasConfigMenu == mutator.hasConfigMenu &&
-			   hasKeybinds == mutator.hasKeybinds &&
-			   Objects.equals(mutators, mutator.mutators) &&
-			   Objects.equals(weapons, mutator.weapons) &&
-			   Objects.equals(vehicles, mutator.vehicles);
+		return hasConfigMenu == other.hasConfigMenu &&
+			   hasKeybinds == other.hasKeybinds &&
+			   Objects.equals(mutators, other.mutators) &&
+			   Objects.equals(weapons, other.weapons) &&
+			   Objects.equals(vehicles, other.vehicles);
 	}
 
 	@Override

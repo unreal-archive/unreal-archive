@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.Games;
@@ -60,11 +59,10 @@ public class Model extends Content {
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
-		if (!(o instanceof Model)) return false;
+		if (!(o instanceof Model other)) return false;
 		if (!super.equals(o)) return false;
-		Model model = (Model)o;
-		return Objects.equals(models, model.models) &&
-			   Objects.equals(skins, model.skins);
+		return Objects.equals(models, other.models) &&
+			   Objects.equals(skins, other.skins);
 	}
 
 	@Override

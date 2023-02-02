@@ -194,6 +194,10 @@ public class Managed implements ContentEntity<Managed> {
 		public boolean synced = false;              // if false, localFile will be uploaded and turned into a download upon sync
 		public boolean deleted = false;             // if deleted, prevents from syncing and will not publish
 
+		public Content.Download mainDownload() {
+			return downloads.stream().filter(d -> d.main).findFirst().orElse(null);
+		}
+
 		@Override
 		public boolean equals(Object o) {
 			if (this == o) return true;
