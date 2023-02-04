@@ -15,6 +15,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import net.shrimpworks.unreal.archive.content.IndexUtils;
+
 public class AuthorNames {
 
 	public static Optional<AuthorNames> instance = Optional.empty();
@@ -77,6 +79,8 @@ public class AuthorNames {
 	 * {@link #cleanName(String)}.
 	 */
 	public void maybeAutoAlias(String author) {
+		if (author.isBlank()) return;
+
 		if (nonAutoAliases.contains(author.toLowerCase().strip())) return;
 		if (aliases.containsKey(author.trim())) return;
 
@@ -106,6 +110,8 @@ public class AuthorNames {
 	 * common name, and with various elements like URLs and email addresses stripped.
 	 */
 	public String cleanName(String author) {
+		if (author.isBlank()) return IndexUtils.UNKNOWN;
+
 		String aliased = aliases.getOrDefault(author.toLowerCase().strip(), author).strip();
 
 		String noEmail = EMAIL.matcher(aliased).replaceAll("");
@@ -129,7 +135,7 @@ public class AuthorNames {
 		return aliases.getOrDefault(noImport.toLowerCase().strip(), noImport).strip();
 	}
 
-	public static String nameFor(String name) {
-		return instance.map(e -> e.cleanName(name)).orElse(name);
+	public static String nameFor(String author) {
+		return instance.map(e -> e.cleanName(author)).orElse(author);
 	}
 }
