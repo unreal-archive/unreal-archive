@@ -15,9 +15,9 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import net.shrimpworks.unreal.archive.content.ContentRepository;
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.content.Content;
-import net.shrimpworks.unreal.archive.content.ContentManager;
 import net.shrimpworks.unreal.archive.content.GameTypeManager;
 import net.shrimpworks.unreal.archive.content.gametypes.GameType;
 import net.shrimpworks.unreal.archive.www.Markdown;
@@ -35,14 +35,13 @@ public class GameTypes implements PageGenerator {
 	private static final int THUMB_WIDTH = 350;
 
 	private final GameTypeManager gametypes;
-	private final ContentManager content;
+	private final ContentRepository content;
 	private final Path siteRoot;
 	private final Path root;
 	private final Path staticRoot;
 	private final SiteFeatures features;
 
-	public GameTypes(GameTypeManager gametypes, ContentManager content, Path root, Path staticRoot,
-					 SiteFeatures features) {
+	public GameTypes(GameTypeManager gametypes, ContentRepository content, Path root, Path staticRoot, SiteFeatures features) {
 		this.gametypes = gametypes;
 		this.content = content;
 		this.siteRoot = root;

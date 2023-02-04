@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.shrimpworks.unreal.archive.content.ContentRepository;
 import net.shrimpworks.unreal.archive.content.Content;
-import net.shrimpworks.unreal.archive.content.ContentManager;
 import net.shrimpworks.unreal.archive.content.Games;
 import net.shrimpworks.unreal.archive.content.models.Model;
 import net.shrimpworks.unreal.archive.www.SiteFeatures;
@@ -19,7 +19,7 @@ public class Models extends GenericContentPage<Model> {
 	private static final String SECTION = "Models";
 	private static final String SUBGROUP = "all";
 
-	public Models(ContentManager content, Path output, Path staticRoot, SiteFeatures localImages) {
+	public Models(ContentRepository content, Path output, Path staticRoot, SiteFeatures localImages) {
 		super(content, output, output.resolve("models"), staticRoot, localImages);
 	}
 

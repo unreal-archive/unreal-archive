@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import net.shrimpworks.unreal.archive.ContentEntity;
+import net.shrimpworks.unreal.archive.content.ContentRepository;
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.ContentManager;
@@ -47,7 +48,7 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 	private volatile CountDownLatch counter;
 	private volatile Thread mirrorThread;
 
-	public Mirror(ContentManager cm, GameTypeManager gm, ManagedContentManager mm,
+	public Mirror(ContentRepository repo, ContentManager cm, GameTypeManager gm, ManagedContentManager mm,
 				  DataStore mirrorStore, int concurrency, LocalDate since, LocalDate until, Progress progress) {
 		this.cm = cm;
 		this.gm = gm;
@@ -58,7 +59,7 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 		final LocalDate untilFilter = until.plusDays(1);
 
 		this.content = Stream.concat(
-								 cm.all().stream(),
+								 repo.all().stream(),
 								 Stream.concat(
 									 gm.all().stream(),
 									 mm.all().stream()

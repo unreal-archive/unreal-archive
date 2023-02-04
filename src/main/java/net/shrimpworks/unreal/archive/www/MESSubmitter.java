@@ -22,9 +22,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
+import net.shrimpworks.unreal.archive.content.ContentRepository;
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.content.Content;
-import net.shrimpworks.unreal.archive.content.ContentManager;
 import net.shrimpworks.unreal.archive.wiki.WikiManager;
 import net.shrimpworks.unreal.archive.wiki.WikiPage;
 
@@ -41,10 +41,10 @@ public class MESSubmitter {
 	private static final String ADD_BATCH_ENDPOINT = "/index/addBatch";
 
 	public void submit(
-		ContentManager contentManager, String rootUrl, String mseUrl, String mseToken, int batchSize,
+		ContentRepository contentRepo, String rootUrl, String mseUrl, String mseToken, int batchSize,
 		Consumer<Double> progress, Consumer<Boolean> done
 	) throws IOException {
-		Collection<Content> contents = contentManager.all(false);
+		Collection<Content> contents = contentRepo.all(false);
 		Path root = Paths.get("");
 		final int count = contents.size();
 		int i = 0;

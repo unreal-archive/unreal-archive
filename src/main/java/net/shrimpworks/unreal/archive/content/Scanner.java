@@ -18,7 +18,7 @@ import net.shrimpworks.unreal.archive.Util;
 
 public class Scanner {
 
-	private final ContentManager contentManager;
+	private final ContentRepository repository;
 
 	private final boolean newOnly;
 	private final Pattern nameMatch;
@@ -26,8 +26,8 @@ public class Scanner {
 	private final long maxFileSize;
 	private final int concurrency;
 
-	public Scanner(ContentManager contentManager, CLI cli) {
-		this.contentManager = contentManager;
+	public Scanner(ContentRepository repository, CLI cli) {
+		this.repository = repository;
 
 		this.newOnly = cli.option("new-only", "").equalsIgnoreCase("true") || cli.option("new-only", "").equalsIgnoreCase("1");
 		this.maxFileSize = Long.parseLong(cli.option("max-size", "0"));
@@ -117,7 +117,7 @@ public class Scanner {
 		ContentType classifiedType = ContentType.UNKNOWN;
 
 		try (Incoming incoming = new Incoming(sub, log)) {
-			content = contentManager.forHash(incoming.hash);
+			content = repository.forHash(incoming.hash);
 
 			if (newOnly && content != null) return;
 
@@ -135,11 +135,11 @@ public class Scanner {
 													.findFirst().orElse(null);
 
 				done.accept(new ScanResult(
-						sub.filePath,
-						content != null,
-						content != null ? ContentType.valueOf(content.contentType) : null,
-						classifiedType,
-						failed
+					sub.filePath,
+					content != null,
+					content != null ? ContentType.valueOf(content.contentType) : null,
+					classifiedType,
+					failed
 				));
 			}
 		}
@@ -148,11 +148,11 @@ public class Scanner {
 	public record ScanResult(Path filePath, boolean known, ContentType oldType, ContentType newType, Throwable failed) {
 
 		@Override
-			public String toString() {
-				return String.format("ScanResult [filePath=%s, known=%s, oldType=%s, newType=%s, failed=%s]",
-									 filePath, known, oldType, newType, failed);
-			}
+		public String toString() {
+			return String.format("ScanResult [filePath=%s, known=%s, oldType=%s, newType=%s, failed=%s]",
+								 filePath, known, oldType, newType, failed);
 		}
+	}
 
 	public interface ScannerEvents {
 

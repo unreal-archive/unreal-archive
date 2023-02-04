@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.shrimpworks.unreal.archive.content.ContentRepository;
 import net.shrimpworks.unreal.archive.content.Content;
-import net.shrimpworks.unreal.archive.content.ContentManager;
 import net.shrimpworks.unreal.archive.content.Incoming;
 import net.shrimpworks.unreal.archive.www.SiteFeatures;
 import net.shrimpworks.unreal.archive.www.SiteMap;
@@ -18,11 +18,11 @@ import net.shrimpworks.unreal.archive.www.Templates;
 
 public class FileDetails extends ContentPageGenerator {
 
-	public FileDetails(ContentManager content, Path output, Path staticRoot, SiteFeatures features) {
+	public FileDetails(ContentRepository content, Path output, Path staticRoot, SiteFeatures features) {
 		super(content, output, output.resolve("files"), staticRoot, features);
 	}
 
-	private Map<Content.ContentFile, List<Content>> loadContentFiles(ContentManager content) {
+	private Map<Content.ContentFile, List<Content>> loadContentFiles(ContentRepository content) {
 		final Map<Content.ContentFile, List<Content>> contentFiles = new HashMap<>();
 		content.all()
 			   .forEach(c -> {

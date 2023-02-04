@@ -32,15 +32,17 @@ public class Indexer {
 		"zip", "rar", "ace", "7z", "cab", "tgz", "gz", "tar", "bz2", "exe", "umod", "ut2mod", "ut4mod"
 	);
 
+	private final ContentRepository repo;
 	private final ContentManager contentManager;
 	private final IndexerEvents events;
 	private final IndexerPostProcessor postProcessor;
 
-	public Indexer(ContentManager contentManager, IndexerEvents events) {
-		this(contentManager, events, new IndexerPostProcessor() {});
+	public Indexer(ContentRepository repo, ContentManager contentManager, IndexerEvents events) {
+		this(repo, contentManager, events, new IndexerPostProcessor() {});
 	}
 
-	public Indexer(ContentManager contentManager, IndexerEvents events, IndexerPostProcessor postProcessor) {
+	public Indexer(ContentRepository repo, ContentManager contentManager, IndexerEvents events, IndexerPostProcessor postProcessor) {
+		this.repo = repo;
 		this.contentManager = contentManager;
 		this.events = events;
 		this.postProcessor = postProcessor;
@@ -82,7 +84,8 @@ public class Indexer {
 	 * @param inputPath   directories or file paths to index
 	 * @throws IOException file access failure
 	 */
-	public void index(boolean force, boolean newOnly, int concurrency, ContentType forceType, Games forceGame, Path... inputPath) throws IOException {
+	public void index(boolean force, boolean newOnly, int concurrency, ContentType forceType, Games forceGame, Path... inputPath)
+		throws IOException {
 		final List<IndexLog> indexLogs = new ArrayList<>();
 
 		// keep a counter of number of files processed
@@ -150,7 +153,7 @@ public class Indexer {
 				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 					try {
 						if (INCLUDE_TYPES.contains(Util.extension(file).toLowerCase())) {
-							if (newOnly && contentManager.forHash(Util.hash(file)) != null) return FileVisitResult.CONTINUE;
+							if (newOnly && repo.forHash(Util.hash(file)) != null) return FileVisitResult.CONTINUE;
 
 							Submission sub;
 							// if there's a submission file
@@ -252,7 +255,7 @@ public class Indexer {
 
 			type.indexer.get().index(incoming, content, result -> {
 				try {
-					Content current = contentManager.forHash(incoming.hash);
+					Content current = repo.forHash(incoming.hash);
 
 					// hmm, post indexing cleanup... not great.
 					result.content.name = result.content.name.trim();
@@ -260,9 +263,9 @@ public class Indexer {
 
 					// check if the item is a variation of existing content
 					if (current == null) {
-						Optional<Content> maybeNewest = contentManager.search(result.content.game, result.content.contentType,
-																			  result.content.name, result.content.author)
-																	  .stream().max(Comparator.comparing(a -> a.releaseDate));
+						Optional<Content> maybeNewest = repo.search(result.content.game, result.content.contentType,
+																	result.content.name, result.content.author)
+															.stream().max(Comparator.comparing(a -> a.releaseDate));
 						Content existing = maybeNewest.orElse(null);
 						if (existing != null) {
 							if (existing.variationOf == null && existing.releaseDate.compareTo(result.content.releaseDate) < 0) {
