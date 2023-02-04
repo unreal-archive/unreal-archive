@@ -9,12 +9,12 @@ import net.shrimpworks.unreal.archive.www.Templates;
 
 public abstract class ContentPageGenerator implements PageGenerator {
 
-	protected final ContentRepository content;
-	protected final Path siteRoot;
-	protected final Path root;
-	protected final Path staticRoot;
+	final ContentRepository content;
+	final Path siteRoot;
+	final Path root;
+	final Path staticRoot;
 
-	protected final SiteFeatures features;
+	final SiteFeatures features;
 
 	/**
 	 * Create a new Page Generator instance.
