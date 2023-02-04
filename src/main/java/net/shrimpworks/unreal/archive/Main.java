@@ -34,6 +34,7 @@ import java.util.stream.Stream;
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.ContentEditor;
 import net.shrimpworks.unreal.archive.content.ContentManager;
+import net.shrimpworks.unreal.archive.content.ContentRepository;
 import net.shrimpworks.unreal.archive.content.ContentType;
 import net.shrimpworks.unreal.archive.content.GameTypeManager;
 import net.shrimpworks.unreal.archive.content.Games;
@@ -98,16 +99,17 @@ public class Main {
 
 		switch (cli.commands()[0].toLowerCase()) {
 			case "index":
-				index(contentManager(cli), cli);
+				ContentRepository indexRepo = contentRepo(cli);
+				index(indexRepo, contentManager(cli, indexRepo), cli);
 				break;
 			case "scan":
-				scan(contentManager(cli), cli);
+				scan(contentRepo(cli), cli);
 				break;
 			case "edit":
-				edit(contentManager(cli), cli);
+				edit(contentManager(cli, contentRepo(cli)), cli);
 				break;
 			case "set":
-				set(contentManager(cli), cli);
+				set(contentManager(cli, contentRepo(cli)), cli);
 				break;
 			case "gametype":
 				gametype(gameTypeManager(cli), cli);
@@ -116,30 +118,31 @@ public class Main {
 				managed(managedContent(cli), cli);
 				break;
 			case "mirror":
-				mirror(contentManager(cli), managedContent(cli), gameTypeManager(cli), cli);
+				ContentRepository mirrorRepo = contentRepo(cli);
+				mirror(mirrorRepo, contentManager(cli, mirrorRepo), managedContent(cli), gameTypeManager(cli), cli);
 				break;
 			case "local-mirror":
-				localMirror(contentManager(cli), cli);
+				localMirror(contentRepo(cli), cli);
 				break;
 			case "www":
-				www(contentManager(cli), documentManager(cli), managedContent(cli), gameTypeManager(cli), wikiManager(cli), cli);
+				www(contentRepo(cli), documentManager(cli), managedContent(cli), gameTypeManager(cli), wikiManager(cli), cli);
 				break;
 			case "search-submit":
-				searchSubmit(contentManager(cli), documentManager(cli), managedContent(cli), wikiManager(cli), cli);
+				searchSubmit(contentRepo(cli), documentManager(cli), managedContent(cli), wikiManager(cli), cli);
 				break;
 			case "summary":
-				summary(contentManager(cli));
+				summary(contentRepo(cli));
 				break;
 			case "ls":
-				list(contentManager(cli), cli);
+				list(contentRepo(cli), cli);
 				break;
 			case "show":
-				show(contentManager(cli), cli);
+				show(contentRepo(cli), cli);
 				break;
 			case "unpack":
 				unpack(cli);
 			case "install":
-				install(contentManager(cli), cli);
+				install(contentRepo(cli), cli);
 				break;
 			case "wiki":
 				wiki(wikiManager(cli));
@@ -216,9 +219,19 @@ public class Main {
 		return contentPath.toAbsolutePath();
 	}
 
-	private static ContentManager contentManager(CLI cli) throws IOException {
+	private static ContentRepository contentRepo(CLI cli) throws IOException {
 		Path contentPath = contentPath(cli);
 
+		final long start = System.currentTimeMillis();
+		final ContentRepository repo = new ContentRepository.FileRepository(contentPath.resolve(CONTENT_DIR));
+		final double gigs = (repo.fileSize() / 1024d / 1024d / 1024d);
+		System.err.printf("Loaded content index with %d items (%.2fGB) in %.2fs%n",
+						  repo.size(), gigs, (System.currentTimeMillis() - start) / 1000f);
+
+		return repo;
+	}
+
+	private static ContentManager contentManager(CLI cli, ContentRepository repo) {
 		final DataStore imageStore = store(DataStore.StoreContent.IMAGES, cli);
 		final DataStore attachmentStore = store(DataStore.StoreContent.ATTACHMENTS, cli);
 		final DataStore contentStore = store(DataStore.StoreContent.CONTENT, cli);
@@ -234,14 +247,7 @@ public class Main {
 			}
 		}));
 
-		final long start = System.currentTimeMillis();
-		final ContentManager contentManager = new ContentManager(contentPath.resolve(CONTENT_DIR), contentStore, imageStore,
-																 attachmentStore);
-		final double gigs = (contentManager.fileSize() / 1024d / 1024d / 1024d);
-		System.err.printf("Loaded content index with %d items (%.2fGB) in %.2fs%n",
-						  contentManager.size(), gigs, (System.currentTimeMillis() - start) / 1000f);
-
-		return contentManager;
+		return new ContentManager(repo, contentStore, imageStore, attachmentStore);
 	}
 
 	private static DocumentManager documentManager(CLI cli) throws IOException {
@@ -301,7 +307,7 @@ public class Main {
 		return storeType.newStore(contentType, cli);
 	}
 
-	private static void index(ContentManager contentManager, CLI cli) throws IOException {
+	private static void index(ContentRepository repo, ContentManager contentManager, CLI cli) throws IOException {
 		if (cli.commands().length < 2) {
 			System.err.println("An index path must be specified!");
 			System.exit(2);
@@ -314,7 +320,7 @@ public class Main {
 		ContentType forceType = !cli.option("type", "").isEmpty() ? ContentType.valueOf(cli.option("type", "").toUpperCase()) : null;
 		Games forceGame = !cli.option("game", "").isEmpty() ? Games.byName(cli.option("game", "")) : null;
 
-		Indexer indexer = new Indexer(contentManager, new Indexer.CLIEventPrinter(verbose));
+		Indexer indexer = new Indexer(repo, contentManager, new Indexer.CLIEventPrinter(verbose));
 
 		Path[] paths;
 
@@ -334,21 +340,21 @@ public class Main {
 				paths = inPaths.toArray(new Path[0]);
 			}
 		} else {
-			paths = cliPaths(cli, 1, contentManager).toArray(Path[]::new);
+			paths = cliPaths(cli, 1, contentManager.repo()).toArray(Path[]::new);
 		}
 
 		indexer.index(force, newOnly, concurrency, forceType, forceGame, paths);
 	}
 
-	private static void scan(ContentManager contentManager, CLI cli) throws IOException {
+	private static void scan(ContentRepository repository, CLI cli) throws IOException {
 		if (cli.commands().length < 2) {
 			System.err.println("An input path must be specified!");
 			System.exit(2);
 		}
 
-		Scanner scanner = new Scanner(contentManager, cli);
+		Scanner scanner = new Scanner(repository, cli);
 
-		Path[] paths = cliPaths(cli, 1, contentManager).toArray(Path[]::new);
+		Path[] paths = cliPaths(cli, 1, repository).toArray(Path[]::new);
 
 		scanner.scan(new Scanner.CLIEventPrinter(), paths);
 	}
@@ -561,7 +567,8 @@ public class Main {
 		}
 	}
 
-	private static void mirror(ContentManager contentManager, ManagedContentManager managed, GameTypeManager gameTypeManager, CLI cli) {
+	private static void mirror(ContentRepository repo, ContentManager contentManager, ManagedContentManager managed,
+							   GameTypeManager gameTypeManager, CLI cli) {
 		final DataStore mirrorStore = store(DataStore.StoreContent.CONTENT, cli);
 
 		// default to mirror last 7 days of changes
@@ -585,7 +592,7 @@ public class Main {
 						  since, until, mirrorStore, cli.option("concurrency", "3"));
 
 		Mirror mirror = new Mirror(
-			contentManager, gameTypeManager, managed,
+			repo, contentManager, gameTypeManager, managed,
 			mirrorStore,
 			Integer.parseInt(cli.option("concurrency", "3")),
 			since, until,
@@ -605,7 +612,7 @@ public class Main {
 		mirror.cancel();
 	}
 
-	private static void localMirror(ContentManager contentManager, CLI cli) throws IOException {
+	private static void localMirror(ContentRepository repository, CLI cli) throws IOException {
 		if (cli.commands().length < 2) {
 			System.err.println("An output path should be provided!");
 			System.exit(2);
@@ -616,7 +623,7 @@ public class Main {
 		System.out.printf("Writing files to %s with concurrency of %s%n", output, cli.option("concurrency", "3"));
 
 		LocalMirrorClient mirror = new LocalMirrorClient(
-			contentManager,
+			repository,
 			output,
 			Integer.parseInt(cli.option("concurrency", "3")),
 			((total, remaining, last) -> System.out.printf("\r[ %-6s / %-6s ] Processed %-40s",
@@ -630,7 +637,7 @@ public class Main {
 		mirror.cancel();
 	}
 
-	private static void www(ContentManager contentManager, DocumentManager documentManager, ManagedContentManager managed,
+	private static void www(ContentRepository repository, DocumentManager documentManager, ManagedContentManager managed,
 							GameTypeManager gameTypeManager, WikiManager wikiManager, CLI cli)
 		throws IOException {
 		if (cli.commands().length < 2) {
@@ -668,34 +675,34 @@ public class Main {
 		// prepare author names and aliases
 		Path authorPath = contentPath(cli).resolve(AUTHORS_DIR);
 		AuthorNames names = new AuthorNames(authorPath);
-		contentManager.all().parallelStream()
-					  .filter(c -> !IndexUtils.UNKNOWN.equalsIgnoreCase(c.author()))
-					  .sorted(Comparator.comparingInt(a -> a.author().length()))
-					  .forEachOrdered(c -> names.maybeAutoAlias(c.author));
+		repository.all().parallelStream()
+				  .filter(c -> !IndexUtils.UNKNOWN.equalsIgnoreCase(c.author()))
+				  .sorted(Comparator.comparingInt(a -> a.author().length()))
+				  .forEachOrdered(c -> names.maybeAutoAlias(c.author));
 		AuthorNames.instance = Optional.of(names);
 		System.out.printf("Found %d author aliases and names%n", names.aliasCount());
 
 		final Set<SiteMap.Page> allPages = ConcurrentHashMap.newKeySet();
 
 		final Set<PageGenerator> generators = new HashSet<>();
-		generators.add(new Index(contentManager, gameTypeManager, documentManager, managed, outputPath, staticOutput, features));
+		generators.add(new Index(repository, gameTypeManager, documentManager, managed, outputPath, staticOutput, features));
 
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("content"))) {
 			// generate content pages
 			generators.addAll(
 				Arrays.asList(
-					new Maps(contentManager, outputPath, staticOutput, features),
-					new MapPacks(contentManager, outputPath, staticOutput, features),
-					new Skins(contentManager, outputPath, staticOutput, features),
-					new Models(contentManager, outputPath, staticOutput, features),
-					new Voices(contentManager, outputPath, staticOutput, features),
-					new Mutators(contentManager, outputPath, staticOutput, features)
+					new Maps(repository, outputPath, staticOutput, features),
+					new MapPacks(repository, outputPath, staticOutput, features),
+					new Skins(repository, outputPath, staticOutput, features),
+					new Models(repository, outputPath, staticOutput, features),
+					new Voices(repository, outputPath, staticOutput, features),
+					new Mutators(repository, outputPath, staticOutput, features)
 				));
-			if (withPackages) generators.add(new Packages(contentManager, gameTypeManager, managed, outputPath, staticOutput, features));
+			if (withPackages) generators.add(new Packages(repository, gameTypeManager, managed, outputPath, staticOutput, features));
 		}
 
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("authors"))) {
-			generators.add(new Authors(names, contentManager, gameTypeManager, managed, outputPath, staticOutput, features));
+			generators.add(new Authors(names, repository, gameTypeManager, managed, outputPath, staticOutput, features));
 		}
 
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("docs"))) {
@@ -707,11 +714,11 @@ public class Main {
 		}
 
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("gametypes"))) {
-			generators.add(new GameTypes(gameTypeManager, contentManager, outputPath, staticOutput, features));
+			generators.add(new GameTypes(gameTypeManager, repository, outputPath, staticOutput, features));
 		}
 
 		if (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("packages")) {
-			generators.add(new Packages(contentManager, gameTypeManager, managed, outputPath, staticOutput, features));
+			generators.add(new Packages(repository, gameTypeManager, managed, outputPath, staticOutput, features));
 		}
 
 		if (features.wikis || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("wiki"))) {
@@ -720,8 +727,8 @@ public class Main {
 
 		if (features.submit) generators.add(new Submit(outputPath, staticOutput, features));
 		if (features.search) generators.add(new Search(outputPath, staticOutput, features));
-		if (features.latest) generators.add(new Latest(contentManager, gameTypeManager, managed, outputPath, staticOutput, features));
-		if (features.files) generators.add(new FileDetails(contentManager, outputPath, staticOutput, features));
+		if (features.latest) generators.add(new Latest(repository, gameTypeManager, managed, outputPath, staticOutput, features));
+		if (features.files) generators.add(new FileDetails(repository, outputPath, staticOutput, features));
 
 		ForkJoinPool myPool = new ForkJoinPool(Integer.parseInt(cli.option("concurrency", "4")));
 		myPool.submit(() -> {
@@ -737,17 +744,17 @@ public class Main {
 		System.out.printf("Output %d pages in %.2fs%n", allPages.size(), (System.currentTimeMillis() - start) / 1000f);
 	}
 
-	private static void searchSubmit(ContentManager contentManager, DocumentManager documentManager,
+	private static void searchSubmit(ContentRepository repository, DocumentManager documentManager,
 									 ManagedContentManager managedContentManager, WikiManager wikiManager, CLI cli) throws IOException {
 		// TODO documents, managed content, and gametypes
 
 		// meh
 		Path authorPath = contentPath(cli).resolve(AUTHORS_DIR);
 		AuthorNames names = new AuthorNames(authorPath);
-		contentManager.all().parallelStream()
-					  .filter(c -> !IndexUtils.UNKNOWN.equalsIgnoreCase(c.author()))
-					  .sorted(Comparator.comparingInt(a -> a.author().length()))
-					  .forEachOrdered(c -> names.maybeAutoAlias(c.author));
+		repository.all().parallelStream()
+				  .filter(c -> !IndexUtils.UNKNOWN.equalsIgnoreCase(c.author()))
+				  .sorted(Comparator.comparingInt(a -> a.author().length()))
+				  .forEachOrdered(c -> names.maybeAutoAlias(c.author));
 		AuthorNames.instance = Optional.of(names);
 
 		final long start = System.currentTimeMillis();
@@ -758,7 +765,7 @@ public class Main {
 						  System.getenv().getOrDefault("MSE_CONTENT_URL", System.getenv().getOrDefault("MSE_URL", ""))
 		);
 
-		submitter.submit(contentManager,
+		submitter.submit(repository,
 						 System.getenv().getOrDefault("SITE_URL", ""),
 						 System.getenv().getOrDefault("MSE_CONTENT_URL", System.getenv().getOrDefault("MSE_URL", "")),
 						 System.getenv().getOrDefault("MSE_CONTENT_TOKEN", System.getenv().getOrDefault("MSE_TOKEN", "")), 50,
@@ -776,16 +783,16 @@ public class Main {
 												   (System.currentTimeMillis() - start) / 1000f));
 	}
 
-	private static void summary(ContentManager contentManager) {
-		Map<Class<? extends Content>, Long> byType = contentManager.countByType();
+	private static void summary(ContentRepository repository) {
+		Map<Class<? extends Content>, Long> byType = repository.countByType();
 		if (byType.size() > 0) {
 			System.out.println("Current content by Type:");
 			byType.forEach((type, count) -> System.out.printf(" > %s: %d%n", type.getSimpleName(), count));
 
 			System.out.println("Current content by Game:");
-			contentManager.countByGame().forEach((game, count) -> {
+			repository.countByGame().forEach((game, count) -> {
 				System.out.printf(" > %s: %d%n", game, count);
-				contentManager.countByType(game).forEach(
+				repository.countByType(game).forEach(
 					(type, typeCount) -> System.out.printf("   > %s: %d%n", type.getSimpleName(), typeCount)
 				);
 			});
@@ -794,7 +801,7 @@ public class Main {
 		}
 	}
 
-	private static void list(ContentManager contentManager, CLI cli) {
+	private static void list(ContentRepository repository, CLI cli) {
 		String game = cli.option("game", null);
 		String type = cli.option("type", null);
 		String author = cli.option("author", null);
@@ -805,7 +812,7 @@ public class Main {
 			System.exit(255);
 		}
 
-		Set<Content> results = new HashSet<>(contentManager.search(game, type, name, author));
+		Set<Content> results = new HashSet<>(repository.search(game, type, name, author));
 
 		if (results.isEmpty()) {
 			System.out.println("No results found");
@@ -821,7 +828,7 @@ public class Main {
 		}
 	}
 
-	private static void show(ContentManager contentManager, CLI cli) throws IOException {
+	private static void show(ContentRepository repository, CLI cli) throws IOException {
 		if (cli.commands().length < 2) {
 			System.err.println("List of content hashes or names expected");
 			System.exit(255);
@@ -832,10 +839,10 @@ public class Main {
 		String[] terms = Arrays.copyOfRange(cli.commands(), 1, cli.commands().length);
 		for (String term : terms) {
 			if (term.matches("[a-f0-9]{40}")) {
-				Content found = contentManager.forHash(term);
+				Content found = repository.forHash(term);
 				if (found != null) results.add(found);
 			} else {
-				results.addAll(contentManager.forName(term));
+				results.addAll(repository.forName(term));
 			}
 		}
 
@@ -895,7 +902,7 @@ public class Main {
 		}
 	}
 
-	private static void install(ContentManager contentManager, CLI cli) throws IOException {
+	private static void install(ContentRepository repository, CLI cli) throws IOException {
 		if (cli.commands().length < 3) {
 			System.err.println("A file path or content hash and destination directory are required!");
 			System.exit(2);
@@ -907,7 +914,7 @@ public class Main {
 			System.exit(4);
 		}
 
-		Path path = localOrRemoteOrHashToPaths(new String[] { cli.commands()[1] }, contentManager)
+		Path path = localOrRemoteOrHashToPaths(new String[] { cli.commands()[1] }, repository)
 			.stream()
 			.findFirst()
 			.orElseThrow();
@@ -963,10 +970,10 @@ public class Main {
 		}
 	}
 
-	private static Set<Path> cliPaths(CLI cli, int fromOffset, ContentManager cm) throws IOException {
+	private static Set<Path> cliPaths(CLI cli, int fromOffset, ContentRepository repository) throws IOException {
 		// let's see if there are cli paths which are actually URLs, and download them to local paths
 		String[] paths = Arrays.copyOfRange(cli.commands(), fromOffset, cli.commands().length);
-		return localOrRemoteOrHashToPaths(paths, cm);
+		return localOrRemoteOrHashToPaths(paths, repository);
 	}
 
 	/**
@@ -974,13 +981,13 @@ public class Main {
 	 * everything to an output collection of local files, downloading content where
 	 * necessary.
 	 */
-	private static Set<Path> localOrRemoteOrHashToPaths(String[] paths, ContentManager cm) throws IOException {
+	private static Set<Path> localOrRemoteOrHashToPaths(String[] paths, ContentRepository repository) throws IOException {
 		// convert hashes to URLs
 		String[] contentUrls = Arrays
 			.stream(paths)
 			.filter(s -> s.matches("^[a-f0-9]{40}$"))
 			.map(hash -> {
-				Content content = cm.forHash(hash);
+				Content content = repository.forHash(hash);
 				if (content == null) throw new IllegalArgumentException(String.format("Hash %s does not match any known content!", hash));
 				return content.mainDownload().url;
 			})

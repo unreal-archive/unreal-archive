@@ -5,8 +5,8 @@ import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Set;
 
+import net.shrimpworks.unreal.archive.content.ContentRepository;
 import net.shrimpworks.unreal.archive.content.Content;
-import net.shrimpworks.unreal.archive.content.ContentManager;
 import net.shrimpworks.unreal.archive.content.Games;
 import net.shrimpworks.unreal.archive.content.mappacks.MapPack;
 import net.shrimpworks.unreal.archive.www.SiteFeatures;
@@ -19,7 +19,7 @@ public class MapPacks extends GenericContentPage<MapPack> {
 
 	private static final String LETTER_SUBGROUP = "all";
 
-	public MapPacks(ContentManager content, Path output, Path staticRoot, SiteFeatures features) {
+	public MapPacks(ContentRepository content, Path output, Path staticRoot, SiteFeatures features) {
 		super(content, output, output.resolve("mappacks"), staticRoot, features);
 	}
 

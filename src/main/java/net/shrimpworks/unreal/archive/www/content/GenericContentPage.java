@@ -17,9 +17,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 
+import net.shrimpworks.unreal.archive.content.ContentRepository;
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.content.Content;
-import net.shrimpworks.unreal.archive.content.ContentManager;
 import net.shrimpworks.unreal.archive.content.Games;
 import net.shrimpworks.unreal.archive.www.SiteFeatures;
 import net.shrimpworks.unreal.archive.www.SiteMap;
@@ -46,7 +46,7 @@ public abstract class GenericContentPage<T extends Content> extends ContentPageG
 	 * @param staticRoot path to static content
 	 * @param features   if true, download and reference local copies of remote images
 	 */
-	public GenericContentPage(ContentManager content, Path siteRoot, Path output, Path staticRoot, SiteFeatures features) {
+	public GenericContentPage(ContentRepository content, Path siteRoot, Path output, Path staticRoot, SiteFeatures features) {
 		super(content, siteRoot, output, staticRoot, features);
 	}
 
@@ -163,7 +163,7 @@ public abstract class GenericContentPage<T extends Content> extends ContentPageG
 		});
 	}
 
-	GameList loadContent(Class<T> type, ContentManager content) {
+	GameList loadContent(Class<T> type, ContentRepository content) {
 		final GameList games = new GameList();
 
 		content.get(type, false, false).stream()

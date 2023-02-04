@@ -4,7 +4,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 
-import net.shrimpworks.unreal.archive.content.ContentManager;
+import net.shrimpworks.unreal.archive.content.ContentRepository;
 import net.shrimpworks.unreal.archive.content.Games;
 import net.shrimpworks.unreal.archive.content.maps.Map;
 import net.shrimpworks.unreal.archive.www.SiteFeatures;
@@ -15,7 +15,7 @@ public class Maps extends GenericContentPage<Map> {
 
 	private static final String SECTION = "Maps";
 
-	public Maps(ContentManager content, Path output, Path staticRoot, SiteFeatures features) {
+	public Maps(ContentRepository content, Path output, Path staticRoot, SiteFeatures features) {
 		super(content, output, output.resolve("maps"), staticRoot, features);
 	}
 

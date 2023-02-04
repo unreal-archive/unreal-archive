@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public interface SiteMap extends PageGenerator {
 

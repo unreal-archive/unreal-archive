@@ -3,11 +3,6 @@ package net.shrimpworks.unreal.archive.www;
 import java.nio.file.Path;
 import java.util.Set;
 
-import net.shrimpworks.unreal.archive.www.PageGenerator;
-import net.shrimpworks.unreal.archive.www.SiteFeatures;
-import net.shrimpworks.unreal.archive.www.SiteMap;
-import net.shrimpworks.unreal.archive.www.Templates;
-
 public class Search implements PageGenerator {
 
 	private final Path root;

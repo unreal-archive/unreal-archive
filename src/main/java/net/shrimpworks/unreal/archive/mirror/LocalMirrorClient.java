@@ -10,9 +10,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
+import net.shrimpworks.unreal.archive.content.ContentRepository;
 import net.shrimpworks.unreal.archive.Util;
 import net.shrimpworks.unreal.archive.content.Content;
-import net.shrimpworks.unreal.archive.content.ContentManager;
 
 /**
  * Simple multi-threaded mirror/downloader implementation.
@@ -37,7 +37,7 @@ public class LocalMirrorClient implements Consumer<LocalMirrorClient.Downloader>
 	private volatile CountDownLatch counter;
 	private volatile Thread mirrorThread;
 
-	public LocalMirrorClient(ContentManager content, Path output, int concurrency, Progress progress) {
+	public LocalMirrorClient(ContentRepository content, Path output, int concurrency, Progress progress) {
 		this.content = new ConcurrentLinkedDeque<>(content.all());
 		this.retryQueue = new ConcurrentLinkedDeque<>();
 		this.output = output;

@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.shrimpworks.unreal.archive.content.ContentRepository;
 import net.shrimpworks.unreal.archive.content.Content;
-import net.shrimpworks.unreal.archive.content.ContentManager;
 import net.shrimpworks.unreal.archive.content.Games;
 import net.shrimpworks.unreal.archive.content.voices.Voice;
 import net.shrimpworks.unreal.archive.www.SiteFeatures;
@@ -19,7 +19,7 @@ public class Voices extends GenericContentPage<Voice> {
 	private static final String SECTION = "Voices";
 	private static final String SUBGROUP = "all";
 
-	public Voices(ContentManager content, Path output, Path staticRoot, SiteFeatures localImages) {
+	public Voices(ContentRepository content, Path output, Path staticRoot, SiteFeatures localImages) {
 		super(content, output, output.resolve("voices"), staticRoot, localImages);
 	}
 

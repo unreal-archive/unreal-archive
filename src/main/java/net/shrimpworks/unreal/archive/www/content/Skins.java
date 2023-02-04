@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.shrimpworks.unreal.archive.content.ContentRepository;
 import net.shrimpworks.unreal.archive.content.Content;
-import net.shrimpworks.unreal.archive.content.ContentManager;
 import net.shrimpworks.unreal.archive.content.Games;
 import net.shrimpworks.unreal.archive.content.skins.Skin;
 import net.shrimpworks.unreal.archive.www.SiteFeatures;
@@ -19,7 +19,7 @@ public class Skins extends GenericContentPage<Skin> {
 	private static final String SECTION = "Skins";
 	private static final String SUBGROUP = "all";
 
-	public Skins(ContentManager content, Path output, Path staticRoot, SiteFeatures localImages) {
+	public Skins(ContentRepository content, Path output, Path staticRoot, SiteFeatures localImages) {
 		super(content, output, output.resolve("skins"), staticRoot, localImages);
 	}
 
