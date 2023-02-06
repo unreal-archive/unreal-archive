@@ -236,17 +236,18 @@
 
 		function toggleProgress(progressing) {
 			if (progressing) {
+				progressBar.value = 0;
 				if (!logView.classList.contains("display-block")) logView.classList.add("display-block");
 				if (!progressControls.classList.contains("display-block")) progressControls.classList.add("display-block");
-		  	if (uploadControls.classList.contains("display-block")) uploadControls.classList.remove("display-block");
-		  	if (infoBlurb.classList.contains("display-block")) infoBlurb.classList.remove("display-block");
+				if (uploadControls.classList.contains("display-block")) uploadControls.classList.remove("display-block");
+				if (infoBlurb.classList.contains("display-block")) infoBlurb.classList.remove("display-block");
 				resetLog();
 			} else {
 				if (logView.classList.contains("display-block")) logView.classList.remove("display-block");
 				if (progressControls.classList.contains("display-block")) progressControls.classList.remove("display-block");
 				if (!uploadControls.classList.contains("display-block")) uploadControls.classList.add("display-block");
 				if (filesList.classList.contains("display-block")) filesList.classList.remove("display-block");
-		  	if (!infoBlurb.classList.contains("display-block")) infoBlurb.classList.add("display-block");
+				if (!infoBlurb.classList.contains("display-block")) infoBlurb.classList.add("display-block");
 				history.pushState(null, document.title, '#');
 			}
 		}
