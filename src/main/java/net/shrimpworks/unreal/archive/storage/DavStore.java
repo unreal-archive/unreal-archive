@@ -7,8 +7,8 @@ import java.nio.file.Path;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import net.shrimpworks.unreal.archive.CLI;
-import net.shrimpworks.unreal.archive.Util;
+import net.shrimpworks.unreal.archive.common.CLI;
+import net.shrimpworks.unreal.archive.common.Util;
 
 /**
  * A simple HTTP storage solution, useful for testing and validation.

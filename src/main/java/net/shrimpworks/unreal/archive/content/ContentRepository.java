@@ -13,8 +13,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import net.shrimpworks.unreal.archive.Util;
-import net.shrimpworks.unreal.archive.YAML;
+import net.shrimpworks.unreal.archive.common.Util;
+import net.shrimpworks.unreal.archive.common.YAML;
 
 public interface ContentRepository {
 

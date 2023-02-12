@@ -6,7 +6,9 @@ import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
 
-import net.shrimpworks.unreal.archive.YAML;
+import net.shrimpworks.unreal.archive.common.YAML;
+import net.shrimpworks.unreal.archive.indexing.IndexResult;
+import net.shrimpworks.unreal.archive.indexing.Submission;
 import net.shrimpworks.unreal.archive.storage.DataStore;
 
 public class ContentManager {
@@ -101,17 +103,6 @@ public class ContentManager {
 					indexed.content.downloads.add(new Content.Download(fileUrl, true, false, Content.DownloadState.OK))
 				);
 			}
-
-//			Path newYml = next.resolve(String.format("%s_[%s].yml", Util.slug(indexed.content.name), indexed.content.hash.substring(0, 8)));
-//			Files.writeString(Util.safeFileName(newYml), YAML.toString(indexed.content),
-//							  StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-//
-//			if (current != null && !current.path.equals(newYml)) {
-//				// remove old yml file if new file changed
-//				Files.deleteIfExists(current.path);
-//			}
-//
-//			this.content.put(indexed.content.hash, new ContentHolder(newYml, indexed.content));
 
 			repo.put(indexed.content);
 

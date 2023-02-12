@@ -14,12 +14,6 @@ public class Model extends Content {
 	// Game/Type/A/
 	private static final String PATH_STRING = "%s/%s/%s/%s/";
 
-	static final String UT_PLAYER_CLASS = "Botpack.TournamentPlayer";
-	static final String RUNE_PLAYER_CLASS = "RuneI.RunePlayer";
-	static final String UT3_CHARACTER_DEF = "UTGame.UTCustomChar_Data";
-
-	static final Pattern NAME_MATCH = Pattern.compile(".+?\\..+?");
-
 	public List<String> models = new ArrayList<>();
 	public List<String> skins = new ArrayList<>();
 

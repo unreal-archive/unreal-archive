@@ -12,11 +12,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import net.shrimpworks.unreal.archive.Util;
+import net.shrimpworks.unreal.archive.common.Util;
 import net.shrimpworks.unreal.archive.managed.Managed;
 import net.shrimpworks.unreal.archive.managed.ManagedContentManager;
 
-import static net.shrimpworks.unreal.archive.Util.slug;
+import static net.shrimpworks.unreal.archive.common.Util.slug;
 
 public class ManagedContent implements PageGenerator {
 

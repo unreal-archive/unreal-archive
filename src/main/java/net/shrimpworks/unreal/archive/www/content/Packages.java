@@ -12,12 +12,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import net.shrimpworks.unreal.archive.content.ContentRepository;
-import net.shrimpworks.unreal.archive.Util;
+import net.shrimpworks.unreal.archive.common.Util;
 import net.shrimpworks.unreal.archive.content.Content;
-import net.shrimpworks.unreal.archive.content.GameTypeManager;
+import net.shrimpworks.unreal.archive.content.ContentRepository;
+import net.shrimpworks.unreal.archive.content.GameTypeRepository;
 import net.shrimpworks.unreal.archive.content.Games;
-import net.shrimpworks.unreal.archive.content.Incoming;
+import net.shrimpworks.unreal.archive.indexing.Incoming;
 import net.shrimpworks.unreal.archive.managed.ManagedContentManager;
 import net.shrimpworks.unreal.archive.www.SiteFeatures;
 import net.shrimpworks.unreal.archive.www.SiteMap;
@@ -30,10 +30,10 @@ public class Packages extends ContentPageGenerator {
 													   .flatMap(p -> p.ext.stream())
 													   .collect(Collectors.toSet());
 
-	private final GameTypeManager gameTypes;
+	private final GameTypeRepository gameTypes;
 	private final ManagedContentManager managed;
 
-	public Packages(ContentRepository content, GameTypeManager gameTypes, ManagedContentManager managed, Path output, Path staticRoot,
+	public Packages(ContentRepository content, GameTypeRepository gameTypes, ManagedContentManager managed, Path output, Path staticRoot,
 					SiteFeatures features) {
 		super(content, output, output.resolve("packages"), staticRoot, features);
 
@@ -42,7 +42,7 @@ public class Packages extends ContentPageGenerator {
 	}
 
 	public Map<Games, Map<String, Map<Content.ContentFile, List<Content>>>> loadContentFiles(ContentRepository content,
-																							 GameTypeManager gameTypes,
+																							 GameTypeRepository gameTypes,
 																							 ManagedContentManager managed) {
 		final Map<Games, Map<String, Map<Content.ContentFile, List<Content>>>> contentFiles = new HashMap<>();
 		content.all()

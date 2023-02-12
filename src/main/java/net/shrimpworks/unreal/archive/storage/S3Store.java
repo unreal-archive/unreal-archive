@@ -18,8 +18,8 @@ import io.minio.StatObjectArgs;
 import io.minio.StatObjectResponse;
 import io.minio.errors.ErrorResponseException;
 
-import net.shrimpworks.unreal.archive.CLI;
-import net.shrimpworks.unreal.archive.Util;
+import net.shrimpworks.unreal.archive.common.CLI;
+import net.shrimpworks.unreal.archive.common.Util;
 
 /**
  * Amazon S3 and compatible storage implementation.

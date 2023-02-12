@@ -13,8 +13,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.shrimpworks.unreal.archive.Util;
-import net.shrimpworks.unreal.archive.YAML;
+import net.shrimpworks.unreal.archive.common.Util;
+import net.shrimpworks.unreal.archive.common.YAML;
 
 public class DocumentManager {
 

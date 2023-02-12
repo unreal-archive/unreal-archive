@@ -15,10 +15,10 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import net.shrimpworks.unreal.archive.content.ContentRepository;
-import net.shrimpworks.unreal.archive.Util;
+import net.shrimpworks.unreal.archive.common.Util;
 import net.shrimpworks.unreal.archive.content.Content;
-import net.shrimpworks.unreal.archive.content.GameTypeManager;
+import net.shrimpworks.unreal.archive.content.ContentRepository;
+import net.shrimpworks.unreal.archive.content.GameTypeRepository;
 import net.shrimpworks.unreal.archive.content.gametypes.GameType;
 import net.shrimpworks.unreal.archive.www.Markdown;
 import net.shrimpworks.unreal.archive.www.PageGenerator;
@@ -26,7 +26,7 @@ import net.shrimpworks.unreal.archive.www.SiteFeatures;
 import net.shrimpworks.unreal.archive.www.SiteMap;
 import net.shrimpworks.unreal.archive.www.Templates;
 
-import static net.shrimpworks.unreal.archive.Util.slug;
+import static net.shrimpworks.unreal.archive.common.Util.slug;
 
 public class GameTypes implements PageGenerator {
 
@@ -34,14 +34,14 @@ public class GameTypes implements PageGenerator {
 
 	private static final int THUMB_WIDTH = 350;
 
-	private final GameTypeManager gametypes;
+	private final GameTypeRepository gametypes;
 	private final ContentRepository content;
 	private final Path siteRoot;
 	private final Path root;
 	private final Path staticRoot;
 	private final SiteFeatures features;
 
-	public GameTypes(GameTypeManager gametypes, ContentRepository content, Path root, Path staticRoot, SiteFeatures features) {
+	public GameTypes(GameTypeRepository gametypes, ContentRepository content, Path root, Path staticRoot, SiteFeatures features) {
 		this.gametypes = gametypes;
 		this.content = content;
 		this.siteRoot = root;
@@ -50,7 +50,7 @@ public class GameTypes implements PageGenerator {
 		this.features = features;
 	}
 
-	private Map<String, Game> loadGames(GameTypeManager gametypes) {
+	private Map<String, Game> loadGames(GameTypeRepository gametypes) {
 		final Map<String, Game> games = new TreeMap<>();
 
 		gametypes.all().stream()
@@ -101,15 +101,14 @@ public class GameTypes implements PageGenerator {
 	}
 
 	private void generateGameType(Templates.PageSet pages, GameTypeInfo gametype) throws IOException {
-		final Path sourcePath = gametypes.path(gametype.gametype).getParent();
-		final Path outPath = Files.isDirectory(gametype.path) ? gametype.path : Files.createDirectories(gametype.path);
-
+//		final Path sourcePath = gametypes.path(gametype.gametype).getParent();
 		try (ReadableByteChannel docChan = this.gametypes.document(gametype.gametype)) {
+			final Path outPath = Files.isDirectory(gametype.path) ? gametype.path : Files.createDirectories(gametype.path);
 			// copy contents to output directory
-			Util.copyTree(sourcePath, outPath);
+			gametypes.writeContent(gametype.gametype, outPath);
 
 			// create gallery thumbnails
-			gametype.buildGallery();
+			gametype.buildGallery(outPath);
 
 			final String page = Markdown.renderMarkdown(docChan);
 
@@ -230,9 +229,9 @@ public class GameTypes implements PageGenerator {
 			this.gallery = new LinkedHashMap<>();
 		}
 
-		protected void buildGallery() {
+		protected void buildGallery(Path outPath) {
 			try {
-				Path gametypePath = gametypes.path(gametype).getParent().toAbsolutePath();
+				Path gametypePath = outPath.toAbsolutePath();
 				try (Stream<Path> files = Files.list(gametypePath.resolve("gallery"))) {
 					this.gallery.putAll(files
 											.filter(f -> Files.isRegularFile(f) && Util.image(f))
@@ -240,9 +239,9 @@ public class GameTypes implements PageGenerator {
 											.collect(Collectors.toMap(f -> gametypePath.relativize(f).toString(), f -> {
 												try {
 													Path thumb = Util.thumbnail(f,
-																				path.resolve("gallery").resolve("t_" + Util.fileName(f)),
+																				outPath.resolve("gallery").resolve("t_" + Util.fileName(f)),
 																				THUMB_WIDTH);
-													return path.relativize(thumb).toString();
+													return outPath.relativize(thumb).toString();
 												} catch (Exception e) {
 													return "";
 												}

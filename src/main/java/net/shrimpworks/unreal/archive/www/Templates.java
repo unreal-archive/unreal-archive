@@ -41,7 +41,7 @@ import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModel;
 import freemarker.template.TemplateModelException;
 
-import net.shrimpworks.unreal.archive.Util;
+import net.shrimpworks.unreal.archive.common.Util;
 
 public class Templates {
 

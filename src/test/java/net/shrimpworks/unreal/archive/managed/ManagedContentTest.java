@@ -13,9 +13,9 @@ import java.time.LocalDate;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 
-import net.shrimpworks.unreal.archive.ArchiveUtil;
-import net.shrimpworks.unreal.archive.Platform;
-import net.shrimpworks.unreal.archive.YAML;
+import net.shrimpworks.unreal.archive.common.ArchiveUtil;
+import net.shrimpworks.unreal.archive.common.Platform;
+import net.shrimpworks.unreal.archive.common.YAML;
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.www.ManagedContent;
 import net.shrimpworks.unreal.archive.www.SiteFeatures;

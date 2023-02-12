@@ -16,13 +16,14 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import net.shrimpworks.unreal.archive.ContentEntity;
-import net.shrimpworks.unreal.archive.content.ContentRepository;
-import net.shrimpworks.unreal.archive.Util;
+import net.shrimpworks.unreal.archive.common.Util;
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.ContentManager;
+import net.shrimpworks.unreal.archive.content.ContentRepository;
 import net.shrimpworks.unreal.archive.content.GameTypeManager;
-import net.shrimpworks.unreal.archive.content.IndexResult;
+import net.shrimpworks.unreal.archive.content.GameTypeRepository;
 import net.shrimpworks.unreal.archive.content.gametypes.GameType;
+import net.shrimpworks.unreal.archive.indexing.IndexResult;
 import net.shrimpworks.unreal.archive.managed.Managed;
 import net.shrimpworks.unreal.archive.managed.ManagedContentManager;
 import net.shrimpworks.unreal.archive.storage.DataStore;
@@ -48,7 +49,8 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 	private volatile CountDownLatch counter;
 	private volatile Thread mirrorThread;
 
-	public Mirror(ContentRepository repo, ContentManager cm, GameTypeManager gm, ManagedContentManager mm,
+	public Mirror(ContentRepository repo, ContentManager cm, GameTypeRepository gametypes, GameTypeManager gm,
+				  ManagedContentManager mm,
 				  DataStore mirrorStore, int concurrency, LocalDate since, LocalDate until, Progress progress) {
 		this.cm = cm;
 		this.gm = gm;
@@ -61,7 +63,7 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 		this.content = Stream.concat(
 								 repo.all().stream(),
 								 Stream.concat(
-									 gm.all().stream(),
+									 gametypes.all().stream(),
 									 mm.all().stream()
 								 )
 							 )
@@ -228,7 +230,8 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 
 						try {
 							boolean[] success = { false };
-							gm.syncReleaseFile(mirrorStore, gameType, releaseFile, localFile, success);
+							// FIXME files not saved
+							gm.syncReleaseFile(gameType, releaseFile, localFile, success);
 							if (!success[0]) {
 								throw new MirrorFailedException("Mirror of gametype failed", null, releaseFile.originalFilename, gameType);
 							}

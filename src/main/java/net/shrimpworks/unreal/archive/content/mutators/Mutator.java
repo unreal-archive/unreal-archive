@@ -14,17 +14,6 @@ public class Mutator extends Content {
 	// Game/Type/A/
 	private static final String PATH_STRING = "%s/%s/%s/%s/";
 
-	public static final String UT_MUTATOR_CLASS = "Engine.Mutator";
-	static final String UT_MENU_CLASS = "UMenu.UMenuModMenuItem";
-	static final String UT_KEYBINDINGS_CLASS = "UTMenu.UTExtraKeyBindings";
-	static final String UT_WEAPON_CLASS = "Botpack.TournamentWeapon";
-
-	static final String UT2_KEYBINDINGS_CLASS = "Xinterface.GUIUserKeyBinding";
-
-	public static final String UT3_MUTATOR_SECTION = "UTUIDataProvider_Mutator";
-	static final String UT3_WEAPON_SECTION = "UTUIDataProvider_Weapon";
-	static final String UT3_VEHICLE_SECTION = "UTUIDataProvider_Vehicle";
-
 	public List<NameDescription> mutators = new ArrayList<>(); // mutators contained within the package
 
 	public List<NameDescription> weapons = new ArrayList<>();  // weapons contained within the package

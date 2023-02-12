@@ -11,7 +11,7 @@ import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 import net.shrimpworks.unreal.archive.content.ContentRepository;
-import net.shrimpworks.unreal.archive.Util;
+import net.shrimpworks.unreal.archive.common.Util;
 import net.shrimpworks.unreal.archive.content.Content;
 
 /**

@@ -15,9 +15,12 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import net.shrimpworks.unreal.archive.content.IndexUtils;
+import net.shrimpworks.unreal.archive.common.Util;
+
+import static net.shrimpworks.unreal.archive.content.Content.UNKNOWN;
 
 public class AuthorNames {
+	public static volatile boolean wtf =false;
 
 	public static Optional<AuthorNames> instance = Optional.empty();
 
@@ -47,7 +50,8 @@ public class AuthorNames {
 						  try {
 							  List<String> names = Files.readAllLines(path);
 							  for (String name : names.subList(1, names.size())) {
-								  aliases.put(name.toLowerCase(), names.get(0));
+								  if (name.isBlank()) continue;
+								  aliases.put(name.toLowerCase().strip(), names.get(0).strip());
 							  }
 						  } catch (IOException e) {
 							  throw new RuntimeException("Failed to process names from file " + path, e);
@@ -82,7 +86,7 @@ public class AuthorNames {
 		if (author.isBlank()) return;
 
 		if (nonAutoAliases.contains(author.toLowerCase().strip())) return;
-		if (aliases.containsKey(author.trim())) return;
+		if (aliases.containsKey(author.toLowerCase().strip())) return;
 
 		String aliased = aliases.getOrDefault(author.toLowerCase().strip(), author).strip();
 		if (nonAutoAliases.contains(aliased)) return;
@@ -92,12 +96,17 @@ public class AuthorNames {
 			if (aka.matches()) {
 				// we'll record the name as well as the "aka" alias, both mapped to the pre-aka name
 				aliased = aka.group(1).strip();
+				if (nonAutoAliases.contains(aliased.toLowerCase())) return;
+				if (aliases.containsKey(aliased.toLowerCase())) return;
 				aliases.put(author.strip().toLowerCase(), aliased);
 				aliases.put(aka.group(2).strip().toLowerCase(), aliased);
 			} else {
 				Matcher handle = HANDLE.matcher(author);
 				if (handle.matches()) {
+					aliased = handle.group(3).strip();
 					// we'll record the full name, aliased by both the handle and real name
+					if (nonAutoAliases.contains(aliased.toLowerCase())) return;
+					if (aliases.containsKey(aliased.toLowerCase())) return;
 					aliases.put((handle.group(1) + " " + handle.group(4)).strip().toLowerCase(), author.strip());
 					aliases.put(handle.group(3).strip().toLowerCase(), author.strip());
 				}
@@ -110,7 +119,7 @@ public class AuthorNames {
 	 * common name, and with various elements like URLs and email addresses stripped.
 	 */
 	public String cleanName(String author) {
-		if (author.isBlank()) return IndexUtils.UNKNOWN;
+		if (author.isBlank()) return UNKNOWN;
 
 		String aliased = aliases.getOrDefault(author.toLowerCase().strip(), author).strip();
 
@@ -131,6 +140,13 @@ public class AuthorNames {
 
 		String noImport = IMPORTED.matcher(noConverted).replaceAll("");
 		if (noImport.isBlank()) noImport = noConverted;
+
+		if (wtf && author.equalsIgnoreCase("JoKeR")) {
+			System.out.println(" * " + author);
+			System.out.println(" * " + aliased);
+			System.out.println(" * " + noImport);
+			System.out.println(" * " + aliases.getOrDefault(noImport.toLowerCase().strip(), noImport).strip());
+		}
 
 		return aliases.getOrDefault(noImport.toLowerCase().strip(), noImport).strip();
 	}

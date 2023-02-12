@@ -20,8 +20,8 @@ import com.backblaze.b2.client.structures.B2ListBucketsRequest;
 import com.backblaze.b2.client.structures.B2UploadFileRequest;
 import com.backblaze.b2.client.webApiHttpClient.B2StorageHttpClientBuilder;
 
-import net.shrimpworks.unreal.archive.CLI;
-import net.shrimpworks.unreal.archive.Util;
+import net.shrimpworks.unreal.archive.common.CLI;
+import net.shrimpworks.unreal.archive.common.Util;
 
 /**
  * Backblaze B2 Cloud storage implementation.

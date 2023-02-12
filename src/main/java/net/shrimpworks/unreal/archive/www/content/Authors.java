@@ -17,22 +17,22 @@ import java.util.stream.Stream;
 import net.shrimpworks.unreal.archive.AuthorNames;
 import net.shrimpworks.unreal.archive.ContentEntity;
 import net.shrimpworks.unreal.archive.content.ContentRepository;
-import net.shrimpworks.unreal.archive.content.GameTypeManager;
+import net.shrimpworks.unreal.archive.content.GameTypeRepository;
 import net.shrimpworks.unreal.archive.managed.ManagedContentManager;
 import net.shrimpworks.unreal.archive.www.SiteFeatures;
 import net.shrimpworks.unreal.archive.www.SiteMap;
 import net.shrimpworks.unreal.archive.www.Templates;
 
-import static net.shrimpworks.unreal.archive.Util.authorSlug;
+import static net.shrimpworks.unreal.archive.common.Util.authorSlug;
 
 public class Authors extends ContentPageGenerator {
 
 	private static final String SECTION = "Authors";
 	private final AuthorNames names;
-	private final GameTypeManager gameTypes;
+	private final GameTypeRepository gameTypes;
 	private final ManagedContentManager managed;
 
-	public Authors(AuthorNames names, ContentRepository content, GameTypeManager gameTypes, ManagedContentManager managed, Path output,
+	public Authors(AuthorNames names, ContentRepository content, GameTypeRepository gameTypes, ManagedContentManager managed, Path output,
 				   Path staticRoot, SiteFeatures features) {
 		super(content, output, output.resolve("authors"), staticRoot, features);
 
@@ -42,7 +42,7 @@ public class Authors extends ContentPageGenerator {
 
 	}
 
-	private TreeMap<String, LetterGroup> loadLetters(AuthorNames names, ContentRepository content, GameTypeManager gameTypes,
+	private TreeMap<String, LetterGroup> loadLetters(AuthorNames names, ContentRepository content, GameTypeRepository gameTypes,
 													 ManagedContentManager managed) {
 		final TreeMap<String, LetterGroup> letters = new TreeMap<>();
 

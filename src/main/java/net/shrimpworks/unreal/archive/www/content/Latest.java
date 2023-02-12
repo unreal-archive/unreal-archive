@@ -9,9 +9,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import net.shrimpworks.unreal.archive.ContentEntity;
+import net.shrimpworks.unreal.archive.common.Util;
 import net.shrimpworks.unreal.archive.content.ContentRepository;
-import net.shrimpworks.unreal.archive.Util;
-import net.shrimpworks.unreal.archive.content.GameTypeManager;
+import net.shrimpworks.unreal.archive.content.GameTypeRepository;
 import net.shrimpworks.unreal.archive.content.Games;
 import net.shrimpworks.unreal.archive.managed.ManagedContentManager;
 import net.shrimpworks.unreal.archive.www.SiteFeatures;
@@ -20,10 +20,10 @@ import net.shrimpworks.unreal.archive.www.Templates;
 
 public class Latest extends ContentPageGenerator {
 
-	private final GameTypeManager gameTypes;
+	private final GameTypeRepository gameTypes;
 	private final ManagedContentManager managed;
 
-	public Latest(ContentRepository content, GameTypeManager gameTypes, ManagedContentManager managed, Path output, Path staticRoot,
+	public Latest(ContentRepository content, GameTypeRepository gameTypes, ManagedContentManager managed, Path output, Path staticRoot,
 				  SiteFeatures features) {
 		super(content, output, output.resolve("latest"), staticRoot, features);
 
@@ -31,7 +31,7 @@ public class Latest extends ContentPageGenerator {
 		this.managed = managed;
 	}
 
-	private Set<ContentEntity<?>> loadAllContent(ContentRepository content, GameTypeManager gameTypes, ManagedContentManager managed) {
+	private Set<ContentEntity<?>> loadAllContent(ContentRepository content, GameTypeRepository gameTypes, ManagedContentManager managed) {
 		return Stream.concat(Stream.concat(
 								 content.all(false).stream(),
 								 gameTypes.all().stream()),

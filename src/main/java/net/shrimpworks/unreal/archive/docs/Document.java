@@ -6,8 +6,7 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import net.shrimpworks.unreal.archive.Util;
-import net.shrimpworks.unreal.archive.content.Content;
+import net.shrimpworks.unreal.archive.common.Util;
 
 public class Document implements Comparable<Document> {
 

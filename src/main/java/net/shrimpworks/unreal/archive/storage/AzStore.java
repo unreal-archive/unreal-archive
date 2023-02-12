@@ -25,8 +25,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import net.shrimpworks.unreal.archive.CLI;
-import net.shrimpworks.unreal.archive.Util;
+import net.shrimpworks.unreal.archive.common.CLI;
+import net.shrimpworks.unreal.archive.common.Util;
 
 /**
  * Azure Cloud Blob storage implementation.

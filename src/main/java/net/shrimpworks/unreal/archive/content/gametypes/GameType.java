@@ -16,8 +16,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import net.shrimpworks.unreal.archive.AuthorNames;
 import net.shrimpworks.unreal.archive.ContentEntity;
-import net.shrimpworks.unreal.archive.Platform;
-import net.shrimpworks.unreal.archive.Util;
+import net.shrimpworks.unreal.archive.common.Platform;
+import net.shrimpworks.unreal.archive.common.Util;
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.NameDescription;
 

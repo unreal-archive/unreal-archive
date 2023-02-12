@@ -22,14 +22,15 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import net.shrimpworks.unreal.archive.CLI;
-import net.shrimpworks.unreal.archive.Platform;
-import net.shrimpworks.unreal.archive.Util;
-import net.shrimpworks.unreal.archive.YAML;
+import net.shrimpworks.unreal.archive.common.CLI;
+import net.shrimpworks.unreal.archive.common.Platform;
+import net.shrimpworks.unreal.archive.common.Util;
+import net.shrimpworks.unreal.archive.common.YAML;
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.Games;
-import net.shrimpworks.unreal.archive.content.IndexUtils;
 import net.shrimpworks.unreal.archive.storage.DataStore;
+
+import static net.shrimpworks.unreal.archive.content.Content.UNKNOWN;
 
 public class ManagedContentManager {
 
@@ -168,7 +169,7 @@ public class ManagedContentManager {
 		man.group = group;
 		man.path = path;
 		man.title = neatName;
-		man.author = IndexUtils.UNKNOWN;
+		man.author = UNKNOWN;
 		man.document = "readme.md";
 		man.titleImage = "title.png";
 

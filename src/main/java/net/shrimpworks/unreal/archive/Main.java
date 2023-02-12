@@ -31,20 +31,25 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import net.shrimpworks.unreal.archive.common.ArchiveUtil;
+import net.shrimpworks.unreal.archive.common.CLI;
+import net.shrimpworks.unreal.archive.common.Util;
+import net.shrimpworks.unreal.archive.common.YAML;
 import net.shrimpworks.unreal.archive.content.Content;
-import net.shrimpworks.unreal.archive.content.ContentEditor;
 import net.shrimpworks.unreal.archive.content.ContentManager;
 import net.shrimpworks.unreal.archive.content.ContentRepository;
 import net.shrimpworks.unreal.archive.content.ContentType;
 import net.shrimpworks.unreal.archive.content.GameTypeManager;
+import net.shrimpworks.unreal.archive.content.GameTypeRepository;
 import net.shrimpworks.unreal.archive.content.Games;
-import net.shrimpworks.unreal.archive.content.Incoming;
-import net.shrimpworks.unreal.archive.content.IndexLog;
-import net.shrimpworks.unreal.archive.content.IndexUtils;
-import net.shrimpworks.unreal.archive.content.Indexer;
-import net.shrimpworks.unreal.archive.content.Scanner;
-import net.shrimpworks.unreal.archive.content.Submission;
+import net.shrimpworks.unreal.archive.content.gametypes.GameType;
 import net.shrimpworks.unreal.archive.docs.DocumentManager;
+import net.shrimpworks.unreal.archive.indexing.ContentEditor;
+import net.shrimpworks.unreal.archive.indexing.Incoming;
+import net.shrimpworks.unreal.archive.indexing.IndexLog;
+import net.shrimpworks.unreal.archive.indexing.Indexer;
+import net.shrimpworks.unreal.archive.indexing.Scanner;
+import net.shrimpworks.unreal.archive.indexing.Submission;
 import net.shrimpworks.unreal.archive.managed.ManagedContentManager;
 import net.shrimpworks.unreal.archive.mirror.LocalMirrorClient;
 import net.shrimpworks.unreal.archive.mirror.Mirror;
@@ -73,6 +78,8 @@ import net.shrimpworks.unreal.archive.www.content.Packages;
 import net.shrimpworks.unreal.archive.www.content.Skins;
 import net.shrimpworks.unreal.archive.www.content.Voices;
 import net.shrimpworks.unreal.packages.Umod;
+
+import static net.shrimpworks.unreal.archive.content.Content.UNKNOWN;
 
 public class Main {
 
@@ -112,20 +119,23 @@ public class Main {
 				set(contentManager(cli, contentRepo(cli)), cli);
 				break;
 			case "gametype":
-				gametype(gameTypeManager(cli), cli);
+				GameTypeRepository gameTypeRepo = gameTypeRepo(cli);
+				gametype(gameTypeRepo, gameTypeManager(cli, gameTypeRepo), cli);
 				break;
 			case "managed":
 				managed(managedContent(cli), cli);
 				break;
 			case "mirror":
 				ContentRepository mirrorRepo = contentRepo(cli);
-				mirror(mirrorRepo, contentManager(cli, mirrorRepo), managedContent(cli), gameTypeManager(cli), cli);
+				GameTypeRepository gameTypeMirrorRepo = gameTypeRepo(cli);
+				mirror(mirrorRepo, contentManager(cli, mirrorRepo), gameTypeMirrorRepo, gameTypeManager(cli, gameTypeMirrorRepo),
+					   managedContent(cli), cli);
 				break;
 			case "local-mirror":
 				localMirror(contentRepo(cli), cli);
 				break;
 			case "www":
-				www(contentRepo(cli), documentManager(cli), managedContent(cli), gameTypeManager(cli), wikiManager(cli), cli);
+				www(contentRepo(cli), gameTypeRepo(cli), documentManager(cli), managedContent(cli), wikiManager(cli), cli);
 				break;
 			case "search-submit":
 				searchSubmit(contentRepo(cli), documentManager(cli), managedContent(cli), wikiManager(cli), cli);
@@ -272,15 +282,29 @@ public class Main {
 		return managedContentManager;
 	}
 
-	private static GameTypeManager gameTypeManager(CLI cli) throws IOException {
+	private static GameTypeRepository gameTypeRepo(CLI cli) throws IOException {
 		Path contentPath = contentPath(cli);
-
 		final long start = System.currentTimeMillis();
-		final GameTypeManager gametypes = new GameTypeManager(contentPath.resolve(GAMETYPES_DIR));
+		final GameTypeRepository repo = new GameTypeRepository(contentPath.resolve(GAMETYPES_DIR));
 		System.err.printf("Loaded gametypes index with %d items in %.2fs%n",
-						  gametypes.size(), (System.currentTimeMillis() - start) / 1000f);
+						  repo.size(), (System.currentTimeMillis() - start) / 1000f);
+		return repo;
+	}
 
-		return gametypes;
+	private static GameTypeManager gameTypeManager(CLI cli, GameTypeRepository repo) {
+		final DataStore imageStore = store(DataStore.StoreContent.IMAGES, cli);
+		final DataStore contentStore = store(DataStore.StoreContent.CONTENT, cli);
+
+		// prepare cleanup
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+			try {
+				imageStore.close();
+				contentStore.close();
+			} catch (IOException e) {
+				//
+			}
+		}));
+		return new GameTypeManager(repo, contentStore, imageStore);
 	}
 
 	private static WikiManager wikiManager(CLI cli) throws IOException {
@@ -389,7 +413,7 @@ public class Main {
 		editor.set(cli.commands()[1], cli.commands()[2], cli.commands()[3]);
 	}
 
-	private static void gametype(GameTypeManager gametypes, CLI cli) throws IOException {
+	private static void gametype(GameTypeRepository repo, GameTypeManager gametypes, CLI cli) throws IOException {
 		if (cli.commands().length < 2) {
 			System.err.println("A gametype operation is required:");
 			System.err.println("  init <game> <game type name>");
@@ -427,20 +451,39 @@ public class Main {
 				}
 
 				Games game = Games.byName(cli.commands()[2]);
-				Path gametypePath = gametypes.init(game, String.join(" ", Arrays.copyOfRange(cli.commands(), 3, cli.commands().length)));
-				System.out.println("Gametype initialised in directory:");
-				System.out.printf("  - %s%n", gametypePath.toAbsolutePath());
-				System.out.println("\nPopulate the appropriate files, add images, etc.");
-				System.out.println("To upload gametype files, execute the `sync` command.");
+				repo.create(game, String.join(" ", Arrays.copyOfRange(cli.commands(), 3, cli.commands().length)), gt -> {
+					System.out.printf("Gametype %s created%n", gt.name());
+				});
 			}
 			case "sync" -> {
-				final DataStore dataStore = store(DataStore.StoreContent.CONTENT, cli);
-				gametypes.sync(dataStore);
+				gametypes.sync();
 			}
 			case "index" -> {
-				final DataStore imageStore = store(DataStore.StoreContent.IMAGES, cli);
-				Games game = Games.byName(cli.commands()[2]);
-				gametypes.index(imageStore, game, cli.commands()[3], cli.commands()[4]);
+				final String gameName = cli.commands()[2];
+				final String gameTypeName = cli.commands()[3];
+				final String localFileName = cli.commands()[4];
+				final GameType gameType = repo.findGametype(Games.byName(gameName), gameTypeName);
+				if (gameType == null) {
+					System.err.printf("Game type %s was not found%n", gameTypeName);
+					System.exit(1);
+				}
+				// final reference hacks for use within lambda
+				final GameType.Release[] release = { null };
+				final GameType.ReleaseFile[] releaseFile = { null };
+				gameType.releases.forEach(r -> {
+					releaseFile[0] = r.files.stream()
+											.filter(f -> f.localFile.equalsIgnoreCase(localFileName) ||
+														 f.originalFilename.equalsIgnoreCase(Util.fileName(localFileName)))
+											.findFirst().orElse(null);
+					if (releaseFile[0] != null) release[0] = r;
+				});
+
+				if (release[0] == null || releaseFile[0] == null) {
+					System.err.printf("Could not find a release for file %s%n", localFileName);
+					System.exit(1);
+				}
+
+				gametypes.index(gameType, release[0], releaseFile[0]);
 			}
 			case "add" -> {
 				if (cli.commands().length < 3) {
@@ -466,9 +509,21 @@ public class Main {
 					System.exit(1);
 				}
 
-				final DataStore imageStore = store(DataStore.StoreContent.IMAGES, cli);
-				Games game = Games.byName(cli.commands()[2]);
-				gametypes.addRelease(imageStore, game, cli.commands()[3], cli.commands()[4], localFile, cli);
+				final Games game = Games.byName(cli.commands()[2]);
+				final String gameTypeName = cli.commands()[3];
+				final String releaseName = cli.commands()[4];
+
+				final Map<String, String> params = Map.of(
+					"title", cli.option("title", releaseName),
+					"version", cli.option("version", releaseName),
+					"releaseDate", cli.option("releaseDate", "Unknown"),
+					"description", cli.option("description", ""),
+					"platform", cli.option("platform", "ANY")
+				);
+
+				gametypes.addRelease(game, gameTypeName, releaseName, localFile, params, ((gameType, release) -> {
+					System.out.printf("Added release %s to gametype %s%n", release.title, gameType.name());
+				}));
 			}
 			default -> {
 				System.err.println("Unknown game type operation" + cli.commands()[1]);
@@ -567,8 +622,9 @@ public class Main {
 		}
 	}
 
-	private static void mirror(ContentRepository repo, ContentManager contentManager, ManagedContentManager managed,
-							   GameTypeManager gameTypeManager, CLI cli) {
+	private static void mirror(ContentRepository repo, ContentManager contentManager,
+							   GameTypeRepository gameTypeRepo, GameTypeManager gameTypeManager,
+							   ManagedContentManager managed, CLI cli) {
 		final DataStore mirrorStore = store(DataStore.StoreContent.CONTENT, cli);
 
 		// default to mirror last 7 days of changes
@@ -592,7 +648,7 @@ public class Main {
 						  since, until, mirrorStore, cli.option("concurrency", "3"));
 
 		Mirror mirror = new Mirror(
-			repo, contentManager, gameTypeManager, managed,
+			repo, contentManager, gameTypeRepo, gameTypeManager, managed,
 			mirrorStore,
 			Integer.parseInt(cli.option("concurrency", "3")),
 			since, until,
@@ -637,8 +693,8 @@ public class Main {
 		mirror.cancel();
 	}
 
-	private static void www(ContentRepository repository, DocumentManager documentManager, ManagedContentManager managed,
-							GameTypeManager gameTypeManager, WikiManager wikiManager, CLI cli)
+	private static void www(ContentRepository repository, GameTypeRepository gametypes, DocumentManager documentManager,
+							ManagedContentManager managed, WikiManager wikiManager, CLI cli)
 		throws IOException {
 		if (cli.commands().length < 2) {
 			System.err.println("An output path must be specified!");
@@ -676,7 +732,7 @@ public class Main {
 		Path authorPath = contentPath(cli).resolve(AUTHORS_DIR);
 		AuthorNames names = new AuthorNames(authorPath);
 		repository.all().parallelStream()
-				  .filter(c -> !IndexUtils.UNKNOWN.equalsIgnoreCase(c.author()))
+				  .filter(c -> !UNKNOWN.equalsIgnoreCase(c.author()))
 				  .sorted(Comparator.comparingInt(a -> a.author().length()))
 				  .forEachOrdered(c -> names.maybeAutoAlias(c.author));
 		AuthorNames.instance = Optional.of(names);
@@ -685,7 +741,7 @@ public class Main {
 		final Set<SiteMap.Page> allPages = ConcurrentHashMap.newKeySet();
 
 		final Set<PageGenerator> generators = new HashSet<>();
-		generators.add(new Index(repository, gameTypeManager, documentManager, managed, outputPath, staticOutput, features));
+		generators.add(new Index(repository, gametypes, documentManager, managed, outputPath, staticOutput, features));
 
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("content"))) {
 			// generate content pages
@@ -698,11 +754,11 @@ public class Main {
 					new Voices(repository, outputPath, staticOutput, features),
 					new Mutators(repository, outputPath, staticOutput, features)
 				));
-			if (withPackages) generators.add(new Packages(repository, gameTypeManager, managed, outputPath, staticOutput, features));
+			if (withPackages) generators.add(new Packages(repository, gametypes, managed, outputPath, staticOutput, features));
 		}
 
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("authors"))) {
-			generators.add(new Authors(names, repository, gameTypeManager, managed, outputPath, staticOutput, features));
+			generators.add(new Authors(names, repository, gametypes, managed, outputPath, staticOutput, features));
 		}
 
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("docs"))) {
@@ -714,11 +770,11 @@ public class Main {
 		}
 
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("gametypes"))) {
-			generators.add(new GameTypes(gameTypeManager, repository, outputPath, staticOutput, features));
+			generators.add(new GameTypes(gametypes, repository, outputPath, staticOutput, features));
 		}
 
 		if (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("packages")) {
-			generators.add(new Packages(repository, gameTypeManager, managed, outputPath, staticOutput, features));
+			generators.add(new Packages(repository, gametypes, managed, outputPath, staticOutput, features));
 		}
 
 		if (features.wikis || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("wiki"))) {
@@ -727,7 +783,7 @@ public class Main {
 
 		if (features.submit) generators.add(new Submit(outputPath, staticOutput, features));
 		if (features.search) generators.add(new Search(outputPath, staticOutput, features));
-		if (features.latest) generators.add(new Latest(repository, gameTypeManager, managed, outputPath, staticOutput, features));
+		if (features.latest) generators.add(new Latest(repository, gametypes, managed, outputPath, staticOutput, features));
 		if (features.files) generators.add(new FileDetails(repository, outputPath, staticOutput, features));
 
 		ForkJoinPool myPool = new ForkJoinPool(Integer.parseInt(cli.option("concurrency", "4")));
@@ -752,7 +808,7 @@ public class Main {
 		Path authorPath = contentPath(cli).resolve(AUTHORS_DIR);
 		AuthorNames names = new AuthorNames(authorPath);
 		repository.all().parallelStream()
-				  .filter(c -> !IndexUtils.UNKNOWN.equalsIgnoreCase(c.author()))
+				  .filter(c -> !UNKNOWN.equalsIgnoreCase(c.author()))
 				  .sorted(Comparator.comparingInt(a -> a.author().length()))
 				  .forEachOrdered(c -> names.maybeAutoAlias(c.author));
 		AuthorNames.instance = Optional.of(names);

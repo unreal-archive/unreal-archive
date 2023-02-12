@@ -7,7 +7,7 @@ import java.nio.file.Path;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import net.shrimpworks.unreal.archive.CLI;
+import net.shrimpworks.unreal.archive.common.CLI;
 
 public interface DataStore extends Closeable {
 

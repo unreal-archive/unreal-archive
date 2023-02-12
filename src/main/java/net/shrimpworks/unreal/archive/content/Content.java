@@ -16,7 +16,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import net.shrimpworks.unreal.archive.AuthorNames;
 import net.shrimpworks.unreal.archive.ContentEntity;
-import net.shrimpworks.unreal.archive.Util;
+import net.shrimpworks.unreal.archive.common.Util;
 import net.shrimpworks.unreal.archive.content.mappacks.MapPack;
 import net.shrimpworks.unreal.archive.content.maps.Map;
 import net.shrimpworks.unreal.archive.content.models.Model;
@@ -36,6 +36,8 @@ import net.shrimpworks.unreal.archive.content.voices.Voice;
 	@JsonSubTypes.Type(value = UnknownContent.class, name = "UNKNOWN")
 })
 public abstract class Content implements ContentEntity<Content> {
+
+	public static final String UNKNOWN = "Unknown";
 
 	public static final DateTimeFormatter RELEASE_DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM").withZone(ZoneId.systemDefault());
 
@@ -57,12 +59,12 @@ public abstract class Content implements ContentEntity<Content> {
 	 */
 	public String variationOf = null;
 
-	public String game = "Unknown";                         // Unreal Tournament
+	public String game = UNKNOWN;                           // Unreal Tournament
 	public String name;                                     // DM-MyMap
-	public String author = "Unknown";                       // Joe Soap
+	public String author = UNKNOWN;                         // Joe Soap
 	public String description = "None";                     // My cool map is cool and stuff
 
-	public String releaseDate = "Unknown";                  // 2001-05
+	public String releaseDate = UNKNOWN;                    // 2001-05
 
 	public List<Attachment> attachments = new ArrayList<>();// screenshots, videos, documents, etc
 

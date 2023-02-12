@@ -18,14 +18,14 @@ import java.util.Optional;
 import java.util.TreeMap;
 
 import net.shrimpworks.unreal.archive.content.ContentRepository;
-import net.shrimpworks.unreal.archive.Util;
+import net.shrimpworks.unreal.archive.common.Util;
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.Games;
 import net.shrimpworks.unreal.archive.www.SiteFeatures;
 import net.shrimpworks.unreal.archive.www.SiteMap;
 import net.shrimpworks.unreal.archive.www.Templates;
 
-import static net.shrimpworks.unreal.archive.Util.slug;
+import static net.shrimpworks.unreal.archive.common.Util.slug;
 import static net.shrimpworks.unreal.archive.www.Templates.PAGE_SIZE;
 
 public abstract class GenericContentPage<T extends Content> extends ContentPageGenerator {

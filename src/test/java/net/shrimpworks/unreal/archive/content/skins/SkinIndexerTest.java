@@ -6,9 +6,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
-import net.shrimpworks.unreal.archive.content.Incoming;
-import net.shrimpworks.unreal.archive.content.IndexLog;
-import net.shrimpworks.unreal.archive.content.Submission;
+import net.shrimpworks.unreal.archive.indexing.Incoming;
+import net.shrimpworks.unreal.archive.indexing.IndexLog;
+import net.shrimpworks.unreal.archive.indexing.Submission;
+import net.shrimpworks.unreal.archive.indexing.skins.SkinIndexHandler;
 
 import org.junit.jupiter.api.Test;
 
