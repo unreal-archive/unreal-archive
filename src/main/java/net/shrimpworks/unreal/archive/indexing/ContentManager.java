@@ -1,4 +1,4 @@
-package net.shrimpworks.unreal.archive.content;
+package net.shrimpworks.unreal.archive.indexing;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -7,8 +7,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import net.shrimpworks.unreal.archive.common.YAML;
-import net.shrimpworks.unreal.archive.indexing.IndexResult;
-import net.shrimpworks.unreal.archive.indexing.Submission;
+import net.shrimpworks.unreal.archive.content.Content;
+import net.shrimpworks.unreal.archive.content.ContentRepository;
 import net.shrimpworks.unreal.archive.storage.DataStore;
 
 public class ContentManager {

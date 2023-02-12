@@ -14,6 +14,7 @@ import net.shrimpworks.unreal.archive.common.Util;
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.Games;
 import net.shrimpworks.unreal.archive.content.models.Model;
+import net.shrimpworks.unreal.archive.content.FileType;
 import net.shrimpworks.unreal.archive.indexing.Incoming;
 import net.shrimpworks.unreal.archive.indexing.IndexHandler;
 import net.shrimpworks.unreal.archive.indexing.IndexLog;
@@ -54,7 +55,7 @@ public class ModelIndexHandler implements IndexHandler<Model> {
 
 		m.game = IndexUtils.game(incoming).name;
 
-		if (!incoming.files(Incoming.FileType.PACKAGE).isEmpty()) {
+		if (!incoming.files(FileType.PACKAGE).isEmpty()) {
 			// UT3 content includes .UPK files
 
 			// they don't seem to have skins, just characters, so that's all we'll record
@@ -70,7 +71,7 @@ public class ModelIndexHandler implements IndexHandler<Model> {
 					if (m.name == null || m.name.equals(origName)) m.name = v.getOrDefault("CharName", "Unknown").trim();
 				});
 
-		} else if (!incoming.files(Incoming.FileType.PLAYER).isEmpty()) {
+		} else if (!incoming.files(FileType.PLAYER).isEmpty()) {
 			// UT2003/4 model is defined by a UPL file
 
 			// each record contains both mesh and skin information, so keep track of seen meshes vs skins
@@ -130,7 +131,7 @@ public class ModelIndexHandler implements IndexHandler<Model> {
 	}
 
 	public static List<IntFile.MapValue> modelDescriptors(Incoming incoming) {
-		return IndexUtils.readIntFiles(incoming, incoming.files(Incoming.FileType.INT))
+		return IndexUtils.readIntFiles(incoming, incoming.files(FileType.INT))
 						 .filter(Objects::nonNull)
 						 .flatMap(intFile -> {
 							 List<IntFile.MapValue> vals = new ArrayList<>();
@@ -158,7 +159,7 @@ public class ModelIndexHandler implements IndexHandler<Model> {
 	}
 
 	private List<IntFile.MapValue> characterDescriptors(Incoming incoming) {
-		return IndexUtils.readIntFiles(incoming, incoming.files(Incoming.FileType.INI))
+		return IndexUtils.readIntFiles(incoming, incoming.files(FileType.INI))
 						 .filter(Objects::nonNull)
 						 .flatMap(intFile -> {
 							 IntFile.Section section = intFile.section(ModelClassifier.UT3_CHARACTER_DEF);
@@ -185,7 +186,7 @@ public class ModelIndexHandler implements IndexHandler<Model> {
 				Matcher matcher = IndexUtils.UT3_SCREENSHOT_MATCH.matcher(c.get("PreviewImageMarkup"));
 				if (matcher.find()) {
 					String pkgName = matcher.group(1);
-					incoming.files(Incoming.FileType.PACKAGE).stream().filter(
+					incoming.files(FileType.PACKAGE).stream().filter(
 						f -> Util.plainName(f.fileName()).equalsIgnoreCase(pkgName)).findFirst().ifPresent(f -> {
 						try (Package pkg = new Package(new PackageReader(f.asChannel()))) {
 

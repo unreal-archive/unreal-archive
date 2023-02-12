@@ -11,7 +11,7 @@ import java.util.Set;
 
 import net.shrimpworks.unreal.archive.content.ContentRepository;
 import net.shrimpworks.unreal.archive.content.Content;
-import net.shrimpworks.unreal.archive.indexing.Incoming;
+import net.shrimpworks.unreal.archive.content.FileType;
 import net.shrimpworks.unreal.archive.www.SiteFeatures;
 import net.shrimpworks.unreal.archive.www.SiteMap;
 import net.shrimpworks.unreal.archive.www.Templates;
@@ -49,7 +49,7 @@ public class FileDetails extends ContentPageGenerator {
 
 			pages.add("file.ftl", SiteMap.Page.monthly(0.25f), String.join(" / ", "Files", e.getKey().name))
 				 .put("file", e.getKey())
-				 .put("type", Incoming.FileType.forFile(e.getKey().name))
+				 .put("type", FileType.forFile(e.getKey().name))
 				 .put("packages", e.getValue())
 				 .write(p);
 		});

@@ -11,6 +11,7 @@ import java.util.stream.Stream;
 
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.voices.Voice;
+import net.shrimpworks.unreal.archive.content.FileType;
 import net.shrimpworks.unreal.archive.indexing.Incoming;
 import net.shrimpworks.unreal.archive.indexing.IndexHandler;
 import net.shrimpworks.unreal.archive.indexing.IndexLog;
@@ -62,7 +63,7 @@ public class VoiceIndexHandler implements IndexHandler<Voice> {
 	}
 
 	private List<String> voiceNames(Incoming incoming) {
-		return IndexUtils.readIntFiles(incoming, incoming.files(Incoming.FileType.INT))
+		return IndexUtils.readIntFiles(incoming, incoming.files(FileType.INT))
 						 .filter(Objects::nonNull)
 						 .flatMap(intFile -> {
 							 IntFile.Section section = intFile.section("public");

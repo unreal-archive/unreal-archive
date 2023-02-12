@@ -7,6 +7,7 @@ import java.util.Map;
 import net.shrimpworks.unreal.archive.common.Util;
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.ContentType;
+import net.shrimpworks.unreal.archive.content.FileType;
 import net.shrimpworks.unreal.archive.indexing.mappacks.MapPackClassifier;
 import net.shrimpworks.unreal.archive.indexing.mappacks.MapPackIndexHandler;
 import net.shrimpworks.unreal.archive.indexing.maps.MapClassifier;
@@ -80,8 +81,8 @@ public class ContentClassifier {
 
 				LocalDateTime releaseDate = null;
 				// populate list of interesting files
-				for (Incoming.IncomingFile f : incoming.files(Incoming.FileType.ALL)) {
-					if (!Incoming.FileType.important(f.file)) {
+				for (Incoming.IncomingFile f : incoming.files(FileType.ALL)) {
+					if (!FileType.important(f.file)) {
 						newInstance.otherFiles++;
 						continue;
 					}
@@ -91,7 +92,7 @@ public class ContentClassifier {
 
 						// try to find the newest possible file within this archive to use as the release date
 						// exclude umods because they're not specifically content, and their download date would be used
-						if (!Incoming.FileType.UMOD.matches(f.file)
+						if (!FileType.UMOD.matches(f.file)
 							&& (releaseDate == null || releaseDate.isBefore(f.fileDate()))) {
 							releaseDate = f.fileDate();
 						}

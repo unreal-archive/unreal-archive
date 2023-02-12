@@ -11,6 +11,7 @@ import java.util.function.Consumer;
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.NameDescription;
 import net.shrimpworks.unreal.archive.content.mutators.Mutator;
+import net.shrimpworks.unreal.archive.content.FileType;
 import net.shrimpworks.unreal.archive.indexing.Incoming;
 import net.shrimpworks.unreal.archive.indexing.IndexHandler;
 import net.shrimpworks.unreal.archive.indexing.IndexLog;
@@ -37,9 +38,9 @@ public class MutatorIndexHandler implements IndexHandler<Mutator> {
 
 		m.name = IndexUtils.friendlyName(m.name);
 
-		Set<Incoming.IncomingFile> uclFiles = incoming.files(Incoming.FileType.UCL);
-		Set<Incoming.IncomingFile> intFiles = incoming.files(Incoming.FileType.INT);
-		Set<Incoming.IncomingFile> iniFiles = incoming.files(Incoming.FileType.INI);
+		Set<Incoming.IncomingFile> uclFiles = incoming.files(FileType.UCL);
+		Set<Incoming.IncomingFile> intFiles = incoming.files(FileType.INT);
+		Set<Incoming.IncomingFile> iniFiles = incoming.files(FileType.INI);
 
 		if (!uclFiles.isEmpty()) {
 			// find mutator information via .ucl files (mutator names, descriptions, weapons and vehicles)

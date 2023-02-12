@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.skins.Skin;
+import net.shrimpworks.unreal.archive.content.FileType;
 import net.shrimpworks.unreal.archive.indexing.Incoming;
 import net.shrimpworks.unreal.archive.indexing.IndexHandler;
 import net.shrimpworks.unreal.archive.indexing.IndexLog;
@@ -49,7 +50,7 @@ public class SkinIndexHandler implements IndexHandler<Skin> {
 
 		s.game = IndexUtils.game(incoming).name;
 
-		if (!incoming.files(Incoming.FileType.PLAYER).isEmpty()) {
+		if (!incoming.files(FileType.PLAYER).isEmpty()) {
 			playerDescriptors(incoming).forEach(p -> {
 				if (p.containsKey("DefaultName")) {
 					if (s.name == null || s.name.equals(origName)) s.name = p.get("DefaultName");
@@ -97,7 +98,7 @@ public class SkinIndexHandler implements IndexHandler<Skin> {
 	}
 
 	public static void findPortraits(Incoming incoming, List<BufferedImage> images) {
-		if (!incoming.files(Incoming.FileType.PLAYER).isEmpty()) {
+		if (!incoming.files(FileType.PLAYER).isEmpty()) {
 			// find from UT2003/4 UPL "Portrait" property
 			playerDescriptors(incoming).forEach(d -> {
 				if (d.containsKey("Portrait")) {
@@ -141,7 +142,7 @@ public class SkinIndexHandler implements IndexHandler<Skin> {
 	}
 
 	public static List<IntFile.MapValue> skinDescriptors(Incoming incoming) {
-		return IndexUtils.readIntFiles(incoming, incoming.files(Incoming.FileType.INT))
+		return IndexUtils.readIntFiles(incoming, incoming.files(FileType.INT))
 						 .filter(Objects::nonNull)
 						 .flatMap(intFile -> {
 							 List<IntFile.MapValue> vals = new ArrayList<>();
@@ -167,7 +168,7 @@ public class SkinIndexHandler implements IndexHandler<Skin> {
 	}
 
 	public static List<IntFile.MapValue> playerDescriptors(Incoming incoming) {
-		return IndexUtils.readIntFiles(incoming, incoming.files(Incoming.FileType.PLAYER))
+		return IndexUtils.readIntFiles(incoming, incoming.files(FileType.PLAYER))
 						 .filter(Objects::nonNull)
 						 .flatMap(intFile -> {
 							 List<IntFile.MapValue> vals = new ArrayList<>();

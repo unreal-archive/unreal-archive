@@ -20,6 +20,7 @@ import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.mappacks.MapPack;
 import net.shrimpworks.unreal.archive.content.maps.GameTypes;
 import net.shrimpworks.unreal.archive.content.maps.Themes;
+import net.shrimpworks.unreal.archive.content.FileType;
 import net.shrimpworks.unreal.archive.indexing.Incoming;
 import net.shrimpworks.unreal.archive.indexing.IndexHandler;
 import net.shrimpworks.unreal.archive.indexing.IndexLog;
@@ -51,7 +52,7 @@ public class MapPackIndexHandler implements IndexHandler<MapPack> {
 		IndexLog log = incoming.log;
 		MapPack m = (MapPack)content;
 
-		Set<Incoming.IncomingFile> maps = incoming.files(Incoming.FileType.MAP);
+		Set<Incoming.IncomingFile> maps = incoming.files(FileType.MAP);
 		if (maps.isEmpty()) {
 			log.log(IndexLog.EntryType.FATAL, "Cannot index a map pack with no maps!", new IllegalStateException());
 			return;
@@ -180,7 +181,7 @@ public class MapPackIndexHandler implements IndexHandler<MapPack> {
 									  Consumer<List<BufferedImage>> listConsumer) {
 		List<BufferedImage> images = new ArrayList<>();
 
-		Set<Incoming.IncomingFile> iniFile = incoming.files(Incoming.FileType.INI)
+		Set<Incoming.IncomingFile> iniFile = incoming.files(FileType.INI)
 													 .stream()
 													 .filter(f -> f.fileName().equalsIgnoreCase(Util.plainName(map.fileName()) + ".ini"))
 													 .collect(Collectors.toSet());

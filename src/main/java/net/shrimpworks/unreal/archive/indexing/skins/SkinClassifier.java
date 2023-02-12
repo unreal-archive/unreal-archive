@@ -7,6 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.shrimpworks.unreal.archive.indexing.Classifier;
+import net.shrimpworks.unreal.archive.content.FileType;
 import net.shrimpworks.unreal.archive.indexing.Incoming;
 import net.shrimpworks.unreal.archive.indexing.IndexUtils;
 import net.shrimpworks.unreal.packages.IntFile;
@@ -35,20 +36,20 @@ public class SkinClassifier implements Classifier {
 
 	@Override
 	public boolean classify(Incoming incoming) {
-		Set<Incoming.IncomingFile> intFiles = incoming.files(Incoming.FileType.INT);
-		Set<Incoming.IncomingFile> playerFiles = incoming.files(Incoming.FileType.PLAYER);
-		Set<Incoming.IncomingFile> codeFiles = incoming.files(Incoming.FileType.CODE);
+		Set<Incoming.IncomingFile> intFiles = incoming.files(FileType.INT);
+		Set<Incoming.IncomingFile> playerFiles = incoming.files(FileType.PLAYER);
+		Set<Incoming.IncomingFile> codeFiles = incoming.files(FileType.CODE);
 
 		// presence of a .u package probably indicates a model
 		if (!codeFiles.isEmpty()) return false;
 
 		// there should be no maps in a skin... otherwise this may be a mod
-		if (!incoming.files(Incoming.FileType.MAP).isEmpty()) return false;
+		if (!incoming.files(FileType.MAP).isEmpty()) return false;
 
 		// more often than not multiple ints probably indicates a model
 //		if (intFiles.size() != 1 && playerFiles.size() != 1) return false;
 
-		if (incoming.files(Incoming.FileType.TEXTURE).isEmpty()) return false;
+		if (incoming.files(FileType.TEXTURE).isEmpty()) return false;
 
 		if (!playerFiles.isEmpty()) return ut2004Skin(incoming, playerFiles);
 		else if (!intFiles.isEmpty()) {
@@ -122,6 +123,6 @@ public class SkinClassifier implements Classifier {
 
 	private boolean ut2004Skin(Incoming incoming, Set<Incoming.IncomingFile> playerFiles) {
 		// indicates a model - presence of a player file indicates a plain skin
-		return incoming.files(Incoming.FileType.ANIMATION).isEmpty();
+		return incoming.files(FileType.ANIMATION).isEmpty();
 	}
 }

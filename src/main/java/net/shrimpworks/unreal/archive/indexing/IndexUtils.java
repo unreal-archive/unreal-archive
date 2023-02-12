@@ -24,6 +24,7 @@ import javax.imageio.ImageIO;
 
 import net.shrimpworks.unreal.archive.common.Util;
 import net.shrimpworks.unreal.archive.content.Content;
+import net.shrimpworks.unreal.archive.content.FileType;
 import net.shrimpworks.unreal.archive.content.Games;
 import net.shrimpworks.unreal.dependencies.DependencyResolver;
 import net.shrimpworks.unreal.dependencies.NativePackages;
@@ -65,13 +66,13 @@ public class IndexUtils {
 			return Games.byName(incoming.submission.override.get("game", Games.UNREAL_TOURNAMENT.name));
 		}
 
-		Set<Incoming.IncomingFile> files = incoming.files(Incoming.FileType.PACKAGES);
+		Set<Incoming.IncomingFile> files = incoming.files(FileType.PACKAGES);
 		if (files.isEmpty()) return Games.UNKNOWN;
 
 		if (incoming.submission.filePath.toString().contains("227")) return Games.UNREAL; // sometimes people name the packages after 227
 
-		if (!incoming.files(Incoming.FileType.PLAYER).isEmpty()) return Games.UNREAL_TOURNAMENT_2004;
-		if (!incoming.files(Incoming.FileType.PACKAGE).isEmpty()) return Games.UNREAL_TOURNAMENT_3;
+		if (!incoming.files(FileType.PLAYER).isEmpty()) return Games.UNREAL_TOURNAMENT_2004;
+		if (!incoming.files(FileType.PACKAGE).isEmpty()) return Games.UNREAL_TOURNAMENT_3;
 
 		if (files.stream().anyMatch(f -> Util.extension(f.file).equalsIgnoreCase("usx"))) return Games.UNREAL_TOURNAMENT_2004;
 		if (files.stream().anyMatch(f -> Util.extension(f.file).equalsIgnoreCase("ut2"))) return Games.UNREAL_TOURNAMENT_2004;
@@ -177,7 +178,7 @@ public class IndexUtils {
 
 		// maybe it's a UT3 map
 		if (map.version > 200) {
-			readIntFiles(incoming, incoming.files(Incoming.FileType.INI)).findFirst().ifPresent(ini -> {
+			readIntFiles(incoming, incoming.files(FileType.INI)).findFirst().ifPresent(ini -> {
 				ini.sections().forEach(s -> {
 					IntFile.Value shot = ini.section(s).value("PreviewImageMarkup");
 					if (shot instanceof IntFile.SimpleValue) {
@@ -298,7 +299,7 @@ public class IndexUtils {
 	 * @return a package
 	 */
 	public static Package findPackage(Incoming incoming, String pkg) {
-		Set<Incoming.IncomingFile> files = incoming.files(Incoming.FileType.PACKAGES);
+		Set<Incoming.IncomingFile> files = incoming.files(FileType.PACKAGES);
 		for (Incoming.IncomingFile f : files) {
 			String name = f.fileName();
 			name = name.substring(0, name.lastIndexOf("."));
@@ -317,7 +318,7 @@ public class IndexUtils {
 	 */
 	public static List<BufferedImage> findImageFiles(Incoming incoming) {
 		List<BufferedImage> images = new ArrayList<>();
-		Set<Incoming.IncomingFile> files = incoming.files(Incoming.FileType.IMAGE);
+		Set<Incoming.IncomingFile> files = incoming.files(FileType.IMAGE);
 		for (Incoming.IncomingFile img : files) {
 			try {
 				BufferedImage image = ImageIO.read(Channels.newInputStream(Objects.requireNonNull(img.asChannel())));
@@ -337,7 +338,7 @@ public class IndexUtils {
 	 * @return all lines from plain text content
 	 * @throws IOException failed to read files
 	 */
-	public static List<String> textContent(Incoming incoming, Incoming.FileType... fileTypes) throws IOException {
+	public static List<String> textContent(Incoming incoming, FileType... fileTypes) throws IOException {
 		List<String> lines = new ArrayList<>();
 		for (Incoming.IncomingFile f : incoming.files(fileTypes)) {
 			lines.addAll(textContent(incoming, f,
@@ -391,9 +392,9 @@ public class IndexUtils {
 	 * @return an author if found, or unknown
 	 */
 	public static String findAuthor(Incoming incoming, boolean searchIntFiles) {
-		Incoming.FileType[] types = searchIntFiles
-			? new Incoming.FileType[] { Incoming.FileType.TEXT, Incoming.FileType.HTML, Incoming.FileType.INT }
-			: new Incoming.FileType[] { Incoming.FileType.TEXT, Incoming.FileType.HTML };
+		FileType[] types = searchIntFiles
+			? new FileType[] { FileType.TEXT, FileType.HTML, FileType.INT }
+			: new FileType[] { FileType.TEXT, FileType.HTML };
 
 		try {
 			List<String> lines = IndexUtils.textContent(incoming, types);
@@ -419,7 +420,7 @@ public class IndexUtils {
 	 * @throws IOException failed to read files
 	 */
 	public static String findPlayerCount(Incoming incoming) throws IOException {
-		Incoming.FileType[] types = new Incoming.FileType[] { Incoming.FileType.TEXT, Incoming.FileType.HTML };
+		FileType[] types = new FileType[] { FileType.TEXT, FileType.HTML };
 
 		List<String> lines = IndexUtils.textContent(incoming, types);
 
@@ -507,8 +508,8 @@ public class IndexUtils {
 				incoming.log.log(IndexLog.EntryType.CONTINUE, "Dependency resolution error for " + e.file.toString(), e);
 			});
 
-			for (Incoming.IncomingFile file : incoming.files(Incoming.FileType.CODE, Incoming.FileType.MAP, Incoming.FileType.TEXTURE,
-															 Incoming.FileType.STATICMESH, Incoming.FileType.ANIMATION)) {
+			for (Incoming.IncomingFile file : incoming.files(FileType.CODE, FileType.MAP, FileType.TEXTURE,
+															 FileType.STATICMESH, FileType.ANIMATION)) {
 				List<Content.Dependency> depList = new ArrayList<>();
 				try {
 					Map<String, Set<Resolved>> resolved = resolver.resolve(Util.plainName(file.fileName()));

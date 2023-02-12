@@ -14,7 +14,7 @@ import java.util.Set;
 
 import net.shrimpworks.unreal.archive.common.YAML;
 import net.shrimpworks.unreal.archive.content.Content;
-import net.shrimpworks.unreal.archive.content.ContentManager;
+import net.shrimpworks.unreal.archive.content.FileType;
 
 /**
  * Utility for manipulating content data.
@@ -119,7 +119,7 @@ public class ContentEditor {
 			System.exit(5);
 		}
 
-		if (!Incoming.FileType.IMAGE.matches(attachment)) {
+		if (!FileType.IMAGE.matches(attachment)) {
 			System.err.printf("Attachment file \"%s\" is not an image!%n", attachment);
 			System.exit(6);
 		}

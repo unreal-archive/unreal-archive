@@ -22,6 +22,7 @@ import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.maps.GameTypes;
 import net.shrimpworks.unreal.archive.content.maps.Map;
 import net.shrimpworks.unreal.archive.content.maps.Themes;
+import net.shrimpworks.unreal.archive.content.FileType;
 import net.shrimpworks.unreal.archive.indexing.Incoming;
 import net.shrimpworks.unreal.archive.indexing.IndexHandler;
 import net.shrimpworks.unreal.archive.indexing.IndexLog;
@@ -189,7 +190,7 @@ public class MapIndexHandler implements IndexHandler<Map> {
 	}
 
 	private void scrapeUE3(Incoming incoming, Map m, Package map, List<BufferedImage> screenshots) {
-		IndexUtils.readIntFiles(incoming, incoming.files(Incoming.FileType.INI)).findFirst().ifPresent(ini -> {
+		IndexUtils.readIntFiles(incoming, incoming.files(FileType.INI)).findFirst().ifPresent(ini -> {
 			ini.sections().forEach(s -> {
 				IntFile.Value name = ini.section(s).value("MapName");
 				if (name instanceof IntFile.SimpleValue) m.name = ((IntFile.SimpleValue)name).value().trim();
@@ -221,7 +222,7 @@ public class MapIndexHandler implements IndexHandler<Map> {
 	}
 
 	private Incoming.IncomingFile baseMap(Incoming incoming) {
-		Set<Incoming.IncomingFile> maps = incoming.files(Incoming.FileType.MAP);
+		Set<Incoming.IncomingFile> maps = incoming.files(FileType.MAP);
 
 		Incoming.IncomingFile shortestMap = null;
 		for (Incoming.IncomingFile map : maps) {
@@ -260,7 +261,7 @@ public class MapIndexHandler implements IndexHandler<Map> {
 		}
 
 		try {
-			List<String> lines = IndexUtils.textContent(incoming, Incoming.FileType.TEXT, Incoming.FileType.HTML);
+			List<String> lines = IndexUtils.textContent(incoming, FileType.TEXT, FileType.HTML);
 
 			for (String s : lines) {
 				Matcher m = SP_MATCH.matcher(s);

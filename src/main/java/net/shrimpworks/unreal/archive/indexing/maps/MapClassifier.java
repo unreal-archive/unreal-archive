@@ -4,6 +4,7 @@ import java.util.Set;
 
 import net.shrimpworks.unreal.archive.common.Util;
 import net.shrimpworks.unreal.archive.indexing.Classifier;
+import net.shrimpworks.unreal.archive.content.FileType;
 import net.shrimpworks.unreal.archive.indexing.Incoming;
 
 public class MapClassifier implements Classifier {
@@ -13,8 +14,8 @@ public class MapClassifier implements Classifier {
 
 	@Override
 	public boolean classify(Incoming incoming) {
-		Set<Incoming.IncomingFile> maps = incoming.files(Incoming.FileType.MAP);
-		Set<Incoming.IncomingFile> ints = incoming.files(Incoming.FileType.INT);
+		Set<Incoming.IncomingFile> maps = incoming.files(FileType.MAP);
+		Set<Incoming.IncomingFile> ints = incoming.files(FileType.INT);
 
 		if (maps.isEmpty()) return false;
 

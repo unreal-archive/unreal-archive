@@ -1,4 +1,4 @@
-package net.shrimpworks.unreal.archive.content;
+package net.shrimpworks.unreal.archive.indexing;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -18,10 +18,12 @@ import javax.imageio.ImageIO;
 import net.shrimpworks.unreal.archive.common.Platform;
 import net.shrimpworks.unreal.archive.common.Util;
 import net.shrimpworks.unreal.archive.common.YAML;
+import net.shrimpworks.unreal.archive.content.Content;
+import net.shrimpworks.unreal.archive.content.FileType;
+import net.shrimpworks.unreal.archive.content.GameTypeRepository;
+import net.shrimpworks.unreal.archive.content.Games;
+import net.shrimpworks.unreal.archive.content.NameDescription;
 import net.shrimpworks.unreal.archive.content.gametypes.GameType;
-import net.shrimpworks.unreal.archive.indexing.Incoming;
-import net.shrimpworks.unreal.archive.indexing.IndexUtils;
-import net.shrimpworks.unreal.archive.indexing.Submission;
 import net.shrimpworks.unreal.archive.indexing.mutators.MutatorClassifier;
 import net.shrimpworks.unreal.archive.indexing.mutators.MutatorIndexHandler;
 import net.shrimpworks.unreal.archive.storage.DataStore;
@@ -37,31 +39,15 @@ public class GameTypeManager {
 
 	private static final String REMOTE_ROOT = "gametypes";
 
-//	private final Path path;
-
 	private final GameTypeRepository repo;
 
 	private final DataStore contentStore;
 	private final DataStore imageStore;
 
-//	private final Set<GameTypeHolder> gameTypes;
-//	private final Map<String, Collection<GameType>> contentFileMap;
-
 	public GameTypeManager(GameTypeRepository repo, DataStore contentStore, DataStore imageStore) {
-//		this.path = path;
 		this.repo = repo;
 		this.contentStore = contentStore;
 		this.imageStore = imageStore;
-//		this.gameTypes = new HashSet<>();
-//		this.contentFileMap = new HashMap<>();
-
-//		scanPath(path, null);
-	}
-
-	public GameType checkout(Games game, String gameType) {
-		GameType out = repo.findGametype(game, gameType);
-		if (out != null) checkout(out);
-		return null;
 	}
 
 	public GameType checkout(GameType gameType) {
@@ -79,133 +65,6 @@ public class GameTypeManager {
 			throw new IllegalStateException("Cannot store GameType " + gameType.name());
 		}
 	}
-
-//	private void scanPath(Path root, GameTypeHolder parent) throws IOException {
-//		try (Stream<Path> files = Files.find(root, 3, (file, attr) -> file.toString().endsWith(".yml")).parallel()) {
-//			files.forEach(file -> {
-//				try {
-//					GameType g = YAML.fromFile(file, GameType.class);
-//					GameTypeHolder holder = new GameTypeHolder(file, g, parent);
-//					gameTypes.add(holder);
-//
-//					// while reading this content, also index its individual files for later quick lookup
-//					g.releases.stream().flatMap(r -> r.files.stream()).flatMap(f -> f.files.stream()).forEach(f -> {
-//						Collection<GameType> fileSet = contentFileMap.computeIfAbsent(f.hash, h -> ConcurrentHashMap.newKeySet());
-//						fileSet.add(g);
-//					});
-//
-//					Path variations = file.resolveSibling("variations");
-//					if (Files.isDirectory(variations)) {
-//						scanPath(variations, holder);
-//					}
-//				} catch (Exception e) {
-//					throw new RuntimeException(e);
-//				}
-//			});
-//		}
-//	}
-
-//	public int size() {
-//		return gameTypes.size();
-//	}
-//
-//	public Set<GameType> all() {
-//		return gameTypes.stream()
-//						.filter(g -> g.variationOf == null)
-//						.filter(g -> !g.gametype.deleted())
-//						.map(g -> g.gametype)
-//						.collect(Collectors.toSet());
-//	}
-//
-//	public Set<GameType> variations(GameType gameType) {
-//		return gameTypes.stream()
-//						.filter(g -> g.variationOf != null && g.variationOf.gametype.equals(gameType))
-//						.filter(g -> !g.gametype.deleted())
-//						.map(g -> g.gametype)
-//						.collect(Collectors.toSet());
-//	}
-//
-//	public Path path(GameType gameType) {
-//		return gameTypes.stream()
-//						.filter(g -> gameType.equals(g.gametype))
-//						.findFirst()
-//						.get().path;
-//	}
-
-//	/**
-//	 * Get the raw text content of the associated description document as a channel.
-//	 *
-//	 * @param gameType gametype to retrieve document for
-//	 * @return document content
-//	 * @throws IOException failed to open the document
-//	 */
-//	public ReadableByteChannel document(GameType gameType) throws IOException {
-//		GameTypeHolder holder = getGameType(gameType);
-//		if (holder == null) return null;
-//
-//		Path docPath = holder.path.resolveSibling(DOCUMENT_FILE);
-//
-//		if (!Files.exists(docPath)) return null;
-//
-//		return Files.newByteChannel(docPath, StandardOpenOption.READ);
-//	}
-
-//	public Path init(Games game, String gameType) throws IOException {
-//		return init(game, gameType, "template.md", gt -> {
-//		});
-//	}
-//
-//	private Path init(Games game, String gameType, String template, Consumer<GameType> initialised) throws IOException {
-//		// create path
-//		final Path path = Files.createDirectories(gameTypePath(game, gameType));
-//		final String neatName = Util.capitalWords(gameType);
-//
-//		// create the basic definition
-//		GameType gt = new GameType();
-//		gt.addedDate = LocalDate.now();
-//		gt.game = game.name;
-//		gt.name = neatName;
-//		gt.author = neatName + " Team";
-//		gt.description = "Short description about " + neatName;
-//		gt.titleImage = "title.png";
-//		gt.links.put("Homepage", "https://" + Util.slug(gameType) + ".com");
-//		gt.credits.putAll(Map.of("Programming", List.of("Joe 'Programmer' Soap"), "Maps", List.of("MapGuy")));
-//
-//		GameType.Release release = new GameType.Release();
-//		release.title = neatName + " Release";
-//		release.version = "1.0";
-//
-//		GameType.ReleaseFile file = new GameType.ReleaseFile();
-//		file.title = "Release Package";
-//		file.localFile = "/path/to/release.zip";
-//
-//		release.files.add(file);
-//		gt.releases.add(release);
-//
-//		initialised.accept(gt);
-//
-//		Path yml = Util.safeFileName(path.resolve("gametype.yml"));
-//		Path md = Util.safeFileName(path.resolve(DOCUMENT_FILE));
-//
-//		if (!Files.exists(yml)) {
-//			Files.writeString(yml, YAML.toString(gt), StandardOpenOption.CREATE);
-//		}
-//
-//		if (!Files.exists(md)) {
-//			Files.copy(GameType.class.getResourceAsStream(template), md);
-//		}
-//
-//		gameTypes.add(new GameTypeHolder(yml, gt));
-//
-//		return path;
-//	}
-
-//	private Optional<GameTypeHolder> findGametype(Games game, String gameType) {
-//		return gameTypes.stream()
-//						.filter(g -> !g.gametype.deleted())
-//						.filter(g -> g.gametype.game().equals(game.name) && g.gametype.name().equalsIgnoreCase(gameType))
-//						.findFirst();
-//	}
 
 	public void addRelease(Games game, String gameType, String releaseName, Path localFile, Map<String, String> params,
 						   BiConsumer<GameType, GameType.Release> complete)
@@ -244,23 +103,10 @@ public class GameTypeManager {
 		file.title = params.getOrDefault("title", releaseName);
 		rel.files.add(file);
 
-		// update with the release
-//		Files.writeString(gt.path, YAML.toString(gt.gametype),
-//						  StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-//
-//		if (cli.option("index", "false").equalsIgnoreCase("true")) {
-//			// trigger an index
-//			index(imageStore, game, gameType, Util.fileName(localFile));
-//		}
-
 		repo.put(gt);
 
 		complete.accept(gt, rel);
 	}
-
-//	private Path gameTypePath(Games game, String gameType) {
-//		return path.resolve(game.name).resolve(Util.slug(gameType));
-//	}
 
 	public void sync() {
 		syncReleases();
@@ -276,12 +122,6 @@ public class GameTypeManager {
 
 		checkin(clone);
 	}
-
-//	private GameTypeHolder getGameType(GameType gameType) {
-//		return gameTypes.stream()
-//						.filter(g -> gameType.equals(g.gametype))
-//						.findFirst().orElseThrow(() -> new IllegalArgumentException("GameType was not found: " + gameType.name()));
-//	}
 
 	public void syncReleases() {
 		repo.all().stream()
@@ -321,8 +161,8 @@ public class GameTypeManager {
 				// gather files
 				r.otherFiles = 0;
 				r.files.clear();
-				for (Incoming.IncomingFile i : incoming.files(Incoming.FileType.ALL)) {
-					if (!Incoming.FileType.important(i.file)) {
+				for (Incoming.IncomingFile i : incoming.files(FileType.ALL)) {
+					if (!FileType.important(i.file)) {
 						r.otherFiles++;
 						continue;
 					}
@@ -347,8 +187,8 @@ public class GameTypeManager {
 		}
 	}
 
-	private void storeReleaseFile(GameType gameType, GameType.ReleaseFile releaseFile, Path localFile, boolean[] success
-	) throws IOException {
+	private void storeReleaseFile(GameType gameType, GameType.ReleaseFile releaseFile, Path localFile, boolean[] success)
+		throws IOException {
 		contentStore.store(localFile, String.join("/", remotePath(gameType), localFile.getFileName().toString()), (url, ex) -> {
 			System.out.println(" - stored as " + url);
 
@@ -413,8 +253,8 @@ public class GameTypeManager {
 	 * @return list of found game types
 	 */
 	private List<NameDescription> findGameTypes(Incoming incoming) {
-		Set<Incoming.IncomingFile> uclFiles = incoming.files(Incoming.FileType.UCL);
-		Set<Incoming.IncomingFile> intFiles = incoming.files(Incoming.FileType.INT);
+		Set<Incoming.IncomingFile> uclFiles = incoming.files(FileType.UCL);
+		Set<Incoming.IncomingFile> intFiles = incoming.files(FileType.INT);
 
 		if (!uclFiles.isEmpty()) {
 			// find mutator information via .ucl files (mutator names, descriptions, weapons and vehicles)
@@ -466,9 +306,9 @@ public class GameTypeManager {
 	 * @return list of found mutators
 	 */
 	private List<NameDescription> findMutators(Incoming incoming) {
-		Set<Incoming.IncomingFile> uclFiles = incoming.files(Incoming.FileType.UCL);
-		Set<Incoming.IncomingFile> intFiles = incoming.files(Incoming.FileType.INT);
-		Set<Incoming.IncomingFile> iniFiles = incoming.files(Incoming.FileType.INI);
+		Set<Incoming.IncomingFile> uclFiles = incoming.files(FileType.UCL);
+		Set<Incoming.IncomingFile> intFiles = incoming.files(FileType.INT);
+		Set<Incoming.IncomingFile> iniFiles = incoming.files(FileType.INI);
 
 		// FIXME use mutator indexer
 		if (!uclFiles.isEmpty()) {
@@ -525,7 +365,7 @@ public class GameTypeManager {
 	}
 
 	private List<GameType.GameTypeMap> findMaps(Incoming incoming, GameType gameType, DataStore imageStore) {
-		Set<Incoming.IncomingFile> mapFiles = incoming.files(Incoming.FileType.MAP);
+		Set<Incoming.IncomingFile> mapFiles = incoming.files(FileType.MAP);
 
 		class FileAndPackage {
 

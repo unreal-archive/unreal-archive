@@ -17,8 +17,6 @@ import java.util.stream.Stream;
 
 import net.shrimpworks.unreal.archive.common.Util;
 
-import static net.shrimpworks.unreal.archive.content.Content.UNKNOWN;
-
 public class AuthorNames {
 	public static volatile boolean wtf =false;
 
@@ -119,7 +117,7 @@ public class AuthorNames {
 	 * common name, and with various elements like URLs and email addresses stripped.
 	 */
 	public String cleanName(String author) {
-		if (author.isBlank()) return UNKNOWN;
+		if (author.isBlank()) return "Unknown";
 
 		String aliased = aliases.getOrDefault(author.toLowerCase().strip(), author).strip();
 

@@ -15,9 +15,9 @@ import java.util.stream.Collectors;
 import net.shrimpworks.unreal.archive.common.Util;
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.ContentRepository;
+import net.shrimpworks.unreal.archive.content.FileType;
 import net.shrimpworks.unreal.archive.content.GameTypeRepository;
 import net.shrimpworks.unreal.archive.content.Games;
-import net.shrimpworks.unreal.archive.indexing.Incoming;
 import net.shrimpworks.unreal.archive.managed.ManagedContentManager;
 import net.shrimpworks.unreal.archive.www.SiteFeatures;
 import net.shrimpworks.unreal.archive.www.SiteMap;
@@ -25,8 +25,8 @@ import net.shrimpworks.unreal.archive.www.Templates;
 
 public class Packages extends ContentPageGenerator {
 
-	private static final Set<String> PKG_TYPES = Arrays.stream(Incoming.FileType.PACKAGES)
-													   .filter(p -> p != Incoming.FileType.MAP)
+	private static final Set<String> PKG_TYPES = Arrays.stream(FileType.PACKAGES)
+													   .filter(p -> p != FileType.MAP)
 													   .flatMap(p -> p.ext.stream())
 													   .collect(Collectors.toSet());
 
@@ -81,7 +81,7 @@ public class Packages extends ContentPageGenerator {
 				pages.add("package.ftl", SiteMap.Page.monthly(0.3f), String.join(" / ", "Packages", game.getKey().name, e.getKey()))
 					 .put("game", game.getKey().name)
 					 .put("package", e.getKey())
-					 .put("type", Incoming.FileType.forFile(any[0].name))
+					 .put("type", FileType.forFile(any[0].name))
 					 .put("packageFiles", sorted)
 					 .write(p);
 			});

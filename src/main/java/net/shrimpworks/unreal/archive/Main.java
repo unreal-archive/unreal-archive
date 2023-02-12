@@ -36,10 +36,11 @@ import net.shrimpworks.unreal.archive.common.CLI;
 import net.shrimpworks.unreal.archive.common.Util;
 import net.shrimpworks.unreal.archive.common.YAML;
 import net.shrimpworks.unreal.archive.content.Content;
-import net.shrimpworks.unreal.archive.content.ContentManager;
+import net.shrimpworks.unreal.archive.indexing.ContentManager;
 import net.shrimpworks.unreal.archive.content.ContentRepository;
 import net.shrimpworks.unreal.archive.content.ContentType;
-import net.shrimpworks.unreal.archive.content.GameTypeManager;
+import net.shrimpworks.unreal.archive.content.FileType;
+import net.shrimpworks.unreal.archive.indexing.GameTypeManager;
 import net.shrimpworks.unreal.archive.content.GameTypeRepository;
 import net.shrimpworks.unreal.archive.content.Games;
 import net.shrimpworks.unreal.archive.content.gametypes.GameType;
@@ -285,7 +286,7 @@ public class Main {
 	private static GameTypeRepository gameTypeRepo(CLI cli) throws IOException {
 		Path contentPath = contentPath(cli);
 		final long start = System.currentTimeMillis();
-		final GameTypeRepository repo = new GameTypeRepository(contentPath.resolve(GAMETYPES_DIR));
+		final GameTypeRepository repo = new GameTypeRepository.FileRepository(contentPath.resolve(GAMETYPES_DIR));
 		System.err.printf("Loaded gametypes index with %d items in %.2fs%n",
 						  repo.size(), (System.currentTimeMillis() - start) / 1000f);
 		return repo;
@@ -980,25 +981,25 @@ public class Main {
 			? new StandardCopyOption[] { StandardCopyOption.REPLACE_EXISTING }
 			: new StandardCopyOption[0];
 
-		Map<Incoming.FileType, String> destinations = new HashMap<>();
-		destinations.put(Incoming.FileType.CODE, "System");
-		destinations.put(Incoming.FileType.INT, "System");
-		destinations.put(Incoming.FileType.INI, "System");
-		destinations.put(Incoming.FileType.UCL, "System");
-		destinations.put(Incoming.FileType.PLAYER, "System");
-		destinations.put(Incoming.FileType.MAP, "Maps");
-		destinations.put(Incoming.FileType.MUSIC, "Music");
-		destinations.put(Incoming.FileType.STATICMESH, "StaticMeshes");
-		destinations.put(Incoming.FileType.SOUNDS, "Sounds");
-		destinations.put(Incoming.FileType.TEXTURE, "Textures");
-		destinations.put(Incoming.FileType.PHYSICS, "KarmaData");
-		destinations.put(Incoming.FileType.ANIMATION, "Animations");
+		Map<FileType, String> destinations = new HashMap<>();
+		destinations.put(FileType.CODE, "System");
+		destinations.put(FileType.INT, "System");
+		destinations.put(FileType.INI, "System");
+		destinations.put(FileType.UCL, "System");
+		destinations.put(FileType.PLAYER, "System");
+		destinations.put(FileType.MAP, "Maps");
+		destinations.put(FileType.MUSIC, "Music");
+		destinations.put(FileType.STATICMESH, "StaticMeshes");
+		destinations.put(FileType.SOUNDS, "Sounds");
+		destinations.put(FileType.TEXTURE, "Textures");
+		destinations.put(FileType.PHYSICS, "KarmaData");
+		destinations.put(FileType.ANIMATION, "Animations");
 
 		// create some useless holder things, so we can reuse the Incoming class for unpacking content
 		Submission sub = new Submission(path);
 		IndexLog log = new IndexLog();
 		try (Incoming incoming = new Incoming(sub, log).prepare()) {
-			incoming.files(destinations.keySet().toArray(new Incoming.FileType[0])).forEach(f -> {
+			incoming.files(destinations.keySet().toArray(new FileType[0])).forEach(f -> {
 				Path destPath = dest.resolve(destinations.get(f.fileType()));
 				if (!Files.isDirectory(destPath)) {
 					try {

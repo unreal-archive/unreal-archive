@@ -27,7 +27,6 @@ import java.util.function.Consumer;
 import net.shrimpworks.unreal.archive.common.Util;
 import net.shrimpworks.unreal.archive.common.YAML;
 import net.shrimpworks.unreal.archive.content.Content;
-import net.shrimpworks.unreal.archive.content.ContentManager;
 import net.shrimpworks.unreal.archive.content.ContentRepository;
 import net.shrimpworks.unreal.archive.content.ContentType;
 import net.shrimpworks.unreal.archive.content.Games;

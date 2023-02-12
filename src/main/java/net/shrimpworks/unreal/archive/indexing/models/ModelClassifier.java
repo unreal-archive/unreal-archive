@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
 import net.shrimpworks.unreal.archive.indexing.Classifier;
+import net.shrimpworks.unreal.archive.content.FileType;
 import net.shrimpworks.unreal.archive.indexing.Incoming;
 import net.shrimpworks.unreal.archive.indexing.IndexUtils;
 import net.shrimpworks.unreal.packages.IntFile;
@@ -39,13 +40,13 @@ public class ModelClassifier implements Classifier {
 
 	@Override
 	public boolean classify(Incoming incoming) {
-		Set<Incoming.IncomingFile> intFiles = incoming.files(Incoming.FileType.INT);
-		Set<Incoming.IncomingFile> animationFiles = incoming.files(Incoming.FileType.ANIMATION);
-		Set<Incoming.IncomingFile> codeFiles = incoming.files(Incoming.FileType.CODE);
-		Set<Incoming.IncomingFile> miscFiles = incoming.files(Incoming.FileType.MAP, Incoming.FileType.MUSIC, Incoming.FileType.STATICMESH);
-		Set<Incoming.IncomingFile> playerFiles = incoming.files(Incoming.FileType.PLAYER); // ut2004
-		Set<Incoming.IncomingFile> upkFiles = incoming.files(Incoming.FileType.PACKAGE); // ut3
-		Set<Incoming.IncomingFile> iniFiles = incoming.files(Incoming.FileType.INI);
+		Set<Incoming.IncomingFile> intFiles = incoming.files(FileType.INT);
+		Set<Incoming.IncomingFile> animationFiles = incoming.files(FileType.ANIMATION);
+		Set<Incoming.IncomingFile> codeFiles = incoming.files(FileType.CODE);
+		Set<Incoming.IncomingFile> miscFiles = incoming.files(FileType.MAP, FileType.MUSIC, FileType.STATICMESH);
+		Set<Incoming.IncomingFile> playerFiles = incoming.files(FileType.PLAYER); // ut2004
+		Set<Incoming.IncomingFile> upkFiles = incoming.files(FileType.PACKAGE); // ut3
+		Set<Incoming.IncomingFile> iniFiles = incoming.files(FileType.INI);
 
 		// if there are other types of files, we can probably assume its something like a mod
 		if (!miscFiles.isEmpty()) return false;
@@ -105,7 +106,7 @@ public class ModelClassifier implements Classifier {
 
 	private boolean ut2004Model(Incoming incoming, Set<Incoming.IncomingFile> playerFiles) {
 		// indicates a model - presence of a player file indicates a plain skin
-		return !incoming.files(Incoming.FileType.ANIMATION).isEmpty();
+		return !incoming.files(FileType.ANIMATION).isEmpty();
 	}
 
 	private boolean ut3Model(Incoming incoming, Set<Incoming.IncomingFile> iniFiles) {

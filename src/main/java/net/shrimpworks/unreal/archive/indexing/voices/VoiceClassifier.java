@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
 import net.shrimpworks.unreal.archive.indexing.Classifier;
+import net.shrimpworks.unreal.archive.content.FileType;
 import net.shrimpworks.unreal.archive.indexing.Incoming;
 import net.shrimpworks.unreal.archive.indexing.IndexUtils;
 import net.shrimpworks.unreal.packages.IntFile;
@@ -44,15 +45,15 @@ public class VoiceClassifier implements Classifier {
 
 	@Override
 	public boolean classify(Incoming incoming) {
-		Set<Incoming.IncomingFile> intFiles = incoming.files(Incoming.FileType.INT);
-		Set<Incoming.IncomingFile> codeFiles = incoming.files(Incoming.FileType.CODE);
-		Set<Incoming.IncomingFile> soundFiles = incoming.files(Incoming.FileType.SOUNDS);
+		Set<Incoming.IncomingFile> intFiles = incoming.files(FileType.INT);
+		Set<Incoming.IncomingFile> codeFiles = incoming.files(FileType.CODE);
+		Set<Incoming.IncomingFile> soundFiles = incoming.files(FileType.SOUNDS);
 
-		Set<Incoming.IncomingFile> miscFiles = incoming.files(Incoming.FileType.MAP,
-															  Incoming.FileType.MUSIC,
-															  Incoming.FileType.STATICMESH,
-															  Incoming.FileType.ANIMATION,
-															  Incoming.FileType.PLAYER);
+		Set<Incoming.IncomingFile> miscFiles = incoming.files(FileType.MAP,
+															  FileType.MUSIC,
+															  FileType.STATICMESH,
+															  FileType.ANIMATION,
+															  FileType.PLAYER);
 
 		// if there are other types of files, we can probably assume its something like a mod
 		if (!miscFiles.isEmpty()) return false;
