@@ -103,6 +103,7 @@
 
 <script type="application/javascript">
 	let url = "../incoming/";
+	let maxUploadSizeGigabytes = 1;
 
 	document.addEventListener("DOMContentLoaded", function() {
 
@@ -162,6 +163,7 @@
 		});
 
 	  fileSelector.addEventListener('change', e => {
+		  let totalSize = 0;
 		  resetFilesList();
 
 		  for (let i = 0; i < e.target.files.length; i++) {
@@ -176,9 +178,15 @@
 			  row.classList.add("file");
 			  row.append(name, size);
 			  filesList.append(row);
+			  totalSize += f.size;
 		  }
 
 		  if (!filesList.classList.contains("display-block")) filesList.classList.add("display-block");
+
+		  if (totalSize >= (maxUploadSizeGigabytes * 1024 * 1024 * 1024)) {
+			  alert("Caution!\n\n" +
+			        "The total max size per upload is " + maxUploadSizeGigabytes + " GB. Reduce the total size of the upload or it may fail.");
+		  }
 	  });
 
 		if (location.hash) {
