@@ -215,7 +215,8 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 		}
 
 		private void mirrorGameType(GameType gameType) throws MirrorFailedException {
-			for (GameType.Release release : gameType.releases) {
+			GameType clone = gm.checkout(gameType);
+			for (GameType.Release release : clone.releases) {
 				for (GameType.ReleaseFile releaseFile : release.files) {
 					try {
 						Path localFile = Paths.get(releaseFile.localFile);
@@ -230,19 +231,19 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 
 						try {
 							boolean[] success = { false };
-							// FIXME files not saved
-							gm.syncReleaseFile(gameType, releaseFile, localFile, success);
+							gm.syncReleaseFile(clone, releaseFile, localFile, success);
 							if (!success[0]) {
-								throw new MirrorFailedException("Mirror of gametype failed", null, releaseFile.originalFilename, gameType);
+								throw new MirrorFailedException("Mirror of gametype failed", null, releaseFile.originalFilename, clone);
 							}
 						} finally {
 							if (!hasLocalFile) Files.deleteIfExists(localFile);
 						}
 					} catch (Exception ex) {
-						throw new MirrorFailedException(ex.getMessage(), ex, releaseFile.originalFilename, gameType);
+						throw new MirrorFailedException(ex.getMessage(), ex, releaseFile.originalFilename, clone);
 					}
 				}
 			}
+			gm.checkin(clone);
 		}
 
 		private void mirrorContent(Content content) throws MirrorFailedException {
