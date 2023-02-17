@@ -81,9 +81,11 @@ public final class Util {
 
 	private static final Pattern UC_WORDS = Pattern.compile("\\b(.)(.*?)\\b");
 
-	private static final int HASH_BUFFER_SIZE = 1024 * 50; // 50kb read buffer
+	private static final int HASH_BUFFER_SIZE = 1024 * 50 * 10; // 512kb read buffer
 
 	private static String VERSION = null;
+
+	private static final String USER_AGENT = "UnrealArchive/" + version();
 
 	private Util() {}
 
@@ -218,6 +220,7 @@ public final class Util {
 	public static Path downloadTo(String url, Path output) throws IOException {
 		URL urlConnection = new URL(url);
 		HttpURLConnection httpConn = (HttpURLConnection)urlConnection.openConnection();
+		httpConn.addRequestProperty("User-Agent", USER_AGENT);
 		int responseCode = httpConn.getResponseCode();
 
 		Path saveTo = output;
@@ -252,6 +255,7 @@ public final class Util {
 	public static void urlRequest(String url, Consumer<HttpURLConnection> onOK) throws IOException {
 		URL urlConnection = new URL(url);
 		HttpURLConnection httpConn = (HttpURLConnection)urlConnection.openConnection();
+		httpConn.addRequestProperty("User-Agent", USER_AGENT);
 		int responseCode = httpConn.getResponseCode();
 
 		if (responseCode == HttpURLConnection.HTTP_OK) {
@@ -267,6 +271,7 @@ public final class Util {
 		httpConn.setDoOutput(true);
 		httpConn.setRequestMethod("PUT");
 		httpConn.setRequestProperty("Content-Length", Long.toString(Files.size(localFile)));
+		httpConn.addRequestProperty("User-Agent", USER_AGENT);
 		httpConn.connect();
 
 		try (OutputStream output = httpConn.getOutputStream();
@@ -285,6 +290,7 @@ public final class Util {
 	public static boolean deleteRemote(String url) throws IOException {
 		URL urlConnection = new URL(url);
 		HttpURLConnection httpConn = (HttpURLConnection)urlConnection.openConnection();
+		httpConn.addRequestProperty("User-Agent", USER_AGENT);
 		httpConn.setRequestMethod("DELETE");
 		httpConn.connect();
 		return httpConn.getResponseCode() < 400;
@@ -324,9 +330,14 @@ public final class Util {
 
 	public static void proggers(String group, String name, int max, int progress) {
 		try {
-			HttpClient.newHttpClient().send(HttpRequest.newBuilder(URI.create(
-				String.format("https://proggers.cloud/progress/%s/%s?max=%d&progress=%d", group, name, max, progress)
-			)).POST(HttpRequest.BodyPublishers.noBody()).build(), HttpResponse.BodyHandlers.discarding());
+			HttpClient
+				.newHttpClient()
+				.send(HttpRequest.newBuilder(URI.create(
+									 String.format("https://proggers.cloud/progress/%s/%s?max=%d&progress=%d", group, name, max, progress)
+								 ))
+								 .header("User-Agent", USER_AGENT)
+								 .POST(HttpRequest.BodyPublishers.noBody()).build(),
+					  HttpResponse.BodyHandlers.discarding());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

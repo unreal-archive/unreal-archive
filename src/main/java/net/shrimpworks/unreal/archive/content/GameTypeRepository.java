@@ -97,8 +97,8 @@ public interface GameTypeRepository {
 		@Override
 		public Set<GameType> all() {
 			return gameTypes.stream()
-							.filter(g -> g.variationOf == null)
 							.filter(g -> !g.gametype.deleted())
+							.filter(g -> g.variationOf == null)
 							.map(g -> g.gametype)
 							.collect(Collectors.toSet());
 		}
@@ -106,8 +106,8 @@ public interface GameTypeRepository {
 		@Override
 		public Set<GameType> variations(GameType gameType) {
 			return gameTypes.stream()
-							.filter(g -> g.variationOf != null && g.variationOf.gametype.equals(gameType))
 							.filter(g -> !g.gametype.deleted())
+							.filter(g -> g.variationOf != null && g.variationOf.gametype.equals(gameType))
 							.map(g -> g.gametype)
 							.collect(Collectors.toSet());
 		}
