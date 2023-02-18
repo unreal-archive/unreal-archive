@@ -7,12 +7,12 @@ import java.util.Set;
 
 import net.shrimpworks.unreal.archive.content.ContentRepository;
 import net.shrimpworks.unreal.archive.content.GameTypeRepository;
-import net.shrimpworks.unreal.archive.docs.DocumentManager;
+import net.shrimpworks.unreal.archive.docs.DocumentRepository;
 import net.shrimpworks.unreal.archive.managed.ManagedContentManager;
 
 public class Index implements PageGenerator {
 
-	private final DocumentManager documents;
+	private final DocumentRepository documents;
 	private final ManagedContentManager updates;
 	private final ContentRepository content;
 	private final GameTypeRepository gametypes;
@@ -20,7 +20,7 @@ public class Index implements PageGenerator {
 	private final Path staticRoot;
 	private final SiteFeatures features;
 
-	public Index(ContentRepository content, GameTypeRepository gametypes, DocumentManager documents, ManagedContentManager updates,
+	public Index(ContentRepository content, GameTypeRepository gametypes, DocumentRepository documents, ManagedContentManager updates,
 				 Path output, Path staticRoot, SiteFeatures features) {
 		this.content = content;
 		this.gametypes = gametypes;

@@ -36,16 +36,16 @@ import net.shrimpworks.unreal.archive.common.CLI;
 import net.shrimpworks.unreal.archive.common.Util;
 import net.shrimpworks.unreal.archive.common.YAML;
 import net.shrimpworks.unreal.archive.content.Content;
-import net.shrimpworks.unreal.archive.indexing.ContentManager;
 import net.shrimpworks.unreal.archive.content.ContentRepository;
 import net.shrimpworks.unreal.archive.content.ContentType;
 import net.shrimpworks.unreal.archive.content.FileType;
-import net.shrimpworks.unreal.archive.indexing.GameTypeManager;
 import net.shrimpworks.unreal.archive.content.GameTypeRepository;
 import net.shrimpworks.unreal.archive.content.Games;
 import net.shrimpworks.unreal.archive.content.gametypes.GameType;
-import net.shrimpworks.unreal.archive.docs.DocumentManager;
+import net.shrimpworks.unreal.archive.docs.DocumentRepository;
 import net.shrimpworks.unreal.archive.indexing.ContentEditor;
+import net.shrimpworks.unreal.archive.indexing.ContentManager;
+import net.shrimpworks.unreal.archive.indexing.GameTypeManager;
 import net.shrimpworks.unreal.archive.indexing.Incoming;
 import net.shrimpworks.unreal.archive.indexing.IndexLog;
 import net.shrimpworks.unreal.archive.indexing.Indexer;
@@ -136,10 +136,10 @@ public class Main {
 				localMirror(contentRepo(cli), cli);
 				break;
 			case "www":
-				www(contentRepo(cli), gameTypeRepo(cli), documentManager(cli), managedContent(cli), wikiManager(cli), cli);
+				www(contentRepo(cli), gameTypeRepo(cli), documentRepo(cli), managedContent(cli), wikiManager(cli), cli);
 				break;
 			case "search-submit":
-				searchSubmit(contentRepo(cli), documentManager(cli), managedContent(cli), wikiManager(cli), cli);
+				searchSubmit(contentRepo(cli), documentRepo(cli), managedContent(cli), wikiManager(cli), cli);
 				break;
 			case "summary":
 				summary(contentRepo(cli));
@@ -261,15 +261,15 @@ public class Main {
 		return new ContentManager(repo, contentStore, imageStore, attachmentStore);
 	}
 
-	private static DocumentManager documentManager(CLI cli) throws IOException {
+	private static DocumentRepository documentRepo(CLI cli) throws IOException {
 		Path contentPath = contentPath(cli);
 
 		final long start = System.currentTimeMillis();
-		final DocumentManager documentManager = new DocumentManager(contentPath.resolve(DOCUMENTS_DIR));
+		final DocumentRepository repo = new DocumentRepository.FileRepository(contentPath.resolve(DOCUMENTS_DIR));
 		System.err.printf("Loaded document index with %d items in %.2fs%n",
-						  documentManager.size(), (System.currentTimeMillis() - start) / 1000f);
+						  repo.size(), (System.currentTimeMillis() - start) / 1000f);
 
-		return documentManager;
+		return repo;
 	}
 
 	private static ManagedContentManager managedContent(CLI cli) throws IOException {
@@ -623,7 +623,7 @@ public class Main {
 		}
 	}
 
-	private static void mirror(ContentRepository repo, ContentManager contentManager,
+	private static void mirror(ContentRepository contentRepo, ContentManager contentManager,
 							   GameTypeRepository gameTypeRepo, GameTypeManager gameTypeManager,
 							   ManagedContentManager managed, CLI cli) {
 		final DataStore mirrorStore = store(DataStore.StoreContent.CONTENT, cli);
@@ -649,7 +649,7 @@ public class Main {
 						  since, until, mirrorStore, cli.option("concurrency", "3"));
 
 		Mirror mirror = new Mirror(
-			repo, contentManager, gameTypeRepo, gameTypeManager, managed,
+			contentRepo, contentManager, gameTypeRepo, gameTypeManager, managed,
 			mirrorStore,
 			Integer.parseInt(cli.option("concurrency", "3")),
 			since, until,
@@ -669,7 +669,7 @@ public class Main {
 		mirror.cancel();
 	}
 
-	private static void localMirror(ContentRepository repository, CLI cli) throws IOException {
+	private static void localMirror(ContentRepository contentRepo, CLI cli) throws IOException {
 		if (cli.commands().length < 2) {
 			System.err.println("An output path should be provided!");
 			System.exit(2);
@@ -680,7 +680,7 @@ public class Main {
 		System.out.printf("Writing files to %s with concurrency of %s%n", output, cli.option("concurrency", "3"));
 
 		LocalMirrorClient mirror = new LocalMirrorClient(
-			repository,
+			contentRepo,
 			output,
 			Integer.parseInt(cli.option("concurrency", "3")),
 			((total, remaining, last) -> System.out.printf("\r[ %-6s / %-6s ] Processed %-40s",
@@ -694,7 +694,7 @@ public class Main {
 		mirror.cancel();
 	}
 
-	private static void www(ContentRepository repository, GameTypeRepository gametypes, DocumentManager documentManager,
+	private static void www(ContentRepository contentRepo, GameTypeRepository gameTypeRepo, DocumentRepository documentRepo,
 							ManagedContentManager managed, WikiManager wikiManager, CLI cli)
 		throws IOException {
 		if (cli.commands().length < 2) {
@@ -732,7 +732,7 @@ public class Main {
 		// prepare author names and aliases
 		Path authorPath = contentPath(cli).resolve(AUTHORS_DIR);
 		AuthorNames names = new AuthorNames(authorPath);
-		repository.all().parallelStream()
+		contentRepo.all().parallelStream()
 				  .filter(c -> !UNKNOWN.equalsIgnoreCase(c.author()))
 				  .sorted(Comparator.comparingInt(a -> a.author().length()))
 				  .forEachOrdered(c -> names.maybeAutoAlias(c.author));
@@ -742,28 +742,28 @@ public class Main {
 		final Set<SiteMap.Page> allPages = ConcurrentHashMap.newKeySet();
 
 		final Set<PageGenerator> generators = new HashSet<>();
-		generators.add(new Index(repository, gametypes, documentManager, managed, outputPath, staticOutput, features));
+		generators.add(new Index(contentRepo, gameTypeRepo, documentRepo, managed, outputPath, staticOutput, features));
 
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("content"))) {
 			// generate content pages
 			generators.addAll(
 				Arrays.asList(
-					new Maps(repository, outputPath, staticOutput, features),
-					new MapPacks(repository, outputPath, staticOutput, features),
-					new Skins(repository, outputPath, staticOutput, features),
-					new Models(repository, outputPath, staticOutput, features),
-					new Voices(repository, outputPath, staticOutput, features),
-					new Mutators(repository, outputPath, staticOutput, features)
+					new Maps(contentRepo, outputPath, staticOutput, features),
+					new MapPacks(contentRepo, outputPath, staticOutput, features),
+					new Skins(contentRepo, outputPath, staticOutput, features),
+					new Models(contentRepo, outputPath, staticOutput, features),
+					new Voices(contentRepo, outputPath, staticOutput, features),
+					new Mutators(contentRepo, outputPath, staticOutput, features)
 				));
-			if (withPackages) generators.add(new Packages(repository, gametypes, managed, outputPath, staticOutput, features));
+			if (withPackages) generators.add(new Packages(contentRepo, gameTypeRepo, managed, outputPath, staticOutput, features));
 		}
 
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("authors"))) {
-			generators.add(new Authors(names, repository, gametypes, managed, outputPath, staticOutput, features));
+			generators.add(new Authors(names, contentRepo, gameTypeRepo, managed, outputPath, staticOutput, features));
 		}
 
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("docs"))) {
-			generators.add(new Documents(documentManager, outputPath, staticOutput, features));
+			generators.add(new Documents(documentRepo, outputPath, staticOutput, features));
 		}
 
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("managed"))) {
@@ -771,11 +771,11 @@ public class Main {
 		}
 
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("gametypes"))) {
-			generators.add(new GameTypes(gametypes, repository, outputPath, staticOutput, features));
+			generators.add(new GameTypes(gameTypeRepo, contentRepo, outputPath, staticOutput, features));
 		}
 
 		if (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("packages")) {
-			generators.add(new Packages(repository, gametypes, managed, outputPath, staticOutput, features));
+			generators.add(new Packages(contentRepo, gameTypeRepo, managed, outputPath, staticOutput, features));
 		}
 
 		if (features.wikis || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("wiki"))) {
@@ -784,8 +784,8 @@ public class Main {
 
 		if (features.submit) generators.add(new Submit(outputPath, staticOutput, features));
 		if (features.search) generators.add(new Search(outputPath, staticOutput, features));
-		if (features.latest) generators.add(new Latest(repository, gametypes, managed, outputPath, staticOutput, features));
-		if (features.files) generators.add(new FileDetails(repository, outputPath, staticOutput, features));
+		if (features.latest) generators.add(new Latest(contentRepo, gameTypeRepo, managed, outputPath, staticOutput, features));
+		if (features.files) generators.add(new FileDetails(contentRepo, outputPath, staticOutput, features));
 
 		ForkJoinPool myPool = new ForkJoinPool(Integer.parseInt(cli.option("concurrency", "4")));
 		myPool.submit(() -> {
@@ -801,14 +801,14 @@ public class Main {
 		System.out.printf("Output %d pages in %.2fs%n", allPages.size(), (System.currentTimeMillis() - start) / 1000f);
 	}
 
-	private static void searchSubmit(ContentRepository repository, DocumentManager documentManager,
+	private static void searchSubmit(ContentRepository contentRepo, DocumentRepository documentRepo,
 									 ManagedContentManager managedContentManager, WikiManager wikiManager, CLI cli) throws IOException {
 		// TODO documents, managed content, and gametypes
 
 		// meh
 		Path authorPath = contentPath(cli).resolve(AUTHORS_DIR);
 		AuthorNames names = new AuthorNames(authorPath);
-		repository.all().parallelStream()
+		contentRepo.all().parallelStream()
 				  .filter(c -> !UNKNOWN.equalsIgnoreCase(c.author()))
 				  .sorted(Comparator.comparingInt(a -> a.author().length()))
 				  .forEachOrdered(c -> names.maybeAutoAlias(c.author));
@@ -822,7 +822,7 @@ public class Main {
 						  System.getenv().getOrDefault("MSE_CONTENT_URL", System.getenv().getOrDefault("MSE_URL", ""))
 		);
 
-		submitter.submit(repository,
+		submitter.submit(contentRepo,
 						 System.getenv().getOrDefault("SITE_URL", ""),
 						 System.getenv().getOrDefault("MSE_CONTENT_URL", System.getenv().getOrDefault("MSE_URL", "")),
 						 System.getenv().getOrDefault("MSE_CONTENT_TOKEN", System.getenv().getOrDefault("MSE_TOKEN", "")), 50,

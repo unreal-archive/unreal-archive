@@ -65,7 +65,7 @@ public class DocumentTest {
 				Files.copy(is, docPath.resolve(doc.name));
 			}
 
-			DocumentManager dm = new DocumentManager(tmpRoot);
+			DocumentRepository dm = new DocumentRepository.FileRepository(tmpRoot);
 			assertTrue(dm.all().contains(doc));
 
 			try (Reader reader = Channels.newReader(dm.document(doc), StandardCharsets.UTF_8.name())) {
@@ -106,7 +106,7 @@ public class DocumentTest {
 				Files.copy(is, docPath.resolve(doc.name));
 			}
 
-			DocumentManager dm = new DocumentManager(tmpRoot);
+			DocumentRepository dm = new DocumentRepository.FileRepository(tmpRoot);
 			assertTrue(dm.all().contains(doc));
 
 			Documents documents = new Documents(dm, wwwRoot, wwwRoot, SiteFeatures.ALL);

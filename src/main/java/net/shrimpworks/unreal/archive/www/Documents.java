@@ -12,9 +12,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import net.shrimpworks.unreal.archive.common.Util;
 import net.shrimpworks.unreal.archive.docs.Document;
-import net.shrimpworks.unreal.archive.docs.DocumentManager;
+import net.shrimpworks.unreal.archive.docs.DocumentRepository;
 
 import static net.shrimpworks.unreal.archive.common.Util.slug;
 
@@ -22,13 +21,13 @@ public class Documents implements PageGenerator {
 
 	private static final String SECTION = "Articles";
 
-	private final DocumentManager documents;
+	private final DocumentRepository documents;
 	private final Path siteRoot;
 	private final Path root;
 	private final Path staticRoot;
 	private final SiteFeatures features;
 
-	public Documents(DocumentManager documents, Path root, Path staticRoot, SiteFeatures features) {
+	public Documents(DocumentRepository documents, Path root, Path staticRoot, SiteFeatures features) {
 		this.documents = documents;
 		this.siteRoot = root;
 		this.root = root.resolve("documents");
@@ -36,7 +35,7 @@ public class Documents implements PageGenerator {
 		this.features = features;
 	}
 
-	private Map<String, DocumentGroup> loadGroups(DocumentManager documents) {
+	private Map<String, DocumentGroup> loadGroups(DocumentRepository documents) {
 		final Map<String, DocumentGroup> groups = new HashMap<>();
 		documents.all().stream()
 				 .filter(d -> d.published)
@@ -103,9 +102,9 @@ public class Documents implements PageGenerator {
 				grp = grp.parent;
 			}
 
+			// copy document assets to the output directory
 			final Path path = Files.createDirectories(doc.path);
-			final Path docRoot = documents.documentRoot(doc.document);
-			Util.copyTree(docRoot, path);
+			documents.writeContent(doc.document, path);
 
 			final String page = Markdown.renderMarkdown(docChan);
 
