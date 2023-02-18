@@ -55,7 +55,7 @@ import net.shrimpworks.unreal.archive.managed.ManagedContentManager;
 import net.shrimpworks.unreal.archive.mirror.LocalMirrorClient;
 import net.shrimpworks.unreal.archive.mirror.Mirror;
 import net.shrimpworks.unreal.archive.storage.DataStore;
-import net.shrimpworks.unreal.archive.wiki.WikiManager;
+import net.shrimpworks.unreal.archive.wiki.WikiRepository;
 import net.shrimpworks.unreal.archive.www.Documents;
 import net.shrimpworks.unreal.archive.www.Index;
 import net.shrimpworks.unreal.archive.www.MESSubmitter;
@@ -136,10 +136,10 @@ public class Main {
 				localMirror(contentRepo(cli), cli);
 				break;
 			case "www":
-				www(contentRepo(cli), gameTypeRepo(cli), documentRepo(cli), managedContent(cli), wikiManager(cli), cli);
+				www(contentRepo(cli), gameTypeRepo(cli), documentRepo(cli), managedContent(cli), wikiRepo(cli), cli);
 				break;
 			case "search-submit":
-				searchSubmit(contentRepo(cli), documentRepo(cli), managedContent(cli), wikiManager(cli), cli);
+				searchSubmit(contentRepo(cli), documentRepo(cli), managedContent(cli), wikiRepo(cli), cli);
 				break;
 			case "summary":
 				summary(contentRepo(cli));
@@ -156,7 +156,7 @@ public class Main {
 				install(contentRepo(cli), cli);
 				break;
 			case "wiki":
-				wiki(wikiManager(cli));
+				wiki(wikiRepo(cli));
 				break;
 			default:
 				System.out.printf("Command \"%s\" does not exist!%n%n", cli.commands()[0]);
@@ -166,7 +166,7 @@ public class Main {
 		System.exit(0);
 	}
 
-	private static void wiki(WikiManager cli) throws IOException {
+	private static void wiki(WikiRepository cli) throws IOException {
 		// nothing to do
 	}
 
@@ -308,11 +308,11 @@ public class Main {
 		return new GameTypeManager(repo, contentStore, imageStore);
 	}
 
-	private static WikiManager wikiManager(CLI cli) throws IOException {
+	private static WikiRepository wikiRepo(CLI cli) throws IOException {
 		Path contentPath = contentPath(cli);
 
 		final long start = System.currentTimeMillis();
-		final WikiManager wikis = new WikiManager(contentPath.resolve(WIKIS_DIR));
+		final WikiRepository wikis = new WikiRepository.FileRepository(contentPath.resolve(WIKIS_DIR));
 		System.err.printf("Loaded wikis index with %d pages in %.2fs%n",
 						  wikis.size(), (System.currentTimeMillis() - start) / 1000f);
 
@@ -695,7 +695,7 @@ public class Main {
 	}
 
 	private static void www(ContentRepository contentRepo, GameTypeRepository gameTypeRepo, DocumentRepository documentRepo,
-							ManagedContentManager managed, WikiManager wikiManager, CLI cli)
+							ManagedContentManager managed, WikiRepository wikiRepo, CLI cli)
 		throws IOException {
 		if (cli.commands().length < 2) {
 			System.err.println("An output path must be specified!");
@@ -779,7 +779,7 @@ public class Main {
 		}
 
 		if (features.wikis || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("wiki"))) {
-			generators.add(new Wiki(outputPath, staticOutput, features, wikiManager));
+			generators.add(new Wiki(outputPath, staticOutput, features, wikiRepo));
 		}
 
 		if (features.submit) generators.add(new Submit(outputPath, staticOutput, features));
@@ -802,7 +802,7 @@ public class Main {
 	}
 
 	private static void searchSubmit(ContentRepository contentRepo, DocumentRepository documentRepo,
-									 ManagedContentManager managedContentManager, WikiManager wikiManager, CLI cli) throws IOException {
+									 ManagedContentManager managedContentManager, WikiRepository wikiManager, CLI cli) throws IOException {
 		// TODO documents, managed content, and gametypes
 
 		// meh

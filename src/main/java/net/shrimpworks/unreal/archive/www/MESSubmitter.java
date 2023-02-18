@@ -25,7 +25,7 @@ import org.jsoup.nodes.Document;
 import net.shrimpworks.unreal.archive.content.ContentRepository;
 import net.shrimpworks.unreal.archive.common.Util;
 import net.shrimpworks.unreal.archive.content.Content;
-import net.shrimpworks.unreal.archive.wiki.WikiManager;
+import net.shrimpworks.unreal.archive.wiki.WikiRepository;
 import net.shrimpworks.unreal.archive.wiki.WikiPage;
 
 /**
@@ -87,11 +87,11 @@ public class MESSubmitter {
 		done.accept(true);
 	}
 
-	public void submit(WikiManager wikiManager, String rootUrl, String mseUrl, String mseToken, int batchSize,
+	public void submit(WikiRepository wikiManager, String rootUrl, String mseUrl, String mseToken, int batchSize,
 					   Consumer<Double> progress, Consumer<Boolean> done) throws IOException {
 		Set<String> stopWords = stopWords();
 
-		for (WikiManager.Wiki wiki : wikiManager.all()) {
+		for (WikiRepository.Wiki wiki : wikiManager.all()) {
 			int i = 0;
 
 			Set<WikiPage> candidates = wiki.all().parallelStream()

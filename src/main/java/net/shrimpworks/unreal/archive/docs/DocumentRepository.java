@@ -66,14 +66,17 @@ public interface DocumentRepository {
 			});
 		}
 
+		@Override
 		public int size() {
 			return documents.size();
 		}
 
+		@Override
 		public Collection<Document> all() {
 			return Collections.unmodifiableCollection(documents.keySet());
 		}
 
+		@Override
 		public ReadableByteChannel document(Document doc) throws IOException {
 			DocumentHolder holder = documents.get(doc);
 			if (holder == null) return null;
@@ -85,6 +88,7 @@ public interface DocumentRepository {
 			return Files.newByteChannel(docPath, StandardOpenOption.READ);
 		}
 
+		@Override
 		public void writeContent(Document doc, Path outPath) throws IOException {
 			DocumentHolder holder = documents.get(doc);
 			if (holder == null) return;

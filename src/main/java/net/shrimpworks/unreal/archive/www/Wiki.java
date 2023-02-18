@@ -18,7 +18,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 
 import net.shrimpworks.unreal.archive.common.Util;
-import net.shrimpworks.unreal.archive.wiki.WikiManager;
+import net.shrimpworks.unreal.archive.wiki.WikiRepository;
 import net.shrimpworks.unreal.archive.wiki.WikiPage;
 
 public class Wiki implements PageGenerator {
@@ -31,14 +31,14 @@ public class Wiki implements PageGenerator {
 	private final Path staticRoot;
 	private final SiteFeatures features;
 
-	private final WikiManager wikiManager;
+	private final WikiRepository wikiManager;
 
-	public Wiki(Path output, Path staticRoot, SiteFeatures features, WikiManager wikiManager) {
+	public Wiki(Path output, Path staticRoot, SiteFeatures features, WikiRepository wikiRepo) {
 		this.root = output.resolve("wikis");
 		this.siteRoot = output;
 		this.staticRoot = staticRoot;
 		this.features = features;
-		this.wikiManager = wikiManager;
+		this.wikiManager = wikiRepo;
 	}
 
 	@Override
@@ -55,7 +55,7 @@ public class Wiki implements PageGenerator {
 		return pages.pages;
 	}
 
-	public void buildWiki(WikiManager.Wiki wiki, Templates.PageSet pages) {
+	public void buildWiki(WikiRepository.Wiki wiki, Templates.PageSet pages) {
 		Path out = root.resolve(Util.slug(wiki.name));
 
 		Map<String, Set<WikiPage>> categories = new ConcurrentHashMap<>();
@@ -152,7 +152,7 @@ public class Wiki implements PageGenerator {
 			});
 	}
 
-	private static void fixLinks(Document document, WikiManager.Wiki wiki, Set<String> linkingCandidates, Path out, Path pagePath,
+	private static void fixLinks(Document document, WikiRepository.Wiki wiki, Set<String> linkingCandidates, Path out, Path pagePath,
 								 Path imagesPath) {
 		// fix local links
 		document.select("a").stream()
@@ -197,7 +197,7 @@ public class Wiki implements PageGenerator {
 
 	}
 
-	public static void sanitisedPageHtml(Document document, WikiManager.Wiki wiki) {
+	public static void sanitisedPageHtml(Document document, WikiRepository.Wiki wiki) {
 		wiki.deleteElements.forEach(selector -> document.select(selector).remove());
 
 		// strip comments
@@ -231,7 +231,7 @@ public class Wiki implements PageGenerator {
 		document.select("div.magnify").remove();
 	}
 
-	private void copyFiles(WikiManager.Wiki wiki, WikiPage page, Path imagesPath) throws IOException {
+	private void copyFiles(WikiRepository.Wiki wiki, WikiPage page, Path imagesPath) throws IOException {
 		Path sourceRoot = wiki.path.resolve("content").resolve(wiki.imagesPath);
 		for (String image : page.parse.images) {
 			if (Files.exists(sourceRoot.resolve(image))
