@@ -12,30 +12,29 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import net.shrimpworks.unreal.archive.common.Util;
 import net.shrimpworks.unreal.archive.managed.Managed;
-import net.shrimpworks.unreal.archive.managed.ManagedContentManager;
+import net.shrimpworks.unreal.archive.managed.ManagedContentRepository;
 
 import static net.shrimpworks.unreal.archive.common.Util.slug;
 
 public class ManagedContent implements PageGenerator {
 
-	private final ManagedContentManager content;
+	private final ManagedContentRepository managedRepo;
 	private final Path siteRoot;
 	private final Path staticRoot;
 	private final SiteFeatures features;
 
-	public ManagedContent(ManagedContentManager content, Path root, Path staticRoot, SiteFeatures features) {
-		this.content = content;
+	public ManagedContent(ManagedContentRepository managedRepo, Path root, Path staticRoot, SiteFeatures features) {
+		this.managedRepo = managedRepo;
 		this.siteRoot = root;
 		this.staticRoot = staticRoot;
 		this.features = features;
 	}
 
-	private Map<String, ContentGroup> loadGroups(ManagedContentManager content) {
+	private Map<String, ContentGroup> loadGroups(ManagedContentRepository managedRepo) {
 		final Map<String, ContentGroup> groups = new HashMap<>();
 
-		content.all().stream()
+		managedRepo.all().stream()
 			   .filter(d -> d.published)
 			   .sorted(Comparator.reverseOrder())
 			   .toList()
@@ -52,7 +51,7 @@ public class ManagedContent implements PageGenerator {
 	 */
 	@Override
 	public Set<SiteMap.Page> generate() {
-		final Map<String, ContentGroup> groups = loadGroups(content);
+		final Map<String, ContentGroup> groups = loadGroups(managedRepo);
 
 		Templates.PageSet pages = new Templates.PageSet("managed", features, siteRoot, staticRoot, siteRoot);
 		try {
@@ -96,7 +95,7 @@ public class ManagedContent implements PageGenerator {
 	}
 
 	private void generateDocument(Templates.PageSet pages, ContentInfo content) throws IOException {
-		try (ReadableByteChannel docChan = this.content.document(content.managed)) {
+		try (ReadableByteChannel docChan = this.managedRepo.document(content.managed)) {
 
 			// we have to compute the path here, since a template can't do a while loop up its group tree itself
 			List<ContentGroup> groupPath = new ArrayList<>();
@@ -108,8 +107,7 @@ public class ManagedContent implements PageGenerator {
 
 			// copy content of directory to www output
 			final Path path = Files.createDirectories(content.path);
-			final Path docRoot = this.content.contentRoot(content.managed);
-			Util.copyTree(docRoot, path);
+			this.managedRepo.writeContent(content.managed, path);
 
 			final String page = Markdown.renderMarkdown(docChan);
 

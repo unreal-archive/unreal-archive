@@ -60,7 +60,7 @@ public class ManagedContentTest {
 				Files.copy(is, outPath.resolve(man.document));
 			}
 
-			final ManagedContentManager cm = new ManagedContentManager(tmpRoot);
+			final ManagedContentRepository cm = new ManagedContentRepository.FileRepository(tmpRoot);
 			assertTrue(cm.all().contains(man));
 
 			try (Reader reader = Channels.newReader(cm.document(man), StandardCharsets.UTF_8)) {
@@ -93,7 +93,7 @@ public class ManagedContentTest {
 				Files.copy(is, outPath.resolve(man.document));
 			}
 
-			final ManagedContentManager cm = new ManagedContentManager(tmpRoot);
+			final ManagedContentRepository cm = new ManagedContentRepository.FileRepository(tmpRoot);
 			assertTrue(cm.all().contains(man));
 
 			ManagedContent content = new ManagedContent(cm, wwwRoot, wwwRoot, SiteFeatures.ALL);

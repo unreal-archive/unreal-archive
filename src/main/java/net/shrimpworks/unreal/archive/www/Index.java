@@ -8,19 +8,19 @@ import java.util.Set;
 import net.shrimpworks.unreal.archive.content.ContentRepository;
 import net.shrimpworks.unreal.archive.content.GameTypeRepository;
 import net.shrimpworks.unreal.archive.docs.DocumentRepository;
-import net.shrimpworks.unreal.archive.managed.ManagedContentManager;
+import net.shrimpworks.unreal.archive.managed.ManagedContentRepository;
 
 public class Index implements PageGenerator {
 
 	private final DocumentRepository documents;
-	private final ManagedContentManager updates;
+	private final ManagedContentRepository updates;
 	private final ContentRepository content;
 	private final GameTypeRepository gametypes;
 	private final Path root;
 	private final Path staticRoot;
 	private final SiteFeatures features;
 
-	public Index(ContentRepository content, GameTypeRepository gametypes, DocumentRepository documents, ManagedContentManager updates,
+	public Index(ContentRepository content, GameTypeRepository gametypes, DocumentRepository documents, ManagedContentRepository updates,
 				 Path output, Path staticRoot, SiteFeatures features) {
 		this.content = content;
 		this.gametypes = gametypes;

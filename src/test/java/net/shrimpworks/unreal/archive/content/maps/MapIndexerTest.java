@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
 import net.shrimpworks.unreal.archive.content.ContentType;
+import net.shrimpworks.unreal.archive.indexing.ContentClassifier;
 import net.shrimpworks.unreal.archive.indexing.Incoming;
 import net.shrimpworks.unreal.archive.indexing.IndexLog;
 import net.shrimpworks.unreal.archive.indexing.Submission;
@@ -38,7 +39,7 @@ public class MapIndexerTest {
 			Incoming incoming = new Incoming(sub, log).prepare();
 
 			MapIndexHandler indexer = new MapIndexHandler();
-			Map map = ContentType.MAP.newContent(incoming);
+			Map map = ContentClassifier.newContent(ContentClassifier.identifierForType(ContentType.MAP), incoming);
 			indexer.index(incoming, map, r -> {
 				assertEquals("Unreal Tournament", r.content.game);
 				assertEquals("The Longest Yard", r.content.title);
@@ -62,7 +63,7 @@ public class MapIndexerTest {
 			Incoming incoming = new Incoming(sub, log).prepare();
 
 			MapIndexHandler indexer = new MapIndexHandler();
-			Map map = ContentType.MAP.newContent(incoming);
+			Map map = ContentClassifier.newContent(ContentClassifier.identifierForType(ContentType.MAP), incoming);
 			indexer.index(incoming, map, r -> {
 				assertEquals("Unreal Tournament 3", r.content.game);
 				assertEquals("Power", r.content.title);

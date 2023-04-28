@@ -37,14 +37,13 @@ public class Document implements Comparable<Document> {
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		Document document = (Document)o;
-		return Objects.equals(game, document.game)
-			   && Objects.equals(path, document.path)
-			   && Objects.equals(title, document.title)
-			   && Objects.equals(titleImage, document.titleImage)
-			   && Objects.equals(author, document.author)
-			   && Objects.equals(description, document.description);
+		if (!(o instanceof Document that)) return false;
+		return Objects.equals(game, that.game)
+			   && Objects.equals(path, that.path)
+			   && Objects.equals(title, that.title)
+			   && Objects.equals(titleImage, that.titleImage)
+			   && Objects.equals(author, that.author)
+			   && Objects.equals(description, that.description);
 	}
 
 	@Override

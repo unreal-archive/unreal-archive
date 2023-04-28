@@ -18,7 +18,7 @@ import net.shrimpworks.unreal.archive.AuthorNames;
 import net.shrimpworks.unreal.archive.ContentEntity;
 import net.shrimpworks.unreal.archive.content.ContentRepository;
 import net.shrimpworks.unreal.archive.content.GameTypeRepository;
-import net.shrimpworks.unreal.archive.managed.ManagedContentManager;
+import net.shrimpworks.unreal.archive.managed.ManagedContentRepository;
 import net.shrimpworks.unreal.archive.www.SiteFeatures;
 import net.shrimpworks.unreal.archive.www.SiteMap;
 import net.shrimpworks.unreal.archive.www.Templates;
@@ -30,9 +30,9 @@ public class Authors extends ContentPageGenerator {
 	private static final String SECTION = "Authors";
 	private final AuthorNames names;
 	private final GameTypeRepository gameTypes;
-	private final ManagedContentManager managed;
+	private final ManagedContentRepository managed;
 
-	public Authors(AuthorNames names, ContentRepository content, GameTypeRepository gameTypes, ManagedContentManager managed, Path output,
+	public Authors(AuthorNames names, ContentRepository content, GameTypeRepository gameTypes, ManagedContentRepository managed, Path output,
 				   Path staticRoot, SiteFeatures features) {
 		super(content, output, output.resolve("authors"), staticRoot, features);
 
@@ -43,7 +43,7 @@ public class Authors extends ContentPageGenerator {
 	}
 
 	private TreeMap<String, LetterGroup> loadLetters(AuthorNames names, ContentRepository content, GameTypeRepository gameTypes,
-													 ManagedContentManager managed) {
+													 ManagedContentRepository managed) {
 		final TreeMap<String, LetterGroup> letters = new TreeMap<>();
 
 		Stream.concat(Stream.concat(content.all(false).stream(),

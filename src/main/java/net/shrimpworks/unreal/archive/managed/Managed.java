@@ -201,8 +201,7 @@ public class Managed implements ContentEntity<Managed> {
 		@Override
 		public boolean equals(Object o) {
 			if (this == o) return true;
-			if (!(o instanceof ManagedFile)) return false;
-			ManagedFile that = (ManagedFile)o;
+			if (!(o instanceof ManagedFile that)) return false;
 			return fileSize == that.fileSize
 				   && synced == that.synced
 				   && deleted == that.deleted

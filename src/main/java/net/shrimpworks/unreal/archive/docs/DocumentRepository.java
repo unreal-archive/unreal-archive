@@ -96,15 +96,7 @@ public interface DocumentRepository {
 			Util.copyTree(holder.path.getParent(), outPath);
 		}
 
-		private static class DocumentHolder {
-
-			private final Path path;
-			private final Document document;
-
-			public DocumentHolder(Path path, Document document) {
-				this.path = path;
-				this.document = document;
-			}
+		private record DocumentHolder(Path path, Document document) {
 		}
 	}
 }

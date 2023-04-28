@@ -192,15 +192,19 @@ public interface ContentRepository {
 		public Map<Class<? extends Content>, Long> countByType(String game) {
 			return content.values().parallelStream()
 						  .filter(c -> !c.isVariation && !c.deleted)
-						  .filter(c -> game == null || c.content().game.equals(game))
-						  .collect(Collectors.groupingBy(v -> v.content().getClass(), Collectors.counting()));
+						  .map(ContentHolder::content)
+						  .filter(Objects::nonNull)
+						  .filter(c -> game == null || c.game.equals(game))
+						  .collect(Collectors.groupingBy(Content::getClass, Collectors.counting()));
 		}
 
 		@Override
 		public Map<String, Long> countByGame() {
 			return content.values().parallelStream()
 						  .filter(c -> !c.isVariation && !c.deleted)
-						  .collect(Collectors.groupingBy(v -> v.content().game, Collectors.counting()));
+						  .map(ContentHolder::content)
+						  .filter(Objects::nonNull)
+						  .collect(Collectors.groupingBy(c -> c.game, Collectors.counting()));
 		}
 
 		@Override

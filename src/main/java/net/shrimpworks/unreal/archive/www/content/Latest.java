@@ -13,7 +13,7 @@ import net.shrimpworks.unreal.archive.common.Util;
 import net.shrimpworks.unreal.archive.content.ContentRepository;
 import net.shrimpworks.unreal.archive.content.GameTypeRepository;
 import net.shrimpworks.unreal.archive.content.Games;
-import net.shrimpworks.unreal.archive.managed.ManagedContentManager;
+import net.shrimpworks.unreal.archive.managed.ManagedContentRepository;
 import net.shrimpworks.unreal.archive.www.SiteFeatures;
 import net.shrimpworks.unreal.archive.www.SiteMap;
 import net.shrimpworks.unreal.archive.www.Templates;
@@ -21,9 +21,9 @@ import net.shrimpworks.unreal.archive.www.Templates;
 public class Latest extends ContentPageGenerator {
 
 	private final GameTypeRepository gameTypes;
-	private final ManagedContentManager managed;
+	private final ManagedContentRepository managed;
 
-	public Latest(ContentRepository content, GameTypeRepository gameTypes, ManagedContentManager managed, Path output, Path staticRoot,
+	public Latest(ContentRepository content, GameTypeRepository gameTypes, ManagedContentRepository managed, Path output, Path staticRoot,
 				  SiteFeatures features) {
 		super(content, output, output.resolve("latest"), staticRoot, features);
 
@@ -31,7 +31,7 @@ public class Latest extends ContentPageGenerator {
 		this.managed = managed;
 	}
 
-	private Set<ContentEntity<?>> loadAllContent(ContentRepository content, GameTypeRepository gameTypes, ManagedContentManager managed) {
+	private Set<ContentEntity<?>> loadAllContent(ContentRepository content, GameTypeRepository gameTypes, ManagedContentRepository managed) {
 		return Stream.concat(Stream.concat(
 								 content.all(false).stream(),
 								 gameTypes.all().stream()),

@@ -155,7 +155,7 @@ public interface GameTypeRepository {
 				// create initial gametype doc
 				final Path docPath = Files.createDirectories(gameTypePath(game, gameType));
 				Path md = Util.safeFileName(docPath.resolve(DOCUMENT_FILE));
-				if (!Files.exists(md)) Files.copy(GameType.class.getResourceAsStream(DOCUMENT_TEMPLATE_FILE), md);
+				if (!Files.exists(md)) Files.copy(getClass().getResourceAsStream(DOCUMENT_TEMPLATE_FILE), md);
 			} catch (IOException e) {
 				throw new RuntimeException("Gametype creation failed", e);
 			}

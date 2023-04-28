@@ -18,14 +18,15 @@ import java.util.stream.Stream;
 import net.shrimpworks.unreal.archive.ContentEntity;
 import net.shrimpworks.unreal.archive.common.Util;
 import net.shrimpworks.unreal.archive.content.Content;
-import net.shrimpworks.unreal.archive.indexing.ContentManager;
 import net.shrimpworks.unreal.archive.content.ContentRepository;
-import net.shrimpworks.unreal.archive.indexing.GameTypeManager;
 import net.shrimpworks.unreal.archive.content.GameTypeRepository;
 import net.shrimpworks.unreal.archive.content.gametypes.GameType;
+import net.shrimpworks.unreal.archive.indexing.ContentManager;
+import net.shrimpworks.unreal.archive.indexing.GameTypeManager;
 import net.shrimpworks.unreal.archive.indexing.IndexResult;
 import net.shrimpworks.unreal.archive.managed.Managed;
 import net.shrimpworks.unreal.archive.managed.ManagedContentManager;
+import net.shrimpworks.unreal.archive.managed.ManagedContentRepository;
 import net.shrimpworks.unreal.archive.storage.DataStore;
 
 public class Mirror implements Consumer<Mirror.Transfer> {
@@ -50,7 +51,7 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 	private volatile Thread mirrorThread;
 
 	public Mirror(ContentRepository repo, ContentManager cm, GameTypeRepository gametypes, GameTypeManager gm,
-				  ManagedContentManager mm,
+				  ManagedContentRepository managed, ManagedContentManager mm,
 				  DataStore mirrorStore, int concurrency, LocalDate since, LocalDate until, Progress progress) {
 		this.cm = cm;
 		this.gm = gm;
@@ -64,7 +65,7 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 								 repo.all().stream(),
 								 Stream.concat(
 									 gametypes.all().stream(),
-									 mm.all().stream()
+									 managed.all().stream()
 								 )
 							 )
 							 .filter(c -> !c.deleted())
@@ -187,7 +188,8 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 		}
 
 		private void mirrorManaged(Managed managed) throws MirrorFailedException {
-			for (Managed.ManagedFile managedFile : managed.downloads) {
+			Managed clone = mm.checkout(managed);
+			for (Managed.ManagedFile managedFile : clone.downloads) {
 				try {
 					Path localFile = Paths.get(managedFile.localFile);
 					final boolean hasLocalFile = Files.exists(localFile);
@@ -201,17 +203,18 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 
 					try {
 						boolean[] success = { false };
-						mm.storeDownloadFile(mirrorStore, managed, managedFile, localFile, success);
+						mm.storeDownloadFile(clone, managedFile, localFile, success);
 						if (!success[0]) {
-							throw new MirrorFailedException("Mirror of managed file failed", null, managedFile.originalFilename, managed);
+							throw new MirrorFailedException("Mirror of managed file failed", null, managedFile.originalFilename, clone);
 						}
 					} finally {
 						if (!hasLocalFile) Files.deleteIfExists(localFile);
 					}
 				} catch (Exception ex) {
-					throw new MirrorFailedException(ex.getMessage(), ex, managedFile.originalFilename, managed);
+					throw new MirrorFailedException(ex.getMessage(), ex, managedFile.originalFilename, clone);
 				}
 			}
+			mm.checkin(clone);
 		}
 
 		private void mirrorGameType(GameType gameType) throws MirrorFailedException {

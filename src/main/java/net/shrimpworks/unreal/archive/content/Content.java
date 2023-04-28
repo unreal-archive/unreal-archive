@@ -317,8 +317,7 @@ public abstract class Content implements ContentEntity<Content> {
 		@Override
 		public boolean equals(Object o) {
 			if (this == o) return true;
-			if (!(o instanceof Dependency)) return false;
-			Dependency that = (Dependency)o;
+			if (!(o instanceof Dependency that)) return false;
 			return status == that.status
 				   && Objects.equals(name, that.name)
 				   && Objects.equals(providedBy, that.providedBy);
@@ -407,12 +406,11 @@ public abstract class Content implements ContentEntity<Content> {
 		@Override
 		public boolean equals(Object o) {
 			if (this == o) return true;
-			if (o == null || getClass() != o.getClass()) return false;
-			Download download = (Download)o;
-			return state == download.state
-				   && main == download.main
-				   && repack == download.repack
-				   && Objects.equals(url, download.url);
+			if (!(o instanceof Download that)) return false;
+			return state == that.state
+				   && main == that.main
+				   && repack == that.repack
+				   && Objects.equals(url, that.url);
 		}
 
 		@Override

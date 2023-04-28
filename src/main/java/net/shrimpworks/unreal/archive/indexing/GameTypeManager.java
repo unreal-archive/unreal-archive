@@ -208,7 +208,7 @@ public class GameTypeManager {
 
 				success[0] = true;
 			} catch (IOException e) {
-				throw new RuntimeException(String.format("Failed to update gametype definition: %s%n", e));
+				throw new RuntimeException(String.format("Failed to update gametype definition %s: %s%n", gameType.name(), e));
 			}
 		});
 	}

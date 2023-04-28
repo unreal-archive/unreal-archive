@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
 import net.shrimpworks.unreal.archive.content.ContentType;
+import net.shrimpworks.unreal.archive.indexing.ContentClassifier;
 import net.shrimpworks.unreal.archive.indexing.Incoming;
 import net.shrimpworks.unreal.archive.indexing.IndexLog;
 import net.shrimpworks.unreal.archive.indexing.Submission;
@@ -27,7 +28,7 @@ public class MapClassifierTest {
 			IndexLog log = new IndexLog();
 			Incoming incoming = new Incoming(sub, log).prepare();
 
-			assertEquals(ContentType.MAP, ContentType.classify(incoming));
+			assertEquals(ContentType.MAP, ContentClassifier.classify(incoming).contentType());
 		} finally {
 			Files.deleteIfExists(tmpMap);
 		}
@@ -43,7 +44,7 @@ public class MapClassifierTest {
 			IndexLog log = new IndexLog();
 			Incoming incoming = new Incoming(sub, log).prepare();
 
-			assertEquals(ContentType.MAP, ContentType.classify(incoming));
+			assertEquals(ContentType.MAP, ContentClassifier.classify(incoming).contentType());
 		} finally {
 			Files.deleteIfExists(tmpMap);
 		}

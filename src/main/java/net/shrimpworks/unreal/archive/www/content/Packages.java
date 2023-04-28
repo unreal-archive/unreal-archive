@@ -18,7 +18,7 @@ import net.shrimpworks.unreal.archive.content.ContentRepository;
 import net.shrimpworks.unreal.archive.content.FileType;
 import net.shrimpworks.unreal.archive.content.GameTypeRepository;
 import net.shrimpworks.unreal.archive.content.Games;
-import net.shrimpworks.unreal.archive.managed.ManagedContentManager;
+import net.shrimpworks.unreal.archive.managed.ManagedContentRepository;
 import net.shrimpworks.unreal.archive.www.SiteFeatures;
 import net.shrimpworks.unreal.archive.www.SiteMap;
 import net.shrimpworks.unreal.archive.www.Templates;
@@ -31,9 +31,9 @@ public class Packages extends ContentPageGenerator {
 													   .collect(Collectors.toSet());
 
 	private final GameTypeRepository gameTypes;
-	private final ManagedContentManager managed;
+	private final ManagedContentRepository managed;
 
-	public Packages(ContentRepository content, GameTypeRepository gameTypes, ManagedContentManager managed, Path output, Path staticRoot,
+	public Packages(ContentRepository content, GameTypeRepository gameTypes, ManagedContentRepository managed, Path output, Path staticRoot,
 					SiteFeatures features) {
 		super(content, output, output.resolve("packages"), staticRoot, features);
 
@@ -43,7 +43,7 @@ public class Packages extends ContentPageGenerator {
 
 	public Map<Games, Map<String, Map<Content.ContentFile, List<Content>>>> loadContentFiles(ContentRepository content,
 																							 GameTypeRepository gameTypes,
-																							 ManagedContentManager managed) {
+																							 ManagedContentRepository managed) {
 		final Map<Games, Map<String, Map<Content.ContentFile, List<Content>>>> contentFiles = new HashMap<>();
 		content.all()
 			   .forEach(c -> {

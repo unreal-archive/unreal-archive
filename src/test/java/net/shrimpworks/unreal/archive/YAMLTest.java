@@ -13,6 +13,7 @@ import net.shrimpworks.unreal.archive.common.YAML;
 import net.shrimpworks.unreal.archive.content.Content;
 import net.shrimpworks.unreal.archive.content.ContentType;
 import net.shrimpworks.unreal.archive.content.maps.Map;
+import net.shrimpworks.unreal.archive.indexing.ContentClassifier;
 
 import org.junit.jupiter.api.Test;
 
@@ -63,7 +64,7 @@ public class YAMLTest {
 	}
 
 	private Map makeMap() {
-		Map m = ContentType.MAP.newContent(null);
+		Map m = ContentClassifier.newContent(ContentClassifier.identifierForType(ContentType.MAP), null);
 
 		m.firstIndex = LocalDateTime.now().minus(1, ChronoUnit.DAYS);
 
