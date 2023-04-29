@@ -4,14 +4,14 @@ type: docker
 
 steps:
   - name: test
-    image: gradle:7.6-jdk17-focal
+    image: gradle:8.1.1-jdk17-jammy
     commands:
       - apt-get update && apt-get install -y p7zip-full unrar git-restore-mtime
       - git restore-mtime ./src/main/resources/
       - gradle --no-daemon test
 
   - name: publish
-    image: gradle:7.6-jdk17-focal
+    image: gradle:8.1.1-jdk17-jammy
     environment:
       ARTEFACTS_USER:
         from_secret: ARTEFACTS_USER
@@ -26,7 +26,7 @@ steps:
         - refs/heads/master
 
   - name: www
-    image: gradle:7.6-jdk17-focal
+    image: gradle:8.1.1-jdk17-jammy
     environment:
       DRONE_TOKEN:
         from_secret: DRONE_TOKEN
