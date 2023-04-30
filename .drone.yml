@@ -7,7 +7,7 @@ steps:
     image: gradle:8.1.1-jdk17-jammy
     commands:
       - apt-get update && apt-get install -y p7zip-full unrar git-restore-mtime
-      - git restore-mtime ./src/main/resources/
+      - git restore-mtime ./www/src/main/resources/
       - gradle --no-daemon test
 
   - name: publish
@@ -20,7 +20,7 @@ steps:
         from_secret: ARTEFACTS_PASSWORD
     commands:
       - apt-get update && apt-get install -y git-restore-mtime
-      - git restore-mtime ./src/main/resources/
+      - git restore-mtime ./www/src/main/resources/
       - gradle --no-daemon --build-cache jlinkZip publish
 #    when:
 #      ref:
