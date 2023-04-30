@@ -31,9 +31,6 @@ public class Thumbnails {
 	}
 
 	public static Path thumbnail(Path source, Path outDirectory, ThumbConfig conf) throws IOException {
-		// the source is already a thumbnail
-		if (!Util.fileName(source).startsWith(String.format("%s_", conf.name))) return source;
-
 		// create the destination path using the requested filename
 		final Path dest = outDirectory.resolve(String.format("%s_%s", conf.name, Util.fileName(source)));
 
