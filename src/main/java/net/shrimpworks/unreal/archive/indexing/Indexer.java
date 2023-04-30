@@ -26,9 +26,10 @@ import java.util.function.Consumer;
 
 import net.shrimpworks.unreal.archive.common.Util;
 import net.shrimpworks.unreal.archive.common.YAML;
-import net.shrimpworks.unreal.archive.content.Content;
-import net.shrimpworks.unreal.archive.content.ContentRepository;
-import net.shrimpworks.unreal.archive.content.ContentType;
+import net.shrimpworks.unreal.archive.content.addons.Addon;
+import net.shrimpworks.unreal.archive.content.Download;
+import net.shrimpworks.unreal.archive.content.addons.SimpleAddonRepository;
+import net.shrimpworks.unreal.archive.content.addons.SimpleAddonType;
 import net.shrimpworks.unreal.archive.content.Games;
 
 public class Indexer {
@@ -37,16 +38,16 @@ public class Indexer {
 		"zip", "rar", "ace", "7z", "cab", "tgz", "gz", "tar", "bz2", "exe", "umod", "ut2mod", "ut4mod"
 	);
 
-	private final ContentRepository repo;
+	private final SimpleAddonRepository repo;
 	private final ContentManager contentManager;
 	private final IndexerEvents events;
 	private final IndexerPostProcessor postProcessor;
 
-	public Indexer(ContentRepository repo, ContentManager contentManager, IndexerEvents events) {
+	public Indexer(SimpleAddonRepository repo, ContentManager contentManager, IndexerEvents events) {
 		this(repo, contentManager, events, new IndexerPostProcessor() {});
 	}
 
-	public Indexer(ContentRepository repo, ContentManager contentManager, IndexerEvents events, IndexerPostProcessor postProcessor) {
+	public Indexer(SimpleAddonRepository repo, ContentManager contentManager, IndexerEvents events, IndexerPostProcessor postProcessor) {
 		this.repo = repo;
 		this.contentManager = contentManager;
 		this.events = events;
@@ -71,9 +72,9 @@ public class Indexer {
 	 * <p>
 	 * Once a file is found, an {@link Incoming} instance for it will be created, and
 	 * it will be classified using a {@link Classifier}, to determine its
-	 * {@link ContentType}.
+	 * {@link SimpleAddonType}.
 	 * <p>
-	 * When the Content Type is found, a new type-specific {@link Content} instance will
+	 * When the Content Type is found, a new type-specific {@link Addon} instance will
 	 * be created with as many generic properties filled as possible. The incomplete
 	 * content will be handed to and processed via the associated {@link IndexHandler}
 	 * implementation, which further enriches it, and finally returns it via a
@@ -89,7 +90,7 @@ public class Indexer {
 	 * @param inputPath   directories or file paths to index
 	 * @throws IOException file access failure
 	 */
-	public void index(boolean force, boolean newOnly, int concurrency, ContentType forceType, Games forceGame, Path... inputPath)
+	public void index(boolean force, boolean newOnly, int concurrency, SimpleAddonType forceType, Games forceGame, Path... inputPath)
 		throws IOException {
 		final List<IndexLog> indexLogs = new ArrayList<>();
 
@@ -251,14 +252,14 @@ public class Indexer {
 	}
 
 	private void indexFile(
-		Submission sub, IndexLog log, boolean force, ContentType forceType, Consumer<Optional<IndexResult<? extends Content>>> done) {
+		Submission sub, IndexLog log, boolean force, SimpleAddonType forceType, Consumer<Optional<IndexResult<? extends Addon>>> done) {
 		try (Incoming incoming = new Incoming(sub, log)) {
 			identifyContent(incoming, force, forceType, (ident, content) -> {
-				if (content == null || ident.contentType() == ContentType.UNKNOWN) return;
+				if (content == null || ident.contentType() == SimpleAddonType.UNKNOWN) return;
 
 				ident.indexer().get().index(incoming, content, result -> {
 					try {
-						Content current = repo.forHash(incoming.hash);
+						Addon current = repo.forHash(incoming.hash);
 
 						// hmm, post indexing cleanup... not great.
 						result.content.name = result.content.name.trim();
@@ -266,13 +267,13 @@ public class Indexer {
 
 						// check if the item is a variation of existing content
 						if (current == null) {
-							Optional<Content> maybeNewest = repo.search(result.content.game, result.content.contentType,
-																		result.content.name, result.content.author)
-																.stream().max(Comparator.comparing(a -> a.releaseDate));
-							Content existing = maybeNewest.orElse(null);
+							Optional<Addon> maybeNewest = repo.search(result.content.game, result.content.contentType,
+																	  result.content.name, result.content.author)
+															  .stream().max(Comparator.comparing(a -> a.releaseDate));
+							Addon existing = maybeNewest.orElse(null);
 							if (existing != null) {
 								if (existing.variationOf == null && existing.releaseDate.compareTo(result.content.releaseDate) < 0) {
-									Content variation = contentManager.checkout(existing.hash);
+									Addon variation = contentManager.checkout(existing.hash);
 									variation.variationOf = result.content.hash;
 									contentManager.checkin(new IndexResult<>(variation, Collections.emptySet()), null);
 									log.log(IndexLog.EntryType.CONTINUE,
@@ -332,16 +333,16 @@ public class Indexer {
 	 * @param done      called once content has been identified and instantiated, either result may be null
 	 * @throws IOException failed to read content files
 	 */
-	private void identifyContent(Incoming incoming, boolean force, ContentType forceType,
-								 BiConsumer<ContentClassifier.ContentIdentifier, Content> done) throws IOException {
-		Content content = contentManager.checkout(incoming.hash);
+	private void identifyContent(Incoming incoming, boolean force, SimpleAddonType forceType,
+								 BiConsumer<AddonClassifier.AddonIdentifier, Addon> done) throws IOException {
+		Addon content = contentManager.checkout(incoming.hash);
 
 		if ((content != null && !force)) {
 			// even when not forcing a full re-index of something, we can still update download sources
 			if (!content.deleted && incoming.submission.sourceUrls != null) {
 				for (String url : incoming.submission.sourceUrls) {
 					if (url != null && !url.isEmpty() && !content.hasDownload(url)) {
-						content.downloads.add(new Content.Download(url, false));
+						content.downloads.add(new Download(url, false));
 					}
 				}
 				contentManager.checkin(new IndexResult<>(content, Collections.emptySet()), incoming.submission);
@@ -351,13 +352,13 @@ public class Indexer {
 
 		incoming.prepare();
 
-		ContentClassifier.ContentIdentifier ident = forceType == null
-			? ContentClassifier.classify(incoming)
-			: ContentClassifier.identifierForType(forceType);
+		AddonClassifier.AddonIdentifier ident = forceType == null
+			? AddonClassifier.classify(incoming)
+			: AddonClassifier.identifierForType(forceType);
 
 		// TODO better way to handle re-indexing - we already have content, but if type changes we can't re-use it
 		if (content == null || !ident.contentType().toString().equalsIgnoreCase(content.contentType)) {
-			content = ContentClassifier.newContent(ident, incoming);
+			content = AddonClassifier.newContent(ident, incoming);
 		}
 
 		done.accept(ident, content);
@@ -365,11 +366,11 @@ public class Indexer {
 
 	public interface IndexerPostProcessor {
 
-		public default void indexed(Submission sub, Content before, IndexResult<? extends Content> result) {
+		public default void indexed(Submission sub, Addon before, IndexResult<? extends Addon> result) {
 			if (sub.sourceUrls != null) {
 				for (String url : sub.sourceUrls) {
 					if (url != null && !url.isEmpty() && !result.content.hasDownload(url)) {
-						result.content.downloads.add(new Content.Download(url, false));
+						result.content.downloads.add(new Download(url, false));
 					}
 				}
 			}
@@ -382,7 +383,7 @@ public class Indexer {
 
 		public void progress(int indexed, int total, Path currentFile);
 
-		public void indexed(Submission submission, Optional<IndexResult<? extends Content>> indexed, IndexLog log);
+		public void indexed(Submission submission, Optional<IndexResult<? extends Addon>> indexed, IndexLog log);
 
 		public void completed(int indexedFiles, int errorCount);
 	}
@@ -406,7 +407,7 @@ public class Indexer {
 		}
 
 		@Override
-		public void indexed(Submission submission, Optional<IndexResult<? extends Content>> indexed, IndexLog log) {
+		public void indexed(Submission submission, Optional<IndexResult<? extends Addon>> indexed, IndexLog log) {
 			for (IndexLog.LogEntry l : log.log) {
 				System.out.printf("[%s] %s: %s%n", l.type, Util.fileName(submission.filePath.getFileName()), l.message);
 				if (l.exception != null && verbose) {

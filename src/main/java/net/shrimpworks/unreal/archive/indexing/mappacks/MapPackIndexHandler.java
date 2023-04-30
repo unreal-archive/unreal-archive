@@ -14,12 +14,12 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import net.shrimpworks.unreal.archive.AuthorNames;
+import net.shrimpworks.unreal.archive.content.AuthorNames;
 import net.shrimpworks.unreal.archive.common.Util;
-import net.shrimpworks.unreal.archive.content.Content;
-import net.shrimpworks.unreal.archive.content.mappacks.MapPack;
-import net.shrimpworks.unreal.archive.content.maps.GameTypes;
-import net.shrimpworks.unreal.archive.content.maps.Themes;
+import net.shrimpworks.unreal.archive.content.addons.Addon;
+import net.shrimpworks.unreal.archive.content.addons.MapPack;
+import net.shrimpworks.unreal.archive.content.addons.MapGameTypes;
+import net.shrimpworks.unreal.archive.content.addons.MapThemes;
 import net.shrimpworks.unreal.archive.content.FileType;
 import net.shrimpworks.unreal.archive.indexing.Incoming;
 import net.shrimpworks.unreal.archive.indexing.IndexHandler;
@@ -35,7 +35,7 @@ import net.shrimpworks.unreal.packages.entities.objects.Object;
 import net.shrimpworks.unreal.packages.entities.properties.Property;
 import net.shrimpworks.unreal.packages.entities.properties.StringProperty;
 
-import static net.shrimpworks.unreal.archive.content.Content.UNKNOWN;
+import static net.shrimpworks.unreal.archive.content.addons.Addon.UNKNOWN;
 
 public class MapPackIndexHandler implements IndexHandler<MapPack> {
 
@@ -48,7 +48,7 @@ public class MapPackIndexHandler implements IndexHandler<MapPack> {
 	}
 
 	@Override
-	public void index(Incoming incoming, Content content, Consumer<IndexResult<MapPack>> completed) {
+	public void index(Incoming incoming, Addon content, Consumer<IndexResult<MapPack>> completed) {
 		IndexLog log = incoming.log;
 		MapPack m = (MapPack)content;
 
@@ -111,7 +111,7 @@ public class MapPackIndexHandler implements IndexHandler<MapPack> {
 		// find a common gametype if possible
 		m.gametype = UNKNOWN;
 		for (MapPack.PackMap map : m.maps) {
-			GameTypes.GameType gt = GameTypes.forMap(map.name);
+			MapGameTypes.MapGameType gt = MapGameTypes.forMap(map.name);
 			if (gt == null) continue;
 
 			if (m.gametype.equals(UNKNOWN)) {
@@ -125,13 +125,13 @@ public class MapPackIndexHandler implements IndexHandler<MapPack> {
 		// for the top 5 themes, give them a percentage value of the total themeable content
 		Map<String, Double> topThemes = mapThemes.entrySet().stream()
 												 .sorted((a, b) -> -a.getValue().compareTo(b.getValue()))
-												 .limit(Themes.MAX_THEMES)
+												 .limit(MapThemes.MAX_THEMES)
 												 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 		double totalScore = topThemes.values().stream().mapToDouble(e -> e).sum();
 		m.themes.clear();
 		m.themes.putAll(mapThemes.entrySet()
 								 .stream()
-								 .filter(e -> (e.getValue() / totalScore) > Themes.MIN_THRESHOLD)
+								 .filter(e -> (e.getValue() / totalScore) > MapThemes.MIN_THRESHOLD)
 								 .collect(Collectors.toMap(Map.Entry::getKey,
 														   v -> BigDecimal.valueOf(v.getValue() / totalScore)
 																		  .setScale(1, RoundingMode.HALF_UP).doubleValue()

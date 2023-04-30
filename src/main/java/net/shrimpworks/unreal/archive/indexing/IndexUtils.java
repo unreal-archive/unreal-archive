@@ -23,7 +23,7 @@ import java.util.stream.Stream;
 import javax.imageio.ImageIO;
 
 import net.shrimpworks.unreal.archive.common.Util;
-import net.shrimpworks.unreal.archive.content.Content;
+import net.shrimpworks.unreal.archive.content.addons.Addon;
 import net.shrimpworks.unreal.archive.content.FileType;
 import net.shrimpworks.unreal.archive.content.Games;
 import net.shrimpworks.unreal.dependencies.DependencyResolver;
@@ -45,8 +45,8 @@ import net.shrimpworks.unreal.packages.entities.properties.ArrayProperty;
 import net.shrimpworks.unreal.packages.entities.properties.ObjectProperty;
 import net.shrimpworks.unreal.packages.entities.properties.Property;
 
-import static net.shrimpworks.unreal.archive.content.Content.DependencyStatus.*;
-import static net.shrimpworks.unreal.archive.content.Content.UNKNOWN;
+import static net.shrimpworks.unreal.archive.content.addons.Addon.DependencyStatus.*;
+import static net.shrimpworks.unreal.archive.content.addons.Addon.UNKNOWN;
 
 public class IndexUtils {
 
@@ -281,13 +281,13 @@ public class IndexUtils {
 	 * @throws IOException failed to write files
 	 */
 	public static void saveImages(
-		String shotTemplate, Content content, List<BufferedImage> screenshots, Set<IndexResult.NewAttachment> attachments
+		String shotTemplate, Addon content, List<BufferedImage> screenshots, Set<IndexResult.NewAttachment> attachments
 	) throws IOException {
 		for (BufferedImage screenshot : screenshots) {
 			String shotName = String.format(shotTemplate, Util.slug(content.name), content.hash.substring(0, 8), attachments.size() + 1);
 			Path out = Paths.get(shotName);
 			ImageIO.write(screenshot, "png", out.toFile());
-			attachments.add(new IndexResult.NewAttachment(Content.AttachmentType.IMAGE, shotName, out));
+			attachments.add(new IndexResult.NewAttachment(Addon.AttachmentType.IMAGE, shotName, out));
 		}
 	}
 
@@ -489,11 +489,11 @@ public class IndexUtils {
 		return String.join(" ", res);
 	}
 
-	public static Map<String, List<Content.Dependency>> dependencies(Content content, Incoming incoming) {
+	public static Map<String, List<Addon.Dependency>> dependencies(Addon content, Incoming incoming) {
 		return dependencies(Games.byName(content.game), incoming);
 	}
 
-	public static Map<String, List<Content.Dependency>> dependencies(Games game, Incoming incoming) {
+	public static Map<String, List<Addon.Dependency>> dependencies(Games game, Incoming incoming) {
 		ShippedPackages shippedPackages = switch (game) {
 			case UNREAL -> ShippedPackages.UNREAL_GOLD;
 			case UNREAL_TOURNAMENT_2004 -> ShippedPackages.UNREAL_TOURNAMENT_2004;
@@ -502,7 +502,7 @@ public class IndexUtils {
 			default -> ShippedPackages.UNREAL_TOURNAMENT;
 		};
 
-		Map<String, List<Content.Dependency>> dependencies = new HashMap<>();
+		Map<String, List<Addon.Dependency>> dependencies = new HashMap<>();
 		try {
 			DependencyResolver resolver = new DependencyResolver(incoming.contentRoot, NativePackages.DEFAULT, e -> {
 				incoming.log.log(IndexLog.EntryType.CONTINUE, "Dependency resolution error for " + e.file.toString(), e);
@@ -510,12 +510,12 @@ public class IndexUtils {
 
 			for (Incoming.IncomingFile file : incoming.files(FileType.CODE, FileType.MAP, FileType.TEXTURE,
 															 FileType.STATICMESH, FileType.ANIMATION)) {
-				List<Content.Dependency> depList = new ArrayList<>();
+				List<Addon.Dependency> depList = new ArrayList<>();
 				try {
 					Map<String, Set<Resolved>> resolved = resolver.resolve(Util.plainName(file.fileName()));
 					resolved.forEach((k, v) -> {
 						if (!shippedPackages.contains(k)) {
-							depList.add(new Content.Dependency(resolveDependency(v), k, null));
+							depList.add(new Addon.Dependency(resolveDependency(v), k, null));
 						}
 					});
 				} catch (Throwable e) {
@@ -530,11 +530,11 @@ public class IndexUtils {
 		return dependencies;
 	}
 
-	private static Content.DependencyStatus resolveDependency(Set<Resolved> resolved) {
-		Content.DependencyStatus result = null;
+	private static Addon.DependencyStatus resolveDependency(Set<Resolved> resolved) {
+		Addon.DependencyStatus result = null;
 		for (Resolved r : resolved) {
 			if (!r.children.isEmpty()) {
-				Content.DependencyStatus childResult = resolveDependency(r.children);
+				Addon.DependencyStatus childResult = resolveDependency(r.children);
 				if (result == null) result = childResult;
 				else if (result == OK && childResult == MISSING) result = PARTIAL;
 			}

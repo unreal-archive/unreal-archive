@@ -1,0 +1,249 @@
+.wiki div.toc {
+}
+
+.wiki div.toc ul {
+	list-style: none;
+	margin: 0;
+	padding-left: 1.5em;
+}
+
+.wiki div.toc ul li {
+	margin: inherit;
+	margin-bottom: 0.3em;
+}
+
+.wiki dt {
+	font-weight: bold;
+}
+
+/*
+  sections
+*/
+.wiki .readable.categoryPages li {
+	display: inline-block;
+	width: 33%;
+}
+
+.wiki .readable.categories, .wiki .readable.updates {
+	max-width: 75%;
+	margin: 0 auto;
+}
+
+.wiki .readable.categories h4, .wiki .readable.updates h4 {
+	background-color: var(--table-row-alt-bg);
+}
+
+.wiki .readable.categories li {
+	display: inline-block;
+	width: 50%;
+}
+
+/*
+  links
+*/
+.wiki a.external, .wiki a.extiw {
+	background: url(../images/icons/external-link.svg) center right no-repeat;
+	padding-right: 20px;
+	background-size: 20px 20px;
+}
+
+/*
+  image gallery
+*/
+.wiki ul.gallery {
+	list-style: none;
+}
+
+.wiki ul.gallery li {
+	display: inline-block;
+	vertical-align: top;
+}
+
+/*
+  spacing
+*/
+.wiki div.center {
+	text-align: center;
+}
+.wiki div.floatright, .wiki .thumb.tright {
+	clear: right;
+	float: right;
+}
+.wiki .thumb .thumbinner {
+	padding: 10px;
+	text-align: center;
+	font-size: 0.8em;
+}
+
+.wiki h2, .wiki h3 {
+	margin-top: 20px;
+	border-radius: 0;
+}
+
+.wiki div.infobox[style*="float"] {
+	border-radius: 5px;
+	background-color: var(--table-row-alt-bg);
+	padding: 10px;
+	margin: 10px
+}
+
+/*
+	navbox at bottom of pages
+*/
+.wiki table.navbox, .wiki div.infobox-class {
+	border-radius: 5px;
+	background-color: var(--document-meta-bg);
+}
+
+.wiki table.navbox tr.navbox-header, table.navbox th {
+	background-color: var(--table-header-bg);
+	color: var(--table-header-color);
+	font-variant: small-caps;
+	padding: 10px;
+	text-align: center;
+}
+
+.wiki table.navbox tr.navbox-body {
+	text-align: center;
+}
+
+.wiki table.navbox tr.navbox-body.odd {
+	background-color: var(--table-row-alt-bg);
+}
+
+/*
+  wikitable thing
+ */
+.wiki table.wikitable {
+	width: inherit;
+	border-radius: 5px;
+}
+.wiki table.wikitable[style*="margin: 0;"] {
+	width: 100%;
+}
+
+.wiki table.wikitable th {
+	background-color: var(--table-header-bg);
+	color: var(--table-header-color);
+	font-variant: small-caps;
+	padding: 10px;
+}
+
+.wiki table.wikitable tr:nth-child(even) {
+	background-color: var(--table-row-alt-bg);
+}
+
+/*
+  meta info block (liandri wiki)
+ */
+.wiki table.meta {
+	font-size: 1em;
+	font-family: var(--body-font-family);
+	width: inherit;
+}
+
+/*
+  code blocks
+ */
+.wiki .mw-code {
+	line-height: 0.8em;
+	border-left: 40px solid var(--table-row-alt-bg);
+}
+
+.wiki .mw-code pre {
+	padding: 0 0 0 10px !important;
+	margin: 0.7em 0;
+	border: 0 !important;
+	background: none !important;
+	tab-size: 4;
+}
+
+.wiki .mw-code ol pre {
+	padding: 0 0 0 50px !important;
+}
+
+.wiki .mw-code ol {
+	counter-reset: li;
+	list-style: none;
+	padding-left: 0;
+}
+
+.wiki .mw-code ol li {
+	margin-left: -45px;
+}
+
+.wiki .mw-code ol li:before {
+	content: counter(li);
+	counter-increment: li;
+	float: left;
+	text-align: right;
+	width: 30px;
+	font-family: monospace;
+}
+
+/*
+  Lifted CSS styling for unreal script highlighting
+ */
+.wiki .mw-code .kw1 {
+	color:#0000FF
+}
+.wiki .mw-code .kw2 {
+	color:#0000FF
+}
+.wiki .mw-code .kw3 {
+	color:#0066AA
+}
+.wiki .mw-code .kw4 {
+	color:#0088FF
+}
+.wiki .mw-code .kw5 {
+	color:#E000E0
+}
+.wiki .mw-code .kw6 {
+	color:#900000
+}
+.wiki .mw-code .kw7 {
+	color:#888800
+}
+.wiki .mw-code .kw8 {
+	color:#AA6600
+}
+.wiki .mw-code .kw9 {
+	color:#FF8800
+}
+.wiki .mw-code .kw10 {
+	color:#0000FF
+}
+.wiki .mw-code .co1 {
+	color:#008080;
+	font-style:italic
+}
+.wiki .mw-code .co2 {
+	color:#000000;
+	font-weight:bold
+}
+.wiki .mw-code .coMULTI {
+	color:#008080;
+	font-style:italic
+}
+.wiki .mw-code .br0 {
+	color:#000000
+}
+.wiki .mw-code .sy0 {
+	color:#669966
+}
+.wiki .mw-code .st0 {
+	color:#999999
+}
+.wiki .mw-code .nu0 {
+	color:#FF0000
+}
+.wiki .mw-code .me0 {
+	color:#006600
+}
+.wiki .mw-code .re0 {
+	color:#E000E0
+}
+.wiki .mw-code .re1 {
+	color:#E000E0
+}

@@ -18,12 +18,13 @@ import javax.imageio.ImageIO;
 import net.shrimpworks.unreal.archive.common.Platform;
 import net.shrimpworks.unreal.archive.common.Util;
 import net.shrimpworks.unreal.archive.common.YAML;
-import net.shrimpworks.unreal.archive.content.Content;
+import net.shrimpworks.unreal.archive.content.addons.Addon;
 import net.shrimpworks.unreal.archive.content.FileType;
-import net.shrimpworks.unreal.archive.content.GameTypeRepository;
+import net.shrimpworks.unreal.archive.content.Download;
+import net.shrimpworks.unreal.archive.content.addons.GameTypeRepository;
 import net.shrimpworks.unreal.archive.content.Games;
 import net.shrimpworks.unreal.archive.content.NameDescription;
-import net.shrimpworks.unreal.archive.content.gametypes.GameType;
+import net.shrimpworks.unreal.archive.content.addons.GameType;
 import net.shrimpworks.unreal.archive.indexing.mutators.MutatorClassifier;
 import net.shrimpworks.unreal.archive.indexing.mutators.MutatorIndexHandler;
 import net.shrimpworks.unreal.archive.storage.DataStore;
@@ -167,7 +168,7 @@ public class GameTypeManager {
 						continue;
 					}
 
-					r.files.add(new Content.ContentFile(i.fileName(), i.fileSize(), i.hash()));
+					r.files.add(new Addon.ContentFile(i.fileName(), i.fileSize(), i.hash()));
 				}
 
 				// compute dependencies
@@ -195,7 +196,7 @@ public class GameTypeManager {
 			try {
 				// record download
 				if (releaseFile.downloads.stream().noneMatch(dl -> dl.url.equals(url))) {
-					releaseFile.downloads.add(new Content.Download(url, !releaseFile.synced, false, Content.DownloadState.OK));
+					releaseFile.downloads.add(new Download(url, !releaseFile.synced, false, Download.DownloadState.OK));
 				}
 
 				// other file stats
@@ -385,7 +386,7 @@ public class GameTypeManager {
 						   final String mapName = Util.plainName(fp.f.file);
 						   String title = "";
 						   String author = "";
-						   Content.Attachment[] attachment = { null };
+						   Addon.Attachment[] attachment = { null };
 
 						   Collection<ExportedObject> maybeLevelInfo = fp.p.objectsByClassName("LevelInfo");
 						   if (maybeLevelInfo != null && !maybeLevelInfo.isEmpty()) {
@@ -421,8 +422,8 @@ public class GameTypeManager {
 											   .toString(),
 										   (url, ex) -> {
 											   if (ex == null && url != null) {
-												   attachment[0] = new Content.Attachment(
-													   Content.AttachmentType.IMAGE, imgPath.getFileName().toString(), url
+												   attachment[0] = new Addon.Attachment(
+													   Addon.AttachmentType.IMAGE, imgPath.getFileName().toString(), url
 												   );
 											   }
 										   });

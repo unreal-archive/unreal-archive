@@ -1,0 +1,4 @@
+rootProject.name = 'unreal-archive-www'
+
+include '../common'
+include '../content'

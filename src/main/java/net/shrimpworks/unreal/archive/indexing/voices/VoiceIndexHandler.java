@@ -9,8 +9,8 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import net.shrimpworks.unreal.archive.content.Content;
-import net.shrimpworks.unreal.archive.content.voices.Voice;
+import net.shrimpworks.unreal.archive.content.addons.Addon;
+import net.shrimpworks.unreal.archive.content.addons.Voice;
 import net.shrimpworks.unreal.archive.content.FileType;
 import net.shrimpworks.unreal.archive.indexing.Incoming;
 import net.shrimpworks.unreal.archive.indexing.IndexHandler;
@@ -30,7 +30,7 @@ public class VoiceIndexHandler implements IndexHandler<Voice> {
 	}
 
 	@Override
-	public void index(Incoming incoming, Content current, Consumer<IndexResult<Voice>> completed) {
+	public void index(Incoming incoming, Addon current, Consumer<IndexResult<Voice>> completed) {
 		Voice v = (Voice)current;
 		IndexLog log = incoming.log;
 

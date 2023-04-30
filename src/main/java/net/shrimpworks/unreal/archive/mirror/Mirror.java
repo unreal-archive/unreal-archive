@@ -15,18 +15,19 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import net.shrimpworks.unreal.archive.ContentEntity;
+import net.shrimpworks.unreal.archive.content.ContentEntity;
 import net.shrimpworks.unreal.archive.common.Util;
-import net.shrimpworks.unreal.archive.content.Content;
-import net.shrimpworks.unreal.archive.content.ContentRepository;
-import net.shrimpworks.unreal.archive.content.GameTypeRepository;
-import net.shrimpworks.unreal.archive.content.gametypes.GameType;
+import net.shrimpworks.unreal.archive.content.addons.Addon;
+import net.shrimpworks.unreal.archive.content.Download;
+import net.shrimpworks.unreal.archive.content.addons.SimpleAddonRepository;
+import net.shrimpworks.unreal.archive.content.addons.GameTypeRepository;
+import net.shrimpworks.unreal.archive.content.addons.GameType;
 import net.shrimpworks.unreal.archive.indexing.ContentManager;
 import net.shrimpworks.unreal.archive.indexing.GameTypeManager;
 import net.shrimpworks.unreal.archive.indexing.IndexResult;
-import net.shrimpworks.unreal.archive.managed.Managed;
-import net.shrimpworks.unreal.archive.managed.ManagedContentManager;
-import net.shrimpworks.unreal.archive.managed.ManagedContentRepository;
+import net.shrimpworks.unreal.archive.content.managed.Managed;
+import net.shrimpworks.unreal.archive.indexing.ManagedContentManager;
+import net.shrimpworks.unreal.archive.content.managed.ManagedContentRepository;
 import net.shrimpworks.unreal.archive.storage.DataStore;
 
 public class Mirror implements Consumer<Mirror.Transfer> {
@@ -50,7 +51,7 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 	private volatile CountDownLatch counter;
 	private volatile Thread mirrorThread;
 
-	public Mirror(ContentRepository repo, ContentManager cm, GameTypeRepository gametypes, GameTypeManager gm,
+	public Mirror(SimpleAddonRepository repo, ContentManager cm, GameTypeRepository gametypes, GameTypeManager gm,
 				  ManagedContentRepository managed, ManagedContentManager mm,
 				  DataStore mirrorStore, int concurrency, LocalDate since, LocalDate until, Progress progress) {
 		this.cm = cm;
@@ -174,7 +175,7 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 		@Override
 		public void run() {
 			try {
-				if (content instanceof Content) mirrorContent((Content)content);
+				if (content instanceof Addon) mirrorContent((Addon)content);
 				else if (content instanceof GameType) mirrorGameType((GameType)content);
 				else if (content instanceof Managed) mirrorManaged((Managed)content);
 				else System.out.printf("%nContent mirroring not yet supported for type %s: %s%n",
@@ -194,7 +195,7 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 					Path localFile = Paths.get(managedFile.localFile);
 					final boolean hasLocalFile = Files.exists(localFile);
 					if (!hasLocalFile) {
-						Content.Download dl = managedFile.mainDownload();
+						Download dl = managedFile.mainDownload();
 						localFile = Util.downloadTo(
 							dl.url.replaceAll(" ", "%20"),
 							Files.createTempDirectory("ua-mirror").resolve(Util.fileName(managedFile.localFile))
@@ -225,7 +226,7 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 						Path localFile = Paths.get(releaseFile.localFile);
 						final boolean hasLocalFile = Files.exists(localFile);
 						if (!hasLocalFile) {
-							Content.Download dl = releaseFile.mainDownload();
+							Download dl = releaseFile.mainDownload();
 							localFile = Util.downloadTo(
 								dl.url,
 								Files.createTempDirectory("ua-mirror").resolve(releaseFile.originalFilename)
@@ -249,10 +250,10 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 			gm.checkin(clone);
 		}
 
-		private void mirrorContent(Content content) throws MirrorFailedException {
+		private void mirrorContent(Addon content) throws MirrorFailedException {
 			try {
 				// only consider "main" URLs
-				Content.Download dl = content.mainDownload();
+				Download dl = content.mainDownload();
 				if (dl == null) return;
 
 				Util.urlRequest(dl.url, (httpConn) -> {
@@ -268,8 +269,8 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 								retryQueue.add(content);
 							}
 							if (newUrl != null && content.downloads.stream().noneMatch(d -> d.url.equalsIgnoreCase(newUrl))) {
-								Content updated = cm.checkout(content.hash);
-								updated.downloads.add(new Content.Download(newUrl, false));
+								Addon updated = cm.checkout(content.hash);
+								updated.downloads.add(new Download(newUrl, false));
 								try {
 									cm.checkin(new IndexResult<>(updated, Collections.emptySet()), null);
 								} catch (IOException e) {

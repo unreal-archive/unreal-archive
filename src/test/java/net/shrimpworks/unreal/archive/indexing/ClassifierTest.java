@@ -32,7 +32,7 @@ public class ClassifierTest {
 	@Test
 	public void logTest() throws IOException {
 		Path tmpMap = Files.createTempFile("test-dm-longestyard", ".zip");
-		try (InputStream is = getClass().getResourceAsStream("dm-longestyard.zip")) {
+		try (InputStream is = getClass().getResourceAsStream("maps/dm-longestyard.zip")) {
 			Files.copy(is, tmpMap, StandardCopyOption.REPLACE_EXISTING);
 
 			IndexLog log = new IndexLog();

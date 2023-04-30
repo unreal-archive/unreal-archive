@@ -8,9 +8,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import net.shrimpworks.unreal.archive.content.Content;
+import net.shrimpworks.unreal.archive.content.addons.Addon;
 import net.shrimpworks.unreal.archive.content.NameDescription;
-import net.shrimpworks.unreal.archive.content.mutators.Mutator;
+import net.shrimpworks.unreal.archive.content.addons.Mutator;
 import net.shrimpworks.unreal.archive.content.FileType;
 import net.shrimpworks.unreal.archive.indexing.Incoming;
 import net.shrimpworks.unreal.archive.indexing.IndexHandler;
@@ -30,7 +30,7 @@ public class MutatorIndexHandler implements IndexHandler<Mutator> {
 	}
 
 	@Override
-	public void index(Incoming incoming, Content current, Consumer<IndexResult<Mutator>> completed) {
+	public void index(Incoming incoming, Addon current, Consumer<IndexResult<Mutator>> completed) {
 		Mutator m = (Mutator)current;
 		IndexLog log = incoming.log;
 

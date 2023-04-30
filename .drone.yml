@@ -13,6 +13,7 @@ steps:
   - name: publish
     image: gradle:8.1.1-jdk17-jammy
     environment:
+      BUILD_NUMBER: ${DRONE_BUILD_NUMBER}
       ARTEFACTS_USER:
         from_secret: ARTEFACTS_USER
       ARTEFACTS_PASSWORD:

@@ -3,9 +3,9 @@ package net.shrimpworks.unreal.archive.indexing;
 import java.nio.file.Path;
 import java.util.Set;
 
-import net.shrimpworks.unreal.archive.content.Content;
+import net.shrimpworks.unreal.archive.content.addons.Addon;
 
-public class IndexResult<T extends Content> {
+public class IndexResult<T extends Addon> {
 
 	public final T content;
 	public final Set<NewAttachment> files;
@@ -17,11 +17,11 @@ public class IndexResult<T extends Content> {
 
 	public static class NewAttachment {
 
-		public final Content.AttachmentType type;
+		public final Addon.AttachmentType type;
 		public final String name;
 		public final Path path;
 
-		public NewAttachment(Content.AttachmentType type, String name, Path path) {
+		public NewAttachment(Addon.AttachmentType type, String name, Path path) {
 			this.type = type;
 			this.name = name;
 			this.path = path;

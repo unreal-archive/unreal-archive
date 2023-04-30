@@ -1,0 +1,81 @@
+:root {
+	--p1: #1a1a1d;
+	--p2: #c3073f;
+	--p3: #950740;
+	--p4: #4e4e50;
+	--p5: #6f2232;
+	--p6: #a3e312;
+
+	--body-bg: var(--p1);
+	--body-color: lightgray;
+	--body-font-family: 'Dosis', sans-serif;
+	--article-font-family: 'Nobile', sans-serif;
+
+	--link-color: white;
+	--link-color-visited: lightgray;
+
+	--header-font-family: 'PassionOne', sans-serif;
+	--header-bg-color: var(--p1);
+	--header-text-color: white;
+	--header-border-color: var(--p6);
+	--header-logo-color-a: white;
+	--header-logo-color-b: var(--p2);
+
+	--header-outline-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
+
+	--footer-border-color: var(--p4);
+
+	--menu-font-family: 'Nobile', sans-serif;
+	--menu-text-color: white;
+	--menu-trim-color: 1px dotted white;
+
+	--section-header-bg: var(--p4);
+	--section-header-shadow: inset 0 0 100px 0 rgba(0, 0, 0, 0.75);
+	--section-header-title-bg: rgba(78, 78, 80, 0.5);
+	--section-header-title-shadow: -1px -6px 10px -4px rgba(0, 0, 0, 0.55);
+	--section-header-title-color: white;
+	--section-header-title-color-hover: var(--p2);
+
+	--section-subheader-bg: var(--p3);;
+	--section-subheader-color: lightgrey;
+
+	--biglist-shadow: inset 0 0 80px 0 rgba(0, 0, 0, 0.75);
+	--biglist-bg-color: var(--p4);
+	--biglist-bg-color-hover: #a3e31280;
+	--biglist-text-color: white;
+	--biglist-meta-color: rgba(255, 255, 255, 0.5);
+
+	--paginate-bg-inactive: #202023;
+	--paginate-bg-hover: #95074080;
+	--paginate-bg-active: var(--section-header-title-bg);
+	--paginate-shadow-active: inset 0 -3px 0 0 var(--p6);
+	--paginate-border: none;
+
+	--download-button-bg: darkgreen;
+	--download-button-bg-hover: green;
+	--download-info-bg-hover: #242427;
+
+	--table-header-bg: var(--p5);
+	--table-header-color: lightgrey;
+	--table-row-alt-bg: #202023;
+	--table-row-hover: #a3e31280;
+
+	--document-meta-border: none;
+	--document-meta-bg: #202023;
+}
+
+h2 img[src$="svg"], h3 img[src$="svg"] {
+	filter: invert(0.85);
+}
+
+td.meta img[src$="svg"], footer img[src$="svg"], .report img[src$="svg"] {
+	filter: invert(0.5);
+}
+
+article.managed section.downloads .download .title img[src$="svg"], .variation img[src$="svg"] {
+	filter: invert(0.8);
+}
+
+div.themes img[src$="svg"] {
+	filter: invert(0.8);
+}

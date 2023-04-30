@@ -1,0 +1,88 @@
+#search-form {
+	padding: 10px 0 10px 0;
+	border-bottom: 4px solid #aaa;
+}
+
+#search-form input,
+#search-form button,
+#search-form select,
+#search-nav button {
+	height: 35px;
+	vertical-align: middle;
+}
+
+#search-form span:not(:last-child) {
+	border-right: 1px dotted #aaa;
+	padding-right: 10px;
+	margin-right: 10px;
+}
+
+#search-nav {
+	text-align: center;
+	padding: 10px;
+}
+
+#search-results {
+}
+
+#search-results .result {
+	display: flex;
+	padding: 10px 0 10px 0;
+}
+
+#search-results .result:not(:last-child) {
+	border-bottom: 1px dotted #aaa;
+}
+
+#search-results .result .image {
+	padding-right: 20px;
+}
+
+#search-results .result .image img {
+	min-width: 140px;
+	max-width: 140px;
+	max-height: 140px;
+	border-radius: 5px;
+}
+
+#search-results .result .info {
+}
+
+#search-results .result .info h2 {
+}
+
+#search-results .result .info .author {
+	font-size: 0.85em;
+	font-style: italic;
+	padding-bottom: 5px;
+}
+
+#search-results .result .info .description {
+}
+
+/* compact styling */
+#search-results.compact .result .image img {
+	min-width: 55px;
+	max-width: 55px;
+	max-height: 55px;
+}
+
+#search-results.compact .result .info h2 {
+	font-size: 1.2em;
+	margin: 0;
+	display: inline;
+}
+
+#search-results.compact .result .info .author {
+	font-size: 0.85em;
+	display: inline;
+	border-left: 1px dotted #aaa;
+	border-right: 1px dotted #aaa;
+	margin: 0 10px;
+	padding: 0 10px;
+}
+
+#search-results.compact .result .info .description {
+	font-size: 0.85em;
+	display: inline;
+}

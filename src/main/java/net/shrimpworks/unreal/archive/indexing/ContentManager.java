@@ -7,13 +7,14 @@ import java.util.HashSet;
 import java.util.Set;
 
 import net.shrimpworks.unreal.archive.common.YAML;
-import net.shrimpworks.unreal.archive.content.Content;
-import net.shrimpworks.unreal.archive.content.ContentRepository;
+import net.shrimpworks.unreal.archive.content.addons.Addon;
+import net.shrimpworks.unreal.archive.content.Download;
+import net.shrimpworks.unreal.archive.content.addons.SimpleAddonRepository;
 import net.shrimpworks.unreal.archive.storage.DataStore;
 
 public class ContentManager {
 
-	private final ContentRepository repo;
+	private final SimpleAddonRepository repo;
 
 	private final DataStore contentStore;
 	private final DataStore imageStore;
@@ -21,7 +22,7 @@ public class ContentManager {
 
 	private final Set<String> changes;
 
-	public ContentManager(ContentRepository repo, DataStore contentStore, DataStore imageStore, DataStore attachmentStore) {
+	public ContentManager(SimpleAddonRepository repo, DataStore contentStore, DataStore imageStore, DataStore attachmentStore) {
 		this.repo = repo;
 
 		this.contentStore = contentStore;
@@ -31,7 +32,7 @@ public class ContentManager {
 		this.changes = new HashSet<>();
 	}
 
-	public ContentRepository repo() {
+	public SimpleAddonRepository repo() {
 		return repo;
 	}
 
@@ -43,11 +44,11 @@ public class ContentManager {
 	 if something changed, the content will be written out, within a new directory structure if needed
 	 and the old file will be removed
 	 */
-	public Content checkout(String hash) {
-		Content out = repo.forHash(hash);
+	public Addon checkout(String hash) {
+		Addon out = repo.forHash(hash);
 		if (out != null) {
 			try {
-				return YAML.fromString(YAML.toString(out), Content.class);
+				return YAML.fromString(YAML.toString(out), Addon.class);
 			} catch (IOException e) {
 				throw new IllegalStateException("Cannot clone content " + out);
 			}
@@ -55,8 +56,8 @@ public class ContentManager {
 		return null;
 	}
 
-	public boolean checkin(IndexResult<? extends Content> indexed, Submission submission) throws IOException {
-		Content current = repo.forHash(indexed.content.hash);
+	public boolean checkin(IndexResult<? extends Addon> indexed, Submission submission) throws IOException {
+		Addon current = repo.forHash(indexed.content.hash);
 
 		if (current == null || (!indexed.content.equals(current) || !indexed.files.isEmpty())) {
 			// lets store the content \o/
@@ -66,12 +67,12 @@ public class ContentManager {
 				// use same path structure as per contentPath
 				try {
 					String uploadPath = repo.path().relativize(next.resolve(file.name)).toString();
-					if (file.type == Content.AttachmentType.IMAGE) {
+					if (file.type == Addon.AttachmentType.IMAGE) {
 						imageStore.store(file.path, uploadPath, (fileUrl, ex) ->
-							indexed.content.attachments.add(new Content.Attachment(file.type, file.name, fileUrl)));
+							indexed.content.attachments.add(new Addon.Attachment(file.type, file.name, fileUrl)));
 					} else {
 						attachmentStore.store(file.path, uploadPath, (fileUrl, ex) ->
-							indexed.content.attachments.add(new Content.Attachment(file.type, file.name, fileUrl)));
+							indexed.content.attachments.add(new Addon.Attachment(file.type, file.name, fileUrl)));
 					}
 				} finally {
 					// cleanup file once uploaded
@@ -100,7 +101,7 @@ public class ContentManager {
 			if (submission != null && indexed.content.downloads.stream().noneMatch(d -> d.main)) {
 				String uploadPath = repo.path().relativize(next.resolve(submission.filePath.getFileName())).toString();
 				contentStore.store(submission.filePath, uploadPath, (fileUrl, ex) ->
-					indexed.content.downloads.add(new Content.Download(fileUrl, true, false, Content.DownloadState.OK))
+					indexed.content.downloads.add(new Download(fileUrl, true, false, Download.DownloadState.OK))
 				);
 			}
 

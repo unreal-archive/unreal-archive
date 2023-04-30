@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import net.shrimpworks.unreal.archive.common.YAML;
-import net.shrimpworks.unreal.archive.content.Content;
+import net.shrimpworks.unreal.archive.content.addons.Addon;
 import net.shrimpworks.unreal.archive.content.FileType;
 
 /**
@@ -27,8 +27,8 @@ public class ContentEditor {
 		this.contentManager = contentManager;
 	}
 
-	private Content checkoutContent(String hash) {
-		Content content = contentManager.checkout(hash);
+	private Addon checkoutContent(String hash) {
+		Addon content = contentManager.checkout(hash);
 		if (content == null) {
 			System.err.println("Content for provided hash does not exist!");
 			System.exit(4);
@@ -46,7 +46,7 @@ public class ContentEditor {
 	 * @throws InterruptedException failed to wait for text editor result
 	 */
 	public void edit(String hash) throws IOException, InterruptedException {
-		Content content = checkoutContent(hash);
+		Addon content = checkoutContent(hash);
 
 		Path yaml = Files.write(Files.createTempFile(content.hash, ".yml"), YAML.toString(content).getBytes(StandardCharsets.UTF_8),
 								StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
@@ -58,7 +58,7 @@ public class ContentEditor {
 		int res = editorProcess.waitFor();
 		if (res == 0) {
 			if (!fileTime.equals(Files.getLastModifiedTime(yaml))) {
-				Content updated = YAML.fromFile(yaml, Content.class);
+				Addon updated = YAML.fromFile(yaml, Addon.class);
 				if (contentManager.checkin(new IndexResult<>(updated, Collections.emptySet()), null)) {
 					System.out.println("Stored changes!");
 				} else {
@@ -76,7 +76,7 @@ public class ContentEditor {
 			return;
 		}
 
-		Content content = checkoutContent(hash);
+		Addon content = checkoutContent(hash);
 
 		Field field = content.getClass().getField(attribute);
 		Object old = field.get(content);
@@ -110,7 +110,7 @@ public class ContentEditor {
 	}
 
 	public void attach(String hash, String attachment) throws IOException {
-		Content content = checkoutContent(hash);
+		Addon content = checkoutContent(hash);
 
 		Path attfile = Paths.get(attachment);
 
@@ -125,7 +125,7 @@ public class ContentEditor {
 		}
 
 		Set<IndexResult.NewAttachment> attachments = Set.of(
-			new IndexResult.NewAttachment(Content.AttachmentType.IMAGE, attfile.getFileName().toString(), attfile)
+			new IndexResult.NewAttachment(Addon.AttachmentType.IMAGE, attfile.getFileName().toString(), attfile)
 		);
 
 		if (contentManager.checkin(new IndexResult<>(content, attachments), null)) {

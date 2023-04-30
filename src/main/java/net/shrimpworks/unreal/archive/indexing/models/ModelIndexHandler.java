@@ -11,9 +11,9 @@ import java.util.regex.Matcher;
 import java.util.stream.Stream;
 
 import net.shrimpworks.unreal.archive.common.Util;
-import net.shrimpworks.unreal.archive.content.Content;
+import net.shrimpworks.unreal.archive.content.addons.Addon;
 import net.shrimpworks.unreal.archive.content.Games;
-import net.shrimpworks.unreal.archive.content.models.Model;
+import net.shrimpworks.unreal.archive.content.addons.Model;
 import net.shrimpworks.unreal.archive.content.FileType;
 import net.shrimpworks.unreal.archive.indexing.Incoming;
 import net.shrimpworks.unreal.archive.indexing.IndexHandler;
@@ -42,7 +42,7 @@ public class ModelIndexHandler implements IndexHandler<Model> {
 	}
 
 	@Override
-	public void index(Incoming incoming, Content current, Consumer<IndexResult<Model>> completed) {
+	public void index(Incoming incoming, Addon current, Consumer<IndexResult<Model>> completed) {
 		Model m = (Model)current;
 		IndexLog log = incoming.log;
 

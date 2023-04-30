@@ -15,13 +15,13 @@ import java.util.regex.Pattern;
 
 import net.shrimpworks.unreal.archive.common.CLI;
 import net.shrimpworks.unreal.archive.common.Util;
-import net.shrimpworks.unreal.archive.content.Content;
-import net.shrimpworks.unreal.archive.content.ContentRepository;
-import net.shrimpworks.unreal.archive.content.ContentType;
+import net.shrimpworks.unreal.archive.content.addons.Addon;
+import net.shrimpworks.unreal.archive.content.addons.SimpleAddonRepository;
+import net.shrimpworks.unreal.archive.content.addons.SimpleAddonType;
 
 public class Scanner {
 
-	private final ContentRepository repository;
+	private final SimpleAddonRepository repository;
 
 	private final boolean newOnly;
 	private final Pattern nameMatch;
@@ -29,7 +29,7 @@ public class Scanner {
 	private final long maxFileSize;
 	private final int concurrency;
 
-	public Scanner(ContentRepository repository, CLI cli) {
+	public Scanner(SimpleAddonRepository repository, CLI cli) {
 		this.repository = repository;
 
 		this.newOnly = cli.option("new-only", "").equalsIgnoreCase("true") || cli.option("new-only", "").equalsIgnoreCase("1");
@@ -116,8 +116,8 @@ public class Scanner {
 
 	private void scanFile(Submission sub, IndexLog log, Consumer<ScanResult> done) {
 		Throwable failed = null;
-		Content content = null;
-		ContentType classifiedType = ContentType.UNKNOWN;
+		Addon content = null;
+		SimpleAddonType classifiedType = SimpleAddonType.UNKNOWN;
 
 		try (Incoming incoming = new Incoming(sub, log)) {
 			content = repository.forHash(incoming.hash);
@@ -126,7 +126,7 @@ public class Scanner {
 
 			incoming.prepare();
 
-			classifiedType = ContentClassifier.classify(incoming).contentType();
+			classifiedType = AddonClassifier.classify(incoming).contentType();
 
 		} catch (Throwable e) {
 			failed = e;
@@ -140,7 +140,7 @@ public class Scanner {
 				done.accept(new ScanResult(
 					sub.filePath,
 					content != null,
-					content != null ? ContentType.valueOf(content.contentType) : null,
+					content != null ? SimpleAddonType.valueOf(content.contentType) : null,
 					classifiedType,
 					failed
 				));
@@ -148,7 +148,7 @@ public class Scanner {
 		}
 	}
 
-	public record ScanResult(Path filePath, boolean known, ContentType oldType, ContentType newType, Throwable failed) {
+	public record ScanResult(Path filePath, boolean known, SimpleAddonType oldType, SimpleAddonType newType, Throwable failed) {
 
 		@Override
 		public String toString() {

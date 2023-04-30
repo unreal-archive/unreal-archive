@@ -18,11 +18,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import net.shrimpworks.unreal.archive.common.Util;
-import net.shrimpworks.unreal.archive.content.Content;
-import net.shrimpworks.unreal.archive.content.maps.GameTypes;
-import net.shrimpworks.unreal.archive.content.maps.Map;
-import net.shrimpworks.unreal.archive.content.maps.Themes;
 import net.shrimpworks.unreal.archive.content.FileType;
+import net.shrimpworks.unreal.archive.content.addons.Addon;
+import net.shrimpworks.unreal.archive.content.addons.MapGameTypes;
+import net.shrimpworks.unreal.archive.content.addons.MapThemes;
+import net.shrimpworks.unreal.archive.content.addons.Map;
 import net.shrimpworks.unreal.archive.indexing.Incoming;
 import net.shrimpworks.unreal.archive.indexing.IndexHandler;
 import net.shrimpworks.unreal.archive.indexing.IndexLog;
@@ -41,7 +41,7 @@ import net.shrimpworks.unreal.packages.entities.properties.IntegerProperty;
 import net.shrimpworks.unreal.packages.entities.properties.Property;
 import net.shrimpworks.unreal.packages.entities.properties.StringProperty;
 
-import static net.shrimpworks.unreal.archive.content.Content.UNKNOWN;
+import static net.shrimpworks.unreal.archive.content.addons.Addon.UNKNOWN;
 
 public class MapIndexHandler implements IndexHandler<Map> {
 
@@ -59,7 +59,7 @@ public class MapIndexHandler implements IndexHandler<Map> {
 	}
 
 	@Override
-	public void index(Incoming incoming, Content content, Consumer<IndexResult<Map>> completed) {
+	public void index(Incoming incoming, Addon content, Consumer<IndexResult<Map>> completed) {
 		IndexLog log = incoming.log;
 		Map m = (Map)content;
 
@@ -244,7 +244,7 @@ public class MapIndexHandler implements IndexHandler<Map> {
 	private String gameType(Incoming incoming, String name) {
 		if (incoming.submission.override.get("gameType", null) != null) return incoming.submission.override.get("gameType", "DeathMatch");
 
-		GameTypes.GameType gameType = GameTypes.forMap(name);
+		MapGameTypes.MapGameType gameType = MapGameTypes.forMap(name);
 
 		if (gameType == null && maybeSingleplayer(incoming)) return "Single Player";
 
@@ -298,7 +298,7 @@ public class MapIndexHandler implements IndexHandler<Map> {
 						   }
 
 						   // if the package seems to belong to a theme, count its usage
-						   String theme = Themes.findTheme(current.name.name);
+						   String theme = MapThemes.findTheme(current.name.name);
 						   if (theme != null) {
 							   foundThemes.compute(theme, (k, v) -> v == null ? 1 : ++v);
 						   }
@@ -308,7 +308,7 @@ public class MapIndexHandler implements IndexHandler<Map> {
 		// sort and collect the top 5 themes
 		java.util.Map<String, Integer> mapThemes = foundThemes.entrySet().stream()
 															  .sorted((a, b) -> -a.getValue().compareTo(b.getValue()))
-															  .limit(Themes.MAX_THEMES)
+															  .limit(MapThemes.MAX_THEMES)
 															  .collect(Collectors.toMap(java.util.Map.Entry::getKey,
 																						java.util.Map.Entry::getValue));
 
@@ -316,7 +316,7 @@ public class MapIndexHandler implements IndexHandler<Map> {
 		double totalScore = mapThemes.values().stream().mapToInt(e -> e).sum();
 		return mapThemes.entrySet()
 						.stream()
-						.filter(e -> ((double)e.getValue() / totalScore) > Themes.MIN_THRESHOLD)
+						.filter(e -> ((double)e.getValue() / totalScore) > MapThemes.MIN_THRESHOLD)
 						.collect(Collectors.toMap(java.util.Map.Entry::getKey,
 												  v -> BigDecimal.valueOf((double)v.getValue() / totalScore)
 																 .setScale(1, RoundingMode.HALF_UP).doubleValue()

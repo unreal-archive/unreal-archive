@@ -7,17 +7,16 @@ plugins {
 	id 'application'
 	id 'maven-publish'
 	id 'jacoco'
+	id 'test-report-aggregation'
 
-	id 'org.gradlex.extra-java-module-info' version '1.4'
 	id 'org.beryx.jlink' version '2.26.0'
 }
 
 group = 'net.shrimpworks'
 version = "1.9"
-
-if (System.getenv().containsKey("DRONE_BUILD_NUMBER")) {
-	version = "${version}.${System.env.DRONE_BUILD_NUMBER}"
-}
+if (System.getenv().containsKey("BUILD_NUMBER")) {
+	version += ".${System.env.BUILD_NUMBER}"
+} else version += ".DEV"
 
 application {
 	mainClassName = 'net.shrimpworks.unreal.archive.Main'
@@ -79,6 +78,11 @@ publishing {
 }
 
 dependencies {
+	implementation project(':common')
+	implementation project(':storage')
+	implementation project(':content')
+	implementation project(':www')
+
 	implementation 'net.shrimpworks:unreal-package-lib:1.10.24'
 	implementation 'net.shrimpworks:package-dependency:1.4.21'
 
@@ -86,75 +90,10 @@ dependencies {
 	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.14.2'
 	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.2'
 
-	implementation 'org.freemarker:freemarker:2.3.31'
-
-	implementation 'com.backblaze.b2:b2-sdk-core:6.1.1'
-	implementation 'com.backblaze.b2:b2-sdk-httpclient:6.1.1'
-
-	// S3 compatible storage client
-	implementation 'io.minio:minio:8.5.2'
-
-	implementation 'org.commonmark:commonmark:0.21.0'
-
-	implementation 'org.jsoup:jsoup:1.15.4'
-
 	testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
 }
 
-extraJavaModuleInfo {
-  failOnMissingModuleInfo.set(false)
-
-	module("com.backblaze.b2:b2-sdk-core", "b2.sdk.core") {
-		exports("com.backblaze.b2.client")
-		exports("com.backblaze.b2.client.contentHandlers")
-		exports("com.backblaze.b2.client.contentSources")
-		exports("com.backblaze.b2.client.credentialsSources")
-		exports("com.backblaze.b2.client.exceptions")
-		exports("com.backblaze.b2.client.structures")
-		exports("com.backblaze.b2.client.webApiClients")
-	}
-
-	module("com.backblaze.b2:b2-sdk-httpclient", "b2.sdk.httpclient") {
-		requires("b2.sdk.core")
-		requires("org.apache.httpcomponents.httpclient")
-		exports("com.backblaze.b2.client.webApiHttpClient")
-	}
-
-	module("io.minio:minio", "minio") {
-		requires("java.logging")
-		requires("okhttp3")
-		exports("io.minio")
-		exports("io.minio.errors")
-		exports("io.minio.messages")
-	}
-}
-
-/**
- * Create list of static files, used for later extraction from the jar to disk.
- */
 processResources.doLast {
-	def wwwStaticDir = projectDir.toPath().resolve('src/main/resources/net/shrimpworks/unreal/archive/www/static')
-	def destFile = buildDir.toPath().resolve('resources/main/net/shrimpworks/unreal/archive/www/static.list')
-	def staticList = new StringBuilder()
-	files { fileTree(wwwStaticDir).matching { exclude('**/*.xcf') } }.each {
-		staticList.append(wwwStaticDir.getParent().relativize(it.toPath())).append("\t").append(it.lastModified()).append("\n")
-	}
-
-	// create single all.css file - cssOut filename must be used in _header.html
-	def cssSource = files(
-			wwwStaticDir.resolve("fonts/fonts.css"),
-			wwwStaticDir.resolve("css/style.css"),
-			wwwStaticDir.resolve("css/style4.css")
-	)
-	def cssDate = cssSource.max {f -> f.lastModified()}
-	def cssOut = destFile.parent.resolve("static/css/all.css")
-	cssOut.write('') // truncate output if needed
-	cssSource.each { f -> cssOut << f.text.replaceAll("\n", "").replaceAll("/\\*.+?\\*/", "").replaceAll("\\s{2,}", " ") }
-	staticList.append(destFile.getParent().relativize(cssOut)).append("\t").append(cssDate.lastModified()).append("\n")
-
-	Files.write(destFile, staticList.toString().replaceAll("\\\\", "/").getBytes(StandardCharsets.UTF_8),
-			StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
-
 	// write version resource file
 	Files.write(buildDir.toPath().resolve('resources/main/net/shrimpworks/unreal/archive/VERSION'),
 			"${project.version}".getBytes(StandardCharsets.UTF_8),
