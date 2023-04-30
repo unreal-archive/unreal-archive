@@ -68,12 +68,12 @@ publishing {
 		maven(MavenPublication) {
 			from components.java
 		}
-//		mavenLatest(MavenPublication) {
+		mavenLatest(MavenPublication) {
 //			pom {
 //				version = "latest"
 //			}
-//			artifact zipBinary
-//		}
+			artifact zipBinary
+		}
 	}
 }
 
