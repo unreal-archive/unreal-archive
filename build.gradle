@@ -32,6 +32,7 @@ jlink {
 	options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
 
 	imageName = "${project.name}"
+	imageDir = file("${buildDir}/${project.name}")
 
 	jpackage {
 		installerType = project.findProperty('installerType')
@@ -45,9 +46,20 @@ repositories {
 	}
 }
 
-def zipBinary = artifacts.add('archives', layout.buildDirectory.file("${project.name}.zip").get().asFile) {
-	type 'zip'
-	builtBy 'jlinkZip'
+def tarBinary = artifacts.add('archives', layout.buildDirectory.file("${project.name}.tgz").get().asFile) {
+	type 'tgz'
+	builtBy 'jlinkTar'
+}
+
+tasks.register('jlinkTar', Tar) {
+	dependsOn jlinkZip
+	archiveFileName = "${jlink.imageName.get()}.tgz"
+	destinationDirectory = file("${buildDir}")
+	compression = Compression.GZIP
+
+	into("${jlink.imageName.get()}") {
+		from jlink.imageDir
+	}
 }
 
 publishing {
@@ -69,10 +81,10 @@ publishing {
 			from components.java
 		}
 		mavenLatest(MavenPublication) {
-//			pom {
-//				version = "latest"
-//			}
-			artifact zipBinary
+			pom {
+				version = "latest"
+			}
+			artifact tarBinary
 		}
 	}
 }

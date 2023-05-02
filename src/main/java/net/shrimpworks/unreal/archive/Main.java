@@ -37,28 +37,28 @@ import net.shrimpworks.unreal.archive.common.Util;
 import net.shrimpworks.unreal.archive.common.Version;
 import net.shrimpworks.unreal.archive.common.YAML;
 import net.shrimpworks.unreal.archive.content.AuthorNames;
+import net.shrimpworks.unreal.archive.content.FileType;
+import net.shrimpworks.unreal.archive.content.Games;
 import net.shrimpworks.unreal.archive.content.addons.Addon;
+import net.shrimpworks.unreal.archive.content.addons.GameType;
+import net.shrimpworks.unreal.archive.content.addons.GameTypeRepository;
 import net.shrimpworks.unreal.archive.content.addons.SimpleAddonRepository;
 import net.shrimpworks.unreal.archive.content.addons.SimpleAddonType;
-import net.shrimpworks.unreal.archive.content.FileType;
-import net.shrimpworks.unreal.archive.content.addons.GameTypeRepository;
-import net.shrimpworks.unreal.archive.content.Games;
-import net.shrimpworks.unreal.archive.content.addons.GameType;
 import net.shrimpworks.unreal.archive.content.docs.DocumentRepository;
+import net.shrimpworks.unreal.archive.content.managed.ManagedContentRepository;
+import net.shrimpworks.unreal.archive.content.wiki.WikiRepository;
 import net.shrimpworks.unreal.archive.indexing.ContentEditor;
 import net.shrimpworks.unreal.archive.indexing.ContentManager;
 import net.shrimpworks.unreal.archive.indexing.GameTypeManager;
 import net.shrimpworks.unreal.archive.indexing.Incoming;
 import net.shrimpworks.unreal.archive.indexing.IndexLog;
 import net.shrimpworks.unreal.archive.indexing.Indexer;
+import net.shrimpworks.unreal.archive.indexing.ManagedContentManager;
 import net.shrimpworks.unreal.archive.indexing.Scanner;
 import net.shrimpworks.unreal.archive.indexing.Submission;
-import net.shrimpworks.unreal.archive.indexing.ManagedContentManager;
-import net.shrimpworks.unreal.archive.content.managed.ManagedContentRepository;
 import net.shrimpworks.unreal.archive.mirror.LocalMirrorClient;
 import net.shrimpworks.unreal.archive.mirror.Mirror;
 import net.shrimpworks.unreal.archive.storage.DataStore;
-import net.shrimpworks.unreal.archive.content.wiki.WikiRepository;
 import net.shrimpworks.unreal.archive.www.Documents;
 import net.shrimpworks.unreal.archive.www.Index;
 import net.shrimpworks.unreal.archive.www.MESSubmitter;
@@ -368,7 +368,9 @@ public class Main {
 		boolean force = Boolean.parseBoolean(cli.option("force", "false"));
 		boolean newOnly = Boolean.parseBoolean(cli.option("new-only", "false"));
 		int concurrency = Integer.parseInt(cli.option("concurrency", "1"));
-		SimpleAddonType forceType = !cli.option("type", "").isEmpty() ? SimpleAddonType.valueOf(cli.option("type", "").toUpperCase()) : null;
+		SimpleAddonType forceType = !cli.option("type", "").isEmpty()
+			? SimpleAddonType.valueOf(cli.option("type", "").toUpperCase())
+			: null;
 		Games forceGame = !cli.option("game", "").isEmpty() ? Games.byName(cli.option("game", "")) : null;
 
 		Indexer indexer = new Indexer(repo, contentManager, new Indexer.CLIEventPrinter(verbose));

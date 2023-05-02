@@ -21,7 +21,7 @@ steps:
     commands:
       - apt-get update && apt-get install -y git-restore-mtime
       - git restore-mtime ./www/src/main/resources/
-      - gradle --no-daemon --build-cache jlinkZip publish
+      - gradle --no-daemon --build-cache jlinkTar publish
 #    when:
 #      ref:
 #        - refs/heads/master
