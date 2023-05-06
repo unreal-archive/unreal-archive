@@ -22,9 +22,9 @@ steps:
       - apt-get update && apt-get install -y git-restore-mtime
       - git restore-mtime ./www/src/main/resources/
       - gradle --no-daemon --build-cache jlinkTar publish
-#    when:
-#      ref:
-#        - refs/heads/master
+    when:
+      ref:
+        - refs/heads/master
 
   - name: www
     image: gradle:8.1.1-jdk17-jammy
