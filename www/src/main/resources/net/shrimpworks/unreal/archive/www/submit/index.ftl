@@ -103,6 +103,7 @@
 
 <script type="application/javascript">
 	let url = "../incoming/";
+	let maxUploadSizeGigabytes = 1;
 
 	document.addEventListener("DOMContentLoaded", function() {
 
@@ -162,6 +163,7 @@
 		});
 
 	  fileSelector.addEventListener('change', e => {
+		  let totalSize = 0;
 		  resetFilesList();
 
 		  for (let i = 0; i < e.target.files.length; i++) {
@@ -176,9 +178,15 @@
 			  row.classList.add("file");
 			  row.append(name, size);
 			  filesList.append(row);
+			  totalSize += f.size;
 		  }
 
 		  if (!filesList.classList.contains("display-block")) filesList.classList.add("display-block");
+
+		  if (totalSize >= (maxUploadSizeGigabytes * 1024 * 1024 * 1024)) {
+			  alert("Caution!\n\n" +
+			        "The total max size per upload is " + maxUploadSizeGigabytes + " GB. Reduce the total size of the upload or it may fail.");
+		  }
 	  });
 
 		if (location.hash) {
@@ -225,6 +233,11 @@
 
 			currentRequest.responseType = 'json';
 
+			currentRequest.onerror = function(e) {
+				alert("Connection error during upload. Please try again.");
+				abortButton.innerText = "Retry upload";
+			};
+
 			// Send POST request to the server side script
 			currentRequest.open('post', url + 'upload');
 
@@ -236,17 +249,18 @@
 
 		function toggleProgress(progressing) {
 			if (progressing) {
+				progressBar.value = 0;
 				if (!logView.classList.contains("display-block")) logView.classList.add("display-block");
 				if (!progressControls.classList.contains("display-block")) progressControls.classList.add("display-block");
-		  	if (uploadControls.classList.contains("display-block")) uploadControls.classList.remove("display-block");
-		  	if (infoBlurb.classList.contains("display-block")) infoBlurb.classList.remove("display-block");
+				if (uploadControls.classList.contains("display-block")) uploadControls.classList.remove("display-block");
+				if (infoBlurb.classList.contains("display-block")) infoBlurb.classList.remove("display-block");
 				resetLog();
 			} else {
 				if (logView.classList.contains("display-block")) logView.classList.remove("display-block");
 				if (progressControls.classList.contains("display-block")) progressControls.classList.remove("display-block");
 				if (!uploadControls.classList.contains("display-block")) uploadControls.classList.add("display-block");
 				if (filesList.classList.contains("display-block")) filesList.classList.remove("display-block");
-		  	if (!infoBlurb.classList.contains("display-block")) infoBlurb.classList.add("display-block");
+				if (!infoBlurb.classList.contains("display-block")) infoBlurb.classList.add("display-block");
 				history.pushState(null, document.title, '#');
 			}
 		}
