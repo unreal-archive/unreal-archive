@@ -6,22 +6,16 @@ open module unreal.archive {
 	requires shrimpworks.unreal.packages;
 	requires shrimpworks.unreal.dependencies;
 
+	requires unreal.archive.common;
+	requires unreal.archive.storage;
+	requires unreal.archive.content;
+	requires unreal.archive.www;
+
 	requires com.fasterxml.jackson.annotation;
 	requires com.fasterxml.jackson.core;
 	requires com.fasterxml.jackson.databind;
 	requires com.fasterxml.jackson.dataformat.yaml;
 	requires com.fasterxml.jackson.datatype.jsr310;
-
-	requires b2.sdk.core;
-	requires b2.sdk.httpclient;
-	requires okhttp3;
-	requires minio;
-
-	requires freemarker;
-
-	requires org.commonmark;
-
-	requires org.jsoup;
 
 //	exports net.shrimpworks.unreal.archive;
 //	exports net.shrimpworks.unreal.archive.content;

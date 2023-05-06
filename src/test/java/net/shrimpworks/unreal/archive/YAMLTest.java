@@ -9,9 +9,12 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 
-import net.shrimpworks.unreal.archive.content.Content;
-import net.shrimpworks.unreal.archive.content.ContentType;
-import net.shrimpworks.unreal.archive.content.maps.Map;
+import net.shrimpworks.unreal.archive.common.YAML;
+import net.shrimpworks.unreal.archive.content.addons.Addon;
+import net.shrimpworks.unreal.archive.content.Download;
+import net.shrimpworks.unreal.archive.content.addons.SimpleAddonType;
+import net.shrimpworks.unreal.archive.content.addons.Map;
+import net.shrimpworks.unreal.archive.indexing.AddonClassifier;
 
 import org.junit.jupiter.api.Test;
 
@@ -31,7 +34,7 @@ public class YAMLTest {
 		sb.append("repack: false\n");
 		sb.append("deleted: false\n");
 
-		Content.Download dl = YAML.fromString(sb.toString(), Content.Download.class);
+		Download dl = YAML.fromString(sb.toString(), Download.class);
 		System.out.println(dl);
 	}
 
@@ -62,7 +65,7 @@ public class YAMLTest {
 	}
 
 	private Map makeMap() {
-		Map m = ContentType.MAP.newContent(null);
+		Map m = AddonClassifier.newContent(AddonClassifier.identifierForType(SimpleAddonType.MAP), null);
 
 		m.firstIndex = LocalDateTime.now().minus(1, ChronoUnit.DAYS);
 
@@ -84,15 +87,15 @@ public class YAMLTest {
 		return m;
 	}
 
-	private Content.ContentFile file(String name) {
-		return new Content.ContentFile(name, (int)(Math.random() * 10240), "abc" + (Math.random() * 20480));
+	private Addon.ContentFile file(String name) {
+		return new Addon.ContentFile(name, (int)(Math.random() * 10240), "abc" + (Math.random() * 20480));
 	}
 
-	private Content.Download download(String url) {
-		return new Content.Download(url, false, false, Content.DownloadState.OK);
+	private Download download(String url) {
+		return new Download(url, false, false, Download.DownloadState.OK);
 	}
 
-	private Content.Attachment attachment(String url) {
-		return new Content.Attachment(Content.AttachmentType.IMAGE, url.substring(url.lastIndexOf("/")), url);
+	private Addon.Attachment attachment(String url) {
+		return new Addon.Attachment(Addon.AttachmentType.IMAGE, url.substring(url.lastIndexOf("/")), url);
 	}
 }

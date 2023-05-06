@@ -1,0 +1,91 @@
+import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+import java.nio.file.StandardOpenOption
+
+plugins {
+	id 'java'
+	id 'java-library'
+	id 'maven-publish'
+	id 'jacoco'
+}
+
+group = 'net.shrimpworks'
+version = "1.0"
+if (System.getenv().containsKey("BUILD_NUMBER")) {
+	version += ".${System.env.BUILD_NUMBER}"
+} else version += ".DEV"
+
+repositories {
+	mavenCentral()
+}
+
+publishing {
+	repositories {
+		maven {
+			name = "ShrimpWorks"
+			url = 'https://code.shrimpworks.za.net/artefacts/'
+			authentication {
+				basic(BasicAuthentication)
+			}
+			credentials(PasswordCredentials) {
+				username = "${System.env.ARTEFACTS_USER}"
+				password = "${System.env.ARTEFACTS_PASSWORD}"
+			}
+		}
+	}
+	publications {
+		maven(MavenPublication) {
+			from components.java
+		}
+	}
+}
+
+dependencies {
+	implementation project(':common')
+	implementation project(':content')
+
+	implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.2'
+
+	implementation 'org.freemarker:freemarker:2.3.31'
+	implementation 'org.commonmark:commonmark:0.21.0'
+	implementation 'org.jsoup:jsoup:1.15.4'
+
+	testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
+}
+
+/**
+ * Create list of static files, used for later extraction from the jar to disk.
+ */
+processResources.doLast {
+	def wwwStaticDir = projectDir.toPath().resolve('src/main/resources/net/shrimpworks/unreal/archive/www/static')
+	def destFile = buildDir.toPath().resolve('resources/main/net/shrimpworks/unreal/archive/www/static.list')
+	def staticList = new StringBuilder()
+	files { fileTree(wwwStaticDir).matching { exclude('**/*.xcf') } }.each {
+		staticList.append(wwwStaticDir.getParent().relativize(it.toPath())).append("\t").append(it.lastModified()).append("\n")
+	}
+
+	// create single all.css file - cssOut filename must be used in _header.html
+	def cssSource = files(
+			wwwStaticDir.resolve("fonts/fonts.css"),
+			wwwStaticDir.resolve("css/style.css"),
+			wwwStaticDir.resolve("css/style4.css")
+	)
+	def cssDate = cssSource.max {f -> f.lastModified()}
+	def cssOut = destFile.parent.resolve("static/css/all.css")
+	cssOut.write('') // truncate output if needed
+	cssSource.each { f -> cssOut << f.text.replaceAll("\n", "").replaceAll("/\\*.+?\\*/", "").replaceAll("\\s{2,}", " ") }
+	staticList.append(destFile.getParent().relativize(cssOut)).append("\t").append(cssDate.lastModified()).append("\n")
+
+	Files.write(destFile, staticList.toString().replaceAll("\\\\", "/").getBytes(StandardCharsets.UTF_8),
+			StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
+}
+
+test {
+	useJUnitPlatform()
+}
+
+jacocoTestReport {
+	reports {
+		xml.required = true
+	}
+}

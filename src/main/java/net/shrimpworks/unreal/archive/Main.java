@@ -31,25 +31,34 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import net.shrimpworks.unreal.archive.content.Content;
-import net.shrimpworks.unreal.archive.content.ContentEditor;
-import net.shrimpworks.unreal.archive.content.ContentManager;
-import net.shrimpworks.unreal.archive.content.ContentRepository;
-import net.shrimpworks.unreal.archive.content.ContentType;
-import net.shrimpworks.unreal.archive.content.GameTypeManager;
+import net.shrimpworks.unreal.archive.common.ArchiveUtil;
+import net.shrimpworks.unreal.archive.common.CLI;
+import net.shrimpworks.unreal.archive.common.Util;
+import net.shrimpworks.unreal.archive.common.Version;
+import net.shrimpworks.unreal.archive.common.YAML;
+import net.shrimpworks.unreal.archive.content.AuthorNames;
+import net.shrimpworks.unreal.archive.content.FileType;
 import net.shrimpworks.unreal.archive.content.Games;
-import net.shrimpworks.unreal.archive.content.Incoming;
-import net.shrimpworks.unreal.archive.content.IndexLog;
-import net.shrimpworks.unreal.archive.content.IndexUtils;
-import net.shrimpworks.unreal.archive.content.Indexer;
-import net.shrimpworks.unreal.archive.content.Scanner;
-import net.shrimpworks.unreal.archive.content.Submission;
-import net.shrimpworks.unreal.archive.docs.DocumentManager;
-import net.shrimpworks.unreal.archive.managed.ManagedContentManager;
+import net.shrimpworks.unreal.archive.content.addons.Addon;
+import net.shrimpworks.unreal.archive.content.addons.GameType;
+import net.shrimpworks.unreal.archive.content.addons.GameTypeRepository;
+import net.shrimpworks.unreal.archive.content.addons.SimpleAddonRepository;
+import net.shrimpworks.unreal.archive.content.addons.SimpleAddonType;
+import net.shrimpworks.unreal.archive.content.docs.DocumentRepository;
+import net.shrimpworks.unreal.archive.content.managed.ManagedContentRepository;
+import net.shrimpworks.unreal.archive.content.wiki.WikiRepository;
+import net.shrimpworks.unreal.archive.indexing.ContentEditor;
+import net.shrimpworks.unreal.archive.indexing.ContentManager;
+import net.shrimpworks.unreal.archive.indexing.GameTypeManager;
+import net.shrimpworks.unreal.archive.indexing.Incoming;
+import net.shrimpworks.unreal.archive.indexing.IndexLog;
+import net.shrimpworks.unreal.archive.indexing.Indexer;
+import net.shrimpworks.unreal.archive.indexing.ManagedContentManager;
+import net.shrimpworks.unreal.archive.indexing.Scanner;
+import net.shrimpworks.unreal.archive.indexing.Submission;
 import net.shrimpworks.unreal.archive.mirror.LocalMirrorClient;
 import net.shrimpworks.unreal.archive.mirror.Mirror;
 import net.shrimpworks.unreal.archive.storage.DataStore;
-import net.shrimpworks.unreal.archive.wiki.WikiManager;
 import net.shrimpworks.unreal.archive.www.Documents;
 import net.shrimpworks.unreal.archive.www.Index;
 import net.shrimpworks.unreal.archive.www.MESSubmitter;
@@ -74,7 +83,14 @@ import net.shrimpworks.unreal.archive.www.content.Skins;
 import net.shrimpworks.unreal.archive.www.content.Voices;
 import net.shrimpworks.unreal.packages.Umod;
 
+import static net.shrimpworks.unreal.archive.content.addons.Addon.UNKNOWN;
+
 public class Main {
+
+	static {
+		// prepare the version
+		Version.setVersion(Main.class);
+	}
 
 	private static final String CONTENT_DIR = "content";
 	private static final String DOCUMENTS_DIR = "documents";
@@ -88,7 +104,7 @@ public class Main {
 																		   "https://github.com/unreal-archive/unreal-archive-data/archive/master.zip");
 
 	public static void main(String[] args) throws IOException, InterruptedException, ReflectiveOperationException {
-		System.err.printf("Unreal Archive version %s%n", Util.version());
+		System.err.printf("Unreal Archive version %s%n", Version.version());
 
 		final CLI cli = CLI.parse(Collections.emptyMap(), args);
 
@@ -99,7 +115,7 @@ public class Main {
 
 		switch (cli.commands()[0].toLowerCase()) {
 			case "index":
-				ContentRepository indexRepo = contentRepo(cli);
+				SimpleAddonRepository indexRepo = contentRepo(cli);
 				index(indexRepo, contentManager(cli, indexRepo), cli);
 				break;
 			case "scan":
@@ -112,23 +128,30 @@ public class Main {
 				set(contentManager(cli, contentRepo(cli)), cli);
 				break;
 			case "gametype":
-				gametype(gameTypeManager(cli), cli);
+				GameTypeRepository gameTypeRepo = gameTypeRepo(cli);
+				gametype(gameTypeRepo, gameTypeManager(cli, gameTypeRepo), cli);
 				break;
 			case "managed":
-				managed(managedContent(cli), cli);
+				ManagedContentRepository managedRepo = managedRepo(cli);
+				managed(managedRepo, managedContentManager(cli, managedRepo), cli);
 				break;
 			case "mirror":
-				ContentRepository mirrorRepo = contentRepo(cli);
-				mirror(mirrorRepo, contentManager(cli, mirrorRepo), managedContent(cli), gameTypeManager(cli), cli);
+				SimpleAddonRepository mirrorRepo = contentRepo(cli);
+				GameTypeRepository gameTypeMirrorRepo = gameTypeRepo(cli);
+				ManagedContentRepository managedMirrorRepo = managedRepo(cli);
+				mirror(mirrorRepo, contentManager(cli, mirrorRepo),
+					   gameTypeMirrorRepo, gameTypeManager(cli, gameTypeMirrorRepo),
+					   managedMirrorRepo, managedContentManager(cli, managedMirrorRepo),
+					   cli);
 				break;
 			case "local-mirror":
 				localMirror(contentRepo(cli), cli);
 				break;
 			case "www":
-				www(contentRepo(cli), documentManager(cli), managedContent(cli), gameTypeManager(cli), wikiManager(cli), cli);
+				www(contentRepo(cli), gameTypeRepo(cli), documentRepo(cli), managedRepo(cli), wikiRepo(cli), cli);
 				break;
 			case "search-submit":
-				searchSubmit(contentRepo(cli), documentManager(cli), managedContent(cli), wikiManager(cli), cli);
+				searchSubmit(contentRepo(cli), documentRepo(cli), managedRepo(cli), wikiRepo(cli), cli);
 				break;
 			case "summary":
 				summary(contentRepo(cli));
@@ -145,7 +168,7 @@ public class Main {
 				install(contentRepo(cli), cli);
 				break;
 			case "wiki":
-				wiki(wikiManager(cli));
+				wiki(wikiRepo(cli));
 				break;
 			default:
 				System.out.printf("Command \"%s\" does not exist!%n%n", cli.commands()[0]);
@@ -155,7 +178,7 @@ public class Main {
 		System.exit(0);
 	}
 
-	private static void wiki(WikiManager cli) throws IOException {
+	private static void wiki(WikiRepository cli) throws IOException {
 		// nothing to do
 	}
 
@@ -219,11 +242,11 @@ public class Main {
 		return contentPath.toAbsolutePath();
 	}
 
-	private static ContentRepository contentRepo(CLI cli) throws IOException {
+	private static SimpleAddonRepository contentRepo(CLI cli) throws IOException {
 		Path contentPath = contentPath(cli);
 
 		final long start = System.currentTimeMillis();
-		final ContentRepository repo = new ContentRepository.FileRepository(contentPath.resolve(CONTENT_DIR));
+		final SimpleAddonRepository repo = new SimpleAddonRepository.FileRepository(contentPath.resolve(CONTENT_DIR));
 		final double gigs = (repo.fileSize() / 1024d / 1024d / 1024d);
 		System.err.printf("Loaded content index with %d items (%.2fGB) in %.2fs%n",
 						  repo.size(), gigs, (System.currentTimeMillis() - start) / 1000f);
@@ -231,7 +254,7 @@ public class Main {
 		return repo;
 	}
 
-	private static ContentManager contentManager(CLI cli, ContentRepository repo) {
+	private static ContentManager contentManager(CLI cli, SimpleAddonRepository repo) {
 		final DataStore imageStore = store(DataStore.StoreContent.IMAGES, cli);
 		final DataStore attachmentStore = store(DataStore.StoreContent.ATTACHMENTS, cli);
 		final DataStore contentStore = store(DataStore.StoreContent.CONTENT, cli);
@@ -250,44 +273,72 @@ public class Main {
 		return new ContentManager(repo, contentStore, imageStore, attachmentStore);
 	}
 
-	private static DocumentManager documentManager(CLI cli) throws IOException {
+	private static DocumentRepository documentRepo(CLI cli) throws IOException {
 		Path contentPath = contentPath(cli);
 
 		final long start = System.currentTimeMillis();
-		final DocumentManager documentManager = new DocumentManager(contentPath.resolve(DOCUMENTS_DIR));
+		final DocumentRepository repo = new DocumentRepository.FileRepository(contentPath.resolve(DOCUMENTS_DIR));
 		System.err.printf("Loaded document index with %d items in %.2fs%n",
-						  documentManager.size(), (System.currentTimeMillis() - start) / 1000f);
+						  repo.size(), (System.currentTimeMillis() - start) / 1000f);
 
-		return documentManager;
+		return repo;
 	}
 
-	private static ManagedContentManager managedContent(CLI cli) throws IOException {
+	private static ManagedContentRepository managedRepo(CLI cli) throws IOException {
 		Path contentPath = contentPath(cli);
 
 		final long start = System.currentTimeMillis();
-		ManagedContentManager managedContentManager = new ManagedContentManager(contentPath.resolve(MANAGED_DIR));
+		ManagedContentRepository managedContentManager = new ManagedContentRepository.FileRepository(contentPath.resolve(MANAGED_DIR));
 		System.err.printf("Loaded managed content index with %d items in %.2fs%n",
 						  managedContentManager.size(), (System.currentTimeMillis() - start) / 1000f);
 
 		return managedContentManager;
 	}
 
-	private static GameTypeManager gameTypeManager(CLI cli) throws IOException {
-		Path contentPath = contentPath(cli);
+	private static ManagedContentManager managedContentManager(CLI cli, ManagedContentRepository repo) {
+		final DataStore contentStore = store(DataStore.StoreContent.CONTENT, cli);
 
-		final long start = System.currentTimeMillis();
-		final GameTypeManager gametypes = new GameTypeManager(contentPath.resolve(GAMETYPES_DIR));
-		System.err.printf("Loaded gametypes index with %d items in %.2fs%n",
-						  gametypes.size(), (System.currentTimeMillis() - start) / 1000f);
-
-		return gametypes;
+		// prepare cleanup
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+			try {
+				contentStore.close();
+			} catch (IOException e) {
+				//
+			}
+		}));
+		return new ManagedContentManager(repo, contentStore);
 	}
 
-	private static WikiManager wikiManager(CLI cli) throws IOException {
+	private static GameTypeRepository gameTypeRepo(CLI cli) throws IOException {
+		Path contentPath = contentPath(cli);
+		final long start = System.currentTimeMillis();
+		final GameTypeRepository repo = new GameTypeRepository.FileRepository(contentPath.resolve(GAMETYPES_DIR));
+		System.err.printf("Loaded gametypes index with %d items in %.2fs%n",
+						  repo.size(), (System.currentTimeMillis() - start) / 1000f);
+		return repo;
+	}
+
+	private static GameTypeManager gameTypeManager(CLI cli, GameTypeRepository repo) {
+		final DataStore imageStore = store(DataStore.StoreContent.IMAGES, cli);
+		final DataStore contentStore = store(DataStore.StoreContent.CONTENT, cli);
+
+		// prepare cleanup
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+			try {
+				imageStore.close();
+				contentStore.close();
+			} catch (IOException e) {
+				//
+			}
+		}));
+		return new GameTypeManager(repo, contentStore, imageStore);
+	}
+
+	private static WikiRepository wikiRepo(CLI cli) throws IOException {
 		Path contentPath = contentPath(cli);
 
 		final long start = System.currentTimeMillis();
-		final WikiManager wikis = new WikiManager(contentPath.resolve(WIKIS_DIR));
+		final WikiRepository wikis = new WikiRepository.FileRepository(contentPath.resolve(WIKIS_DIR));
 		System.err.printf("Loaded wikis index with %d pages in %.2fs%n",
 						  wikis.size(), (System.currentTimeMillis() - start) / 1000f);
 
@@ -307,7 +358,7 @@ public class Main {
 		return storeType.newStore(contentType, cli);
 	}
 
-	private static void index(ContentRepository repo, ContentManager contentManager, CLI cli) throws IOException {
+	private static void index(SimpleAddonRepository repo, ContentManager contentManager, CLI cli) throws IOException {
 		if (cli.commands().length < 2) {
 			System.err.println("An index path must be specified!");
 			System.exit(2);
@@ -317,7 +368,9 @@ public class Main {
 		boolean force = Boolean.parseBoolean(cli.option("force", "false"));
 		boolean newOnly = Boolean.parseBoolean(cli.option("new-only", "false"));
 		int concurrency = Integer.parseInt(cli.option("concurrency", "1"));
-		ContentType forceType = !cli.option("type", "").isEmpty() ? ContentType.valueOf(cli.option("type", "").toUpperCase()) : null;
+		SimpleAddonType forceType = !cli.option("type", "").isEmpty()
+			? SimpleAddonType.valueOf(cli.option("type", "").toUpperCase())
+			: null;
 		Games forceGame = !cli.option("game", "").isEmpty() ? Games.byName(cli.option("game", "")) : null;
 
 		Indexer indexer = new Indexer(repo, contentManager, new Indexer.CLIEventPrinter(verbose));
@@ -346,7 +399,7 @@ public class Main {
 		indexer.index(force, newOnly, concurrency, forceType, forceGame, paths);
 	}
 
-	private static void scan(ContentRepository repository, CLI cli) throws IOException {
+	private static void scan(SimpleAddonRepository repository, CLI cli) throws IOException {
 		if (cli.commands().length < 2) {
 			System.err.println("An input path must be specified!");
 			System.exit(2);
@@ -389,7 +442,7 @@ public class Main {
 		editor.set(cli.commands()[1], cli.commands()[2], cli.commands()[3]);
 	}
 
-	private static void gametype(GameTypeManager gametypes, CLI cli) throws IOException {
+	private static void gametype(GameTypeRepository repo, GameTypeManager gametypes, CLI cli) throws IOException {
 		if (cli.commands().length < 2) {
 			System.err.println("A gametype operation is required:");
 			System.err.println("  init <game> <game type name>");
@@ -427,20 +480,39 @@ public class Main {
 				}
 
 				Games game = Games.byName(cli.commands()[2]);
-				Path gametypePath = gametypes.init(game, String.join(" ", Arrays.copyOfRange(cli.commands(), 3, cli.commands().length)));
-				System.out.println("Gametype initialised in directory:");
-				System.out.printf("  - %s%n", gametypePath.toAbsolutePath());
-				System.out.println("\nPopulate the appropriate files, add images, etc.");
-				System.out.println("To upload gametype files, execute the `sync` command.");
+				repo.create(game, String.join(" ", Arrays.copyOfRange(cli.commands(), 3, cli.commands().length)), gt -> {
+					System.out.printf("Gametype %s created%n", gt.name());
+				});
 			}
 			case "sync" -> {
-				final DataStore dataStore = store(DataStore.StoreContent.CONTENT, cli);
-				gametypes.sync(dataStore);
+				gametypes.sync();
 			}
 			case "index" -> {
-				final DataStore imageStore = store(DataStore.StoreContent.IMAGES, cli);
-				Games game = Games.byName(cli.commands()[2]);
-				gametypes.index(imageStore, game, cli.commands()[3], cli.commands()[4]);
+				final String gameName = cli.commands()[2];
+				final String gameTypeName = cli.commands()[3];
+				final String localFileName = cli.commands()[4];
+				final GameType gameType = repo.findGametype(Games.byName(gameName), gameTypeName);
+				if (gameType == null) {
+					System.err.printf("Game type %s was not found%n", gameTypeName);
+					System.exit(1);
+				}
+				// final reference hacks for use within lambda
+				final GameType.Release[] release = { null };
+				final GameType.ReleaseFile[] releaseFile = { null };
+				gameType.releases.forEach(r -> {
+					releaseFile[0] = r.files.stream()
+											.filter(f -> f.localFile.equalsIgnoreCase(localFileName) ||
+														 f.originalFilename.equalsIgnoreCase(Util.fileName(localFileName)))
+											.findFirst().orElse(null);
+					if (releaseFile[0] != null) release[0] = r;
+				});
+
+				if (release[0] == null || releaseFile[0] == null) {
+					System.err.printf("Could not find a release for file %s%n", localFileName);
+					System.exit(1);
+				}
+
+				gametypes.index(gameType, release[0], releaseFile[0]);
 			}
 			case "add" -> {
 				if (cli.commands().length < 3) {
@@ -466,9 +538,21 @@ public class Main {
 					System.exit(1);
 				}
 
-				final DataStore imageStore = store(DataStore.StoreContent.IMAGES, cli);
-				Games game = Games.byName(cli.commands()[2]);
-				gametypes.addRelease(imageStore, game, cli.commands()[3], cli.commands()[4], localFile, cli);
+				final Games game = Games.byName(cli.commands()[2]);
+				final String gameTypeName = cli.commands()[3];
+				final String releaseName = cli.commands()[4];
+
+				final Map<String, String> params = Map.of(
+					"title", cli.option("title", releaseName),
+					"version", cli.option("version", releaseName),
+					"releaseDate", cli.option("releaseDate", "Unknown"),
+					"description", cli.option("description", ""),
+					"platform", cli.option("platform", "ANY")
+				);
+
+				gametypes.addRelease(game, gameTypeName, releaseName, localFile, params, ((gameType, release) -> {
+					System.out.printf("Added release %s to gametype %s%n", release.title, gameType.name());
+				}));
 			}
 			default -> {
 				System.err.println("Unknown game type operation" + cli.commands()[1]);
@@ -477,7 +561,7 @@ public class Main {
 		}
 	}
 
-	private static void managed(ManagedContentManager managedContent, CLI cli) throws IOException {
+	private static void managed(ManagedContentRepository repo, ManagedContentManager managed, CLI cli) throws IOException {
 		if (cli.commands().length < 2) {
 			System.err.println("A managed content operation is required:");
 			System.err.println("  init <game> <group> <path> <title>");
@@ -506,19 +590,21 @@ public class Main {
 					System.exit(1);
 				}
 
-				Path managedPath = managedContent.init(
+				repo.create(
 					Games.byName(cli.commands()[2]),
 					cli.commands()[3],
 					cli.commands()[4],
-					cli.commands()[5]
+					cli.commands()[5],
+					added -> {
+						System.out.println("Initialised content in directory:");
+						System.out.printf("  - %s%n", added.contentPath(Paths.get(MANAGED_DIR)));
+						System.out.println("\nPopulate the appropriate files, add images, etc.");
+						System.out.println("To upload managed files, execute the `sync` command.");
+					}
 				);
-				System.out.println("Initialised content in directory:");
-				System.out.printf("  - %s%n", managedPath.toAbsolutePath());
-				System.out.println("\nPopulate the appropriate files, add images, etc.");
-				System.out.println("To upload managed files, execute the `sync` command.");
 			}
 			case "sync" -> {
-				managedContent.sync(store(DataStore.StoreContent.CONTENT, cli), cli, (total, progress) -> {
+				managed.sync((total, progress) -> {
 					if (!cli.option("proggers", "").isBlank()) Util.proggers(cli.option("proggers", ""), "sync_managed", total, progress);
 				});
 			}
@@ -550,14 +636,22 @@ public class Main {
 					System.exit(1);
 				}
 
-				managedContent.addFile(
+				final String title = cli.commands()[5];
+				final Map<String, String> params = Map.of(
+					"title", cli.option("title", title),
+					"version", cli.option("version", title),
+					"description", cli.option("description", ""),
+					"platform", cli.option("platform", "ANY")
+				);
+
+				managed.addFile(
 					store(DataStore.StoreContent.CONTENT, cli),
 					Games.byName(cli.commands()[2]),
 					cli.commands()[3],
 					cli.commands()[4],
-					cli.commands()[5],
+					title,
 					localFile,
-					cli
+					params
 				);
 			}
 			default -> {
@@ -567,8 +661,10 @@ public class Main {
 		}
 	}
 
-	private static void mirror(ContentRepository repo, ContentManager contentManager, ManagedContentManager managed,
-							   GameTypeManager gameTypeManager, CLI cli) {
+	private static void mirror(SimpleAddonRepository contentRepo, ContentManager contentManager,
+							   GameTypeRepository gameTypeRepo, GameTypeManager gameTypeManager,
+							   ManagedContentRepository managedRepo, ManagedContentManager managedManaged,
+							   CLI cli) {
 		final DataStore mirrorStore = store(DataStore.StoreContent.CONTENT, cli);
 
 		// default to mirror last 7 days of changes
@@ -592,7 +688,7 @@ public class Main {
 						  since, until, mirrorStore, cli.option("concurrency", "3"));
 
 		Mirror mirror = new Mirror(
-			repo, contentManager, gameTypeManager, managed,
+			contentRepo, contentManager, gameTypeRepo, gameTypeManager, managedRepo, managedManaged,
 			mirrorStore,
 			Integer.parseInt(cli.option("concurrency", "3")),
 			since, until,
@@ -612,7 +708,7 @@ public class Main {
 		mirror.cancel();
 	}
 
-	private static void localMirror(ContentRepository repository, CLI cli) throws IOException {
+	private static void localMirror(SimpleAddonRepository contentRepo, CLI cli) throws IOException {
 		if (cli.commands().length < 2) {
 			System.err.println("An output path should be provided!");
 			System.exit(2);
@@ -623,7 +719,7 @@ public class Main {
 		System.out.printf("Writing files to %s with concurrency of %s%n", output, cli.option("concurrency", "3"));
 
 		LocalMirrorClient mirror = new LocalMirrorClient(
-			repository,
+			contentRepo,
 			output,
 			Integer.parseInt(cli.option("concurrency", "3")),
 			((total, remaining, last) -> System.out.printf("\r[ %-6s / %-6s ] Processed %-40s",
@@ -637,8 +733,8 @@ public class Main {
 		mirror.cancel();
 	}
 
-	private static void www(ContentRepository repository, DocumentManager documentManager, ManagedContentManager managed,
-							GameTypeManager gameTypeManager, WikiManager wikiManager, CLI cli)
+	private static void www(SimpleAddonRepository contentRepo, GameTypeRepository gameTypeRepo, DocumentRepository documentRepo,
+							ManagedContentRepository managedRepo, WikiRepository wikiRepo, CLI cli)
 		throws IOException {
 		if (cli.commands().length < 2) {
 			System.err.println("An output path must be specified!");
@@ -675,60 +771,60 @@ public class Main {
 		// prepare author names and aliases
 		Path authorPath = contentPath(cli).resolve(AUTHORS_DIR);
 		AuthorNames names = new AuthorNames(authorPath);
-		repository.all().parallelStream()
-				  .filter(c -> !IndexUtils.UNKNOWN.equalsIgnoreCase(c.author()))
-				  .sorted(Comparator.comparingInt(a -> a.author().length()))
-				  .forEachOrdered(c -> names.maybeAutoAlias(c.author));
+		contentRepo.all().parallelStream()
+				   .filter(c -> !UNKNOWN.equalsIgnoreCase(c.author()))
+				   .sorted(Comparator.comparingInt(a -> a.author().length()))
+				   .forEachOrdered(c -> names.maybeAutoAlias(c.author));
 		AuthorNames.instance = Optional.of(names);
 		System.out.printf("Found %d author aliases and names%n", names.aliasCount());
 
 		final Set<SiteMap.Page> allPages = ConcurrentHashMap.newKeySet();
 
 		final Set<PageGenerator> generators = new HashSet<>();
-		generators.add(new Index(repository, gameTypeManager, documentManager, managed, outputPath, staticOutput, features));
+		generators.add(new Index(contentRepo, gameTypeRepo, documentRepo, managedRepo, outputPath, staticOutput, features));
 
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("content"))) {
 			// generate content pages
 			generators.addAll(
 				Arrays.asList(
-					new Maps(repository, outputPath, staticOutput, features),
-					new MapPacks(repository, outputPath, staticOutput, features),
-					new Skins(repository, outputPath, staticOutput, features),
-					new Models(repository, outputPath, staticOutput, features),
-					new Voices(repository, outputPath, staticOutput, features),
-					new Mutators(repository, outputPath, staticOutput, features)
+					new Maps(contentRepo, outputPath, staticOutput, features),
+					new MapPacks(contentRepo, outputPath, staticOutput, features),
+					new Skins(contentRepo, outputPath, staticOutput, features),
+					new Models(contentRepo, outputPath, staticOutput, features),
+					new Voices(contentRepo, outputPath, staticOutput, features),
+					new Mutators(contentRepo, outputPath, staticOutput, features)
 				));
-			if (withPackages) generators.add(new Packages(repository, gameTypeManager, managed, outputPath, staticOutput, features));
+			if (withPackages) generators.add(new Packages(contentRepo, gameTypeRepo, managedRepo, outputPath, staticOutput, features));
 		}
 
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("authors"))) {
-			generators.add(new Authors(names, repository, gameTypeManager, managed, outputPath, staticOutput, features));
+			generators.add(new Authors(names, contentRepo, gameTypeRepo, managedRepo, outputPath, staticOutput, features));
 		}
 
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("docs"))) {
-			generators.add(new Documents(documentManager, outputPath, staticOutput, features));
+			generators.add(new Documents(documentRepo, outputPath, staticOutput, features));
 		}
 
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("managed"))) {
-			generators.add(new ManagedContent(managed, outputPath, staticOutput, features));
+			generators.add(new ManagedContent(managedRepo, outputPath, staticOutput, features));
 		}
 
 		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("gametypes"))) {
-			generators.add(new GameTypes(gameTypeManager, repository, outputPath, staticOutput, features));
+			generators.add(new GameTypes(gameTypeRepo, contentRepo, outputPath, staticOutput, features));
 		}
 
 		if (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("packages")) {
-			generators.add(new Packages(repository, gameTypeManager, managed, outputPath, staticOutput, features));
+			generators.add(new Packages(contentRepo, gameTypeRepo, managedRepo, outputPath, staticOutput, features));
 		}
 
 		if (features.wikis || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("wiki"))) {
-			generators.add(new Wiki(outputPath, staticOutput, features, wikiManager));
+			generators.add(new Wiki(outputPath, staticOutput, features, wikiRepo));
 		}
 
 		if (features.submit) generators.add(new Submit(outputPath, staticOutput, features));
 		if (features.search) generators.add(new Search(outputPath, staticOutput, features));
-		if (features.latest) generators.add(new Latest(repository, gameTypeManager, managed, outputPath, staticOutput, features));
-		if (features.files) generators.add(new FileDetails(repository, outputPath, staticOutput, features));
+		if (features.latest) generators.add(new Latest(contentRepo, gameTypeRepo, managedRepo, outputPath, staticOutput, features));
+		if (features.files) generators.add(new FileDetails(contentRepo, outputPath, staticOutput, features));
 
 		ForkJoinPool myPool = new ForkJoinPool(Integer.parseInt(cli.option("concurrency", "4")));
 		myPool.submit(() -> {
@@ -744,17 +840,18 @@ public class Main {
 		System.out.printf("Output %d pages in %.2fs%n", allPages.size(), (System.currentTimeMillis() - start) / 1000f);
 	}
 
-	private static void searchSubmit(ContentRepository repository, DocumentManager documentManager,
-									 ManagedContentManager managedContentManager, WikiManager wikiManager, CLI cli) throws IOException {
+	private static void searchSubmit(SimpleAddonRepository contentRepo, DocumentRepository documentRepo,
+									 ManagedContentRepository managedContentManager, WikiRepository wikiManager, CLI cli)
+		throws IOException {
 		// TODO documents, managed content, and gametypes
 
 		// meh
 		Path authorPath = contentPath(cli).resolve(AUTHORS_DIR);
 		AuthorNames names = new AuthorNames(authorPath);
-		repository.all().parallelStream()
-				  .filter(c -> !IndexUtils.UNKNOWN.equalsIgnoreCase(c.author()))
-				  .sorted(Comparator.comparingInt(a -> a.author().length()))
-				  .forEachOrdered(c -> names.maybeAutoAlias(c.author));
+		contentRepo.all().parallelStream()
+				   .filter(c -> !UNKNOWN.equalsIgnoreCase(c.author()))
+				   .sorted(Comparator.comparingInt(a -> a.author().length()))
+				   .forEachOrdered(c -> names.maybeAutoAlias(c.author));
 		AuthorNames.instance = Optional.of(names);
 
 		final long start = System.currentTimeMillis();
@@ -765,7 +862,7 @@ public class Main {
 						  System.getenv().getOrDefault("MSE_CONTENT_URL", System.getenv().getOrDefault("MSE_URL", ""))
 		);
 
-		submitter.submit(repository,
+		submitter.submit(contentRepo,
 						 System.getenv().getOrDefault("SITE_URL", ""),
 						 System.getenv().getOrDefault("MSE_CONTENT_URL", System.getenv().getOrDefault("MSE_URL", "")),
 						 System.getenv().getOrDefault("MSE_CONTENT_TOKEN", System.getenv().getOrDefault("MSE_TOKEN", "")), 50,
@@ -783,8 +880,8 @@ public class Main {
 												   (System.currentTimeMillis() - start) / 1000f));
 	}
 
-	private static void summary(ContentRepository repository) {
-		Map<Class<? extends Content>, Long> byType = repository.countByType();
+	private static void summary(SimpleAddonRepository repository) {
+		Map<Class<? extends Addon>, Long> byType = repository.countByType();
 		if (byType.size() > 0) {
 			System.out.println("Current content by Type:");
 			byType.forEach((type, count) -> System.out.printf(" > %s: %d%n", type.getSimpleName(), count));
@@ -801,7 +898,7 @@ public class Main {
 		}
 	}
 
-	private static void list(ContentRepository repository, CLI cli) {
+	private static void list(SimpleAddonRepository repository, CLI cli) {
 		String game = cli.option("game", null);
 		String type = cli.option("type", null);
 		String author = cli.option("author", null);
@@ -812,13 +909,13 @@ public class Main {
 			System.exit(255);
 		}
 
-		Set<Content> results = new HashSet<>(repository.search(game, type, name, author));
+		Set<Addon> results = new HashSet<>(repository.search(game, type, name, author));
 
 		if (results.isEmpty()) {
 			System.out.println("No results found");
 		} else {
 			System.out.printf("%-22s | %-10s | %-30s | %-20s | %s%n", "Game", "Type", "Name", "Author", "Hash");
-			for (Content result : results) {
+			for (Addon result : results) {
 				System.out.printf("%-22s | %-10s | %-30s | %-20s | %s%n",
 								  result.game, result.contentType,
 								  result.name.substring(0, Math.min(20, result.name.length())),
@@ -828,18 +925,18 @@ public class Main {
 		}
 	}
 
-	private static void show(ContentRepository repository, CLI cli) throws IOException {
+	private static void show(SimpleAddonRepository repository, CLI cli) throws IOException {
 		if (cli.commands().length < 2) {
 			System.err.println("List of content hashes or names expected");
 			System.exit(255);
 		}
 
-		Set<Content> results = new HashSet<>();
+		Set<Addon> results = new HashSet<>();
 
 		String[] terms = Arrays.copyOfRange(cli.commands(), 1, cli.commands().length);
 		for (String term : terms) {
 			if (term.matches("[a-f0-9]{40}")) {
-				Content found = repository.forHash(term);
+				Addon found = repository.forHash(term);
 				if (found != null) results.add(found);
 			} else {
 				results.addAll(repository.forName(term));
@@ -849,7 +946,7 @@ public class Main {
 		if (results.isEmpty()) {
 			System.out.printf("No results for terms %s found%n", Arrays.toString(terms));
 		} else {
-			for (Content result : results) {
+			for (Addon result : results) {
 				System.out.println(YAML.toString(result));
 			}
 		}
@@ -902,7 +999,7 @@ public class Main {
 		}
 	}
 
-	private static void install(ContentRepository repository, CLI cli) throws IOException {
+	private static void install(SimpleAddonRepository repository, CLI cli) throws IOException {
 		if (cli.commands().length < 3) {
 			System.err.println("A file path or content hash and destination directory are required!");
 			System.exit(2);
@@ -924,25 +1021,25 @@ public class Main {
 			? new StandardCopyOption[] { StandardCopyOption.REPLACE_EXISTING }
 			: new StandardCopyOption[0];
 
-		Map<Incoming.FileType, String> destinations = new HashMap<>();
-		destinations.put(Incoming.FileType.CODE, "System");
-		destinations.put(Incoming.FileType.INT, "System");
-		destinations.put(Incoming.FileType.INI, "System");
-		destinations.put(Incoming.FileType.UCL, "System");
-		destinations.put(Incoming.FileType.PLAYER, "System");
-		destinations.put(Incoming.FileType.MAP, "Maps");
-		destinations.put(Incoming.FileType.MUSIC, "Music");
-		destinations.put(Incoming.FileType.STATICMESH, "StaticMeshes");
-		destinations.put(Incoming.FileType.SOUNDS, "Sounds");
-		destinations.put(Incoming.FileType.TEXTURE, "Textures");
-		destinations.put(Incoming.FileType.PHYSICS, "KarmaData");
-		destinations.put(Incoming.FileType.ANIMATION, "Animations");
+		Map<FileType, String> destinations = new HashMap<>();
+		destinations.put(FileType.CODE, "System");
+		destinations.put(FileType.INT, "System");
+		destinations.put(FileType.INI, "System");
+		destinations.put(FileType.UCL, "System");
+		destinations.put(FileType.PLAYER, "System");
+		destinations.put(FileType.MAP, "Maps");
+		destinations.put(FileType.MUSIC, "Music");
+		destinations.put(FileType.STATICMESH, "StaticMeshes");
+		destinations.put(FileType.SOUNDS, "Sounds");
+		destinations.put(FileType.TEXTURE, "Textures");
+		destinations.put(FileType.PHYSICS, "KarmaData");
+		destinations.put(FileType.ANIMATION, "Animations");
 
 		// create some useless holder things, so we can reuse the Incoming class for unpacking content
 		Submission sub = new Submission(path);
 		IndexLog log = new IndexLog();
 		try (Incoming incoming = new Incoming(sub, log).prepare()) {
-			incoming.files(destinations.keySet().toArray(new Incoming.FileType[0])).forEach(f -> {
+			incoming.files(destinations.keySet().toArray(new FileType[0])).forEach(f -> {
 				Path destPath = dest.resolve(destinations.get(f.fileType()));
 				if (!Files.isDirectory(destPath)) {
 					try {
@@ -970,7 +1067,7 @@ public class Main {
 		}
 	}
 
-	private static Set<Path> cliPaths(CLI cli, int fromOffset, ContentRepository repository) throws IOException {
+	private static Set<Path> cliPaths(CLI cli, int fromOffset, SimpleAddonRepository repository) throws IOException {
 		// let's see if there are cli paths which are actually URLs, and download them to local paths
 		String[] paths = Arrays.copyOfRange(cli.commands(), fromOffset, cli.commands().length);
 		return localOrRemoteOrHashToPaths(paths, repository);
@@ -981,13 +1078,13 @@ public class Main {
 	 * everything to an output collection of local files, downloading content where
 	 * necessary.
 	 */
-	private static Set<Path> localOrRemoteOrHashToPaths(String[] paths, ContentRepository repository) throws IOException {
+	private static Set<Path> localOrRemoteOrHashToPaths(String[] paths, SimpleAddonRepository repository) throws IOException {
 		// convert hashes to URLs
 		String[] contentUrls = Arrays
 			.stream(paths)
 			.filter(s -> s.matches("^[a-f0-9]{40}$"))
 			.map(hash -> {
-				Content content = repository.forHash(hash);
+				Addon content = repository.forHash(hash);
 				if (content == null) throw new IllegalArgumentException(String.format("Hash %s does not match any known content!", hash));
 				return content.mainDownload().url;
 			})

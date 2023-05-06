@@ -10,9 +10,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
-import net.shrimpworks.unreal.archive.content.ContentRepository;
-import net.shrimpworks.unreal.archive.Util;
-import net.shrimpworks.unreal.archive.content.Content;
+import net.shrimpworks.unreal.archive.content.Download;
+import net.shrimpworks.unreal.archive.content.addons.SimpleAddonRepository;
+import net.shrimpworks.unreal.archive.common.Util;
+import net.shrimpworks.unreal.archive.content.addons.Addon;
 
 /**
  * Simple multi-threaded mirror/downloader implementation.
@@ -24,8 +25,8 @@ import net.shrimpworks.unreal.archive.content.Content;
 public class LocalMirrorClient implements Consumer<LocalMirrorClient.Downloader> {
 
 	private static final int RETRY_LIMIT = 4;
-	private Deque<Content> content;
-	private Deque<Content> retryQueue;
+	private Deque<Addon> content;
+	private Deque<Addon> retryQueue;
 	private final Path output;
 	private final int concurrency;
 	private final ExecutorService executor;
@@ -37,7 +38,7 @@ public class LocalMirrorClient implements Consumer<LocalMirrorClient.Downloader>
 	private volatile CountDownLatch counter;
 	private volatile Thread mirrorThread;
 
-	public LocalMirrorClient(ContentRepository content, Path output, int concurrency, Progress progress) {
+	public LocalMirrorClient(SimpleAddonRepository content, Path output, int concurrency, Progress progress) {
 		this.content = new ConcurrentLinkedDeque<>(content.all());
 		this.retryQueue = new ConcurrentLinkedDeque<>();
 		this.output = output;
@@ -108,23 +109,23 @@ public class LocalMirrorClient implements Consumer<LocalMirrorClient.Downloader>
 	}
 
 	private void next() {
-		final Content c = this.content.poll();
+		final Addon c = this.content.poll();
 		if (c != null) executor.submit(new Downloader(c, output, this, this.retryQueue));
 	}
 
 	public static class Downloader implements Runnable {
 
-		public final Content content;
+		public final Addon content;
 		public final Path destination;
 		private final Path output;
 		private final Consumer<Downloader> done;
-		private final Deque<Content> retryQueue;
+		private final Deque<Addon> retryQueue;
 
-		public Downloader(Content c, Path output, Consumer<Downloader> done) {
+		public Downloader(Addon c, Path output, Consumer<Downloader> done) {
 			this(c, output, done, null);
 		}
 
-		public Downloader(Content c, Path output, Consumer<Downloader> done, Deque<Content> retryQueue) {
+		public Downloader(Addon c, Path output, Consumer<Downloader> done, Deque<Addon> retryQueue) {
 			this.retryQueue = retryQueue;
 			this.content = c;
 			this.output = output;
@@ -142,7 +143,7 @@ public class LocalMirrorClient implements Consumer<LocalMirrorClient.Downloader>
 			try {
 				// only consider "main" URLs
 				// TODO if main 404s, try others
-				Content.Download dl = content.mainDownload();
+				Download dl = content.mainDownload();
 				if (dl == null) return;
 
 				// file already downloaded
