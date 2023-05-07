@@ -33,4 +33,3 @@ are broken into files. For example, the latest release of a game type may
 include multiple formats of files - a UMOD, a setup EXE, and a plain ZIP
 archive. All of these files may contain the same content, but are variations
 of the same release.
-

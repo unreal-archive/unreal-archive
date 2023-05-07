@@ -49,7 +49,7 @@ public interface GameTypeRepository {
 	public static class FileRepository implements GameTypeRepository {
 
 		private static final String DOCUMENT_FILE = "gametype.md";
-		private static final String DOCUMENT_TEMPLATE_FILE = "template.md";
+		private static final String DOCUMENT_TEMPLATE_FILE = "gametype-template.md";
 
 		private final Path path;
 

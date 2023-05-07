@@ -552,6 +552,12 @@ public class Main {
 
 				gametypes.addRelease(game, gameTypeName, releaseName, localFile, params, ((gameType, release) -> {
 					System.out.printf("Added release %s to gametype %s%n", release.title, gameType.name());
+					if (Boolean.parseBoolean(cli.option("index", "false"))) {
+						System.out.printf("Indexing release%n");
+						gametypes.index(gameType, release,
+										release.files.stream().filter(f -> f.localFile.equals(localFile.toString())).findFirst().get()
+						);
+					}
 				}));
 			}
 			default -> {
