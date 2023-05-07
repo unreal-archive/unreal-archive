@@ -18,7 +18,6 @@ steps:
       ARTEFACTS_PASSWORD:
         from_secret: ARTEFACTS_PASSWORD
     commands:
-      - export BUILD_NUMBER="${DRONE_BUILD_NUMBER}"
       - apt-get update && apt-get install -y git-restore-mtime
       - git restore-mtime ./www/src/main/resources/
       - gradle --no-daemon --build-cache jlinkTar publish

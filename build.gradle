@@ -14,8 +14,8 @@ plugins {
 
 group = 'net.shrimpworks'
 version = "1.9"
-if (System.getenv().containsKey("BUILD_NUMBER")) {
-	version += ".${System.env.BUILD_NUMBER}"
+if (System.getenv().containsKey("DRONE_BUILD_NUMBER")) {
+	version += ".${System.env.DRONE_BUILD_NUMBER}"
 } else version += ".DEV"
 
 application {
