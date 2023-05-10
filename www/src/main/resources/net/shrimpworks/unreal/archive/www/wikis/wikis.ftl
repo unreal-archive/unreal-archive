@@ -1,6 +1,6 @@
 <#assign extraCss="wiki.css"/>
 <#assign ogDescription="Mirrors of Unreal and Unreal Torunament and Wikis, containing Engine, Modding, and Game information">
-<#assign ogImage="${staticPath()}/images/wikis.png">
+<#assign ogImage="${staticPath()}/images/contents/wikis.png">
 
 <#include "../_header.ftl">
 <#include "../macros.ftl">

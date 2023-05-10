@@ -124,7 +124,7 @@ public class MESSubmitter {
 					"id", wiki.name + page.name,
 					"score", 1.0d,
 					"fields", Map.of(
-						"name", wiki.name + " - " + page.name.replaceAll("-", "\\\\-"),
+						"name", page.name.replaceAll("-", "\\\\-"),
 						"wiki", wiki.name,
 						"url", String.format("%s/wikis/%s/%s.html", rootUrl, Util.slug(wiki.name), page.name.replaceAll(" ", "_")),
 						"content", content.trim())

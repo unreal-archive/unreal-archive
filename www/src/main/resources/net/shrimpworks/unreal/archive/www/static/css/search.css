@@ -45,6 +45,13 @@
 	border-radius: 5px;
 }
 
+#search-results .result.wiki .image img {
+	min-width: 80px;
+	max-width: 80px;
+	max-height: 80px;
+	margin: 0 30px 0 30px;
+}
+
 #search-results .result .info {
 }
 

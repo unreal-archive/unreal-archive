@@ -38,7 +38,7 @@
 </@content>
 
 <script type="application/javascript">
-	const searchRoot = "./api/ua";
+	const searchRoot = "https://unrealarchive.org/search/api/ua";
 	let pageSize = 30;
 
 	document.addEventListener("DOMContentLoaded", function() {
@@ -120,6 +120,44 @@
 		}
 
 		function addResult(result) {
+			if (result.fields.wiki) addWikiResult(result);
+			else addContentResult(result);
+		}
+
+	  function addWikiResult(result) {
+		  const image = document.createElement("img");
+		  if (!result.fields.image) {
+			  image.setAttribute("src", "${staticPath()}/images/none-document-small.png");
+		  } else {
+			  image.setAttribute("src", result.fields.image);
+		  }
+		  image.setAttribute("alt", result.fields.name.replace(/\\-/g, "-"));
+
+		  const imageDiv = document.createElement("div");
+		  imageDiv.classList.add('image');
+		  imageDiv.append(image);
+
+		  const link = document.createElement("a");
+		  link.setAttribute("href", result.fields.url);
+		  link.innerText = result.fields.name.replace(/\\-/g, "-");
+		  const title = document.createElement("h2");
+		  title.append(link);
+
+			const description = document.createElement("div");
+			description.classList.add('description');
+			description.innerText = "From Wiki " + result.fields.wiki;
+
+		  const info = document.createElement("div");
+		  info.classList.add('info');
+		  info.append(title, description);
+
+		  const resultRow = document.createElement("div");
+		  resultRow.classList.add('result', 'wiki');
+		  resultRow.append(imageDiv, info);
+		  results.append(resultRow);
+	  }
+
+		function addContentResult(result) {
 			const image = document.createElement("img");
 			if (result.fields.image.length === 0) {
 				image.setAttribute("src", "${staticPath()}/images/none.png");

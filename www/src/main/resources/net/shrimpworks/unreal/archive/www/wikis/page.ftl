@@ -2,7 +2,7 @@
 <#if wiki.title?? && wiki.title?length gt 0>
 	<#assign headerbg>${relPath(wikiPath + "/" + wiki.title)}</#assign>
 <#else>
-	<#assign headerbg>${staticPath()}/images/wiki.png</#assign>
+	<#assign headerbg>${staticPath()}/images/contents/wikis.png</#assign>
 </#if>
 
 <#assign ogDescription="heh">
