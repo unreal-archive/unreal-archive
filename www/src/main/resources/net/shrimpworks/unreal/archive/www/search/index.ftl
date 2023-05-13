@@ -1,4 +1,4 @@
-<#assign extraCss="search.css?v=20221001"/>
+<#assign extraCss="search.css?v=20230513"/>
 <#include "../_header.ftl">
 <#include "../macros.ftl">
 
@@ -24,7 +24,41 @@
 		<span>
 			<input type="checkbox" id="compact"> <label for="compact">Compact Results</label>
 		</span>
+		<span>
+			<a href="#" id="syntax-toggle"><img src="${staticPath()}/images/icons/info.svg" alt="Info"/> Advanced Search Help</a>
+		</span>
+
 	</form>
+
+	<div id="syntax">
+		<h2>Advanced Search Help</h2>
+		<div class="row">
+			<div class="example"><code>giant</code></div>
+			<div class="explain">Find all content with the whole word "giant" in their name, author, or other available information.</div>
+		</div>
+		<div class="row">
+			<div class="example"><code>giant*</code></div>
+			<div class="explain">Find all content with a word starting with "giant".</div>
+		</div>
+		<div class="row">
+			<div class="example"><code>giant* -*room</code></div>
+			<div class="explain">Find all content with a word starting with "giant", and NOT ending in "room".
+				For example this will exclude something named "Giant Bedroom".</div>
+		</div>
+		<div class="row">
+			<div class="example"><code>bedroom | bathroom</code></div>
+			<div class="explain">Find all content containing the full words "bedroom" OR "bathroom".</div>
+		</div>
+		<div class="row">
+			<div class="example"><code>bed* | bath*</code></div>
+			<div class="explain">Find all content containing words starting with "bed" OR "bath".</div>
+		</div>
+		<div class="row">
+			<div class="example"><code>deck* ~*16*</code></div>
+			<div class="explain">Find all content containing words starting with "deck" and optionally, "16".
+				Results containing "16" will be ranked higher.</div>
+		</div>
+	</div>
 
 	<div id="search-results">
 	</div>
@@ -52,6 +86,9 @@
 		const navBack = document.querySelector('#nav-back');
 		const navNext = document.querySelector('#nav-next');
 		const navText = document.querySelector('#nav-text');
+
+	  const syntaxToggle = document.querySelector('#syntax-toggle');
+	  const syntax = document.querySelector('#syntax');
 
 		let currentQuery;
 
@@ -81,6 +118,10 @@
 		compact.dispatchEvent(new Event('change'));
 		pageSizeSelect.dispatchEvent(new Event('change'));
 
+	  syntaxToggle.addEventListener('click', () => {
+				syntax.classList.toggle("open")
+		});
+
 		function search(query, offset = 0, limit = pageSize) {
 			currentQuery = query;
 			window.history.replaceState(null, null, "?q=" + query);
@@ -91,9 +132,9 @@
 			results.append(loading);
 
 			// allows for searching by map literal names, such as "DM-MapName", without RediSearch excluding "-MapName" from the results
-			let q = query.replace(/([A-Za-z])-/g, "$1%5C-");
+			let q = query.replace(/([A-Za-z]{2,3})-/g, "$1\\-");
 
-			const url = searchRoot + "/search?q=" + q + "&offset=" + offset + "&limit=" + limit;
+			const url = searchRoot + "/search?q=" + encodeURIComponent(q) + "&offset=" + offset + "&limit=" + limit;
 			console.log("Query URL is ", url);
 
 			fetch(url)

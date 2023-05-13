@@ -17,6 +17,39 @@
 	margin-right: 10px;
 }
 
+#syntax-toggle img {
+	vertical-align: middle;
+}
+
+#syntax {
+	font-size: 1em;
+	display: none;
+	border-bottom: 2px solid black;
+	margin-bottom: 10px;
+	padding: 10px;
+}
+
+#syntax.open {
+	display: block;
+}
+
+#syntax .row {
+	line-height: 1.75em;
+}
+
+#syntax .row:not(:last-child) {
+	border-bottom: 1px dotted #aaa;
+}
+
+#syntax .example {
+	display: table-cell;
+	width: 160px;
+}
+
+#syntax .explain {
+	display: table-cell;
+}
+
 #search-nav {
 	text-align: center;
 	padding: 10px;

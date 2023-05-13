@@ -105,11 +105,13 @@ dependencies {
 	testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
 }
 
-processResources.doLast {
+processResources.doFirst {
 	// write version resource file
-	Files.write(buildDir.toPath().resolve('resources/main/net/shrimpworks/unreal/archive/VERSION'),
+	Files.write(
+			Files.createDirectories(buildDir.toPath().resolve('resources/main/net/shrimpworks/unreal/archive')).resolve('VERSION'),
 			"${project.version}".getBytes(StandardCharsets.UTF_8),
-			StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
+			StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING
+	)
 }
 
 jar {
