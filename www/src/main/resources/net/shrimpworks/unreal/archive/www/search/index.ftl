@@ -41,7 +41,7 @@
 			<div class="explain">Find all content with a word starting with "giant".</div>
 		</div>
 		<div class="row">
-			<div class="example"><code>giant* -*room</code></div>
+			<div class="example"><code>giant* -*room*</code></div>
 			<div class="explain">Find all content with a word starting with "giant", and NOT ending in "room".
 				For example this will exclude something named "Giant Bedroom".</div>
 		</div>
