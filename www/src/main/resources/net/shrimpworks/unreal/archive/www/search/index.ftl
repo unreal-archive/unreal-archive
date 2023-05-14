@@ -10,6 +10,10 @@
 
 	<form id="search-form">
 		<span>
+			<select id="kind">
+				<option value="content">Downloads &amp; Content</option>
+				<option value="wiki">Wikis</option>
+			</select>
 			<input type="search" id="q" autofocus="autofocus" />
 			<button><img src="${staticPath()}/images/icons/search.svg" alt="Search"/> Search</button>
 		</span>
@@ -72,12 +76,18 @@
 </@content>
 
 <script type="application/javascript">
-	const searchRoot = "./api/ua";
+	const searchRoots = {
+		"content": "./api/ua",
+		"wiki": "./api/uaw",
+		"files": "./api/uaf",
+  };
+
 	let pageSize = 30;
 
 	document.addEventListener("DOMContentLoaded", function() {
 		const searchForm = document.querySelector('#search-form');
 
+		const searchKind = document.querySelector('#kind');
 		const searchQ = document.querySelector('#q');
 		const results = document.querySelector('#search-results');
 		const pageSizeSelect = document.querySelector('#pageSize');
@@ -90,16 +100,17 @@
 	  const syntaxToggle = document.querySelector('#syntax-toggle');
 	  const syntax = document.querySelector('#syntax');
 
+		let currentKind;
 		let currentQuery;
 
 		searchForm.addEventListener('submit', e => {
-			search(searchQ.value);
+			search(searchKind.value, searchQ.value);
 			e.preventDefault();
 			return false
 		});
 
 		const navClick = function(e) {
-			search(currentQuery, e.target.dataset.offset, pageSize);
+			search(currentKind, currentQuery, e.target.dataset.offset, pageSize);
 		};
 
 		navBack.addEventListener('click', navClick);
@@ -122,14 +133,18 @@
 				syntax.classList.toggle("open")
 		});
 
-		function search(query, offset = 0, limit = pageSize) {
+		function search(kind, query, offset = 0, limit = pageSize) {
+			currentKind = kind;
 			currentQuery = query;
-			window.history.replaceState(null, null, "?q=" + query);
+			window.history.replaceState(null, null, "?kind=" + kind + "&q=" + query);
 
 			while (results.childNodes.length > 0) results.removeChild(results.childNodes[0]);
 			const loading = document.createElement("h2");
 			loading.innerText = "... Searching ...";
 			results.append(loading);
+
+			if (!searchRoots[currentKind]) currentKind = "content";
+			const searchRoot = searchRoots[currentKind];
 
 			// allows for searching by map literal names, such as "DM-MapName", without RediSearch excluding "-MapName" from the results
 			let q = query.replace(/([A-Za-z]{2,3})-/g, "$1\\-");
@@ -251,10 +266,12 @@
 
 		// initialise based on passed-in query string
 		const urlParams = new URLSearchParams(window.location.search);
+		const kindString = urlParams.get('kind');
 		const searchString = urlParams.get('q');
 		if (searchString && searchString !== '') {
+			searchKind.value = kindString;
 			searchQ.value = searchString;
-			search(searchString);
+			search(kindString, searchString);
 		} else {
 			// initialise navigation buttons in disabled state
 			navigation();
