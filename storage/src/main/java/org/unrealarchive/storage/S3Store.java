@@ -83,7 +83,7 @@ public class S3Store implements DataStore {
 					client.putObject(PutObjectArgs.builder().bucket(bucket).object(name).stream(stream, dataSize, -1).build());
 					stored.accept(Util.toUriString(makePublicUrl(bucket, name)), null);
 				} catch (Exception e) {
-					stored.accept(null, new IOException("[S3] Upload failed for " + name + ": " + e.getMessage(), e));
+					stored.accept(null, new IOException("[S3] Upload failed [" + name + "]: " + e.getMessage(), e));
 				}
 			}
 		});
@@ -98,7 +98,7 @@ public class S3Store implements DataStore {
 			client.removeObject(RemoveObjectArgs.builder().bucket(bucket).object(object).build());
 			deleted.accept(true);
 		} catch (Exception e) {
-			throw new IOException("[S3] Delete failed: " + e.getMessage(), e);
+			throw new IOException("[S3] Delete failed [" + url + "]: " + e.getMessage(), e);
 		}
 	}
 
@@ -114,7 +114,7 @@ public class S3Store implements DataStore {
 			Files.copy(inputStream, outFile, StandardCopyOption.REPLACE_EXISTING);
 			downloaded.accept(outFile);
 		} catch (Exception e) {
-			throw new IOException("[S3] Download failed: " + e.getMessage(), e);
+			throw new IOException("[S3] Download failed [" + url + "]: " + e.getMessage(), e);
 		}
 	}
 
@@ -129,7 +129,7 @@ public class S3Store implements DataStore {
 				throw new IOException(e.getMessage());
 			}
 		} catch (Exception e) {
-			throw new IOException("[S3] Exists check failed: " + e.getMessage(), e);
+			throw new IOException("[S3] Exists check failed [" + name + "]: " + e.getMessage(), e);
 		}
 	}
 
