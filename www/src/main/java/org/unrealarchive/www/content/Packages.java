@@ -13,11 +13,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.unrealarchive.common.Util;
-import org.unrealarchive.content.addons.Addon;
-import org.unrealarchive.content.addons.SimpleAddonRepository;
 import org.unrealarchive.content.FileType;
-import org.unrealarchive.content.addons.GameTypeRepository;
 import org.unrealarchive.content.Games;
+import org.unrealarchive.content.addons.Addon;
+import org.unrealarchive.content.addons.GameTypeRepository;
+import org.unrealarchive.content.addons.SimpleAddonRepository;
 import org.unrealarchive.content.managed.ManagedContentRepository;
 import org.unrealarchive.www.SiteFeatures;
 import org.unrealarchive.www.SiteMap;
@@ -33,8 +33,8 @@ public class Packages extends ContentPageGenerator {
 	private final GameTypeRepository gameTypes;
 	private final ManagedContentRepository managed;
 
-	public Packages(SimpleAddonRepository content, GameTypeRepository gameTypes, ManagedContentRepository managed, Path output, Path staticRoot,
-					SiteFeatures features) {
+	public Packages(SimpleAddonRepository content, GameTypeRepository gameTypes, ManagedContentRepository managed, Path output,
+					Path staticRoot, SiteFeatures features) {
 		super(content, output, output.resolve("packages"), staticRoot, features);
 
 		this.gameTypes = gameTypes;

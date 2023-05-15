@@ -22,10 +22,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import javax.imageio.ImageIO;
 
-import org.unrealarchive.common.Util;
-import org.unrealarchive.content.addons.Addon;
-import org.unrealarchive.content.FileType;
-import org.unrealarchive.content.Games;
 import net.shrimpworks.unreal.dependencies.DependencyResolver;
 import net.shrimpworks.unreal.dependencies.NativePackages;
 import net.shrimpworks.unreal.dependencies.Resolved;
@@ -44,6 +40,11 @@ import net.shrimpworks.unreal.packages.entities.objects.Texture2D;
 import net.shrimpworks.unreal.packages.entities.properties.ArrayProperty;
 import net.shrimpworks.unreal.packages.entities.properties.ObjectProperty;
 import net.shrimpworks.unreal.packages.entities.properties.Property;
+
+import org.unrealarchive.common.Util;
+import org.unrealarchive.content.FileType;
+import org.unrealarchive.content.Games;
+import org.unrealarchive.content.addons.Addon;
 
 import static org.unrealarchive.content.addons.Addon.DependencyStatus.*;
 import static org.unrealarchive.content.addons.Addon.UNKNOWN;
@@ -83,7 +84,7 @@ public class IndexUtils {
 		for (Incoming.IncomingFile file : files) {
 			try (Package pkg = new Package(new PackageReader(file.asChannel()))) {
 				if (pkg.version < 68) return Games.UNREAL;
-				// FIXME Rune uses version 69 it seems, which overlaps with UT
+					// FIXME Rune uses version 69 it seems, which overlaps with UT
 				else if (pkg.version < 117) return Games.UNREAL_TOURNAMENT;
 				else if (pkg.version < 200) return Games.UNREAL_TOURNAMENT_2004;
 				else return Games.UNREAL_TOURNAMENT_3;

@@ -17,9 +17,9 @@ import java.util.stream.Stream;
 
 import org.unrealarchive.common.Util;
 import org.unrealarchive.content.addons.Addon;
-import org.unrealarchive.content.addons.SimpleAddonRepository;
-import org.unrealarchive.content.addons.GameTypeRepository;
 import org.unrealarchive.content.addons.GameType;
+import org.unrealarchive.content.addons.GameTypeRepository;
+import org.unrealarchive.content.addons.SimpleAddonRepository;
 import org.unrealarchive.www.Markdown;
 import org.unrealarchive.www.PageGenerator;
 import org.unrealarchive.www.SiteFeatures;

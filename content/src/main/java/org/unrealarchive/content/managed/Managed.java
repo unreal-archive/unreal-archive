@@ -14,9 +14,9 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import org.unrealarchive.content.AuthorNames;
 import org.unrealarchive.common.Platform;
 import org.unrealarchive.common.Util;
+import org.unrealarchive.content.AuthorNames;
 import org.unrealarchive.content.ContentEntity;
 import org.unrealarchive.content.Download;
 

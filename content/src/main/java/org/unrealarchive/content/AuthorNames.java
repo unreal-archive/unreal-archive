@@ -18,7 +18,6 @@ import java.util.stream.Stream;
 import org.unrealarchive.common.Util;
 
 public class AuthorNames {
-	public static volatile boolean wtf =false;
 
 	public static Optional<AuthorNames> instance = Optional.empty();
 
@@ -138,13 +137,6 @@ public class AuthorNames {
 
 		String noImport = IMPORTED.matcher(noConverted).replaceAll("");
 		if (noImport.isBlank()) noImport = noConverted;
-
-		if (wtf && author.equalsIgnoreCase("JoKeR")) {
-			System.out.println(" * " + author);
-			System.out.println(" * " + aliased);
-			System.out.println(" * " + noImport);
-			System.out.println(" * " + aliases.getOrDefault(noImport.toLowerCase().strip(), noImport).strip());
-		}
 
 		return aliases.getOrDefault(noImport.toLowerCase().strip(), noImport).strip();
 	}

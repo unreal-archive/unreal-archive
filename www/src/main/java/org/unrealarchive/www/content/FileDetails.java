@@ -9,9 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.unrealarchive.content.addons.SimpleAddonRepository;
-import org.unrealarchive.content.addons.Addon;
 import org.unrealarchive.content.FileType;
+import org.unrealarchive.content.addons.Addon;
+import org.unrealarchive.content.addons.SimpleAddonRepository;
 import org.unrealarchive.www.SiteFeatures;
 import org.unrealarchive.www.SiteMap;
 import org.unrealarchive.www.Templates;

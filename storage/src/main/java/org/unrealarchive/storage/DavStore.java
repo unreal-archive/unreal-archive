@@ -52,7 +52,7 @@ public class DavStore implements DataStore {
 
 	@Override
 	public void store(InputStream stream, long dataSize, String name, BiConsumer<String, IOException> stored) {
-		throw new UnsupportedOperationException("Uploading streams not supported yet");
+		throw new UnsupportedOperationException("[DAV] Streams upload not supported");
 	}
 
 	@Override

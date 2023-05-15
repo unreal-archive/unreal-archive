@@ -31,6 +31,8 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import net.shrimpworks.unreal.packages.Umod;
+
 import org.unrealarchive.common.ArchiveUtil;
 import org.unrealarchive.common.CLI;
 import org.unrealarchive.common.Util;
@@ -81,7 +83,6 @@ import org.unrealarchive.www.content.Mutators;
 import org.unrealarchive.www.content.Packages;
 import org.unrealarchive.www.content.Skins;
 import org.unrealarchive.www.content.Voices;
-import net.shrimpworks.unreal.packages.Umod;
 
 import static org.unrealarchive.content.addons.Addon.UNKNOWN;
 

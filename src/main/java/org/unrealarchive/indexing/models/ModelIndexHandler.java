@@ -10,17 +10,6 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.stream.Stream;
 
-import org.unrealarchive.common.Util;
-import org.unrealarchive.content.addons.Addon;
-import org.unrealarchive.content.Games;
-import org.unrealarchive.content.addons.Model;
-import org.unrealarchive.content.FileType;
-import org.unrealarchive.indexing.Incoming;
-import org.unrealarchive.indexing.IndexHandler;
-import org.unrealarchive.indexing.IndexLog;
-import org.unrealarchive.indexing.IndexResult;
-import org.unrealarchive.indexing.IndexUtils;
-import org.unrealarchive.indexing.skins.SkinIndexHandler;
 import net.shrimpworks.unreal.packages.IntFile;
 import net.shrimpworks.unreal.packages.Package;
 import net.shrimpworks.unreal.packages.PackageReader;
@@ -30,6 +19,18 @@ import net.shrimpworks.unreal.packages.entities.objects.Object;
 import net.shrimpworks.unreal.packages.entities.objects.Texture2D;
 import net.shrimpworks.unreal.packages.entities.properties.ArrayProperty;
 import net.shrimpworks.unreal.packages.entities.properties.ObjectProperty;
+
+import org.unrealarchive.common.Util;
+import org.unrealarchive.content.FileType;
+import org.unrealarchive.content.Games;
+import org.unrealarchive.content.addons.Addon;
+import org.unrealarchive.content.addons.Model;
+import org.unrealarchive.indexing.Incoming;
+import org.unrealarchive.indexing.IndexHandler;
+import org.unrealarchive.indexing.IndexLog;
+import org.unrealarchive.indexing.IndexResult;
+import org.unrealarchive.indexing.IndexUtils;
+import org.unrealarchive.indexing.skins.SkinIndexHandler;
 
 public class ModelIndexHandler implements IndexHandler<Model> {
 

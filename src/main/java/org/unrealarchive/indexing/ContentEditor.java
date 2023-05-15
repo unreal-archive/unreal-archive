@@ -13,8 +13,8 @@ import java.util.Collections;
 import java.util.Set;
 
 import org.unrealarchive.common.YAML;
-import org.unrealarchive.content.addons.Addon;
 import org.unrealarchive.content.FileType;
+import org.unrealarchive.content.addons.Addon;
 
 /**
  * Utility for manipulating content data.

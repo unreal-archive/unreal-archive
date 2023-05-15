@@ -4,10 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.lang.StringBuilder;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -45,23 +43,22 @@ public class AzStore implements DataStore {
 			String endpointSuffix = optionOrEnvVar("az-endpoint", "AZ_ENDPOINT", type, cli, DEFAULT_ENDPOINT_SUFFIX);
 
 			String sharedAccessSignature = optionOrEnvVar("az-sas", "AZ_SAS", type, cli, null);
-			sharedAccessSignature = sharedAccessSignature.startsWith("?") ? sharedAccessSignature.substring(1) :
-				sharedAccessSignature;
-		
+			sharedAccessSignature = sharedAccessSignature.startsWith("?")
+				? sharedAccessSignature.substring(1) : sharedAccessSignature;
+
 			return new AzStore(accId, sharedAccessSignature, container, endpointSuffix);
 		}
 
 		private String optionOrEnvVar(String option, String envVar, StoreContent type, CLI cli, String defaultValue) {
 			String value = cli.option(option + "-" + type.name().toLowerCase(),
-					System.getenv(envVar + "_" + type.name()));
+									  System.getenv(envVar + "_" + type.name()));
 
 			if (value == null || value.isEmpty())
 				value = cli.option(option, System.getenv(envVar));
 			if ((value == null || value.isEmpty()) && defaultValue != null)
 				value = defaultValue;
 			if (value == null || value.isEmpty())
-				throw new IllegalArgumentException(
-						String.format("Missing AZ store property; --%s or %s", option, envVar));
+				throw new IllegalArgumentException(String.format("Missing AZ store property; --%s or %s", option, envVar));
 			return value;
 		}
 	}
@@ -100,8 +97,7 @@ public class AzStore implements DataStore {
 	}
 
 	@Override
-	public void store(InputStream stream, long dataSize, String name, BiConsumer<String, IOException> stored)
-			throws IOException {
+	public void store(InputStream stream, long dataSize, String name, BiConsumer<String, IOException> stored) throws IOException {
 		try {
 			exists(name, exists -> {
 				if (exists instanceof URL) {
@@ -117,7 +113,7 @@ public class AzStore implements DataStore {
 						stored.accept(getBlobUrlBase(name).toString(), null);
 					} catch (Exception e) {
 						stored.accept(null,
-								new IOException(String.format("Failed to process AZ upload: %s", e.getMessage()), e));
+									  new IOException(String.format("Failed to process AZ upload: %s", e.getMessage()), e));
 					}
 				}
 			});
@@ -208,24 +204,23 @@ public class AzStore implements DataStore {
 	}
 
 	// Get the base Azure storage account URL
-	private URL getBlobUrlBase(String name) throws MalformedURLException, UnsupportedEncodingException {
+	private URL getBlobUrlBase(String name) throws MalformedURLException {
 		String requestedName = name.replaceAll("[ ]", "%20").replaceAll("[\\\\]", "/");
 
-		return new URL(String.format("https://%s.%s/%s/%s", this.storageAccount, this.endpointsuffix, this.container,
-				requestedName));
+		return new URL(String.format("https://%s.%s/%s/%s", this.storageAccount, this.endpointsuffix, this.container, requestedName));
 	}
 
 	// Get the URL of the blob in Azure storage
 	private URL getBlobUrl(String name, Boolean includeSas, String operation, String currentBlockId)
-			throws MalformedURLException, UnsupportedEncodingException {
-		String url = getBlobUrlBase(name).toString() + "?";
+		throws MalformedURLException, UnsupportedEncodingException {
+		String url = getBlobUrlBase(name) + "?";
 
 		if (operation != null) {
 			url += String.format("&comp=%s", operation);
 		}
 
 		if (currentBlockId != null) {
-			url += String.format("&blockid=%s", URLEncoder.encode(currentBlockId, StandardCharsets.UTF_8.toString()));
+			url += String.format("&blockid=%s", URLEncoder.encode(currentBlockId, StandardCharsets.UTF_8));
 		}
 
 		if (includeSas) {
@@ -277,7 +272,8 @@ public class AzStore implements DataStore {
 
 				if (shouldRetry && --attempts <= 0) {
 					throw new IOException(
-							String.format("Failed to upload block %s - Unexpected response: %d", currentBlockId, code));
+						String.format("[AZ] Upload block %s failed, Unexpected response: %d", currentBlockId, code)
+					);
 				}
 			} while (shouldRetry);
 
@@ -295,7 +291,7 @@ public class AzStore implements DataStore {
 
 	// Given a list of all written block ids and name of the final blob, commit
 	// the blocks to the blob by sending the XML manifest
-	private void commitBlocks(String name, List<String> sentBlockIds) throws MalformedURLException, IOException {
+	private void commitBlocks(String name, List<String> sentBlockIds) throws IOException {
 		// Finalize the blob by sending a full block id manifest
 		URL manifestSendUrl = getBlobUrl(name, true, "blocklist", null);
 		byte[] blockManifest = generateBlockIdManifest(sentBlockIds);
@@ -311,7 +307,7 @@ public class AzStore implements DataStore {
 		int code = httpCon.getResponseCode();
 
 		if (code != 201) {
-			throw new IOException(String.format("Failed to commit blocks - Unexpected response: %d"));
+			throw new IOException(String.format("[AZ] Commit blocks failed, unexpected response: %d", code));
 		}
 	}
 
@@ -329,19 +325,19 @@ public class AzStore implements DataStore {
 	}
 
 	// Setup a request with the basic headers for Azure storage
-	private HttpURLConnection setupBasicConnection(URL url, String method) throws IOException, ProtocolException {
-		HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
+	private HttpURLConnection setupBasicConnection(URL url, String method) throws IOException {
+		HttpURLConnection httpCon = (HttpURLConnection)url.openConnection();
 		httpCon.setRequestMethod(method);
 		httpCon.setRequestProperty("x-ms-version", "2020-04-08");
 		httpCon.setRequestProperty("x-ms-date", this.getCurrentTime());
-		httpCon.setConnectTimeout((int) TimeUnit.SECONDS.toMillis(120));
-		httpCon.setReadTimeout((int) TimeUnit.SECONDS.toMillis(300));
+		httpCon.setConnectTimeout((int)TimeUnit.SECONDS.toMillis(120));
+		httpCon.setReadTimeout((int)TimeUnit.SECONDS.toMillis(300));
 		return httpCon;
 	}
 
 	// Setup an HTTP connection for a PUT request with a known length
 	private HttpURLConnection setupPutConnection(URL url, long bytesToSend, Boolean sendingContent)
-			throws IOException, ProtocolException {
+		throws IOException {
 		HttpURLConnection httpCon = setupBasicConnection(url, "PUT");
 		httpCon.setDoOutput(true);
 

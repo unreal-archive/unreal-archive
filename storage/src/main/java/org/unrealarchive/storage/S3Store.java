@@ -47,7 +47,7 @@ public class S3Store implements DataStore {
 			String value = cli.option(option + "-" + type.name().toLowerCase(), System.getenv(envVar + "_" + type.name()));
 			if (value == null || value.isEmpty()) value = cli.option(option, System.getenv(envVar));
 			if (value == null || value.isEmpty()) throw new IllegalArgumentException(
-					String.format("Missing S3 store property; --%s or %s", option, envVar)
+				String.format("Missing S3 store property; --%s or %s", option, envVar)
 			);
 			return value;
 		}
@@ -83,7 +83,7 @@ public class S3Store implements DataStore {
 					client.putObject(PutObjectArgs.builder().bucket(bucket).object(name).stream(stream, dataSize, -1).build());
 					stored.accept(Util.toUriString(makePublicUrl(bucket, name)), null);
 				} catch (Exception e) {
-					stored.accept(null, new IOException("Failed to store file " + name, e));
+					stored.accept(null, new IOException("[S3] Upload failed for " + name + ": " + e.getMessage(), e));
 				}
 			}
 		});
@@ -98,7 +98,7 @@ public class S3Store implements DataStore {
 			client.removeObject(RemoveObjectArgs.builder().bucket(bucket).object(object).build());
 			deleted.accept(true);
 		} catch (Exception e) {
-			throw new IOException("File delete failed", e);
+			throw new IOException("[S3] Delete failed: " + e.getMessage(), e);
 		}
 	}
 
@@ -114,7 +114,7 @@ public class S3Store implements DataStore {
 			Files.copy(inputStream, outFile, StandardCopyOption.REPLACE_EXISTING);
 			downloaded.accept(outFile);
 		} catch (Exception e) {
-			throw new IOException("File download failed", e);
+			throw new IOException("[S3] Download failed: " + e.getMessage(), e);
 		}
 	}
 
@@ -129,7 +129,7 @@ public class S3Store implements DataStore {
 				throw new IOException(e.getMessage());
 			}
 		} catch (Exception e) {
-			throw new IOException("Failed to check S3 file", e);
+			throw new IOException("[S3] Exists check failed: " + e.getMessage(), e);
 		}
 	}
 

@@ -15,19 +15,6 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import javax.imageio.ImageIO;
 
-import org.unrealarchive.common.Platform;
-import org.unrealarchive.common.Util;
-import org.unrealarchive.common.YAML;
-import org.unrealarchive.content.addons.Addon;
-import org.unrealarchive.content.FileType;
-import org.unrealarchive.content.Download;
-import org.unrealarchive.content.addons.GameTypeRepository;
-import org.unrealarchive.content.Games;
-import org.unrealarchive.content.NameDescription;
-import org.unrealarchive.content.addons.GameType;
-import org.unrealarchive.indexing.mutators.MutatorClassifier;
-import org.unrealarchive.indexing.mutators.MutatorIndexHandler;
-import org.unrealarchive.storage.DataStore;
 import net.shrimpworks.unreal.packages.IntFile;
 import net.shrimpworks.unreal.packages.Package;
 import net.shrimpworks.unreal.packages.PackageReader;
@@ -35,6 +22,20 @@ import net.shrimpworks.unreal.packages.entities.ExportedObject;
 import net.shrimpworks.unreal.packages.entities.objects.Object;
 import net.shrimpworks.unreal.packages.entities.properties.Property;
 import net.shrimpworks.unreal.packages.entities.properties.StringProperty;
+
+import org.unrealarchive.common.Platform;
+import org.unrealarchive.common.Util;
+import org.unrealarchive.common.YAML;
+import org.unrealarchive.content.Download;
+import org.unrealarchive.content.FileType;
+import org.unrealarchive.content.Games;
+import org.unrealarchive.content.NameDescription;
+import org.unrealarchive.content.addons.Addon;
+import org.unrealarchive.content.addons.GameType;
+import org.unrealarchive.content.addons.GameTypeRepository;
+import org.unrealarchive.indexing.mutators.MutatorClassifier;
+import org.unrealarchive.indexing.mutators.MutatorIndexHandler;
+import org.unrealarchive.storage.DataStore;
 
 public class GameTypeManager {
 

@@ -8,16 +8,17 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import org.unrealarchive.content.addons.Addon;
-import org.unrealarchive.content.NameDescription;
-import org.unrealarchive.content.addons.Mutator;
+import net.shrimpworks.unreal.packages.IntFile;
+
 import org.unrealarchive.content.FileType;
+import org.unrealarchive.content.NameDescription;
+import org.unrealarchive.content.addons.Addon;
+import org.unrealarchive.content.addons.Mutator;
 import org.unrealarchive.indexing.Incoming;
 import org.unrealarchive.indexing.IndexHandler;
 import org.unrealarchive.indexing.IndexLog;
 import org.unrealarchive.indexing.IndexResult;
 import org.unrealarchive.indexing.IndexUtils;
-import net.shrimpworks.unreal.packages.IntFile;
 
 public class MutatorIndexHandler implements IndexHandler<Mutator> {
 

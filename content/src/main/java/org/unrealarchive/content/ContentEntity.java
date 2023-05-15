@@ -17,6 +17,7 @@ public interface ContentEntity<T extends ContentEntity<T>> extends Comparable<Co
 	public String name();
 
 	public String author();
+
 	public String authorName();
 
 	public String releaseDate();

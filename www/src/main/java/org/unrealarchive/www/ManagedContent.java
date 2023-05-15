@@ -35,13 +35,13 @@ public class ManagedContent implements PageGenerator {
 		final Map<String, ContentGroup> groups = new HashMap<>();
 
 		managedRepo.all().stream()
-			   .filter(d -> d.published)
-			   .sorted(Comparator.reverseOrder())
-			   .toList()
-			   .forEach(d -> {
-				   ContentGroup group = groups.computeIfAbsent(d.group, g -> new ContentGroup(null, g, 0));
-				   group.add(d);
-			   });
+				   .filter(d -> d.published)
+				   .sorted(Comparator.reverseOrder())
+				   .toList()
+				   .forEach(d -> {
+					   ContentGroup group = groups.computeIfAbsent(d.group, g -> new ContentGroup(null, g, 0));
+					   group.add(d);
+				   });
 
 		return groups;
 	}

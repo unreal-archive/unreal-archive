@@ -7,8 +7,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.unrealarchive.common.YAML;
-import org.unrealarchive.content.addons.Addon;
 import org.unrealarchive.content.Download;
+import org.unrealarchive.content.addons.Addon;
 import org.unrealarchive.content.addons.SimpleAddonRepository;
 import org.unrealarchive.storage.DataStore;
 

@@ -15,19 +15,19 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.unrealarchive.content.ContentEntity;
 import org.unrealarchive.common.Util;
-import org.unrealarchive.content.addons.Addon;
+import org.unrealarchive.content.ContentEntity;
 import org.unrealarchive.content.Download;
-import org.unrealarchive.content.addons.SimpleAddonRepository;
-import org.unrealarchive.content.addons.GameTypeRepository;
+import org.unrealarchive.content.addons.Addon;
 import org.unrealarchive.content.addons.GameType;
+import org.unrealarchive.content.addons.GameTypeRepository;
+import org.unrealarchive.content.addons.SimpleAddonRepository;
+import org.unrealarchive.content.managed.Managed;
+import org.unrealarchive.content.managed.ManagedContentRepository;
 import org.unrealarchive.indexing.ContentManager;
 import org.unrealarchive.indexing.GameTypeManager;
 import org.unrealarchive.indexing.IndexResult;
-import org.unrealarchive.content.managed.Managed;
 import org.unrealarchive.indexing.ManagedContentManager;
-import org.unrealarchive.content.managed.ManagedContentRepository;
 import org.unrealarchive.storage.DataStore;
 
 public class Mirror implements Consumer<Mirror.Transfer> {

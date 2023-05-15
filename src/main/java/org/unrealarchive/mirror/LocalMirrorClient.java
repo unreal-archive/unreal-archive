@@ -10,10 +10,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
-import org.unrealarchive.content.Download;
-import org.unrealarchive.content.addons.SimpleAddonRepository;
 import org.unrealarchive.common.Util;
+import org.unrealarchive.content.Download;
 import org.unrealarchive.content.addons.Addon;
+import org.unrealarchive.content.addons.SimpleAddonRepository;
 
 /**
  * Simple multi-threaded mirror/downloader implementation.

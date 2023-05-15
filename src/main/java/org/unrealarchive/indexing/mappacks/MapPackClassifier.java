@@ -4,8 +4,8 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.unrealarchive.common.Util;
-import org.unrealarchive.indexing.Classifier;
 import org.unrealarchive.content.FileType;
+import org.unrealarchive.indexing.Classifier;
 import org.unrealarchive.indexing.Incoming;
 import org.unrealarchive.indexing.IndexUtils;
 

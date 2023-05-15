@@ -19,8 +19,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 
 import org.unrealarchive.common.Util;
-import org.unrealarchive.content.wiki.WikiRepository;
 import org.unrealarchive.content.wiki.WikiPage;
+import org.unrealarchive.content.wiki.WikiRepository;
 
 public class Wiki implements PageGenerator {
 

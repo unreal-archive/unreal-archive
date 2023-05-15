@@ -20,13 +20,11 @@ import org.unrealarchive.common.YAML;
 
 public interface WikiRepository {
 
-
 	public Wiki wiki(String name);
 
 	public Set<Wiki> all();
 
 	public int size();
-
 
 	public static class FileRepository implements WikiRepository {
 

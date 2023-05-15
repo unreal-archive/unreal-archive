@@ -26,11 +26,11 @@ import java.util.function.Consumer;
 
 import org.unrealarchive.common.Util;
 import org.unrealarchive.common.YAML;
-import org.unrealarchive.content.addons.Addon;
 import org.unrealarchive.content.Download;
+import org.unrealarchive.content.Games;
+import org.unrealarchive.content.addons.Addon;
 import org.unrealarchive.content.addons.SimpleAddonRepository;
 import org.unrealarchive.content.addons.SimpleAddonType;
-import org.unrealarchive.content.Games;
 
 public class Indexer {
 

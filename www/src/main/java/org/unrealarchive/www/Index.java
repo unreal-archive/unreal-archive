@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.unrealarchive.content.addons.SimpleAddonRepository;
 import org.unrealarchive.content.addons.GameTypeRepository;
+import org.unrealarchive.content.addons.SimpleAddonRepository;
 import org.unrealarchive.content.docs.DocumentRepository;
 import org.unrealarchive.content.managed.ManagedContentRepository;
 
@@ -20,8 +20,8 @@ public class Index implements PageGenerator {
 	private final Path staticRoot;
 	private final SiteFeatures features;
 
-	public Index(SimpleAddonRepository content, GameTypeRepository gametypes, DocumentRepository documents, ManagedContentRepository updates,
-				 Path output, Path staticRoot, SiteFeatures features) {
+	public Index(SimpleAddonRepository content, GameTypeRepository gametypes, DocumentRepository documents,
+				 ManagedContentRepository updates, Path output, Path staticRoot, SiteFeatures features) {
 		this.content = content;
 		this.gametypes = gametypes;
 		this.documents = documents;

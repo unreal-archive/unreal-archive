@@ -8,11 +8,11 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.unrealarchive.content.ContentEntity;
 import org.unrealarchive.common.Util;
-import org.unrealarchive.content.addons.SimpleAddonRepository;
-import org.unrealarchive.content.addons.GameTypeRepository;
+import org.unrealarchive.content.ContentEntity;
 import org.unrealarchive.content.Games;
+import org.unrealarchive.content.addons.GameTypeRepository;
+import org.unrealarchive.content.addons.SimpleAddonRepository;
 import org.unrealarchive.content.managed.ManagedContentRepository;
 import org.unrealarchive.www.SiteFeatures;
 import org.unrealarchive.www.SiteMap;
@@ -23,15 +23,16 @@ public class Latest extends ContentPageGenerator {
 	private final GameTypeRepository gameTypes;
 	private final ManagedContentRepository managed;
 
-	public Latest(SimpleAddonRepository content, GameTypeRepository gameTypes, ManagedContentRepository managed, Path output, Path staticRoot,
-				  SiteFeatures features) {
+	public Latest(SimpleAddonRepository content, GameTypeRepository gameTypes, ManagedContentRepository managed, Path output,
+				  Path staticRoot, SiteFeatures features) {
 		super(content, output, output.resolve("latest"), staticRoot, features);
 
 		this.gameTypes = gameTypes;
 		this.managed = managed;
 	}
 
-	private Set<ContentEntity<?>> loadAllContent(SimpleAddonRepository content, GameTypeRepository gameTypes, ManagedContentRepository managed) {
+	private Set<ContentEntity<?>> loadAllContent(SimpleAddonRepository content, GameTypeRepository gameTypes,
+												 ManagedContentRepository managed) {
 		return Stream.concat(Stream.concat(
 								 content.all(false).stream(),
 								 gameTypes.all().stream()),

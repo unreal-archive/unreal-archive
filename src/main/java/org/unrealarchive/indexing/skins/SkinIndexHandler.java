@@ -11,20 +11,21 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.stream.Stream;
 
-import org.unrealarchive.content.addons.Addon;
-import org.unrealarchive.content.addons.Skin;
-import org.unrealarchive.content.FileType;
-import org.unrealarchive.indexing.Incoming;
-import org.unrealarchive.indexing.IndexHandler;
-import org.unrealarchive.indexing.IndexLog;
-import org.unrealarchive.indexing.IndexResult;
-import org.unrealarchive.indexing.IndexUtils;
 import net.shrimpworks.unreal.packages.IntFile;
 import net.shrimpworks.unreal.packages.Package;
 import net.shrimpworks.unreal.packages.entities.ExportedObject;
 import net.shrimpworks.unreal.packages.entities.Name;
 import net.shrimpworks.unreal.packages.entities.objects.Object;
 import net.shrimpworks.unreal.packages.entities.objects.Texture;
+
+import org.unrealarchive.content.FileType;
+import org.unrealarchive.content.addons.Addon;
+import org.unrealarchive.content.addons.Skin;
+import org.unrealarchive.indexing.Incoming;
+import org.unrealarchive.indexing.IndexHandler;
+import org.unrealarchive.indexing.IndexLog;
+import org.unrealarchive.indexing.IndexResult;
+import org.unrealarchive.indexing.IndexUtils;
 
 public class SkinIndexHandler implements IndexHandler<Skin> {
 

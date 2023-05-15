@@ -5,9 +5,9 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 import org.unrealarchive.common.Util;
+import org.unrealarchive.content.FileType;
 import org.unrealarchive.content.addons.Addon;
 import org.unrealarchive.content.addons.SimpleAddonType;
-import org.unrealarchive.content.FileType;
 import org.unrealarchive.indexing.mappacks.MapPackClassifier;
 import org.unrealarchive.indexing.mappacks.MapPackIndexHandler;
 import org.unrealarchive.indexing.maps.MapClassifier;

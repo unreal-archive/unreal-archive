@@ -9,16 +9,16 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+import net.shrimpworks.unreal.packages.IntFile;
+
+import org.unrealarchive.content.FileType;
 import org.unrealarchive.content.addons.Addon;
 import org.unrealarchive.content.addons.Voice;
-import org.unrealarchive.content.FileType;
-
 import org.unrealarchive.indexing.Incoming;
 import org.unrealarchive.indexing.IndexHandler;
 import org.unrealarchive.indexing.IndexLog;
 import org.unrealarchive.indexing.IndexResult;
 import org.unrealarchive.indexing.IndexUtils;
-import net.shrimpworks.unreal.packages.IntFile;
 
 public class VoiceIndexHandler implements IndexHandler<Voice> {
 

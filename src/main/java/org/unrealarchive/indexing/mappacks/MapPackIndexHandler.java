@@ -14,19 +14,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import org.unrealarchive.content.AuthorNames;
-import org.unrealarchive.common.Util;
-import org.unrealarchive.content.addons.Addon;
-import org.unrealarchive.content.addons.MapPack;
-import org.unrealarchive.content.addons.MapGameTypes;
-import org.unrealarchive.content.addons.MapThemes;
-import org.unrealarchive.content.FileType;
-import org.unrealarchive.indexing.Incoming;
-import org.unrealarchive.indexing.IndexHandler;
-import org.unrealarchive.indexing.IndexLog;
-import org.unrealarchive.indexing.IndexResult;
-import org.unrealarchive.indexing.IndexUtils;
-import org.unrealarchive.indexing.maps.MapIndexHandler;
 import net.shrimpworks.unreal.packages.IntFile;
 import net.shrimpworks.unreal.packages.Package;
 import net.shrimpworks.unreal.packages.PackageReader;
@@ -34,6 +21,20 @@ import net.shrimpworks.unreal.packages.entities.ExportedObject;
 import net.shrimpworks.unreal.packages.entities.objects.Object;
 import net.shrimpworks.unreal.packages.entities.properties.Property;
 import net.shrimpworks.unreal.packages.entities.properties.StringProperty;
+
+import org.unrealarchive.common.Util;
+import org.unrealarchive.content.AuthorNames;
+import org.unrealarchive.content.FileType;
+import org.unrealarchive.content.addons.Addon;
+import org.unrealarchive.content.addons.MapGameTypes;
+import org.unrealarchive.content.addons.MapPack;
+import org.unrealarchive.content.addons.MapThemes;
+import org.unrealarchive.indexing.Incoming;
+import org.unrealarchive.indexing.IndexHandler;
+import org.unrealarchive.indexing.IndexLog;
+import org.unrealarchive.indexing.IndexResult;
+import org.unrealarchive.indexing.IndexUtils;
+import org.unrealarchive.indexing.maps.MapIndexHandler;
 
 import static org.unrealarchive.content.addons.Addon.UNKNOWN;
 

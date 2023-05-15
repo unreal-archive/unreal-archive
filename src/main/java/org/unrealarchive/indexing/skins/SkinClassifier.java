@@ -6,11 +6,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.unrealarchive.indexing.Classifier;
+import net.shrimpworks.unreal.packages.IntFile;
+
 import org.unrealarchive.content.FileType;
+import org.unrealarchive.indexing.Classifier;
 import org.unrealarchive.indexing.Incoming;
 import org.unrealarchive.indexing.IndexUtils;
-import net.shrimpworks.unreal.packages.IntFile;
 
 /**
  * A skin should contain:

@@ -21,10 +21,11 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import net.shrimpworks.unreal.packages.Umod;
+
 import org.unrealarchive.common.ArchiveUtil;
 import org.unrealarchive.common.Util;
 import org.unrealarchive.content.FileType;
-import net.shrimpworks.unreal.packages.Umod;
 
 public class Incoming implements Closeable {
 

@@ -16,8 +16,8 @@ import java.util.stream.Stream;
 
 import org.unrealarchive.content.AuthorNames;
 import org.unrealarchive.content.ContentEntity;
-import org.unrealarchive.content.addons.SimpleAddonRepository;
 import org.unrealarchive.content.addons.GameTypeRepository;
+import org.unrealarchive.content.addons.SimpleAddonRepository;
 import org.unrealarchive.content.managed.ManagedContentRepository;
 import org.unrealarchive.www.SiteFeatures;
 import org.unrealarchive.www.SiteMap;
@@ -32,8 +32,8 @@ public class Authors extends ContentPageGenerator {
 	private final GameTypeRepository gameTypes;
 	private final ManagedContentRepository managed;
 
-	public Authors(AuthorNames names, SimpleAddonRepository content, GameTypeRepository gameTypes, ManagedContentRepository managed, Path output,
-				   Path staticRoot, SiteFeatures features) {
+	public Authors(AuthorNames names, SimpleAddonRepository content, GameTypeRepository gameTypes, ManagedContentRepository managed,
+				   Path output, Path staticRoot, SiteFeatures features) {
 		super(content, output, output.resolve("authors"), staticRoot, features);
 
 		this.names = names;
