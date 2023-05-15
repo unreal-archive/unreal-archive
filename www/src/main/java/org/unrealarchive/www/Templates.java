@@ -118,7 +118,8 @@ public class Templates {
 		TPL_CONFIG.setTagSyntax(Configuration.ANGLE_BRACKET_TAG_SYNTAX); // force - don't bother with auto-detection
 		TPL_CONFIG.setTemplateUpdateDelayMilliseconds(Long.MAX_VALUE); // do not bother looking for updated templates
 
-		HOST_REMAP.put("f002.backblazeb2.com", "Unreal Archive US");
+		HOST_REMAP.put("f002.backblazeb2.com", "Unreal Archive US [B2]");
+		HOST_REMAP.put("unreal-archive-files-s3.s3.us-west-002.backblazeb2.com", "Unreal Archive US");
 		HOST_REMAP.put("unreal-archive-files.eu-central-1.linodeobjects.com", "Unreal Archive EU");
 		HOST_REMAP.put("files.vohzd.com", "vohzd");
 		HOST_REMAP.put("medor.no-ip.org", "medor");
@@ -128,7 +129,7 @@ public class Templates {
 
 	public static class PageSet {
 
-		private static final int PAGES_INITIAL_SIZE = 100000;
+		private static final int PAGES_INITIAL_SIZE = 150000;
 
 		public final String resourceRoot;
 		public final Set<SiteMap.Page> pages;
