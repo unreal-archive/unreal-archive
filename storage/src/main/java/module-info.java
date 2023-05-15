@@ -9,5 +9,5 @@ module unreal.archive.storage {
 	requires okhttp3;
 	requires minio;
 
-	exports net.shrimpworks.unreal.archive.storage;
+	exports org.unrealarchive.storage;
 }

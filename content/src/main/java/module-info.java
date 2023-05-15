@@ -6,9 +6,9 @@ module unreal.archive.content {
 
 	requires com.fasterxml.jackson.annotation;
 
-	exports net.shrimpworks.unreal.archive.content;
-	exports net.shrimpworks.unreal.archive.content.addons;
-	exports net.shrimpworks.unreal.archive.content.docs;
-	exports net.shrimpworks.unreal.archive.content.managed;
-	exports net.shrimpworks.unreal.archive.content.wiki;
+	exports org.unrealarchive.content;
+	exports org.unrealarchive.content.addons;
+	exports org.unrealarchive.content.docs;
+	exports org.unrealarchive.content.managed;
+	exports org.unrealarchive.content.wiki;
 }

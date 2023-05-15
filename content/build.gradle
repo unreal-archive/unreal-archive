@@ -5,7 +5,7 @@ plugins {
 	id 'jacoco'
 }
 
-group = 'net.shrimpworks'
+group = 'org.unrealarchive'
 version = "1.0"
 if (System.getenv().containsKey("BUILD_NUMBER")) {
 	version += ".${System.env.BUILD_NUMBER}"

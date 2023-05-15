@@ -9,7 +9,7 @@ plugins {
 	id 'jacoco'
 }
 
-group = 'net.shrimpworks'
+group = 'org.unrealarchive'
 version = "1.0"
 if (System.getenv().containsKey("BUILD_NUMBER")) {
 	version += ".${System.env.BUILD_NUMBER}"
@@ -57,8 +57,8 @@ dependencies {
  * Create list of static files, used for later extraction from the jar to disk.
  */
 processResources.doLast {
-	def wwwStaticDir = projectDir.toPath().resolve('src/main/resources/net/shrimpworks/unreal/archive/www/static')
-	def destFile = buildDir.toPath().resolve('resources/main/net/shrimpworks/unreal/archive/www/static.list')
+	def wwwStaticDir = projectDir.toPath().resolve('src/main/resources/org/unrealarchive/www/static')
+	def destFile = buildDir.toPath().resolve('resources/main/org/unrealarchive/www/static.list')
 	def staticList = new StringBuilder()
 	files { fileTree(wwwStaticDir).matching { exclude('**/*.xcf') } }.each {
 		staticList.append(wwwStaticDir.getParent().relativize(it.toPath())).append("\t").append(it.lastModified()).append("\n")

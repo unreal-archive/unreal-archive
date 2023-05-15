@@ -12,14 +12,14 @@ plugins {
 	id 'org.beryx.jlink' version '2.26.0'
 }
 
-group = 'net.shrimpworks'
-version = "1.9"
+group = 'org.unrealarchive'
+version = "1.10"
 if (System.getenv().containsKey("DRONE_BUILD_NUMBER")) {
 	version += ".${System.env.DRONE_BUILD_NUMBER}"
 } else version += ".DEV"
 
 application {
-	mainClassName = 'net.shrimpworks.unreal.archive.Main'
+	mainClassName = 'org.unrealarchive.Main'
 	mainModule = 'unreal.archive'
 }
 
@@ -105,10 +105,10 @@ dependencies {
 	testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
 }
 
-processResources.doFirst {
+processResources.doLast {
 	// write version resource file
 	Files.write(
-			Files.createDirectories(buildDir.toPath().resolve('resources/main/net/shrimpworks/unreal/archive')).resolve('VERSION'),
+			Files.createDirectories(buildDir.toPath().resolve('resources/main/org/unrealarchive')).resolve('VERSION'),
 			"${project.version}".getBytes(StandardCharsets.UTF_8),
 			StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING
 	)

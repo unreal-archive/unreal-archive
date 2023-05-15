@@ -11,5 +11,5 @@ module unreal.archive.common {
 	requires com.fasterxml.jackson.dataformat.yaml;
 	requires com.fasterxml.jackson.datatype.jsr310;
 
-	exports net.shrimpworks.unreal.archive.common;
+	exports org.unrealarchive.common;
 }
