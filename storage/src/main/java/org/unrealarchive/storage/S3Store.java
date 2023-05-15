@@ -74,16 +74,17 @@ public class S3Store implements DataStore {
 
 	@Override
 	public void store(InputStream stream, long dataSize, String name, BiConsumer<String, IOException> stored) throws IOException {
-		exists(name, (exits) -> {
+		final String nom = name.replaceAll("\\$", "s"); // $ seems to not play well with S3 objects
+		exists(nom, (exits) -> {
 			if (exits instanceof StatObjectResponse) {
 				stored.accept(Util.toUriString(makePublicUrl(((StatObjectResponse)exits).bucket(), ((StatObjectResponse)exits).object())),
 							  null);
 			} else {
 				try {
-					client.putObject(PutObjectArgs.builder().bucket(bucket).object(name).stream(stream, dataSize, -1).build());
-					stored.accept(Util.toUriString(makePublicUrl(bucket, name)), null);
+					client.putObject(PutObjectArgs.builder().bucket(bucket).object(nom).stream(stream, dataSize, -1).build());
+					stored.accept(Util.toUriString(makePublicUrl(bucket, nom)), null);
 				} catch (Exception e) {
-					stored.accept(null, new IOException("[S3] Upload failed [" + name + "]: " + e.getMessage(), e));
+					stored.accept(null, new IOException("[S3] Upload failed [" + nom + "]: " + e.getMessage(), e));
 				}
 			}
 		});

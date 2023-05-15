@@ -260,7 +260,7 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 					try {
 						Path base = Paths.get("");
 						Path uploadPath = content.contentPath(base);
-						String uploadName = base.relativize(uploadPath.resolve(Util.fileName(dl.url))).toString();
+						String uploadName = base.relativize(uploadPath.resolve(Util.fileName(content.originalFilename))).toString();
 						long length = httpConn.getContentLength() > -1 ? httpConn.getContentLength() : content.fileSize;
 						mirrorStore.store(httpConn.getInputStream(), length, uploadName, (newUrl, ex) -> {
 							if (ex != null) {
