@@ -11,6 +11,6 @@ open module unreal.archive.www {
 	requires org.commonmark;
 	requires org.jsoup;
 
-	exports net.shrimpworks.unreal.archive.www;
-	exports net.shrimpworks.unreal.archive.www.content;
+	exports org.unrealarchive.www;
+	exports org.unrealarchive.www.content;
 }
