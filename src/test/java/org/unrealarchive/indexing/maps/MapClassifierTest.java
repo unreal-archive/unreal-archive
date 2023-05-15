@@ -1,4 +1,4 @@
-package org.unrealarchive.maps;
+package org.unrealarchive.indexing.maps;
 
 import java.io.IOException;
 import java.io.InputStream;

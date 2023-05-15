@@ -1,4 +1,4 @@
-package org.unrealarchive.models;
+package org.unrealarchive.indexing.models;
 
 import java.io.IOException;
 import java.io.InputStream;

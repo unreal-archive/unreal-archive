@@ -1,4 +1,4 @@
-package org.unrealarchive.maps;
+package org.unrealarchive.indexing.maps;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -6,11 +6,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
+import org.unrealarchive.content.addons.Map;
 import org.unrealarchive.content.addons.MapGameTypes;
 import org.unrealarchive.content.addons.SimpleAddonType;
-import org.unrealarchive.content.addons.Map;
-import org.unrealarchive.indexing.maps.MapIndexHandler;
-
 import org.unrealarchive.indexing.AddonClassifier;
 import org.unrealarchive.indexing.Incoming;
 import org.unrealarchive.indexing.IndexLog;
