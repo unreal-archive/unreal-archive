@@ -118,7 +118,7 @@ public class ManagedContentManager {
 			try {
 				// record download
 				if (file.downloads.stream().noneMatch(dl -> dl.url.equals(url))) {
-					file.downloads.add(new Download(url, !file.synced, false, Download.DownloadState.OK));
+					file.downloads.add(new Download(url, true, Download.DownloadState.OK));
 				}
 
 				// other file stats (the null checks are added to populate fields added post initial implementation)

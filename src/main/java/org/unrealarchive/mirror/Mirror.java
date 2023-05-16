@@ -195,7 +195,7 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 					Path localFile = Paths.get(managedFile.localFile);
 					final boolean hasLocalFile = Files.exists(localFile);
 					if (!hasLocalFile) {
-						Download dl = managedFile.mainDownload();
+						Download dl = managedFile.directDownload();
 						localFile = Util.downloadTo(
 							dl.url.replaceAll(" ", "%20"),
 							Files.createTempDirectory("ua-mirror").resolve(Util.fileName(managedFile.localFile))
@@ -226,7 +226,7 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 						Path localFile = Paths.get(releaseFile.localFile);
 						final boolean hasLocalFile = Files.exists(localFile);
 						if (!hasLocalFile) {
-							Download dl = releaseFile.mainDownload();
+							Download dl = releaseFile.directDownload();
 							localFile = Util.downloadTo(
 								dl.url,
 								Files.createTempDirectory("ua-mirror").resolve(releaseFile.originalFilename)
@@ -253,7 +253,7 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 		private void mirrorContent(Addon content) throws MirrorFailedException {
 			try {
 				// only consider "main" URLs
-				Download dl = content.mainDownload();
+				Download dl = content.directDownload();
 				if (dl == null) return;
 
 				Util.urlRequest(dl.url, (httpConn) -> {
@@ -270,7 +270,7 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 							}
 							if (newUrl != null && content.downloads.stream().noneMatch(d -> d.url.equalsIgnoreCase(newUrl))) {
 								Addon updated = cm.checkout(content.hash);
-								updated.downloads.add(new Download(newUrl, false));
+								updated.downloads.add(new Download(newUrl));
 								try {
 									cm.checkin(new IndexResult<>(updated, Collections.emptySet()), null);
 								} catch (IOException e) {

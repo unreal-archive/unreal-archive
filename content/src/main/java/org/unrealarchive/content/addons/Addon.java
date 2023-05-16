@@ -222,10 +222,10 @@ public abstract class Addon implements ContentEntity<Addon> {
 		return false;
 	}
 
-	public Download mainDownload() {
-		return downloads.stream().filter(d -> d.main).findFirst()
+	public Download directDownload() {
+		return downloads.stream().filter(d -> d.direct).findAny()
 						.orElseThrow(() -> new IllegalStateException(
-							String.format("Could not find a download for content %s!", name())
+							String.format("Could not find a direct download for content %s!", name())
 						));
 	}
 

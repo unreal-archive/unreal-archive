@@ -1093,7 +1093,7 @@ public class Main {
 			.map(hash -> {
 				Addon content = repository.forHash(hash);
 				if (content == null) throw new IllegalArgumentException(String.format("Hash %s does not match any known content!", hash));
-				return content.mainDownload().url;
+				return content.directDownload().url;
 			})
 			.toArray(String[]::new);
 

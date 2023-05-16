@@ -197,7 +197,7 @@ public class GameTypeManager {
 			try {
 				// record download
 				if (releaseFile.downloads.stream().noneMatch(dl -> dl.url.equals(url))) {
-					releaseFile.downloads.add(new Download(url, !releaseFile.synced, false, Download.DownloadState.OK));
+					releaseFile.downloads.add(new Download(url, true, Download.DownloadState.OK));
 				}
 
 				// other file stats
@@ -221,7 +221,7 @@ public class GameTypeManager {
 		if (!Files.exists(f[0])) {
 			System.out.printf("Downloading %s (%dKB)%n", releaseFile.originalFilename, releaseFile.fileSize / 1024);
 			try {
-				f[0] = Util.downloadTo(releaseFile.mainDownload().url,
+				f[0] = Util.downloadTo(releaseFile.directDownload().url,
 									   Files.createTempDirectory("ua-gametype").resolve(releaseFile.originalFilename));
 			} catch (Exception e) {
 				throw new RuntimeException(String.format("Could not download file %s", releaseFile), e);

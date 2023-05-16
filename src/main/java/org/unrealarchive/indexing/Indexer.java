@@ -342,7 +342,7 @@ public class Indexer {
 			if (!content.deleted && incoming.submission.sourceUrls != null) {
 				for (String url : incoming.submission.sourceUrls) {
 					if (url != null && !url.isEmpty() && !content.hasDownload(url)) {
-						content.downloads.add(new Download(url, false));
+						content.downloads.add(new Download(url));
 					}
 				}
 				contentManager.checkin(new IndexResult<>(content, Collections.emptySet()), incoming.submission);
@@ -370,7 +370,7 @@ public class Indexer {
 			if (sub.sourceUrls != null) {
 				for (String url : sub.sourceUrls) {
 					if (url != null && !url.isEmpty() && !result.content.hasDownload(url)) {
-						result.content.downloads.add(new Download(url, false));
+						result.content.downloads.add(new Download(url));
 					}
 				}
 			}

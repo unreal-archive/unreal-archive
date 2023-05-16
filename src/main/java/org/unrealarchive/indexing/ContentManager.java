@@ -98,10 +98,10 @@ public class ContentManager {
 //				}
 //			}
 
-			if (submission != null && indexed.content.downloads.stream().noneMatch(d -> d.main)) {
+			if (submission != null && indexed.content.downloads.stream().noneMatch(d -> d.direct)) {
 				String uploadPath = repo.path().relativize(next.resolve(submission.filePath.getFileName())).toString();
 				contentStore.store(submission.filePath, uploadPath, (fileUrl, ex) ->
-					indexed.content.downloads.add(new Download(fileUrl, true, false, Download.DownloadState.OK))
+					indexed.content.downloads.add(new Download(fileUrl, true, Download.DownloadState.OK))
 				);
 			}
 

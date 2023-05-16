@@ -247,8 +247,8 @@ public class GameType implements ContentEntity<GameType> {
 		public int otherFiles;                      // count of non-content files (readme, html, etc)
 		public Map<String, List<Addon.Dependency>> dependencies = new HashMap<>();// packages this content depends on
 
-		public Download mainDownload() {
-			return downloads.stream().filter(d -> d.main).findFirst().orElse(null);
+		public Download directDownload() {
+			return downloads.stream().filter(d -> d.direct).findAny().orElse(null);
 		}
 
 		@Override

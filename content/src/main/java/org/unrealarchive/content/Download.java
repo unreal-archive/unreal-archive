@@ -8,32 +8,37 @@ public class Download implements Comparable<Download> {
 	public static enum DownloadState {
 		OK,
 		MISSING,
-		DELETED
 	}
 
 	public String url;
-	public final boolean main;
-	public final boolean repack;
+	/**
+	 * Signifies that a URL points directly to a file that may be retrieved via
+	 * an HTTP request, with no intermediary download pages or steps.
+	 */
+	public final boolean direct;
+	/**
+	 * Indicates the last known state of a download.
+	 * <p>
+	 * Missing downloads will be considered for imminent removal.
+	 */
 	public DownloadState state;
 
-	@ConstructorProperties({ "url", "main", "repack", "state" })
-	public Download(String url, boolean main, boolean repack, DownloadState state) {
+	@ConstructorProperties({ "url", "direct", "state" })
+	public Download(String url, boolean direct, DownloadState state) {
 		this.url = url;
-		this.main = main;
-		this.repack = repack;
+		this.direct = direct;
 		this.state = state == null ? DownloadState.OK : state;
 	}
 
-	public Download(String url, boolean repack) {
+	public Download(String url) {
 		this.url = url;
-		this.repack = repack;
-		this.main = false;
+		this.direct = false;
 		this.state = DownloadState.OK;
 	}
 
 	@Override
 	public int compareTo(Download o) {
-		return main ? -1 : 0;
+		return direct ? -1 : 0;
 	}
 
 	@Override
@@ -41,18 +46,17 @@ public class Download implements Comparable<Download> {
 		if (this == o) return true;
 		if (!(o instanceof Download that)) return false;
 		return state == that.state
-			   && main == that.main
-			   && repack == that.repack
+			   && direct == that.direct
 			   && Objects.equals(url, that.url);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(url, main, repack, state);
+		return Objects.hash(url, direct, state);
 	}
 
 	@Override
 	public String toString() {
-		return String.format("Download [url=%s, main=%s, repack=%s, state=%s]", url, main, repack, state);
+		return String.format("Download [url=%s, direct=%s, state=%s]", url, direct, state);
 	}
 }
