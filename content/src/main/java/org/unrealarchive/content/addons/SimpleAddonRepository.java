@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -123,6 +124,15 @@ public interface SimpleAddonRepository {
 	 * Add a content item to the repository. Will replace existing items matching the item's hash.
 	 */
 	public void put(Addon added) throws IOException;
+
+	/**
+	 * Perform garbage collection on the repository.
+	 * <p>
+	 * Permanently removes all addon content flagged as deleted.
+	 *
+	 * @return number of content items removed
+	 */
+	public int gc();
 
 	public static class FileRepository implements SimpleAddonRepository {
 
@@ -310,6 +320,27 @@ public interface SimpleAddonRepository {
 			}
 
 			this.content.put(added.hash, new ContentHolder(newYml, added));
+		}
+
+		@Override
+		public int gc() {
+			final AtomicInteger counter = new AtomicInteger(0);
+
+			content.entrySet().removeIf(e -> {
+				if (e.getValue().deleted) {
+					try {
+						if (Files.deleteIfExists(e.getValue().path)) {
+							counter.incrementAndGet();
+							return true;
+						}
+					} catch (IOException ex) {
+						throw new RuntimeException(ex);
+					}
+				}
+				return false;
+			});
+
+			return counter.get();
 		}
 
 		private static class ContentHolder {

@@ -36,7 +36,7 @@ public class Latest extends ContentPageGenerator {
 		return Stream.concat(Stream.concat(
 								 content.all(false).stream(),
 								 gameTypes.all().stream()),
-							 managed.all().stream())
+							 managed.all().stream().filter(d -> d.published))
 					 .collect(Collectors.toSet());
 	}
 

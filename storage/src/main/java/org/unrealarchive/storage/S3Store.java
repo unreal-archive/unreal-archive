@@ -81,7 +81,14 @@ public class S3Store implements DataStore {
 							  null);
 			} else {
 				try {
-					client.putObject(PutObjectArgs.builder().bucket(bucket).object(nom).stream(stream, dataSize, -1).build());
+					client.putObject(
+						PutObjectArgs.builder()
+									 .bucket(bucket)
+									 .object(nom)
+									 .stream(stream, dataSize, -1)
+									 .contentType(Util.mimeType(Util.extension(name)))
+									 .build()
+					);
 					stored.accept(Util.toUriString(makePublicUrl(bucket, nom)), null);
 				} catch (Exception e) {
 					stored.accept(null, new IOException("[S3] Upload failed [" + nom + "]: " + e.getMessage(), e));

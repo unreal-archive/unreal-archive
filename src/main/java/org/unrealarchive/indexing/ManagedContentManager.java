@@ -30,6 +30,10 @@ public class ManagedContentManager {
 		this.contentStore = contentStore;
 	}
 
+	public ManagedContentRepository repo() {
+		return repo;
+	}
+
 	public Managed checkout(Managed managed) {
 		try {
 			return YAML.fromString(YAML.toString(managed), Managed.class);

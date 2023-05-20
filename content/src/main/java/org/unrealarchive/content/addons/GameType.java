@@ -57,6 +57,8 @@ public class GameType implements ContentEntity<GameType> {
 	 */
 	public boolean deleted = false;
 
+	public transient boolean variation = false;
+
 	@Override
 	public Path contentPath(Path root) {
 		String namePrefix = subGrouping();
@@ -157,7 +159,7 @@ public class GameType implements ContentEntity<GameType> {
 	@JsonIgnore
 	@Override
 	public boolean isVariation() {
-		return false;
+		return variation;
 	}
 
 	@Override

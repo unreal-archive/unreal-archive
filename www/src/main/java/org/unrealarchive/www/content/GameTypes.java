@@ -55,6 +55,7 @@ public class GameTypes implements PageGenerator {
 		final Map<String, Game> games = new TreeMap<>();
 
 		gametypes.all().stream()
+				 .filter(g -> !g.isVariation())
 				 .sorted()
 				 .forEach(d -> {
 					 Game game = games.computeIfAbsent(d.game, Game::new);

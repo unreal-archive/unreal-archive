@@ -69,6 +69,7 @@ public interface GameTypeRepository {
 				files.forEach(file -> {
 					try {
 						GameType g = YAML.fromFile(file, GameType.class);
+						g.variation = parent != null;
 						GameTypeHolder holder = new GameTypeHolder(file, g, parent);
 						gameTypes.add(holder);
 
@@ -98,7 +99,6 @@ public interface GameTypeRepository {
 		public Set<GameType> all() {
 			return gameTypes.stream()
 							.filter(g -> !g.gametype.deleted())
-							.filter(g -> g.variationOf == null)
 							.map(g -> g.gametype)
 							.collect(Collectors.toSet());
 		}
@@ -163,7 +163,21 @@ public interface GameTypeRepository {
 
 		@Override
 		public void put(GameType gameType) throws IOException {
-			final Path path = Files.createDirectories(gameTypePath(Games.byName(gameType.game), gameType.name));
+			Path path = gameTypePath(Games.byName(gameType.game), gameType.name);
+			if (gameType.isVariation()) {
+				GameTypeHolder parent = gameTypes.stream()
+												 .filter(g -> !g.gametype.deleted())
+												 .filter(g -> g.gametype.game().equals(gameType.game())
+															  && g.gametype.name().equalsIgnoreCase(gameType.name()))
+												 .findFirst()
+												 .map(g -> g.variationOf)
+												 .orElse(null);
+				if (parent != null) {
+					path = parent.path.getParent().resolve("variations").resolve(Util.slug(gameType.name));
+				}
+			}
+
+			path = Files.createDirectories(path);
 			Path yml = Util.safeFileName(path.resolve("gametype.yml"));
 			Files.writeString(yml, YAML.toString(gameType), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 

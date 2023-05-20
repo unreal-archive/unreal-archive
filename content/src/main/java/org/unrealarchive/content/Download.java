@@ -15,7 +15,7 @@ public class Download implements Comparable<Download> {
 	 * Signifies that a URL points directly to a file that may be retrieved via
 	 * an HTTP request, with no intermediary download pages or steps.
 	 */
-	public final boolean direct;
+	public boolean direct;
 	/**
 	 * Indicates the last known state of a download.
 	 * <p>

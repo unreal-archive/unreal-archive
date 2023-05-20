@@ -52,9 +52,15 @@ public class GameTypeManager {
 		this.imageStore = imageStore;
 	}
 
+	public GameTypeRepository repo() {
+		return repo;
+	}
+
 	public GameType checkout(GameType gameType) {
 		try {
-			return YAML.fromString(YAML.toString(gameType), GameType.class);
+			GameType clone = YAML.fromString(YAML.toString(gameType), GameType.class);
+			clone.variation = gameType.isVariation();
+			return clone;
 		} catch (IOException e) {
 			throw new IllegalStateException("Cannot clone GameType " + gameType.name());
 		}

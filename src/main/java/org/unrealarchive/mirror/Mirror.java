@@ -1,6 +1,8 @@
 package org.unrealarchive.mirror;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -69,7 +71,6 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 									 managed.all().stream()
 								 )
 							 )
-							 .filter(c -> !c.deleted())
 							 .filter(c -> c.addedDate().toLocalDate().isAfter(sinceFilter))
 							 .filter(c -> c.addedDate().toLocalDate().isBefore(untilFilter))
 							 .collect(Collectors.toCollection(ConcurrentLinkedDeque::new));
@@ -260,7 +261,9 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 					try {
 						Path base = Paths.get("");
 						Path uploadPath = content.contentPath(base);
-						String uploadName = base.relativize(uploadPath.resolve(Util.fileName(content.originalFilename))).toString();
+						String uploadName = base.relativize(uploadPath.resolve(
+							URLEncoder.encode(Util.fileName(content.originalFilename), StandardCharsets.UTF_8)
+						)).toString();
 						long length = httpConn.getContentLength() > -1 ? httpConn.getContentLength() : content.fileSize;
 						mirrorStore.store(httpConn.getInputStream(), length, uploadName, (newUrl, ex) -> {
 							if (ex != null) {
@@ -270,7 +273,7 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 							}
 							if (newUrl != null && content.downloads.stream().noneMatch(d -> d.url.equalsIgnoreCase(newUrl))) {
 								Addon updated = cm.checkout(content.hash);
-								updated.downloads.add(new Download(newUrl));
+								updated.downloads.add(new Download(newUrl, true, Download.DownloadState.OK));
 								try {
 									cm.checkin(new IndexResult<>(updated, Collections.emptySet()), null);
 								} catch (IOException e) {
