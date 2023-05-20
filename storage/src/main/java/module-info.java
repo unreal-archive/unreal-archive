@@ -4,8 +4,6 @@ module unreal.archive.storage {
 
 	requires unreal.archive.common;
 
-	requires b2.sdk.core;
-	requires b2.sdk.httpclient;
 	requires okhttp3;
 	requires minio;
 

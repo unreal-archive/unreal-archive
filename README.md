@@ -158,26 +158,15 @@ A storage backend must be configured in order to store content during indexing.
 When interrogating, mirroring or downloading content, no store needs to be 
 specified, the default no-op store (`--store=nop`) will be used. 
 
+Environment variables may be used for configuration, eg.: replace 
+`--s3-key-images=key` with `S3_KEY_IMAGES=key`.
+
 ### HTTP/DAV
 
 - `--store=dav`
   - `--store-[images|attachments|content]=dav`
 - `--dav-url=http://hostname/path/`
   - `--dav-url-[images|attachments|content]=...`
-
-### Backblaze B2
-
-- `--store=b2`
-  - `--store-[images|attachments|content]=b2`
-- `--b2-acc=key-id`
-  - `--b2-acc-[images|attachments|content]=key-id`
-- `--b2-key=key`
-  - `--b2-key-[images|attachments|content]=key`
-- `--b2-bucket=bucket-id`
-  - `--b2-bucket-[images|attachments|content]=bucket-id`
-
-Environment variables may be used, eg.: replace `--b2-key-images=key` with 
-`B2_KEY_IMAGES=key`.
 
 ### S3 Bucket Storage
 

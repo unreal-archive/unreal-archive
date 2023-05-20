@@ -41,33 +41,14 @@ publishing {
 dependencies {
 	implementation project(':common')
 
-	implementation 'com.backblaze.b2:b2-sdk-core:6.1.1'
-	implementation 'com.backblaze.b2:b2-sdk-httpclient:6.1.1'
-
 	// S3 compatible storage client
 	implementation 'io.minio:minio:8.5.2'
 
-		testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
+	testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
 }
 
 extraJavaModuleInfo {
 	failOnMissingModuleInfo.set(false)
-
-	module("com.backblaze.b2:b2-sdk-core", "b2.sdk.core") {
-		exports("com.backblaze.b2.client")
-		exports("com.backblaze.b2.client.contentHandlers")
-		exports("com.backblaze.b2.client.contentSources")
-		exports("com.backblaze.b2.client.credentialsSources")
-		exports("com.backblaze.b2.client.exceptions")
-		exports("com.backblaze.b2.client.structures")
-		exports("com.backblaze.b2.client.webApiClients")
-	}
-
-	module("com.backblaze.b2:b2-sdk-httpclient", "b2.sdk.httpclient") {
-		requires("b2.sdk.core")
-		requires("org.apache.httpcomponents.httpclient")
-		exports("com.backblaze.b2.client.webApiHttpClient")
-	}
 
 	module("io.minio:minio", "minio") {
 		requires("java.logging")

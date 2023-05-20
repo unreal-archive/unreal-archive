@@ -13,7 +13,6 @@ public interface DataStore extends Closeable {
 
 	enum StoreType {
 		DAV(new DavStore.Factory()),
-		B2(new B2Store.Factory()),
 		S3(new S3Store.Factory()),
 		AZ(new AzStore.Factory()),
 		NOP(new NopStore.NopStoreFactory()),
