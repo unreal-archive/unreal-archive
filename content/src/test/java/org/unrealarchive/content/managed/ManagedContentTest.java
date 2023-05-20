@@ -35,7 +35,7 @@ public class ManagedContentTest {
 		assertEquals(man.downloads.get(0), newMan.downloads.get(0));
 
 		// fake syncing the download, downloads don't count as changes, so they can be managed while syncing
-		newMan.downloads.get(0).downloads.add(new Download("https://cool-files.dl/file.exe", false));
+		newMan.downloads.get(0).downloads.add(new Download("https://cool-files.dl/file.exe"));
 		newMan.downloads.get(0).synced = true;
 
 		assertEquals(man, newMan);

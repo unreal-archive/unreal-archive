@@ -92,7 +92,7 @@ public class YAMLTest {
 	}
 
 	private Download download(String url) {
-		return new Download(url, false, false, Download.DownloadState.OK);
+		return new Download(url, false, Download.DownloadState.OK);
 	}
 
 	private Addon.Attachment attachment(String url) {
