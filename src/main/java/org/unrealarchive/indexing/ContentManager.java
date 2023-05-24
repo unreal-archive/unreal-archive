@@ -18,16 +18,14 @@ public class ContentManager {
 
 	private final DataStore contentStore;
 	private final DataStore imageStore;
-	private final DataStore attachmentStore;
 
 	private final Set<String> changes;
 
-	public ContentManager(SimpleAddonRepository repo, DataStore contentStore, DataStore imageStore, DataStore attachmentStore) {
+	public ContentManager(SimpleAddonRepository repo, DataStore contentStore, DataStore imageStore) {
 		this.repo = repo;
 
 		this.contentStore = contentStore;
 		this.imageStore = imageStore;
-		this.attachmentStore = attachmentStore;
 
 		this.changes = new HashSet<>();
 	}
@@ -69,9 +67,6 @@ public class ContentManager {
 					String uploadPath = repo.path().relativize(next.resolve(file.name)).toString();
 					if (file.type == Addon.AttachmentType.IMAGE) {
 						imageStore.store(file.path, uploadPath, (fileUrl, ex) ->
-							indexed.content.attachments.add(new Addon.Attachment(file.type, file.name, fileUrl)));
-					} else {
-						attachmentStore.store(file.path, uploadPath, (fileUrl, ex) ->
 							indexed.content.attachments.add(new Addon.Attachment(file.type, file.name, fileUrl)));
 					}
 				} finally {

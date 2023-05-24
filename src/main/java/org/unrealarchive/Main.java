@@ -257,21 +257,19 @@ public class Main {
 
 	private static ContentManager contentManager(CLI cli, SimpleAddonRepository repo) {
 		final DataStore imageStore = store(DataStore.StoreContent.IMAGES, cli);
-		final DataStore attachmentStore = store(DataStore.StoreContent.ATTACHMENTS, cli);
 		final DataStore contentStore = store(DataStore.StoreContent.CONTENT, cli);
 
 		// prepare cleanup
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			try {
 				imageStore.close();
-				attachmentStore.close();
 				contentStore.close();
 			} catch (IOException e) {
 				//
 			}
 		}));
 
-		return new ContentManager(repo, contentStore, imageStore, attachmentStore);
+		return new ContentManager(repo, contentStore, imageStore);
 	}
 
 	private static DocumentRepository documentRepo(CLI cli) throws IOException {
@@ -356,7 +354,11 @@ public class Main {
 
 		DataStore.StoreType storeType = DataStore.StoreType.valueOf(stringType.toUpperCase());
 
-		return storeType.newStore(contentType, cli);
+		DataStore dataStore = storeType.newStore(contentType, cli);
+
+		System.err.printf("Store for %s is: %s%n", contentType, dataStore);
+
+		return dataStore;
 	}
 
 	private static void index(SimpleAddonRepository repo, ContentManager contentManager, CLI cli) throws IOException {
