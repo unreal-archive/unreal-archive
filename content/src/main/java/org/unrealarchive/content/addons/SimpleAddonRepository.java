@@ -340,6 +340,21 @@ public interface SimpleAddonRepository {
 				return false;
 			});
 
+			content.entrySet().removeIf(e -> {
+				try {
+					if (e.getValue().isVariation) {
+						ContentHolder parent = content.get(e.getValue().content().variationOf);
+						if ((parent == null || parent.content().deleted()) && Files.deleteIfExists(e.getValue().path)) {
+							counter.incrementAndGet();
+							return true;
+						}
+					}
+				} catch (Exception ex) {
+					throw new RuntimeException(ex);
+				}
+				return false;
+			});
+
 			return counter.get();
 		}
 

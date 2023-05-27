@@ -369,7 +369,7 @@ public class Main {
 
 		boolean verbose = Boolean.parseBoolean(cli.option("verbose", "false"));
 		boolean force = Boolean.parseBoolean(cli.option("force", "false"));
-		boolean newOnly = Boolean.parseBoolean(cli.option("new-only", "false"));
+		boolean newOnly = Boolean.parseBoolean(cli.option("new-only", "true"));
 		int concurrency = Integer.parseInt(cli.option("concurrency", "1"));
 		SimpleAddonType forceType = !cli.option("type", "").isEmpty()
 			? SimpleAddonType.valueOf(cli.option("type", "").toUpperCase())
@@ -1137,12 +1137,12 @@ public class Main {
 		System.out.println("Usage: unreal-archive.jar <command> [options]");
 		System.out.println();
 		System.out.println("Commands:");
-		System.out.println("  index <file ...> --content-path=<path> [--force=<true|false>]");
+		System.out.println("  index <file, url ...> --content-path=<path> [--force=<true|false>]");
 		System.out.println("    Index the contents of files or paths, writing the results to <content-path>.");
 		System.out.println("    Optionally force re-indexing of existing content, rather than skipping it.");
 		System.out.println("  sync <kind> --content-path=<path>");
 		System.out.println("    Sync managed files' local files to remote storage.");
-		System.out.println("  scan <file ...> --content-path=<path>");
+		System.out.println("  scan <file, url ...> --content-path=<path>");
 		System.out.println("    Dry-run scan the contents of files or paths, comparing to known content where possible.");
 		System.out.println("  edit <hash> --content-path=<path>");
 		System.out.println("    Edit the metadata for the <hash> provided. Relies on `sensible-editor` on Linux.");

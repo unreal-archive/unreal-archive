@@ -193,6 +193,8 @@ public class Indexer {
 
 			});
 		} else {
+			if (newOnly && repo.forHash(Util.hash(inputPath)) != null) return;
+
 			Submission sub;
 			// if there's a submission file
 			Path subFile = Paths.get(inputPath + ".yml");
@@ -367,6 +369,7 @@ public class Indexer {
 	public interface IndexerPostProcessor {
 
 		public default void indexed(Submission sub, Addon before, IndexResult<? extends Addon> result) {
+			// if there are additional source urls specified in the submission metadata, append it to the result
 			if (sub.sourceUrls != null) {
 				for (String url : sub.sourceUrls) {
 					if (url != null && !url.isEmpty() && !result.content.hasDownload(url)) {
