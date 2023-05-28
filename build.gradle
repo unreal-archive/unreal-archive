@@ -98,9 +98,9 @@ dependencies {
 	implementation 'net.shrimpworks:unreal-package-lib:1.10.24'
 	implementation 'net.shrimpworks:package-dependency:1.4.21'
 
-	implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.2'
-	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.14.2'
-	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.2'
+	implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.3'
+	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.14.3'
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.3'
 
 	testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
 }
