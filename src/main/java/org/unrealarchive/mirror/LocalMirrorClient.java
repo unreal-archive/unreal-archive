@@ -141,8 +141,6 @@ public class LocalMirrorClient implements Consumer<LocalMirrorClient.Downloader>
 		@Override
 		public void run() {
 			try {
-				// only consider "main" URLs
-				// TODO if main 404s, try others
 				Download dl = content.directDownload();
 				if (dl == null) return;
 
