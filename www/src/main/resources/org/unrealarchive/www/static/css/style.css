@@ -916,12 +916,22 @@ div.themes img {
 
 	.contentpage {
 		padding: 0 !important;
-		margin: 0 10px;
+		margin: 0;
 	}
 
 	.biglist ul, .biglist.bigger ul {
 		grid-template-columns: 100%;
 		grid-template-areas: 'block';
+	}
+
+	.biglist ul li {
+		border-radius: 0;
+		height: 75px;
+	}
+
+	.biglist ul li .meta {
+		font-size: 1.2em;
+		bottom: -5px;
 	}
 
 	.list nav, .biglist nav {
@@ -944,7 +954,15 @@ div.themes img {
 	section.header h1 {
 		font-size: 1.75em;
 		border-radius: 0 !important;
-		padding: 5px;
+		padding: 10px 5px;
+	}
+
+	article section h2, article section h3 {
+		border-radius: 0 !important;
+	}
+
+	article section h2, article section h3 {
+		padding: 0 5px;
 	}
 
 	article.info {

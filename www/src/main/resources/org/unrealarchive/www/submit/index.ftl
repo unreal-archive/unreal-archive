@@ -15,7 +15,7 @@
 
 				<div id="upload" class="display-block">
 					<input type="file" id="files" accept=".zip,.rar,.7z,.ace,.gz,.bz2,.tar,.tgz,.exe,.umod,.ut2mod,.ut4mod" multiple style="display:none">
-					<button id="select-files"><img src="${staticPath()}/images/icons/file-plus.svg" alt="Add files"/> Select Files</button>
+					<button id="select-files"><img src="${staticPath()}/images/icons/file-plus.svg" alt="Add files"/> Add Files</button>
 					<button id="upload-files"><img src="${staticPath()}/images/icons/upload.svg" alt="Upload"/> Upload!</button>
 					<select id="upload-type">
 						<option value="auto">Auto-Detect File Types</option>
@@ -91,8 +91,8 @@
 				<h2>Processing Status</h2>
 				<p>
 					<b>Tip:</b> Once the upload is complete, you may upload another
-					file or close this page. The current	upload continue to process
-					on the server.
+					file or close this page. Current submissions will continue to
+					process on the server.
 				</p>
 				<div id="log-lines"></div>
 			</div>

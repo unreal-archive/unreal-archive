@@ -7,38 +7,29 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SeekableByteChannel;
-import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import net.shrimpworks.unreal.packages.Umod;
 
-import org.unrealarchive.common.ArchiveUtil;
 import org.unrealarchive.common.CLI;
 import org.unrealarchive.common.Util;
 import org.unrealarchive.common.Version;
 import org.unrealarchive.common.YAML;
-import org.unrealarchive.content.AuthorNames;
 import org.unrealarchive.content.FileType;
 import org.unrealarchive.content.Games;
 import org.unrealarchive.content.addons.Addon;
@@ -46,7 +37,6 @@ import org.unrealarchive.content.addons.GameType;
 import org.unrealarchive.content.addons.GameTypeRepository;
 import org.unrealarchive.content.addons.SimpleAddonRepository;
 import org.unrealarchive.content.addons.SimpleAddonType;
-import org.unrealarchive.content.docs.DocumentRepository;
 import org.unrealarchive.content.managed.ManagedContentRepository;
 import org.unrealarchive.content.wiki.WikiRepository;
 import org.unrealarchive.indexing.ContentEditor;
@@ -61,30 +51,8 @@ import org.unrealarchive.indexing.Submission;
 import org.unrealarchive.mirror.LocalMirrorClient;
 import org.unrealarchive.mirror.Mirror;
 import org.unrealarchive.storage.DataStore;
-import org.unrealarchive.www.Documents;
-import org.unrealarchive.www.Index;
-import org.unrealarchive.www.MESSubmitter;
-import org.unrealarchive.www.ManagedContent;
-import org.unrealarchive.www.PageGenerator;
-import org.unrealarchive.www.Search;
-import org.unrealarchive.www.SiteFeatures;
-import org.unrealarchive.www.SiteMap;
-import org.unrealarchive.www.Submit;
-import org.unrealarchive.www.Templates;
-import org.unrealarchive.www.Wiki;
-import org.unrealarchive.www.content.Authors;
-import org.unrealarchive.www.content.FileDetails;
-import org.unrealarchive.www.content.GameTypes;
-import org.unrealarchive.www.content.Latest;
-import org.unrealarchive.www.content.MapPacks;
-import org.unrealarchive.www.content.Maps;
-import org.unrealarchive.www.content.Models;
-import org.unrealarchive.www.content.Mutators;
-import org.unrealarchive.www.content.Packages;
-import org.unrealarchive.www.content.Skins;
-import org.unrealarchive.www.content.Voices;
 
-import static org.unrealarchive.content.addons.Addon.UNKNOWN;
+import static org.unrealarchive.content.RepoFactory.*;
 
 public class Main {
 
@@ -93,21 +61,10 @@ public class Main {
 		Version.setVersion(Main.class);
 	}
 
-	private static final String CONTENT_DIR = "content";
-	private static final String DOCUMENTS_DIR = "documents";
-	private static final String GAMETYPES_DIR = "gametypes";
-	private static final String MANAGED_DIR = "managed";
-	private static final String AUTHORS_DIR = "authors";
-	private static final String WIKIS_DIR = "wikis";
-
-	private static final Path TMP = Paths.get(System.getProperty("java.io.tmpdir"));
-	private static final String CONTENT_URL = System.getenv().getOrDefault("UA_CONTENT_URL",
-																		   "https://github.com/unreal-archive/unreal-archive-data/archive/master.zip");
-
 	public static void main(String[] args) throws IOException, InterruptedException, ReflectiveOperationException {
 		System.err.printf("Unreal Archive version %s%n", Version.version());
 
-		final CLI cli = CLI.parse(Collections.emptyMap(), args);
+		final CLI cli = CLI.parse(args);
 
 		if (cli.commands().length == 0) {
 			usage();
@@ -149,10 +106,8 @@ public class Main {
 				localMirror(contentRepo(cli), cli);
 				break;
 			case "www":
-				www(contentRepo(cli), gameTypeRepo(cli), documentRepo(cli), managedRepo(cli), wikiRepo(cli), cli);
-				break;
 			case "search-submit":
-				searchSubmit(contentRepo(cli), documentRepo(cli), managedRepo(cli), wikiRepo(cli), cli);
+				org.unrealarchive.www.Main.main(args);
 				break;
 			case "summary":
 				summary(contentRepo(cli));
@@ -180,79 +135,7 @@ public class Main {
 	}
 
 	private static void wiki(WikiRepository cli) throws IOException {
-		// nothing to do
-	}
-
-	private static String userPrompt(String prompt, String defaultValue) {
-		System.out.println(prompt);
-		System.out.print("> ");
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
-			String in = reader.readLine().trim();
-			if (in.isEmpty()) return defaultValue;
-			else return in;
-		} catch (IOException e) {
-			System.err.printf("Failed to read user input: %s", e);
-			System.exit(254);
-		}
-		return defaultValue;
-	}
-
-	private static Path contentPath(CLI cli) throws IOException {
-		if (cli.option("content-path", null) == null) {
-			final String opt = userPrompt("content-path not specified. Download and use read-only content data? [Y/n]", "y").toLowerCase();
-			if (opt.equalsIgnoreCase("y")) {
-				Path tmpPath = TMP.resolve("ua-tmp");
-				if (!Files.exists(tmpPath) || !Files.isDirectory(tmpPath)) {
-					Files.createDirectories(tmpPath);
-					Path tmpFile = tmpPath.resolve("archive.zip");
-					System.out.printf("Downloading archive from %s... ", CONTENT_URL);
-					Util.downloadTo(Util.toUriString(CONTENT_URL), tmpFile);
-					System.out.println("Done");
-					try {
-						System.out.printf("Extracting archive from %s to %s... ", tmpFile, tmpPath);
-						ArchiveUtil.extract(tmpFile, tmpPath, Duration.ofMinutes(10));
-						System.out.println("Done");
-					} catch (Throwable e) {
-						// make sure to clean out the path, so we can try again next time
-						ArchiveUtil.cleanPath(tmpPath);
-						throw new IOException("Failed to extract downloaded content archive", e);
-					}
-				}
-
-				// find the content directory within the extracted stuff
-				try (Stream<Path> pathStream = Files.walk(tmpPath, 3, FileVisitOption.FOLLOW_LINKS)) {
-					Optional<Path> contentParent = pathStream
-						.filter(p -> Files.isDirectory(p) && p.getFileName().toString().equals(CONTENT_DIR))
-						.map(Path::getParent)
-						.findFirst();
-
-					cli.putOption("content-path", contentParent.orElseThrow(IllegalArgumentException::new).toString());
-				}
-			} else {
-				System.err.println("content-path must be specified!");
-				System.exit(2);
-			}
-		}
-
-		Path contentPath = Paths.get(cli.option("content-path", null));
-		if (!Files.isDirectory(contentPath)) {
-			System.err.println("content-path must be a directory!");
-			System.exit(3);
-		}
-
-		return contentPath.toAbsolutePath();
-	}
-
-	private static SimpleAddonRepository contentRepo(CLI cli) throws IOException {
-		Path contentPath = contentPath(cli);
-
-		final long start = System.currentTimeMillis();
-		final SimpleAddonRepository repo = new SimpleAddonRepository.FileRepository(contentPath.resolve(CONTENT_DIR));
-		final double gigs = (repo.fileSize() / 1024d / 1024d / 1024d);
-		System.err.printf("Loaded content index with %d items (%.2fGB) in %.2fs%n",
-						  repo.size(), gigs, (System.currentTimeMillis() - start) / 1000f);
-
-		return repo;
+		// nothing to do yet
 	}
 
 	private static ContentManager contentManager(CLI cli, SimpleAddonRepository repo) {
@@ -272,28 +155,6 @@ public class Main {
 		return new ContentManager(repo, contentStore, imageStore);
 	}
 
-	private static DocumentRepository documentRepo(CLI cli) throws IOException {
-		Path contentPath = contentPath(cli);
-
-		final long start = System.currentTimeMillis();
-		final DocumentRepository repo = new DocumentRepository.FileRepository(contentPath.resolve(DOCUMENTS_DIR));
-		System.err.printf("Loaded document index with %d items in %.2fs%n",
-						  repo.size(), (System.currentTimeMillis() - start) / 1000f);
-
-		return repo;
-	}
-
-	private static ManagedContentRepository managedRepo(CLI cli) throws IOException {
-		Path contentPath = contentPath(cli);
-
-		final long start = System.currentTimeMillis();
-		ManagedContentRepository managedContentManager = new ManagedContentRepository.FileRepository(contentPath.resolve(MANAGED_DIR));
-		System.err.printf("Loaded managed content index with %d items in %.2fs%n",
-						  managedContentManager.size(), (System.currentTimeMillis() - start) / 1000f);
-
-		return managedContentManager;
-	}
-
 	private static ManagedContentManager managedContentManager(CLI cli, ManagedContentRepository repo) {
 		final DataStore contentStore = store(DataStore.StoreContent.CONTENT, cli);
 
@@ -306,15 +167,6 @@ public class Main {
 			}
 		}));
 		return new ManagedContentManager(repo, contentStore);
-	}
-
-	private static GameTypeRepository gameTypeRepo(CLI cli) throws IOException {
-		Path contentPath = contentPath(cli);
-		final long start = System.currentTimeMillis();
-		final GameTypeRepository repo = new GameTypeRepository.FileRepository(contentPath.resolve(GAMETYPES_DIR));
-		System.err.printf("Loaded gametypes index with %d items in %.2fs%n",
-						  repo.size(), (System.currentTimeMillis() - start) / 1000f);
-		return repo;
 	}
 
 	private static GameTypeManager gameTypeManager(CLI cli, GameTypeRepository repo) {
@@ -331,17 +183,6 @@ public class Main {
 			}
 		}));
 		return new GameTypeManager(repo, contentStore, imageStore);
-	}
-
-	private static WikiRepository wikiRepo(CLI cli) throws IOException {
-		Path contentPath = contentPath(cli);
-
-		final long start = System.currentTimeMillis();
-		final WikiRepository wikis = new WikiRepository.FileRepository(contentPath.resolve(WIKIS_DIR));
-		System.err.printf("Loaded wikis index with %d pages in %.2fs%n",
-						  wikis.size(), (System.currentTimeMillis() - start) / 1000f);
-
-		return wikis;
 	}
 
 	public static DataStore store(DataStore.StoreContent contentType, CLI cli) {
@@ -503,6 +344,7 @@ public class Main {
 				final GameType.Release[] release = { null };
 				final GameType.ReleaseFile[] releaseFile = { null };
 				gameType.releases.forEach(r -> {
+					if (releaseFile[0] != null) return;
 					releaseFile[0] = r.files.stream()
 											.filter(f -> f.localFile.equalsIgnoreCase(localFileName) ||
 														 f.originalFilename.equalsIgnoreCase(Util.fileName(localFileName)))
@@ -740,153 +582,6 @@ public class Main {
 
 		// cleanup executor
 		mirror.cancel();
-	}
-
-	private static void www(SimpleAddonRepository contentRepo, GameTypeRepository gameTypeRepo, DocumentRepository documentRepo,
-							ManagedContentRepository managedRepo, WikiRepository wikiRepo, CLI cli)
-		throws IOException {
-		if (cli.commands().length < 2) {
-			System.err.println("An output path must be specified!");
-			System.exit(2);
-		}
-
-		final Path outputPath = Paths.get(cli.commands()[1]).toAbsolutePath();
-		if (!Files.exists(outputPath)) {
-			System.out.println("Creating directory " + outputPath);
-			Files.createDirectories(outputPath);
-		} else if (!Files.isDirectory(outputPath)) {
-			System.err.println("Output path must be a directory!");
-			System.exit(4);
-		}
-
-		final boolean withSearch = Boolean.parseBoolean(cli.option("with-search", "false"));
-		final boolean withSubmit = Boolean.parseBoolean(cli.option("with-submit", "false"));
-		final boolean withLatest = Boolean.parseBoolean(cli.option("with-latest", "false"));
-		final boolean withFiles = Boolean.parseBoolean(cli.option("with-files", "true"));
-		final boolean withPackages = Boolean.parseBoolean(cli.option("with-packages", "false"));
-		final boolean withWikis = Boolean.parseBoolean(cli.option("with-wikis", "false"));
-		final boolean localImages = Boolean.parseBoolean(cli.option("local-images", "false"));
-		if (localImages) System.out.println("Will download a local copy of content images, this will take additional time.");
-
-		final SiteFeatures features = new SiteFeatures(localImages, withLatest, withSubmit, withSearch, withFiles, withWikis);
-
-		final Path staticOutput = outputPath.resolve("static");
-
-		final long start = System.currentTimeMillis();
-
-		// unpack static content
-		Templates.unpackResources("static.list", Files.createDirectories(staticOutput).getParent());
-
-		// prepare author names and aliases
-		Path authorPath = contentPath(cli).resolve(AUTHORS_DIR);
-		AuthorNames names = new AuthorNames(authorPath);
-		contentRepo.all().parallelStream()
-				   .filter(c -> !UNKNOWN.equalsIgnoreCase(c.author()))
-				   .sorted(Comparator.comparingInt(a -> a.author().length()))
-				   .forEachOrdered(c -> names.maybeAutoAlias(c.author));
-		AuthorNames.instance = Optional.of(names);
-		System.out.printf("Found %d author aliases and names%n", names.aliasCount());
-
-		final Set<SiteMap.Page> allPages = ConcurrentHashMap.newKeySet();
-
-		final Set<PageGenerator> generators = new HashSet<>();
-		generators.add(new Index(contentRepo, gameTypeRepo, documentRepo, managedRepo, outputPath, staticOutput, features));
-
-		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("content"))) {
-			// generate content pages
-			generators.addAll(
-				Arrays.asList(
-					new Maps(contentRepo, outputPath, staticOutput, features),
-					new MapPacks(contentRepo, outputPath, staticOutput, features),
-					new Skins(contentRepo, outputPath, staticOutput, features),
-					new Models(contentRepo, outputPath, staticOutput, features),
-					new Voices(contentRepo, outputPath, staticOutput, features),
-					new Mutators(contentRepo, outputPath, staticOutput, features)
-				));
-			if (withPackages) generators.add(new Packages(contentRepo, gameTypeRepo, managedRepo, outputPath, staticOutput, features));
-		}
-
-		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("authors"))) {
-			generators.add(new Authors(names, contentRepo, gameTypeRepo, managedRepo, outputPath, staticOutput, features));
-		}
-
-		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("docs"))) {
-			generators.add(new Documents(documentRepo, outputPath, staticOutput, features));
-		}
-
-		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("managed"))) {
-			generators.add(new ManagedContent(managedRepo, outputPath, staticOutput, features));
-		}
-
-		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("gametypes"))) {
-			generators.add(new GameTypes(gameTypeRepo, contentRepo, outputPath, staticOutput, features));
-		}
-
-		if (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("packages")) {
-			generators.add(new Packages(contentRepo, gameTypeRepo, managedRepo, outputPath, staticOutput, features));
-		}
-
-		if (features.wikis || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("wiki"))) {
-			generators.add(new Wiki(outputPath, staticOutput, features, wikiRepo));
-		}
-
-		if (features.submit) generators.add(new Submit(outputPath, staticOutput, features));
-		if (features.search) generators.add(new Search(outputPath, staticOutput, features));
-		if (features.latest) generators.add(new Latest(contentRepo, gameTypeRepo, managedRepo, outputPath, staticOutput, features));
-		if (features.files) generators.add(new FileDetails(contentRepo, outputPath, staticOutput, features));
-
-		ForkJoinPool myPool = new ForkJoinPool(Integer.parseInt(cli.option("concurrency", "4")));
-		myPool.submit(() -> {
-			generators.parallelStream().forEach(g -> {
-				System.out.printf("Generating %s pages%n", g.getClass().getSimpleName());
-				allPages.addAll(g.generate());
-			});
-		}).join();
-
-		System.out.println("Generating sitemap");
-		allPages.addAll(SiteMap.siteMap(SiteMap.SITE_ROOT, outputPath, allPages, 50000, features).generate());
-
-		System.out.printf("Output %d pages in %.2fs%n", allPages.size(), (System.currentTimeMillis() - start) / 1000f);
-	}
-
-	private static void searchSubmit(SimpleAddonRepository contentRepo, DocumentRepository documentRepo,
-									 ManagedContentRepository managedContentManager, WikiRepository wikiManager, CLI cli)
-		throws IOException {
-		// TODO documents, managed content, and gametypes
-
-		// meh
-		Path authorPath = contentPath(cli).resolve(AUTHORS_DIR);
-		AuthorNames names = new AuthorNames(authorPath);
-		contentRepo.all().parallelStream()
-				   .filter(c -> !UNKNOWN.equalsIgnoreCase(c.author()))
-				   .sorted(Comparator.comparingInt(a -> a.author().length()))
-				   .forEachOrdered(c -> names.maybeAutoAlias(c.author));
-		AuthorNames.instance = Optional.of(names);
-
-		final long start = System.currentTimeMillis();
-
-		MESSubmitter submitter = new MESSubmitter();
-
-		System.out.printf("Submitting content to search instance at %s%n",
-						  System.getenv().getOrDefault("MSE_CONTENT_URL", System.getenv().getOrDefault("MSE_URL", ""))
-		);
-
-		submitter.submit(contentRepo,
-						 System.getenv().getOrDefault("SITE_URL", ""),
-						 System.getenv().getOrDefault("MES_CONTENT_URL", System.getenv().getOrDefault("MES_URL", "")),
-						 System.getenv().getOrDefault("MES_CONTENT_TOKEN", System.getenv().getOrDefault("MES_TOKEN", "")), 50,
-						 percent -> System.out.printf("\r%.1f%% complete", percent * 100d),
-						 done -> System.out.printf("%nSearch submission complete in %.2fs%n",
-												   (System.currentTimeMillis() - start) / 1000f));
-
-		System.out.printf("Submitting wikis to search instance at %s%n", System.getenv().getOrDefault("MES_WIKI_URL", ""));
-		submitter.submit(wikiManager,
-						 System.getenv().getOrDefault("SITE_URL", ""),
-						 System.getenv().getOrDefault("MES_WIKI_URL", ""),
-						 System.getenv().getOrDefault("MES_WIKI_TOKEN", ""), 5,
-						 percent -> System.out.printf("\r%.1f%% complete", percent * 100d),
-						 done -> System.out.printf("%nSearch submission complete in %.2fs%n",
-												   (System.currentTimeMillis() - start) / 1000f));
 	}
 
 	private static void summary(SimpleAddonRepository repository) {
@@ -1137,33 +832,33 @@ public class Main {
 		System.out.println("Usage: unreal-archive.jar <command> [options]");
 		System.out.println();
 		System.out.println("Commands:");
-		System.out.println("  index <file, url ...> --content-path=<path> [--force=<true|false>]");
+		System.out.println("  index <file, url ...> [--content-path=<path> | --content-download] [--force=<true|false>]");
 		System.out.println("    Index the contents of files or paths, writing the results to <content-path>.");
 		System.out.println("    Optionally force re-indexing of existing content, rather than skipping it.");
-		System.out.println("  sync <kind> --content-path=<path>");
+		System.out.println("  sync <kind> [--content-path=<path> | --content-download]");
 		System.out.println("    Sync managed files' local files to remote storage.");
-		System.out.println("  scan <file, url ...> --content-path=<path>");
+		System.out.println("  scan <file, url ...> [--content-path=<path> | --content-download]");
 		System.out.println("    Dry-run scan the contents of files or paths, comparing to known content where possible.");
-		System.out.println("  edit <hash> --content-path=<path>");
+		System.out.println("  edit <hash> [--content-path=<path> | --content-download]");
 		System.out.println("    Edit the metadata for the <hash> provided. Relies on `sensible-editor` on Linux.");
-		System.out.println("  set <hash> <attribute> <new-value> --content-path=<path>");
+		System.out.println("  set <hash> <attribute> <new-value> [--content-path=<path> | --content-download]");
 		System.out.println("    Set <attribute> to value <new-value> within the metadata of the <hash> provided.");
 		System.out.println("  gametype <...>");
 		System.out.println("    Utilities for managing gametype content. Run `gametype` with no arguments for help.");
-		System.out.println("  local-mirror <output-path> --content-path=<path> [--concurrency=<count>]");
+		System.out.println("  local-mirror <output-path> [--content-path=<path> | --content-download] [--concurrency=<count>]");
 		System.out.println("    Create a local mirror of the content in <content-path> in local directory <output-path>.");
 		System.out.println("    Optionally specify the number of concurrent downloads via <count>, defaults to 3.");
-		System.out.println("  www <output-path> [docs|content] --content-path=<path>");
+		System.out.println("  www <output-path> [docs|content] [--content-path=<path> | --content-download]");
 		System.out.println("    Generate the HTML website for browsing content.");
-		System.out.println("  summary --content-path=<path>");
+		System.out.println("  summary [--content-path=<path> | --content-download]");
 		System.out.println("    Show stats and counters for the content index in <content-path>");
-		System.out.println("  ls [--game=<game>] [--type=<type>] [--author=<author>] --content-path=<path>");
+		System.out.println("  ls [--game=<game>] [--type=<type>] [--author=<author>] [--content-path=<path> | --content-download]");
 		System.out.println("    List indexed content in <content-path>, filtered by game, type or author");
-		System.out.println("  show [name ...] [hash ...] --content-path=<path>");
+		System.out.println("  show [name ...] [hash ...] [--content-path=<path> | --content-download]");
 		System.out.println("    Show data for the content items specified");
 		System.out.println("  unpack <umod-file> <destination>");
 		System.out.println("    Unpack the contents of <umod-file> to directory <destination>");
-		System.out.println("  install <file|hash> <destination>");
+		System.out.println("  install <file|hash> <destination> [--content-path=<path> | --content-download]");
 		System.out.println("    Extract and place the contents of <file> into the <destination> directory");
 		System.out.println("    provided. Files will be placed into appropriate sub-directories by file type,");
 		System.out.println("    eg. Maps, System, Textures, etc. If <hash> is provided, content will be downloaded");

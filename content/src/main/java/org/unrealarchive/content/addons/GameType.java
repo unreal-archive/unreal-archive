@@ -227,6 +227,12 @@ public class GameType implements ContentEntity<GameType> {
 		public int hashCode() {
 			return Objects.hash(title, version, releaseDate, description, deleted);
 		}
+
+		@Override
+		public String toString() {
+			return String.format("Release [title=%s, version=%s, releaseDate=%s, description=%s, files=%s, deleted=%s]",
+								 title, version, releaseDate, description, files, deleted);
+		}
 	}
 
 	public static class ReleaseFile {
@@ -275,6 +281,14 @@ public class GameType implements ContentEntity<GameType> {
 		public int hashCode() {
 			return Objects.hash(title, localFile, downloads, originalFilename, hash, fileSize, platform, synced, deleted, files, otherFiles,
 								dependencies);
+		}
+
+		@Override
+		public String toString() {
+			return String.format("ReleaseFile [title=%s, localFile=%s, platform=%s, downloads=%s, originalFilename=%s, hash=%s, "
+								 + "fileSize=%s, synced=%s, deleted=%s, files=%s, otherFiles=%s, dependencies=%s]",
+								 title, localFile, platform, downloads, originalFilename, hash, fileSize, synced, deleted, files,
+								 otherFiles, dependencies);
 		}
 	}
 
