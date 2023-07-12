@@ -4,38 +4,64 @@ import java.nio.file.StandardOpenOption
 
 plugins {
 	id 'java'
+	id 'application'
 	id 'java-library'
 	id 'maven-publish'
 	id 'jacoco'
+
+	id 'org.beryx.jlink' version '2.26.0'
 }
 
-group = 'org.unrealarchive'
-version = "1.0"
-if (System.getenv().containsKey("BUILD_NUMBER")) {
-	version += ".${System.env.BUILD_NUMBER}"
-} else version += ".DEV"
+application {
+	mainClassName = 'org.unrealarchive.www.Main'
+	mainModule = 'unreal.archive.www'
+}
 
-repositories {
-	mavenCentral()
+jar {
+	manifest {
+		attributes(
+				'Implementation-Title': project.name,
+				'Implementation-Version': project.version,
+				'Main-Class': mainClassName,
+		)
+	}
+}
+
+jlink {
+	mergedModuleName = "unreal.archive.www.merged"
+	options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+
+	imageName = "unreal-archive-${project.name}"
+	imageDir = file("${buildDir}/unreal-archive-${project.name}")
+
+	jpackage {
+		installerType = project.findProperty('installerType')
+	}
+}
+
+def tarBinary = artifacts.add('archives', layout.buildDirectory.file("unreal-archive-${project.name}.tgz").get().asFile) {
+	type 'tgz'
+	builtBy 'jlinkTar'
+}
+
+tasks.register('jlinkTar', Tar) {
+	dependsOn jlinkZip
+	archiveFileName = "${jlink.imageName.get()}.tgz"
+	destinationDirectory = file("${buildDir}")
+	compression = Compression.GZIP
+
+	into("${jlink.imageName.get()}") {
+		from jlink.imageDir
+	}
 }
 
 publishing {
-	repositories {
-		maven {
-			name = "ShrimpWorks"
-			url = 'https://code.shrimpworks.za.net/artefacts/'
-			authentication {
-				basic(BasicAuthentication)
-			}
-			credentials(PasswordCredentials) {
-				username = "${System.env.ARTEFACTS_USER}"
-				password = "${System.env.ARTEFACTS_PASSWORD}"
-			}
-		}
-	}
 	publications {
-		maven(MavenPublication) {
-			from components.java
+		mavenLatest(MavenPublication) {
+			pom {
+				version = "latest"
+			}
+			artifact tarBinary
 		}
 	}
 }
@@ -78,14 +104,11 @@ processResources.doLast {
 
 	Files.write(destFile, staticList.toString().replaceAll("\\\\", "/").getBytes(StandardCharsets.UTF_8),
 			StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
-}
 
-test {
-	useJUnitPlatform()
-}
-
-jacocoTestReport {
-	reports {
-		xml.required = true
-	}
+	// write version resource file
+	Files.write(
+			Files.createDirectories(buildDir.toPath().resolve('resources/main/org/unrealarchive/www')).resolve('VERSION'),
+			"${project.version}".getBytes(StandardCharsets.UTF_8),
+			StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING
+	)
 }

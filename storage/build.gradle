@@ -7,37 +7,6 @@ plugins {
 	id 'org.gradlex.extra-java-module-info' version '1.4'
 }
 
-group = 'org.unrealarchive'
-version = "1.0"
-if (System.getenv().containsKey("BUILD_NUMBER")) {
-	version += ".${System.env.BUILD_NUMBER}"
-} else version += ".DEV"
-
-repositories {
-	mavenCentral()
-}
-
-publishing {
-	repositories {
-		maven {
-			name = "ShrimpWorks"
-			url = 'https://code.shrimpworks.za.net/artefacts/'
-			authentication {
-				basic(BasicAuthentication)
-			}
-			credentials(PasswordCredentials) {
-				username = "${System.env.ARTEFACTS_USER}"
-				password = "${System.env.ARTEFACTS_PASSWORD}"
-			}
-		}
-	}
-	publications {
-		maven(MavenPublication) {
-			from components.java
-		}
-	}
-}
-
 dependencies {
 	implementation project(':common')
 
@@ -56,15 +25,5 @@ extraJavaModuleInfo {
 		exports("io.minio")
 		exports("io.minio.errors")
 		exports("io.minio.messages")
-	}
-}
-
-test {
-	useJUnitPlatform()
-}
-
-jacocoTestReport {
-	reports {
-		xml.required = true
 	}
 }

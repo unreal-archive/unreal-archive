@@ -38,6 +38,11 @@ import static org.unrealarchive.content.addons.Addon.UNKNOWN;
 
 public class Main {
 
+	static {
+		// prepare the version
+		Version.setVersion(Main.class);
+	}
+
 	public static void main(String[] args) throws IOException {
 		System.err.printf("Unreal Archive WWW version %s%n", Version.version());
 
