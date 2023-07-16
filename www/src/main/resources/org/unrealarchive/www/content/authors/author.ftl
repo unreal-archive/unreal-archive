@@ -23,11 +23,15 @@
 			<#list contents as c>
 				<#assign bg="">
 				<#if c.leadImage?has_content>
-					<#assign bg=urlEncode(c.leadImage)>
+					<#if c.leadImage?contains("://")>
+						<#assign bg=urlEncode(c.leadImage)>
+					<#else>
+            <#assign bg=rootPath(c.leadImage)>
+					</#if>
 				</#if>
 
 				<li style='background-image: url("${bg}")'>
-					<a href="${relPath(c.slugPath(siteRoot) + ".html")}">${c.name}</a>
+					<a href="${relPath(c.pagePath(siteRoot))}">${c.name}</a>
 				</li>
 			</#list>
 		</ul>

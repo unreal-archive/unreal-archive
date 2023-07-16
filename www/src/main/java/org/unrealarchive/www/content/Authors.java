@@ -199,6 +199,13 @@ public class Authors extends ContentPageGenerator {
 								.filter(e -> e.leadImage() != null && !e.leadImage().isBlank())
 								.map(ContentEntity::leadImage)
 								.findAny()
+								.map(i -> {
+									// a remote URL of some sort
+									if (i.contains("://")) return i;
+
+									// a local path - make it relative
+									return path.relativize(siteRoot.resolve(i)).toString();
+								})
 								.orElse(null);
 		}
 

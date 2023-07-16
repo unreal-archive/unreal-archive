@@ -65,7 +65,8 @@ public class Templates {
 	private static final Map<String, Object> TPL_VARS = new HashMap<>();
 
 	static {
-		TPL_VARS.put("relPath", new RelPageMethod());
+		TPL_VARS.put("relPath", new RelPathMethod());
+		TPL_VARS.put("rootPath", new RootPathMethod());
 		TPL_VARS.put("relUrl", new RelUrlMethod());
 		TPL_VARS.put("urlEncode", new UrlEncodeMethod());
 		TPL_VARS.put("urlHost", new UrlHostMethod());
@@ -250,7 +251,7 @@ public class Templates {
 		}
 	}
 
-	private static class RelPageMethod implements TemplateMethodModelEx {
+	private static class RelPathMethod implements TemplateMethodModelEx {
 
 		public Object exec(List args) throws TemplateModelException {
 			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a path");
@@ -258,6 +259,19 @@ public class Templates {
 			if (pagePath == null) throw new TemplateModelException("A pagePath variable was not found");
 
 			return Paths.get(pagePath.toString()).relativize(Paths.get(args.get(0).toString()));
+		}
+	}
+
+	private static class RootPathMethod implements TemplateMethodModelEx {
+
+		public Object exec(List args) throws TemplateModelException {
+			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a path");
+			TemplateModel pagePath = Environment.getCurrentEnvironment().getVariable("pagePath");
+			if (pagePath == null) throw new TemplateModelException("A pagePath variable was not found");
+			TemplateModel siteRoot = Environment.getCurrentEnvironment().getVariable("siteRoot");
+			if (siteRoot == null) throw new TemplateModelException("A pagePath variable was not found");
+
+			return Paths.get(pagePath.toString()).relativize(Paths.get(siteRoot.toString()).resolve(Paths.get(args.get(0).toString())));
 		}
 	}
 
@@ -407,9 +421,6 @@ public class Templates {
 	private static class StaticPathMethod implements TemplateMethodModelEx {
 
 		public Object exec(List args) throws TemplateModelException {
-			if (!args.isEmpty()) System.err.printf("Deprecation warning: `staticPath` takes no arguments in %s.%n",
-												   Environment.getCurrentEnvironment().getCurrentTemplate().getName());
-
 			if (!STATIC_ROOT.isEmpty()) return STATIC_ROOT;
 
 			TemplateModel pagePath = Environment.getCurrentEnvironment().getVariable("pagePath");

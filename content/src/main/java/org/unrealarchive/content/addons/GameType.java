@@ -143,7 +143,9 @@ public class GameType implements ContentEntity<GameType> {
 
 	@Override
 	public String leadImage() {
-		return slugPath(Paths.get("")).resolve(titleImage).toString();
+		String maybe = (titleImage == null || titleImage.isBlank()) ? bannerImage : titleImage;
+		if (maybe == null || maybe.isBlank()) return "";
+		return slugPath(Paths.get("")).resolve(maybe).toString();
 	}
 
 	@Override
