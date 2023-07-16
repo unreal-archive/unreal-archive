@@ -56,6 +56,7 @@ public class Main {
 		switch (cli.commands()[0].toLowerCase()) {
 			case "www" -> www(contentRepo(cli), gameTypeRepo(cli), documentRepo(cli), managedRepo(cli), wikiRepo(cli), cli);
 			case "search-submit" -> searchSubmit(contentRepo(cli), documentRepo(cli), managedRepo(cli), wikiRepo(cli), cli);
+			case "summary" -> System.out.println(contentRepo(cli).summary());
 			default -> {
 				System.out.printf("Command \"%s\" does not exist!%n%n", cli.commands()[0]);
 				usage();
@@ -216,7 +217,11 @@ public class Main {
 		System.out.println("Usage: unreal-archive.jar <command> [options]");
 		System.out.println();
 		System.out.println("Commands:");
-		System.out.println("  www <output-path> [docs|content] --content-path=<path>");
+		System.out.println("  www <output-path> [--content-path=<path> | --content-download]");
 		System.out.println("    Generate the HTML website for browsing content.");
+		System.out.println("  search-submit [--content-path=<path> | --content-download]");
+		System.out.println("    Sync search metadata with a search service.");
+		System.out.println("  summary [--content-path=<path> | --content-download]");
+		System.out.println("    Show stats and counters for the content index in <content-path>");
 	}
 }

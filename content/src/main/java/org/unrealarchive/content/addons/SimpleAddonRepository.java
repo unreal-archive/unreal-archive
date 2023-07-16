@@ -41,17 +41,27 @@ public interface SimpleAddonRepository {
 	/**
 	 * Get the total number of items by content type.
 	 */
-	public Map<Class<? extends Addon>, Long> countByType();
+	default public Map<Class<? extends Addon>, Long> countByType() {
+		return countByType(null);
+	}
 
 	/**
 	 * Get the total number of items by content type, for the game specified.
 	 */
-	public Map<Class<? extends Addon>, Long> countByType(String game);
+	default public Map<Class<? extends Addon>, Long> countByType(String game) {
+		return all(false)
+			.stream()
+			.filter(c -> game == null || c.game.equals(game))
+			.collect(Collectors.groupingBy(Addon::getClass, Collectors.counting()));
+	}
 
 	/**
 	 * Get the total number of content items by game.
 	 */
-	public Map<String, Long> countByGame();
+	default public Map<String, Long> countByGame() {
+		return all(false).stream()
+						 .collect(Collectors.groupingBy(c -> c.game, Collectors.counting()));
+	}
 
 	/**
 	 * Search the repository for content items matching one or more of the provided attributes.
@@ -134,6 +144,27 @@ public interface SimpleAddonRepository {
 	 */
 	public int gc();
 
+	default public String summary() {
+		StringBuilder result = new StringBuilder();
+		Map<Class<? extends Addon>, Long> byType = countByType();
+		if (byType.size() > 0) {
+			result.append("Current content by Type:").append(System.lineSeparator());
+			byType.forEach((type, count) -> result.append(String.format(" > %s: %d%n", type.getSimpleName(), count)));
+
+			result.append("Current content by Game:").append(System.lineSeparator());
+			countByGame().forEach((game, count) -> {
+				result.append(String.format(" > %s: %d%n", game, count));
+				countByType(game).forEach(
+					(type, typeCount) -> result.append(String.format("   > %s: %d%n", type.getSimpleName(), typeCount))
+				);
+			});
+		} else {
+			result.append("Content repository is empty!").append(System.lineSeparator());
+		}
+
+		return result.toString();
+	}
+
 	public static class FileRepository implements SimpleAddonRepository {
 
 		private static final int CONTENT_INITIAL_SIZE = 60000;
@@ -191,30 +222,6 @@ public interface SimpleAddonRepository {
 		@Override
 		public long fileSize() {
 			return content.values().parallelStream().mapToLong(c -> c.fileSize).sum();
-		}
-
-		@Override
-		public Map<Class<? extends Addon>, Long> countByType() {
-			return countByType(null);
-		}
-
-		@Override
-		public Map<Class<? extends Addon>, Long> countByType(String game) {
-			return content.values().parallelStream()
-						  .filter(c -> !c.isVariation && !c.deleted)
-						  .map(ContentHolder::content)
-						  .filter(Objects::nonNull)
-						  .filter(c -> game == null || c.game.equals(game))
-						  .collect(Collectors.groupingBy(Addon::getClass, Collectors.counting()));
-		}
-
-		@Override
-		public Map<String, Long> countByGame() {
-			return content.values().parallelStream()
-						  .filter(c -> !c.isVariation && !c.deleted)
-						  .map(ContentHolder::content)
-						  .filter(Objects::nonNull)
-						  .collect(Collectors.groupingBy(c -> c.game, Collectors.counting()));
 		}
 
 		@Override

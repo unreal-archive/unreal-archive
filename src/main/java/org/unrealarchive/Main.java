@@ -105,12 +105,8 @@ public class Main {
 			case "local-mirror":
 				localMirror(contentRepo(cli), cli);
 				break;
-			case "www":
-			case "search-submit":
-				org.unrealarchive.www.Main.main(args);
-				break;
 			case "summary":
-				summary(contentRepo(cli));
+				contentRepo(cli).summary();
 				break;
 			case "ls":
 				list(contentRepo(cli), cli);
@@ -584,24 +580,6 @@ public class Main {
 		mirror.cancel();
 	}
 
-	private static void summary(SimpleAddonRepository repository) {
-		Map<Class<? extends Addon>, Long> byType = repository.countByType();
-		if (byType.size() > 0) {
-			System.out.println("Current content by Type:");
-			byType.forEach((type, count) -> System.out.printf(" > %s: %d%n", type.getSimpleName(), count));
-
-			System.out.println("Current content by Game:");
-			repository.countByGame().forEach((game, count) -> {
-				System.out.printf(" > %s: %d%n", game, count);
-				repository.countByType(game).forEach(
-					(type, typeCount) -> System.out.printf("   > %s: %d%n", type.getSimpleName(), typeCount)
-				);
-			});
-		} else {
-			System.out.println("No content stored yet");
-		}
-	}
-
 	private static void list(SimpleAddonRepository repository, CLI cli) {
 		String game = cli.option("game", null);
 		String type = cli.option("type", null);
@@ -848,8 +826,6 @@ public class Main {
 		System.out.println("  local-mirror <output-path> [--content-path=<path> | --content-download] [--concurrency=<count>]");
 		System.out.println("    Create a local mirror of the content in <content-path> in local directory <output-path>.");
 		System.out.println("    Optionally specify the number of concurrent downloads via <count>, defaults to 3.");
-		System.out.println("  www <output-path> [docs|content] [--content-path=<path> | --content-download]");
-		System.out.println("    Generate the HTML website for browsing content.");
 		System.out.println("  summary [--content-path=<path> | --content-download]");
 		System.out.println("    Show stats and counters for the content index in <content-path>");
 		System.out.println("  ls [--game=<game>] [--type=<type>] [--author=<author>] [--content-path=<path> | --content-download]");

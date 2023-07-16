@@ -14,7 +14,7 @@ plugins {
 
 allprojects {
 	group = 'org.unrealarchive'
-	version = "1.12"
+	version = "1.13"
 	if (System.getenv().containsKey("BUILD_NUMBER")) {
 		version += ".${System.env.BUILD_NUMBER}"
 	} else version += ".DEV"
@@ -115,7 +115,6 @@ dependencies {
 	implementation project(':common')
 	implementation project(':storage')
 	implementation project(':content')
-	implementation project(':www')
 
 	implementation 'net.shrimpworks:unreal-package-lib:1.10.24'
 	implementation 'net.shrimpworks:package-dependency:1.4.21'

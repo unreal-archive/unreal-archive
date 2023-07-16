@@ -18,7 +18,7 @@
 <@content class="biglist taller">
 
 	<#list author.contents as group, contents>
-		<h2>${group}</h2>
+		<h2>${contents?size} ${group}<#if contents?size gt 1>s</#if></h2>
 		<ul>
 			<#list contents as c>
 				<#assign bg="">
