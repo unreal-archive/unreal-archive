@@ -11,7 +11,12 @@
 		this.lightbox = document.createElement('a');
 		this.img = document.createElement('img');
 
-		this.lightbox.setAttribute('href', '#_');
+		// this.lightbox.setAttribute('href', '#_');
+		this.lightbox.addEventListener('click', e => {
+			e.preventDefault();
+			document.location.replace('#');
+		});
+
 		this.lightbox.setAttribute('id', 'lb');
 		this.lightbox.classList.add('lightbox');
 		this.lightbox.appendChild(this.img);
@@ -20,12 +25,17 @@
 
 		// special case, for small native images, let's just make them bigger
 		this.img.addEventListener('load', () => {
-			if (this.img.width < 300 && this.img.height < 300) {
-				this.img.setAttribute('width', this.img.width * 2);
-				// this.img.setAttribute('height', this.img.height * 2);
+			let w = this.img.width;
+			let h = this.img.height;
+			if (this.img.width <= 512 && !this.img.getAttribute('sized')) {
+				w *= 2;
+				h *= 2;
 			}
-			this.img.style.top = `calc(50% - ${img.height / 2}px`;
-			this.img.style.left = `calc(50% - ${img.width / 2}px`;
+			this.img.setAttribute('width', w);
+			this.img.setAttribute('height', h);
+			this.img.setAttribute('sized', 1);
+			this.img.style.left = `calc(50% - ${w / 2}px)`;
+			this.img.style.top = `calc(50% - ${h / 2}px)`;
 		});
 
 		/* now we can look for image links on the page */
@@ -34,7 +44,7 @@
 
 	/**
 	 * Search through all links to images on the page. Any image link will
-	 * have it's target appear in the lightbox, if Javascript is available,
+	 * have its target appear in the lightbox, if Javascript is available,
 	 * otherwise it will function as a normal link, still supporting middle-
 	 * clicking et al.
 	 */
@@ -49,7 +59,7 @@
 				e.preventDefault();
 				if (l.hasAttribute('href')) this.setImage(l.href);
 				else this.setImage(l.src);
-				document.location = '#lb';
+				document.location.replace('#lb');
 			});
 			l.style.cursor = 'pointer';
 		});
@@ -60,7 +70,8 @@
 	 */
 	this.setImage = function(img) {
 		this.img.removeAttribute('width');
-		// this.img.removeAttribute('height');
+		this.img.removeAttribute('height');
+		this.img.removeAttribute('sized');
 
 		this.img.setAttribute('src', img);
 	}
