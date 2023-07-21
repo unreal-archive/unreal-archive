@@ -251,7 +251,7 @@ section.intro h1 {
 }
 
 section.header {
-	height: 150px;
+	height: 200px;
 	box-shadow: var(--section-header-shadow);
 	background: var(--section-header-bg) center;
 	background-size: cover;
@@ -265,7 +265,7 @@ section.header .page {
 }
 
 section.header h1 {
-	font-size: 2.5em;
+	font-size: 4em;
 	word-break: keep-all;
 	color: var(--section-header-title-color);
 	text-shadow: var(--header-outline-shadow);
@@ -273,7 +273,7 @@ section.header h1 {
 	margin: auto 0 0 0;
 	background-color: var(--section-header-title-bg);
 	box-shadow: var(--section-header-title-shadow);
-	/*border-radius: 5px 5px 0 0;*/
+	border-radius: 5px 5px 0 0;
 }
 
 section.header h1 a {
@@ -286,7 +286,13 @@ section.header h1 a:hover {
 }
 
 section.header .crumbs {
-	font-size: 0.75em;
+	font-size: 0.4em;
+	display: block;
+}
+
+section.header .crumbs:not(:first-child) {
+	font-size: 0.5em;
+	display: inline;
 }
 
 .biglist ul {
@@ -671,58 +677,58 @@ button img, td img {
 /*
   special styling for gametypes
  */
-.credits li.group {
+#gametype .credits li.group {
 	font-weight: bold;
 }
 
-.credits .names {
+#gametype .credits .names {
 	font-weight: normal;
 }
 
-.variations .variation {
+#gametype .variations .variation {
 	padding: 5px 20px;
 }
 
-.variations .variation:hover {
+#gametype .variations .variation:hover {
 	background-color: var(--table-row-hover);
 }
 
-.variations .variation img {
+#gametype .variations .variation img {
 	vertical-align: middle;
 }
 
-section.releases .release {
+#gametype section.releases .release {
 	padding-bottom: 10px;
 }
 
-section.releases .release:hover {
+#gametype section.releases .release:hover {
 	background-color: var(--document-meta-bg);
 }
 
-section.releases .release:not(:last-child) {
+#gametype section.releases .release:not(:last-child) {
 	border-bottom: 1px solid var(--document-meta-border);
 }
 
-section.releases .release .title {
+#gametype section.releases .release .title {
 	padding: 5px;
 	font-weight: bold;
 	background-color: var(--table-header-bg);
 }
 
-section.releases .release .info {
+#gametype section.releases .release .info {
 	padding: 5px;
 	vertical-align: top;
 	display: inline-block;
 	width: calc(50% - 5px);
 }
 
-section.releases .release .links {
+#gametype section.releases .release .links {
 	vertical-align: top;
 	display: inline-block;
 	width: 45%;
 }
 
-section.releases .release .links a {
+#gametype section.releases .release .links a {
 	display: block;
 	width: 100%;
 	height: 100%;
@@ -733,41 +739,41 @@ section.releases .release .links a {
 	text-decoration: none;
 }
 
-section.releases .release .links a:hover {
+#gametype section.releases .release .links a:hover {
 	background-color: var(--download-button-bg-hover);
 }
 
-section.contents .maps {
+#gametype section.contents .maps {
 	display: flex;
 	flex-wrap: wrap;
 }
 
-section.contents .maps .map {
+#gametype section.contents .maps .map {
 	display: inline-flex;
 	padding: 10px 0 10px 0;
 	width: 49%;
 }
 
-section.contents .maps .map .image {
+#gametype section.contents .maps .map .image {
 	padding-right: 10px;
 }
 
-section.contents .maps .map .image img {
+#gametype section.contents .maps .map .image img {
 	min-width: 80px;
 	max-width: 80px;
 	max-height: 80px;
 	border-radius: 5px;
 }
 
-section.contents .maps .map .info {
+#gametype section.contents .maps .map .info {
 }
 
-section.contents .maps .map .info .title {
+#gametype section.contents .maps .map .info .title {
 	font-size: 1.1em;
 	font-weight: bold;
 }
 
-section.contents .maps .map .info .description {
+#gametype section.contents .maps .map .info .description {
 	font-size: 0.9em;
 	font-style: italic;
 	padding-bottom: 5px;

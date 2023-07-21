@@ -26,7 +26,7 @@
 				/</span> ${gametype.gametype.name}
 	</@heading>
 
-	<@content class="split split6040">
+	<@content class="split split6040" id="gametype">
 		<div class="left">
 			<section>
 				<h2><img src="${staticPath()}/images/icons/info.svg" alt="About"/> About</h2>

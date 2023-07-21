@@ -10,7 +10,7 @@
 			<#t/>'
 		<#t/></#if>
 	<#t/></#assign>
-  <section class="page header" ${style!""} xmlns="http://www.w3.org/1999/html">
+  <section class="header" ${style!""}>
 		<div class="page">
 			<h1>
 				<#nested/>
@@ -20,9 +20,9 @@
   </#compress>
 </#macro>
 
-<#macro content class="">
+<#macro content class="" id="content">
 	<div class="page contentpage">
-		<article <#if class?length gt 0>class="${class}"</#if>>
+		<article id="${id}" <#if class?length gt 0>class="${class}"</#if>>
 			<#nested>
 		</article>
 	</div>
@@ -332,7 +332,7 @@
 
 <#macro tline timeline game activeYear=0 activeMonth=0>
 	<#compress>
-	<div id="timeline" class="nomobile">
+	<div id="timeline" class="page nomobile">
 		<#assign tlMax=0 />
 		<#list timeline as year, months>
 			<#list months as month, count>

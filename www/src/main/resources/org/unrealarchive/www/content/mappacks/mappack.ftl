@@ -64,7 +64,7 @@
 
 			<@variations variations=pack.variations/>
 
-			<section class="maps">
+			<section class="contents">
 				<h2><img src="${staticPath()}/images/icons/list.svg" alt="Maps"/>Maps</h2>
 				<table>
 					<thead>

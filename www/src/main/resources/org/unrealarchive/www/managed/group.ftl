@@ -3,6 +3,7 @@
 
 	<@heading bg=["${staticPath()}/images/contents/patches.png"]>
 		<#list groupPath as p>
+		  <#if p?is_first && p?has_next><span class="crumbs"><#elseif !p?is_first && p?is_last></span></#if>
 			<a href="${relPath(p.path + "/index.html")}">${p.name}</a>
 			<#if p?has_next>/</#if>
 		</#list>

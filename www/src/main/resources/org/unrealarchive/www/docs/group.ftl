@@ -2,11 +2,14 @@
 <#include "../macros.ftl">
 
 	<@heading bg=["${staticPath()}/images/contents/documents.png"]>
-		<span class="crumbs">
-			<a href="${relPath(sectionPath + "/index.html")}">Articles & Guides</a>
-		</span>
+		<#if groupPath?size gt 0 && groupPath[0].name?length gt 0><span class="crumbs"></#if>
+		<a href="${relPath(sectionPath + "/index.html")}">Guides &amp; Reference</a>
 		<#list groupPath as p>
-			/ <a href="${relPath(p.path + "/index.html")}">${p.name}</a>
+			<#if p.name?length gt 0>/</#if>
+			<#if p?is_last></span></#if>
+			<#if p.name?length gt 0>
+				<a href="${relPath(p.path + "/index.html")}">${p.name}</a>
+			</#if>
 		</#list>
 	</@heading>
 
@@ -53,9 +56,6 @@
 							<td nowrap="nowrap" class="nomobile">${d.document.createdDate}</td>
 							<td nowrap="nowrap">${d.document.updatedDate}</td>
 						</tr>
-<#--						<tr>-->
-<#--							<td colspan="4"></td>-->
-<#--						</tr>-->
 					</#list>
 				</tbody>
 			</table>

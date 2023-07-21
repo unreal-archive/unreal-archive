@@ -8,7 +8,7 @@
 	<ul>
 		<li style='background-image: url("${staticPath()}/images/contents/t_documents.png")'>
 			<span class="meta">${count.Documents}</span>
-			<a href="documents/index.html">Guides &amp; Articles</a>
+			<a href="documents/index.html">Guides &amp; Reference</a>
 		</li>
 		<li style='background-image: url("${staticPath()}/images/contents/t_patches.png")'>
 			<span class="meta">${count.Updates}</span>

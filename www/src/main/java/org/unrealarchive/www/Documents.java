@@ -76,7 +76,6 @@ public class Documents implements PageGenerator {
 			grp = grp.parent;
 		}
 
-		// FIXME looks like this should use grp rather than group?
 		pages.add("group.ftl", SiteMap.Page.weekly(0.6f), String.join(" / ", SECTION, String.join(" / ", group.parentPath.split("/"))))
 			 .put("groupPath", groupPath)
 			 .put("group", group)

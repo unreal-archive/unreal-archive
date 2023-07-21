@@ -45,7 +45,7 @@
 				<section>
 					<h2 id="${file.hash}"><img src="${staticPath()}/images/icons/package.svg" alt="Files"/> File</h2>
 					<div class="label-value">
-						<label>Name</label><span>${file.name}</span>
+						<label>Name</label><span><a href="${relPath(siteRoot + "/files/" + file.hash[0..1] + "/" + file.hash + ".html")}">${file.name}</a></span>
 					</div>
 					<div class="label-value">
 						<label>Type</label><span>${type}</span>

@@ -9,8 +9,10 @@
 
 	<@heading bg=[ogImage]>
 		<a href="${relPath(sectionPath + "/index.html")}">Authors</a>
-		<#if page?? && letters?size gt 1>/ ${page.letter.letter}</#if>
-		<#if page?? && page.letter.pages?size gt 1>/ pg ${page.number}</#if>
+		<span class="crumbs">
+			<#if page?? && letters?size gt 1>/ ${page.letter.letter}</#if>
+			<#if page?? && page.letter.pages?size gt 1>/ pg ${page.number}</#if>
+		</span>
 	</@heading>
 
 	<@content class="biglist bigger">

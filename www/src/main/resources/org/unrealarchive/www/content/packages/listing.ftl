@@ -7,9 +7,9 @@
 <#include "../../macros.ftl">
 
 	<@heading bg=["${staticPath(static)}/images/games/${game.name}.png"]>
-			<a href="${siteRoot}/index.html">Package Browser</a>
+			<span class="crumbs"><a href="${siteRoot}/index.html">Package Browser</a>
 			/ <a href="${relUrl(siteRoot, game.path)}/index.html">${game.name}</a>
-			/ ${page.letter.letter}
+			/</span> ${page.letter.letter}
 	</@heading>
 
 	<@content class="list">

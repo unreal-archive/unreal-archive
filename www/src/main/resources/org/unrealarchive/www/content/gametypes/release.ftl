@@ -21,7 +21,7 @@
 				/</span> ${release.title} ${release.version}
 	</@heading>
 
-	<@content class="split split7030">
+	<@content class="split split7030" id="gametype-release">
 		<div class="left">
 			<section>
  				<h2><img src="${staticPath()}/images/icons/list.svg" alt="Release Files"/> ${gametype.gametype.name} ${release.title} ver ${release.version} Files</h2>

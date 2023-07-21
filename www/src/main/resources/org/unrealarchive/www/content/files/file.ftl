@@ -4,7 +4,8 @@
 <#include "../../macros.ftl">
 
 	<@heading bg=[ogImage]>
-		File / ${file.name}
+		<span class="crumbs">File /</span>
+		${file.name}
 	</@heading>
 
 	<@content class="biglist">

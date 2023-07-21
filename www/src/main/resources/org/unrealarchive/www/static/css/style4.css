@@ -31,7 +31,7 @@
 
 	--section-header-bg: var(--p4);
 	--section-header-shadow: none;
-	--section-header-title-bg: rgba(170, 170, 180, 0.5);
+	--section-header-title-bg: rgba(170, 170, 180, 0.3);
 	--section-header-title-shadow: none;
 	--section-header-title-color: white;
 	--section-header-title-color-hover: var(--p2);
@@ -134,9 +134,9 @@ article.info .screenshots .thumb {
 	padding: 15px 0;
 }
 
-section.header, section.header h1 {
-	border-radius: 0 0 4px 4px;
-}
+/*section.header, section.header h1 {*/
+/*	border-radius: 0 0 4px 4px;*/
+/*}*/
 
 section.report {
 	background-color: transparent;

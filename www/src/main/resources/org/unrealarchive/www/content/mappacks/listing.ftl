@@ -9,8 +9,8 @@
 	<@heading bg=[ogImage, "${staticPath()}/images/games/${game.name}.png"]>
 		<span class="crumbs">
 			<a href="${relPath(sectionPath + "/index.html")}">Map Packs</a>
-			/</span> <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
-		/ <a href="${relPath(gametype.path + "/index.html")}">${gametype.name}</a>
+			/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
+		/</span> <a href="${relPath(gametype.path + "/index.html")}">${gametype.name}</a>
 		<span class="crumbs">
 			<#if pages?size gt 1>/ pg ${page.number}</#if>
 		</span>
