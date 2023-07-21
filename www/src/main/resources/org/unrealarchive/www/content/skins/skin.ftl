@@ -65,32 +65,7 @@
 
 			<@meta title="Skin Information" labels=labels values=values styles=styles/>
 
-			<#if skin.variations?size gt 0>
-				<section class="variations">
-					<h2><img src="${staticPath()}/images/icons/variant.svg" alt="Variations"/>Variations</h2>
-					<table>
-						<thead>
-						<tr>
-							<th>Name</th>
-							<th>Release Date (est)</th>
-							<th>File Name</th>
-							<th>File Size</th>
-						</tr>
-						</thead>
-						<tbody>
-							<#list skin.variations as v>
-							<tr>
-								<td><a href="${relPath(v.path + ".html")}">${v.item.name}</a></td>
-								<td>${v.item.releaseDate}</td>
-								<td>${v.item.originalFilename}</td>
-								<td>${fileSize(v.item.fileSize)}</td>
-							</tr>
-							</#list>
-						</tbody>
-					</table>
-				</section>
-			</#if>
-
+			<@variations variations=skin.variations/>
 
 			<@files files=skin.item.files alsoIn=skin.alsoIn otherFiles=skin.item.otherFiles/>
 

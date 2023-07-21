@@ -33,44 +33,7 @@
 
 		<div class="info">
 
-			<#assign themes>
-				<#if map.item.themes?size gt 0>
-					<#list map.item.themes as theme, weight>
-						<div class="themes">
-							<#if weight lt 0.2>
-								<img src="${staticPath()}/images/icons/circle.svg" alt="${weight * 100}%"/>
-								<#list 0..3 as n>
-									<img src="${staticPath()}/images/icons/circle-dotted.svg" alt="${weight * 100}%"/>
-								</#list>
-							<#elseif weight lt 0.4>
-								<#list 0..1 as n>
-									<img src="${staticPath()}/images/icons/circle.svg" alt="${weight * 100}%"/>
-								</#list>
-								<#list 0..2 as n>
-									<img src="${staticPath()}/images/icons/circle-dotted.svg" alt="${weight * 100}%"/>
-								</#list>
-							<#elseif weight lt 0.6>
-								<#list 0..2 as n>
-									<img src="${staticPath()}/images/icons/circle.svg" alt="${weight * 100}%"/>
-								</#list>
-								<#list 0..1 as n>
-									<img src="${staticPath()}/images/icons/circle-dotted.svg" alt="${weight * 100}%"/>
-								</#list>
-							<#elseif weight lt 0.8>
-								<#list 0..3 as n>
-									<img src="${staticPath()}/images/icons/circle.svg" alt="${weight * 100}%"/>
-								</#list>
-								<img src="${staticPath()}/images/icons/circle-dotted.svg" alt="${weight * 100}%"/>
-							<#else>
-								<#list 0..4 as n>
-									<img src="${staticPath()}/images/icons/circle.svg" alt="${weight * 100}%"/>
-								</#list>
-							</#if>
-							<span>${theme}</span>
-						</div>
-					</#list>
-				<#else></#if>
-			</#assign>
+			<#assign themes><@themes themes=map.item.themes/></#assign>
 
 			<#assign author><span title="${map.item.author}"><@authorLink map.item.authorName /></span></#assign>
 			<#assign
@@ -109,31 +72,7 @@
 
 			<@meta title="Map Information" labels=labels values=values styles=styles/>
 
-			<#if map.variations?size gt 0>
-				<section class="variations">
-					<h2><img src="${staticPath()}/images/icons/variant.svg" alt="Variations"/>Variations</h2>
-					<table>
-						<thead>
-						<tr>
-							<th>Name</th>
-							<th>Release Date (est)</th>
-							<th>File Name</th>
-							<th>File Size</th>
-						</tr>
-						</thead>
-						<tbody>
-							<#list map.variations as v>
-							<tr>
-								<td><a href="${relPath(v.path + ".html")}">${v.item.name}</a></td>
-								<td>${v.item.releaseDate}</td>
-								<td>${v.item.originalFilename}</td>
-								<td>${fileSize(v.item.fileSize)}</td>
-							</tr>
-							</#list>
-						</tbody>
-					</table>
-				</section>
-			</#if>
+			<@variations variations=map.variations/>
 
 			<@files files=map.item.files alsoIn=map.alsoIn otherFiles=map.item.otherFiles/>
 

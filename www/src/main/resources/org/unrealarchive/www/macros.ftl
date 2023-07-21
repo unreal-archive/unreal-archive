@@ -160,6 +160,36 @@
   </#compress>
 </#macro>
 
+<#macro variations variations h="h2">
+	<#compress>
+	<#if variations?size gt 0>
+		<section class="variations">
+			<${h}><img src="${staticPath()}/images/icons/variant.svg" alt="Variations"/>Variations</${h}>
+			<table>
+				<thead>
+				<tr>
+					<th>Name</th>
+					<th>Release Date (est)</th>
+					<th>File Name</th>
+					<th>File Size</th>
+				</tr>
+				</thead>
+				<tbody>
+				<#list variations as v>
+					<tr>
+						<td><a href="${relPath(v.path + ".html")}">${v.item.name}</a></td>
+						<td>${v.item.releaseDate}</td>
+						<td>${v.item.originalFilename}</td>
+						<td>${fileSize(v.item.fileSize)}</td>
+					</tr>
+				</#list>
+				</tbody>
+			</table>
+		</section>
+	</#if>
+  </#compress>
+</#macro>
+
 <#macro ghIssue text repoUrl title name hash labels=[]>
 	<#outputformat "plainText"><#assign sbody>
 		Your description here
@@ -255,6 +285,47 @@
     ${display!author}
 	<#else>
 		<a href="${relPath(siteRoot + "/authors/" + authorSlug(author) + ".html")}">${display!author}</a>
+	</#if>
+  </#compress>
+</#macro>
+
+<#macro themes themes>
+	<#compress>
+	<#if themes?size gt 0>
+		<#list themes as theme, weight>
+			<div class="themes">
+					<#if weight lt 0.2>
+						<img src="${staticPath()}/images/icons/circle.svg" alt="${weight * 100}%"/>
+							<#list 0..3 as n>
+								<img src="${staticPath()}/images/icons/circle-dotted.svg" alt="${weight * 100}%"/>
+							</#list>
+					<#elseif weight lt 0.4>
+							<#list 0..1 as n>
+								<img src="${staticPath()}/images/icons/circle.svg" alt="${weight * 100}%"/>
+							</#list>
+							<#list 0..2 as n>
+								<img src="${staticPath()}/images/icons/circle-dotted.svg" alt="${weight * 100}%"/>
+							</#list>
+					<#elseif weight lt 0.6>
+							<#list 0..2 as n>
+								<img src="${staticPath()}/images/icons/circle.svg" alt="${weight * 100}%"/>
+							</#list>
+							<#list 0..1 as n>
+								<img src="${staticPath()}/images/icons/circle-dotted.svg" alt="${weight * 100}%"/>
+							</#list>
+					<#elseif weight lt 0.8>
+							<#list 0..3 as n>
+								<img src="${staticPath()}/images/icons/circle.svg" alt="${weight * 100}%"/>
+							</#list>
+						<img src="${staticPath()}/images/icons/circle-dotted.svg" alt="${weight * 100}%"/>
+					<#else>
+							<#list 0..4 as n>
+								<img src="${staticPath()}/images/icons/circle.svg" alt="${weight * 100}%"/>
+							</#list>
+					</#if>
+				<span>${theme}</span>
+			</div>
+		</#list>
 	</#if>
   </#compress>
 </#macro>
