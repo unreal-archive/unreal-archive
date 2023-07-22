@@ -258,6 +258,12 @@ section.header {
 	/*margin-bottom: 10px;*/
 }
 
+section.header .cover {
+	width: 100%;
+	height: 100%;
+	backdrop-filter: blur(7px);
+}
+
 section.header .page {
 	height: 100%;
 	display: flex;
@@ -274,6 +280,7 @@ section.header h1 {
 	background-color: var(--section-header-title-bg);
 	box-shadow: var(--section-header-title-shadow);
 	border-radius: 5px 5px 0 0;
+	backdrop-filter: blur(15px);
 }
 
 section.header h1 a {
@@ -685,6 +692,10 @@ button img, td img {
 	font-weight: normal;
 }
 
+#gametype .variations .blurb {
+	padding: 0 10px;
+}
+
 #gametype .variations .variation {
 	padding: 5px 20px;
 }
@@ -746,6 +757,7 @@ button img, td img {
 #gametype section.contents .maps {
 	display: flex;
 	flex-wrap: wrap;
+	padding: 10px;
 }
 
 #gametype section.contents .maps .map {
@@ -834,7 +846,7 @@ div.themes img {
 #timeline .year:not(:last-child) {
 	border-width: 0 1px 0 0;
 	border-style: solid;
-	border-color: lightgray;
+	border-color: var(--p4);
 }
 
 #timeline .year .label {
@@ -850,7 +862,7 @@ div.themes img {
 
 #timeline .year .month {
 	flex-grow: 1;
-	background-color: black;
+	background-color: var(--body-color);
 	height: calc((var(--cnt) / var(--max)) * 40px);
 }
 
@@ -958,9 +970,19 @@ div.themes img {
 	}
 
 	section.header h1 {
-		font-size: 1.75em;
+		font-size: 1.8em;
 		border-radius: 0 !important;
 		padding: 10px 5px;
+	}
+
+	section.header .crumbs {
+		font-size: 0.75em;
+		display: block;
+	}
+
+	section.header .crumbs:not(:first-child) {
+		font-size: 0.8em;
+		display: inline;
 	}
 
 	article section h2, article section h3 {

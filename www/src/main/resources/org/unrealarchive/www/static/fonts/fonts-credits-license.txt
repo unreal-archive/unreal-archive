@@ -1,3 +1,10 @@
+Encode Sans:
+ - Designed by: Pablo Impallari, Andres Torresi, Jacques Le Bailly
+ - https://github.com/impallari/Encode-Sans
+
+Squada One:
+ - Designed by: Joe Prince
+
 Dosis:
  - Designed by: Edgar Tolentino, Pablo Impallari, Igino Marini
  - https://github.com/eliheuer/dosis-vf

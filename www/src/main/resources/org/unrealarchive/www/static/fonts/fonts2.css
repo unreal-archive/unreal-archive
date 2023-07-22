@@ -1,0 +1,23 @@
+@font-face {
+	font-family: 'Encode Sans Expanded';
+	src: url('../fonts/encode-sans-expanded-regular.woff2') format('woff2');
+	font-weight: normal;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Encode Sans Semi Condensed';
+	src: url('../fonts/encode-sans-semi-condensed-regular.woff2') format('woff2');
+	font-weight: normal;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Squada One';
+	src: url('../fonts/squada-one-regular.woff2') format('woff2');
+	font-weight: normal;
+	font-style: normal;
+	font-display: swap;
+}

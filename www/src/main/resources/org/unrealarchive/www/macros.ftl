@@ -11,10 +11,12 @@
 		<#t/></#if>
 	<#t/></#assign>
   <section class="header" ${style!""}>
-		<div class="page">
-			<h1>
-				<#nested/>
-			</h1>
+		<div class="cover">
+			<div class="page">
+				<h1>
+					<#nested/>
+				</h1>
+			</div>
 		</div>
 	</section>
   </#compress>
