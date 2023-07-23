@@ -31,15 +31,12 @@
 
 		<div class="info">
 
-			<#assign voicesList><#list voice.item.voices?sort as v><div>${v}</div><#else>Unknown</#list></#assign>
-
 			<#assign author><@authorLink voice.item.authorName /></#assign>
 			<#assign
 			labels=[
 					"Name",
 					"Author",
 					"Release (est.)",
-					"Included Voices",
 					"File Size",
 					"File Name",
 					"SHA1 Hash"
@@ -49,18 +46,25 @@
 					'${voice.item.name}',
 					'${author}',
 					'${dateFmtShort(voice.item.releaseDate)}',
-					'${voicesList}',
 					'${fileSize(voice.item.fileSize)}',
 					'${voice.item.originalFilename}',
 					'${voice.item.hash}'
 			]
 
-      styles={"6": "nomobile"}
+      styles={"5": "nomobile"}
       >
 
 			<@meta title="Voice Information" labels=labels values=values styles=styles/>
 
 			<@variations variations=voice.variations/>
+
+			<#if voice.item.voices?size gt 0>
+			<@contents title="Voices">
+				<#assign voicesList><#list voice.item.voices?sort as v><div>${v}</div><#else>Unknown</#list></#assign>
+				<#assign labels=["Included Voices"] values=['${voicesList}']>
+				<@labellist labels=labels values=values/>
+			</@contents>
+			</#if>
 
 			<@files files=voice.item.files alsoIn=voice.alsoIn otherFiles=voice.item.otherFiles/>
 

@@ -31,29 +31,6 @@
 
 		<div class="info">
 
-			<#assign mutatorList>
-				<#list mutator.item.mutators?sort_by("name") as m>
-					<div class="mini-head">${m.name}</div>
-					<div class="mini-detail">${m.description?replace("|", "<br/>")?no_esc}</div>
-				<#else>
-					Unknown
-				</#list>
-			</#assign>
-
-			<#assign weaponsList>
-				<#list mutator.item.weapons?sort_by("name") as m>
-					<div class="mini-head">${m.name}</div>
-					<div class="mini-detail">${m.description?replace("|", "<br/>")?no_esc}</div>
-        <#else></#list>
-			</#assign>
-
-			<#assign vehicleList>
-				<#list mutator.item.vehicles?sort_by("name") as m>
-					<div class="mini-head">${m.name}</div>
-					<div class="mini-detail">${m.description?replace("|", "<br/>")?no_esc}</div>
-        <#else></#list>
-			</#assign>
-
 			<#assign author><@authorLink mutator.item.authorName /></#assign>
 			<#assign
 			labels=[
@@ -61,11 +38,6 @@
 					"Description",
 					"Author",
 					"Release (est.)",
-					"Custom Config Menus",
-					"Custom Keybinds",
-					"Included Mutators",
-					"Weapons",
-					"Vehicles",
 					"File Size",
 					"File Name",
 					"SHA1 Hash"
@@ -76,22 +48,60 @@
 					'${mutator.item.description}',
 					'${author}',
 					'${dateFmtShort(mutator.item.releaseDate)}',
-					'${mutator.item.hasConfigMenu?string("Yes", "")}',
-					'${mutator.item.hasKeybinds?string("Yes", "")}',
-					'${mutatorList}',
-					'${weaponsList}',
-					'${vehicleList}',
 					'${fileSize(mutator.item.fileSize)}',
 					'${mutator.item.originalFilename}',
 					'${mutator.item.hash}'
 			]
 
-      styles={"11": "nomobile"}
+      styles={"6": "nomobile"}
       >
 
 			<@meta title="Mutator Information" labels=labels values=values styles=styles/>
 
 			<@variations variations=mutator.variations/>
+
+			<@contents title="Contents">
+				<#assign mutatorList>
+					<#list mutator.item.mutators?sort_by("name") as m>
+						<div class="mini-head">${m.name}</div>
+						<div class="mini-detail">${m.description?replace("|", "<br/>")?no_esc}</div>
+					<#else>
+						Unknown
+					</#list>
+				</#assign>
+
+				<#assign weaponsList>
+					<#list mutator.item.weapons?sort_by("name") as m>
+						<div class="mini-head">${m.name}</div>
+						<div class="mini-detail">${m.description?replace("|", "<br/>")?no_esc}</div>
+					<#else></#list>
+				</#assign>
+
+				<#assign vehicleList>
+					<#list mutator.item.vehicles?sort_by("name") as m>
+						<div class="mini-head">${m.name}</div>
+						<div class="mini-detail">${m.description?replace("|", "<br/>")?no_esc}</div>
+					<#else></#list>
+				</#assign>
+
+				<#assign
+					labels=[
+						"Custom Config Menus",
+						"Custom Keybinds",
+						"Included Mutators",
+						"Weapons",
+						"Vehicles"
+					]
+					values=[
+						'${mutator.item.hasConfigMenu?string("Yes", "")}',
+						'${mutator.item.hasKeybinds?string("Yes", "")}',
+						'${mutatorList}',
+						'${weaponsList}',
+						'${vehicleList}'
+					]
+				>
+				<@labellist labels=labels values=values/>
+			</@contents>
 
 			<@files files=mutator.item.files alsoIn=mutator.alsoIn otherFiles=mutator.item.otherFiles/>
 

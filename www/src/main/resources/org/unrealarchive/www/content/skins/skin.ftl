@@ -31,18 +31,12 @@
 
 		<div class="info">
 
-			<#assign skinsList><#list skin.item.skins?sort as s><div>${s}</div></#list></#assign>
-			<#assign faceList><#list skin.item.faces?sort as s><div>${s}</div></#list></#assign>
-
 			<#assign author><@authorLink skin.item.authorName /></#assign>
 			<#assign
 			labels=[
 					"Name",
 					"Author",
 					"Release (est.)",
-					"Team Skins",
-					"Included Skins",
-					"Faces",
 					"File Size",
 					"File Name",
 					"SHA1 Hash"
@@ -52,20 +46,30 @@
 					'${skin.item.name}',
 					'${author}',
 					'${dateFmtShort(skin.item.releaseDate)}',
-					'${skin.item.teamSkins?string("Yes", "No")}',
-					'${skinsList}',
-					'${faceList}',
 					'${fileSize(skin.item.fileSize)}',
 					'${skin.item.originalFilename}',
 					'${skin.item.hash}'
 			]
 
-      styles={"8": "nomobile"}
+      styles={"5": "nomobile"}
       >
 
 			<@meta title="Skin Information" labels=labels values=values styles=styles/>
 
 			<@variations variations=skin.variations/>
+
+			<@contents title="Skins">
+				<#assign skinsList><#list skin.item.skins?sort as s><div>${s}</div></#list></#assign>
+				<#assign faceList><#list skin.item.faces?sort as s><div>${s}</div></#list></#assign>
+				<#assign
+					labels=["Team Skins", "Included Skins", "Faces"]
+					values=[
+	          '${skin.item.teamSkins?string("Yes", "No")}',
+					  '${skinsList}', '${faceList}'
+					]
+				>
+				<@labellist labels=labels values=values/>
+			</@contents>
 
 			<@files files=skin.item.files alsoIn=skin.alsoIn otherFiles=skin.item.otherFiles/>
 

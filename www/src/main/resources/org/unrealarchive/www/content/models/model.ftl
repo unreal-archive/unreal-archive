@@ -30,18 +30,12 @@
 		</div>
 
 		<div class="info">
-
-			<#assign modelList><#list model.item.models?sort as m><div>${m}</div><#else></#list></#assign>
-			<#assign skinsList><#list model.item.skins?sort as s><div>${s}</div><#else></#list></#assign>
-
 			<#assign author><@authorLink model.item.authorName /></#assign>
 			<#assign
 			labels=[
 					"Name",
 					"Author",
 					"Release (est.)",
-					"Included Models",
-					"Included Skins",
 					"File Size",
 					"File Name",
 					"SHA1 Hash"
@@ -51,19 +45,29 @@
 					'${model.item.name}',
 					'${author}',
 					'${dateFmtShort(model.item.releaseDate)}',
-					'${modelList}',
-					'${skinsList}',
 					'${fileSize(model.item.fileSize)}',
 					'${model.item.originalFilename}',
 					'${model.item.hash}'
 			]
 
-      styles={"7": "nomobile"}
+      styles={"5": "nomobile"}
       >
 
 			<@meta title="Model Information" labels=labels values=values styles=styles/>
 
 			<@variations variations=model.variations/>
+
+			<#if model.item.models?size gt 0 || model.item.skins?size gt 0>
+			<@contents title="Models and Skins">
+				<#assign modelList><#list model.item.models?sort as m><div>${m}</div><#else></#list></#assign>
+				<#assign skinsList><#list model.item.skins?sort as s><div>${s}</div><#else></#list></#assign>
+				<#assign
+				  labels=["Included Models", "Included Skins"]
+					values=['${modelList}', '${skinsList}']
+      	>
+				<@labellist labels=labels values=values/>
+      </@contents>
+			</#if>
 
 			<@files files=model.item.files alsoIn=model.alsoIn otherFiles=model.item.otherFiles/>
 

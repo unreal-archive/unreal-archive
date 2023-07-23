@@ -328,7 +328,7 @@ section.header .crumbs:not(:first-child) {
 
 .biglist ul li {
 	position: relative;
-	height: 100px;
+	height: 125px;
 	box-shadow: var(--biglist-shadow);
 	background: var(--biglist-bg-color) center;
 	background-size: cover;

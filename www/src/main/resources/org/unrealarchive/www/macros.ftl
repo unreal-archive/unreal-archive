@@ -84,24 +84,39 @@
   </#compress>
 </#macro>
 
+<#macro labellist labels values styles={}>
+    <#compress>
+        <#list labels as l>
+            <#if values[l?index]?? && values[l?index]?has_content>
+                <#if values[l?index]?is_markup_output && values[l?index]?markup_string?trim == "None">
+                    <#continue/>
+                <#elseif values[l?index]?is_string && values[l?index]?trim == "None">
+                    <#continue/>
+                </#if>
+							<div class="label-value <#if styles[l?index?string]??>${styles[l?index?string]}</#if>">
+								<label>${l}</label><span>${values[l?index]}</span>
+							</div>
+            </#if>
+        </#list>
+    </#compress>
+</#macro>
+
 <#macro meta title labels values styles={} h="h2">
 	<#compress>
 	<section class="meta">
 		<${h}><img src="${staticPath()}/images/icons/info.svg" alt="Info"/>${title}</${h}>
-		<#list labels as l>
-			<#if values[l?index]?? && values[l?index]?has_content>
-				<#if values[l?index]?is_markup_output && values[l?index]?markup_string?trim == "None">
-					<#continue/>
-				<#elseif values[l?index]?is_string && values[l?index]?trim == "None">
-					<#continue/>
-				</#if>
-				<div class="label-value <#if styles[l?index?string]??>${styles[l?index?string]}</#if>">
-					<label>${l}</label><span>${values[l?index]}</span>
-				</div>
-			</#if>
-		</#list>
+		<@labellist labels=labels values=values styles=styles/>
 	</section>
   </#compress>
+</#macro>
+
+<#macro contents title h="h2">
+	<#compress>
+	<section class="contents">
+		<${h}><img src="${staticPath()}/images/icons/list.svg" alt="Contents"/>${title}</${h}>
+		<#nested>
+	</section>
+	</#compress>
 </#macro>
 
 <#macro files files alsoIn otherFiles h="h2">
@@ -228,11 +243,11 @@
 				</tr>
 				</thead>
 				<tbody>
-				<#list deps as name, value>
+				<#list deps?keys?sort as name>
 					<tr>
 						<td colspan="4"><b>${name}</b></td>
 					</tr>
-					<#list value as dep>
+					<#list deps[name]?sort_by('name') as dep>
 						<tr>
 							<td>&nbsp;</td>
 							<#if game??>

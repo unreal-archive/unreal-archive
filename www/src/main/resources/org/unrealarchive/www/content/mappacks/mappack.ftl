@@ -64,8 +64,7 @@
 
 			<@variations variations=pack.variations/>
 
-			<section class="contents">
-				<h2><img src="${staticPath()}/images/icons/list.svg" alt="Maps"/>Maps</h2>
+			<@contents title="Maps">
 				<table>
 					<thead>
 					<tr>
@@ -75,16 +74,16 @@
 					</tr>
 					</thead>
 					<tbody>
-						<#list pack.item.maps?sort_by("name") as m>
+          <#list pack.item.maps?sort_by("name") as m>
 						<tr>
 							<td>${m.name}</td>
 							<td class="nomobile">${m.title}</td>
 							<td><@authorLink m.authorName /></td>
 						</tr>
-						</#list>
+          </#list>
 					</tbody>
 				</table>
-			</section>
+			</@contents>
 
 			<@files files=pack.item.files alsoIn=pack.alsoIn otherFiles=pack.item.otherFiles/>
 
