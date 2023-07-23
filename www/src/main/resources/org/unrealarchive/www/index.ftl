@@ -1,10 +1,8 @@
 <#include "_header.ftl">
 <#include "macros.ftl">
 
+<@heading bg=["${staticPath()}/images/games/All.png"]>Contents</@heading>
 <@content class="biglist">
-	<h1>
-		Contents
-	</h1>
 	<ul>
 		<li style='background-image: url("${staticPath()}/images/contents/t_documents.png")'>
 			<span class="meta">${count.Documents}</span>
