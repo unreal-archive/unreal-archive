@@ -1,14 +1,9 @@
 # Unreal Archive
 
-Scans, categorises and produces metadata for Unreal, Unreal Tournament, 
-and Unreal Tournament 2003/4 content, and builds a static browsable website
-of the content, currently published at 
+Scans, categorises and produces metadata for Unreal, Unreal Tournament, Unreal
+Tournament 2003/4, and Unreal Tournament 3 content, and builds a static 
+browsable website of the content, currently published at 
 [https://unrealarchive.org/](https://unrealarchive.org/).
-
-
-## TODO
-
-- More Docs
 
 ## Requirements
 
@@ -46,6 +41,28 @@ To run, execute:
 ```
 build\unreal-archive\bin\unreal-archive.bat
 ```
+
+## Components and Modules
+
+The project is arranged into several modules, and published as Java Modules so
+components may be reused by other software projects.
+
+These are:
+
+- `common`: the usual assortment of shared boilerplate code and utility classes
+  and functions.
+- `content`: the definition of the content types, Maps, Map Packs, Skins, Game
+  Types, etc. These are the elements which are serialiased to and from YAML 
+  format stored in the archive data repository, and projects wishing to work 
+  with the Unreal Archive data types should re-use these if possible. 
+  In addition, the code for loading, saving, and generally working with the 
+  data sets are here too.
+- `storage`: the remote storage/mirror implementations, for S3 and Azure and
+  associated interfaces.
+- `www`: the code and templates responsible for generating the static website
+  output.
+- root project: the content indexing and mirroring implementation and 
+  management. This will likely move into its own module(s) later.
 
 ## Usage and Functionality
 
@@ -125,7 +142,7 @@ parallel behaviour is not quite worth the implementation time.
 ## Mirroring
 
 If you have storage capacity available and would like to contribute some of it
-as a public mirror for archive content, the following steps may be taken.
+as a public mirror for archive content, the following steps should be taken.
 
 1. Fork and clone the [`unreal-archive-data`](https://github.com/unreal-archive/unreal-archive-data)
    repository.
@@ -133,7 +150,7 @@ as a public mirror for archive content, the following steps may be taken.
 2. Download or [build](#building) the `unreal-archive` project binary
 3. Execute `unreal-archive mirror` with the following command-line options:
    - `--content-path=/path/to/unreal-archive-data`
-   - `--store=[dav|s3|b2]` and appropriate 
+   - `--store=[dav|s3|az]` and appropriate 
       [configuration and credentials](#storage-configuration).
    - `--concurrency=3` with an appropriate concurrency value for your bandwidth
      and processing power (3 is default)
@@ -162,6 +179,8 @@ Environment variables may be used for configuration, eg.: replace
 `--s3-key-images=key` with `S3_KEY_IMAGES=key`.
 
 ### HTTP/DAV
+
+This is mostly for testing purposes, but in some circumstances may be useful.
 
 - `--store=dav`
   - `--store-[images|attachments|content]=dav`

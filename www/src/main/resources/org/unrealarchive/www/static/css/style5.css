@@ -98,9 +98,14 @@ section.header {
 	box-shadow: 0 0 30px 0 rgba(0, 0, 0, 0.5);
 }
 
+.biglist ul li a {
+	backdrop-filter: sepia(0.5) brightness(0.5);
+}
+
 .biglist ul li a:hover {
 	background: none;
 	border-bottom: 4px solid var(--p6);
+	backdrop-filter: none;
 }
 
 .biglist ul li .meta {

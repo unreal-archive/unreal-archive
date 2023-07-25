@@ -16,6 +16,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -110,6 +111,9 @@ public class Main {
 				break;
 			case "ls":
 				list(contentRepo(cli), cli);
+				break;
+			case "filter":
+				filter(contentRepo(cli), cli);
 				break;
 			case "show":
 				show(contentRepo(cli), cli);
@@ -591,8 +595,21 @@ public class Main {
 			System.exit(255);
 		}
 
-		Set<Addon> results = new HashSet<>(repository.search(game, type, name, author));
+		printSearch(repository.search(game, type, name, author));
+	}
 
+	private static void filter(SimpleAddonRepository repository, CLI cli) {
+		List<String[]> filterArgs = Arrays.stream(cli.commands()).filter(m -> m.contains("=")).map(m -> m.split("=", 2)).toList();
+		String[] args = new String[filterArgs.size() * 2];
+		for (int i = 0; i < args.length; i += 2) {
+			args[i] = filterArgs.get(i / 2)[0];
+			args[i + 1] = filterArgs.get(i / 2)[1];
+		}
+
+		printSearch(repository.filter(args));
+	}
+
+	private static void printSearch(Collection<Addon> results) {
 		if (results.isEmpty()) {
 			System.out.println("No results found");
 		} else {
@@ -830,6 +847,8 @@ public class Main {
 		System.out.println("    Show stats and counters for the content index in <content-path>");
 		System.out.println("  ls [--game=<game>] [--type=<type>] [--author=<author>] [--content-path=<path> | --content-download]");
 		System.out.println("    List indexed content in <content-path>, filtered by game, type or author");
+		System.out.println("  filter <attribute=value, ...> [--content-path=<path> | --content-download]");
+		System.out.println("    Filter all indexed content in <content-path>, using the attributes and matched values provided");
 		System.out.println("  show [name ...] [hash ...] [--content-path=<path> | --content-download]");
 		System.out.println("    Show data for the content items specified");
 		System.out.println("  unpack <umod-file> <destination>");

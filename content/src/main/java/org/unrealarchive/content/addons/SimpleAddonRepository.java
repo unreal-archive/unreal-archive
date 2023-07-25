@@ -2,11 +2,13 @@ package org.unrealarchive.content.addons;
 
 import java.io.IOException;
 import java.lang.ref.SoftReference;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -69,6 +71,69 @@ public interface SimpleAddonRepository {
 	 * Attributes may be null to omit from filtering.
 	 */
 	public Collection<Addon> search(String game, String type, String name, String author);
+
+	/**
+	 * Search the repository for content items matching the provided filters.
+	 * <p>
+	 * Filters are expected to be provided in pairs of [key, value, key, value, ...],
+	 * and may contain the wildcard "*".
+	 * <p>
+	 * Filter keys may be any attribute of the associated `Addon` type, where non-null
+	 * values will be evaluated against the attribute's `toString()` implementation.
+	 */
+	default public Collection<Addon> filter(String... keysValues) {
+		if (keysValues.length % 2 != 0) {
+			throw new IllegalArgumentException("Keys with values expected in filter argument " + String.join(",", keysValues));
+		}
+
+		Map<Class<? extends Addon>, Map<String, Field>> typeFields = new ConcurrentHashMap<>();
+		Map<String, String> filters = new HashMap<>(keysValues.length / 2);
+		for (int i = 0; i < keysValues.length; i++) {
+			filters.put(keysValues[i].toLowerCase(), keysValues[++i]);
+		}
+
+		return all(false)
+			.stream()
+			.filter(a -> {
+				Map<String, Field> fields = typeFields.computeIfAbsent(a.getClass(), c -> {
+					Field[] newFields = c.getFields();
+					Map<String, Field> classFields = new HashMap<>(newFields.length);
+					for (Field field : newFields) {
+						classFields.put(field.getName().toLowerCase(), field);
+					}
+					return classFields;
+				});
+
+				boolean found = false;
+
+				try {
+					for (String f : filters.keySet()) {
+						Field field = fields.get(f);
+						if (field == null) return false;
+
+						Object val = field.get(a);
+						if (val == null) return false;
+
+						String strVal = val.toString();
+						if (strVal == null) return false;
+
+						String match = filters.get(f);
+						if (match.contains("*")) {
+							if (strVal.matches(match.replace("*", ".*"))) found = true;
+							else return false;
+						} else {
+							if (strVal.equalsIgnoreCase(match)) found = true;
+							else return false;
+						}
+					}
+				} catch (IllegalAccessException | ClassCastException e) {
+					return false;
+				}
+
+				return found;
+			})
+			.collect(Collectors.toSet());
+	}
 
 	/**
 	 * Get all content items in the repository - excluding deleted items, but including variations.

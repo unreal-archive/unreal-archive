@@ -79,6 +79,15 @@ public class MapPack extends Addon {
 		public String title;
 		public String author = "Unknown";
 
+		public PackMap() {
+		}
+
+		public PackMap(String name, String title, String author) {
+			this.name = name;
+			this.title = title;
+			this.author = author;
+		}
+
 		public String authorName() {
 			return AuthorNames.nameFor(author);
 		}
