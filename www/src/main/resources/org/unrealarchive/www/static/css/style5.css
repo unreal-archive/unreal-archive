@@ -98,14 +98,14 @@ section.header {
 	box-shadow: 0 0 30px 0 rgba(0, 0, 0, 0.5);
 }
 
-.biglist ul li a {
-	backdrop-filter: sepia(0.5) brightness(0.5);
-}
+/*.biglist ul li a {*/
+/*	backdrop-filter: sepia(0.5) brightness(0.5);*/
+/*}*/
 
 .biglist ul li a:hover {
-	background: none;
+	background: linear-gradient(0deg, var(--biglist-bg-color-hover) -5%, #0000 10%);
 	border-bottom: 4px solid var(--p6);
-	backdrop-filter: none;
+	backdrop-filter: saturate(1.2) brightness(1.2);
 }
 
 .biglist ul li .meta {
