@@ -46,6 +46,9 @@
 		<li style='background-image: url("${staticPath()}/images/games/All.png")'>
 			<a href="authors/index.html">Browse by Author</a>
 		</li>
+		<li style='background-image: url("${staticPath()}/images/gametypes/Unreal/t_Single Player.png")'>
+			<a href="misc/index.html">Miscellaneous</a>
+		</li>
 	</ul>
 </@content>
 
