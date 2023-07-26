@@ -34,7 +34,7 @@ public class SkinIndexerTest {
 				assertEquals("Nasdarek", r.content.name);
 				assertTrue(r.content.skins.contains("Nasdarek"));
 			});
-
+			incoming.close();
 		} finally {
 			Files.deleteIfExists(tmpSkin);
 		}

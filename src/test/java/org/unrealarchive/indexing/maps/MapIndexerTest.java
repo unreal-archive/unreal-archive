@@ -47,6 +47,7 @@ public class MapIndexerTest {
 				assertEquals("DeathMatch", r.content.gametype);
 				assertFalse(r.files.isEmpty());
 			});
+			incoming.close();
 		} finally {
 			Files.deleteIfExists(tmpMap);
 		}
@@ -71,6 +72,7 @@ public class MapIndexerTest {
 				assertEquals("Capture The Flag", r.content.gametype);
 				assertEquals("RedSteels_Fury", r.content.author);
 			});
+			incoming.close();
 		} finally {
 			Files.deleteIfExists(tmpMap);
 		}

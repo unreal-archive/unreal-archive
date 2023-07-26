@@ -32,7 +32,7 @@ public class ModelIndexerTest {
 				assertTrue(r.content.models.contains("Locust: Drone"));
 				assertTrue(r.content.models.contains("COG: Marcus"));
 			});
-
+			incoming.close();
 		} finally {
 			Files.deleteIfExists(tmpSkin);
 		}
