@@ -565,18 +565,17 @@ public class Main {
 			System.exit(2);
 		}
 
-		Path output = Files.createDirectories(Paths.get(cli.commands()[1])).toAbsolutePath();
+		Path output = Paths.get(cli.commands()[1]).toAbsolutePath();
 
 		System.out.printf("Writing files to %s with concurrency of %s%n", output, cli.option("concurrency", "3"));
 
 		LocalMirrorClient mirror = new LocalMirrorClient(
-			contentRepo,
-			output,
 			Integer.parseInt(cli.option("concurrency", "3")),
 			((total, remaining, last) -> System.out.printf("\r[ %-6s / %-6s ] Processed %-40s",
 														   total - remaining, total, last.name()))
 		);
-		mirror.mirror();
+
+		mirror.mirror(filterRepo(contentRepo, cli), output);
 
 		System.out.println("Local mirror completed");
 
@@ -599,6 +598,10 @@ public class Main {
 	}
 
 	private static void filter(SimpleAddonRepository repository, CLI cli) {
+		printSearch(filterRepo(repository, cli));
+	}
+
+	private static Collection<Addon> filterRepo(SimpleAddonRepository repository, CLI cli) {
 		List<String[]> filterArgs = Arrays.stream(cli.commands()).filter(m -> m.contains("=")).map(m -> m.split("=", 2)).toList();
 		String[] args = new String[filterArgs.size() * 2];
 		for (int i = 0; i < args.length; i += 2) {
@@ -606,7 +609,7 @@ public class Main {
 			args[i + 1] = filterArgs.get(i / 2)[1];
 		}
 
-		printSearch(repository.filter(args));
+		return repository.filter(args);
 	}
 
 	private static void printSearch(Collection<Addon> results) {

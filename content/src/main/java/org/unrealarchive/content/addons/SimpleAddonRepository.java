@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.unrealarchive.common.Reflect;
 import org.unrealarchive.common.Util;
 import org.unrealarchive.common.YAML;
 
@@ -82,11 +83,12 @@ public interface SimpleAddonRepository {
 	 * values will be evaluated against the attribute's `toString()` implementation.
 	 */
 	default public Collection<Addon> filter(String... keysValues) {
+		if (keysValues.length == 0) return all(false);
+
 		if (keysValues.length % 2 != 0) {
 			throw new IllegalArgumentException("Keys with values expected in filter argument " + String.join(",", keysValues));
 		}
 
-		Map<Class<? extends Addon>, Map<String, Field>> typeFields = new ConcurrentHashMap<>();
 		Map<String, String> filters = new HashMap<>(keysValues.length / 2);
 		for (int i = 0; i < keysValues.length; i++) {
 			filters.put(keysValues[i].toLowerCase(), keysValues[++i]);
@@ -95,14 +97,7 @@ public interface SimpleAddonRepository {
 		return all(false)
 			.stream()
 			.filter(a -> {
-				Map<String, Field> fields = typeFields.computeIfAbsent(a.getClass(), c -> {
-					Field[] newFields = c.getFields();
-					Map<String, Field> classFields = new HashMap<>(newFields.length);
-					for (Field field : newFields) {
-						classFields.put(field.getName().toLowerCase(), field);
-					}
-					return classFields;
-				});
+				Map<String, Field> fields = Reflect.classLowercaseFields(a);
 
 				boolean found = false;
 

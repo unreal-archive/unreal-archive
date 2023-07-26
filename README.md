@@ -72,6 +72,7 @@ Run with no arguments to see input arguments and additional help for each comman
 
 **Browsing and Information:**
 - `ls`: List indexed content filtered by game, type or author.
+- `filter`: List indexed content filtered by `attribute=value` pairs.
 - `show`: Show data for the content items specified.
 - `summary`: Show stats and counters for the content index.
 
