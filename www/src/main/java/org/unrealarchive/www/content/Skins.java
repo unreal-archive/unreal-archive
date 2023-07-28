@@ -40,11 +40,11 @@ public class Skins extends GenericContentPage<Skin> {
 			Games game = Games.byName(g.getKey());
 
 			if (g.getValue().count < Templates.PAGE_SIZE) {
-				List<ContentInfo<Skin>> all = g.getValue().groups.get(SUBGROUP).letters.values().stream()
-																					   .flatMap(l -> l.pages.stream())
-																					   .flatMap(e -> e.items.stream())
-																					   .sorted()
-																					   .toList();
+				List<ContentInfo> all = g.getValue().groups.get(SUBGROUP).letters.values().stream()
+																				 .flatMap(l -> l.pages.stream())
+																				 .flatMap(e -> e.items.stream())
+																				 .sorted()
+																				 .toList();
 				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName))
 					 .put("game", g.getValue())
 					 .put("timeline", timeline)
@@ -88,7 +88,7 @@ public class Skins extends GenericContentPage<Skin> {
 		return pages.pages;
 	}
 
-	private void skinPage(Templates.PageSet pages, ContentInfo<Skin> skin) {
+	private void skinPage(Templates.PageSet pages, ContentInfo skin) {
 		final Addon item = skin.item();
 		localImages(item, root.resolve(skin.path).getParent());
 
@@ -99,7 +99,7 @@ public class Skins extends GenericContentPage<Skin> {
 			 .write(Paths.get(skin.path + ".html"));
 
 		// since variations are not top-level things, we need to generate them here
-		for (ContentInfo<Skin> variation : skin.variations) {
+		for (ContentInfo variation : skin.variations) {
 			this.skinPage(pages, variation);
 		}
 	}

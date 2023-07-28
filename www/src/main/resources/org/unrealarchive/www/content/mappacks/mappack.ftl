@@ -1,4 +1,5 @@
-<#assign game=gametype.game>
+<#assign game=pack.page.letter.group.game>
+<#assign gametype=pack.page.letter.group>
 
 <#assign headerbg>${staticPath()}/images/games/${game.name}.png</#assign>
 <#if pack.item.leadImage?has_content>
@@ -7,6 +8,10 @@
 
 <#assign ogDescription="${pack.item.autoDescription}">
 <#assign ogImage=headerbg>
+
+<#assign schemaItemName="${pack.item.name}">
+<#assign schemaItemAuthor="${pack.item.author}">
+<#assign schemaItemDate="${pack.item.releaseDate}-01">
 
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
@@ -32,6 +37,10 @@
 			<#assign themes><@themes themes=pack.item.themes/></#assign>
 
 			<#assign author><@authorLink pack.item.authorName /></#assign>
+			<#assign gametypeLink>
+				<a href="<#if gameTypeInfoPath??>${relPath(gameTypeInfoPath + "/index.html")}<#else>${relPath(gametype.path + "/index.html")}</#if>">${pack.item.gametype}</a>
+			</#assign>
+
 			<#assign
 			labels=[
 				"Name",
@@ -47,7 +56,7 @@
 
 			values=[
 				'${pack.item.name}',
-				'<a href="${relPath(gametype.path + "/index.html")}">${pack.item.gametype}</a>'?no_esc,
+      	'${gametypeLink}'?no_esc,
 				'${pack.item.maps?size}',
 				'${author}',
 				'${dateFmtShort(pack.item.releaseDate)}',

@@ -120,8 +120,8 @@ public class Main {
 			// generate content pages
 			generators.addAll(
 				Arrays.asList(
-					new Maps(contentRepo, outputPath, staticOutput, features),
-					new MapPacks(contentRepo, outputPath, staticOutput, features),
+					new Maps(contentRepo, outputPath, staticOutput, features, gameTypeRepo),
+					new MapPacks(contentRepo, outputPath, staticOutput, features, gameTypeRepo),
 					new Skins(contentRepo, outputPath, staticOutput, features),
 					new Models(contentRepo, outputPath, staticOutput, features),
 					new Voices(contentRepo, outputPath, staticOutput, features),
@@ -198,7 +198,8 @@ public class Main {
 		submitter.submit(contentRepo,
 						 System.getenv().getOrDefault("SITE_URL", ""),
 						 System.getenv().getOrDefault("MES_CONTENT_URL", System.getenv().getOrDefault("MES_URL", "")),
-						 System.getenv().getOrDefault("MES_CONTENT_TOKEN", System.getenv().getOrDefault("MES_TOKEN", "")), 50,
+						 System.getenv().getOrDefault("MES_CONTENT_TOKEN", System.getenv().getOrDefault("MES_TOKEN", "")),
+						 100, // submission batch size
 						 percent -> System.out.printf("\r%.1f%% complete", percent * 100d),
 						 done -> System.out.printf("%nSearch submission complete in %.2fs%n",
 												   (System.currentTimeMillis() - start) / 1000f));
@@ -207,7 +208,8 @@ public class Main {
 		submitter.submit(wikiManager,
 						 System.getenv().getOrDefault("SITE_URL", ""),
 						 System.getenv().getOrDefault("MES_WIKI_URL", ""),
-						 System.getenv().getOrDefault("MES_WIKI_TOKEN", ""), 5,
+						 System.getenv().getOrDefault("MES_WIKI_TOKEN", ""),
+						 20, // submission batch size
 						 percent -> System.out.printf("\r%.1f%% complete", percent * 100d),
 						 done -> System.out.printf("%nSearch submission complete in %.2fs%n",
 												   (System.currentTimeMillis() - start) / 1000f));

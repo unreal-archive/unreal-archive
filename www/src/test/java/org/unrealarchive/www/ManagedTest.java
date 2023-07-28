@@ -2,7 +2,6 @@ package org.unrealarchive.www;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -30,7 +29,7 @@ public class ManagedTest {
 		Path wwwRoot = Files.createTempDirectory("test-managed-www");
 		try {
 			final Path outPath = Files.createDirectories(tmpRoot.resolve("test"));
-			Files.write(outPath.resolve("managed.yml"), YAML.toString(man).getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE);
+			Files.writeString(outPath.resolve("managed.yml"), YAML.toString(man), StandardOpenOption.CREATE);
 
 			try (InputStream is = getClass().getResourceAsStream("test.md")) {
 				Files.copy(is, outPath.resolve(man.document));

@@ -40,11 +40,11 @@ public class Models extends GenericContentPage<Model> {
 			Games game = Games.byName(g.getKey());
 
 			if (g.getValue().count < Templates.PAGE_SIZE) {
-				List<ContentInfo<Model>> all = g.getValue().groups.get(SUBGROUP).letters.values().stream()
-																						.flatMap(l -> l.pages.stream())
-																						.flatMap(e -> e.items.stream())
-																						.sorted()
-																						.toList();
+				List<ContentInfo> all = g.getValue().groups.get(SUBGROUP).letters.values().stream()
+																				 .flatMap(l -> l.pages.stream())
+																				 .flatMap(e -> e.items.stream())
+																				 .sorted()
+																				 .toList();
 				pages.add("listing.ftl", SiteMap.Page.monthly(0.65f), String.join(" / ", SECTION, game.bigName))
 					 .put("game", g.getValue())
 					 .put("timeline", timeline)
@@ -88,7 +88,7 @@ public class Models extends GenericContentPage<Model> {
 		return pages.pages;
 	}
 
-	private void modelPage(Templates.PageSet pages, ContentInfo<Model> model) {
+	private void modelPage(Templates.PageSet pages, ContentInfo model) {
 		final Addon item = model.item();
 		localImages(item, root.resolve(model.path).getParent());
 
@@ -99,7 +99,7 @@ public class Models extends GenericContentPage<Model> {
 			 .write(Paths.get(model.path + ".html"));
 
 		// since variations are not top-level things, we need to generate them here
-		for (ContentInfo<Model> variation : model.variations) {
+		for (ContentInfo variation : model.variations) {
 			modelPage(pages, variation);
 		}
 	}

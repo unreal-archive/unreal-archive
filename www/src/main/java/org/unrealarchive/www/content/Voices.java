@@ -39,11 +39,11 @@ public class Voices extends GenericContentPage<Voice> {
 			Games game = Games.byName(g.getKey());
 
 			if (g.getValue().count < Templates.PAGE_SIZE) {
-				List<ContentInfo<Voice>> all = g.getValue().groups.get(SUBGROUP).letters.values().stream()
-																						.flatMap(l -> l.pages.stream())
-																						.flatMap(e -> e.items.stream())
-																						.sorted()
-																						.toList();
+				List<ContentInfo> all = g.getValue().groups.get(SUBGROUP).letters.values().stream()
+																				 .flatMap(l -> l.pages.stream())
+																				 .flatMap(e -> e.items.stream())
+																				 .sorted()
+																				 .toList();
 				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName))
 					 .put("game", g.getValue())
 					 .put("timeline", timeline)
@@ -87,7 +87,7 @@ public class Voices extends GenericContentPage<Voice> {
 		return pages.pages;
 	}
 
-	private void voicePage(Templates.PageSet pages, ContentInfo<Voice> voice) {
+	private void voicePage(Templates.PageSet pages, ContentInfo voice) {
 		final Addon item = voice.item();
 		localImages(item, root.resolve(voice.path).getParent());
 
@@ -98,7 +98,7 @@ public class Voices extends GenericContentPage<Voice> {
 			 .write(Paths.get(voice.path + ".html"));
 
 		// since variations are not top-level things, we need to generate them here
-		for (ContentInfo<Voice> variation : voice.variations) {
+		for (ContentInfo variation : voice.variations) {
 			voicePage(pages, variation);
 		}
 	}

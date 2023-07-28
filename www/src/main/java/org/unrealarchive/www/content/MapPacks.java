@@ -3,10 +3,13 @@ package org.unrealarchive.www.content;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.unrealarchive.content.Games;
-import org.unrealarchive.content.addons.Addon;
+import org.unrealarchive.content.addons.GameType;
+import org.unrealarchive.content.addons.GameTypeRepository;
 import org.unrealarchive.content.addons.MapPack;
 import org.unrealarchive.content.addons.SimpleAddonRepository;
 import org.unrealarchive.www.SiteFeatures;
@@ -19,8 +22,13 @@ public class MapPacks extends GenericContentPage<MapPack> {
 
 	private static final String LETTER_SUBGROUP = "all";
 
-	public MapPacks(SimpleAddonRepository content, Path output, Path staticRoot, SiteFeatures features) {
+	private final GameTypeRepository gametypes;
+	private final java.util.Map<Integer, GameType> gameTypeCache = new ConcurrentHashMap<>();
+
+	public MapPacks(SimpleAddonRepository content, Path output, Path staticRoot, SiteFeatures features,
+					GameTypeRepository gametypes) {
 		super(content, output, output.resolve("mappacks"), staticRoot, features);
+		this.gametypes = gametypes;
 	}
 
 	@Override
@@ -73,18 +81,25 @@ public class MapPacks extends GenericContentPage<MapPack> {
 		return pages.pages;
 	}
 
-	private void packPage(Templates.PageSet pages, ContentInfo<MapPack> pack) {
-		final Addon item = pack.item();
+	private void packPage(Templates.PageSet pages, ContentInfo pack) {
+		final MapPack item = pack.item();
+
+		final GameType gt = gameTypeCache.computeIfAbsent(
+			Objects.hash(item.game.toLowerCase(), item.gametype.toLowerCase()),
+			k -> gametypes.findGametype(Games.byName(item.game), item.gametype)
+		);
+
 		localImages(item, pack.path.getParent());
 
 		pages.add("mappack.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex), String.join(" / ", SECTION,
 																						  pack.page.letter.group.game.game.bigName,
 																						  pack.page.letter.group.name, item.name))
 			 .put("pack", pack)
-			 .put("gametype", pack.page.letter.group)
+			 .put("gameTypeInfo", gt)
+			 .put("gameTypeInfoPath", gt != null ? gt.slugPath(siteRoot) : null)
 			 .write(Paths.get(pack.path + ".html"));
 
-		for (ContentInfo<MapPack> variation : pack.variations) {
+		for (ContentInfo variation : pack.variations) {
 			packPage(pages, variation);
 		}
 	}

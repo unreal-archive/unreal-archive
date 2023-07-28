@@ -194,7 +194,7 @@ public abstract class GenericContentPage<T extends Addon> extends ContentPageGen
 		public final TreeMap<String, SubGroup> groups = new TreeMap<>();
 		public int count;
 
-		public final HashMap<LocalDate, List<ContentInfo<T>>> dated;
+		public final HashMap<LocalDate, List<ContentInfo>> dated;
 
 		public Game(String name) {
 			this.game = Games.byName(name);
@@ -206,11 +206,11 @@ public abstract class GenericContentPage<T extends Addon> extends ContentPageGen
 			this.dated = new HashMap<>();
 		}
 
-		public ContentInfo<T> add(T item) {
+		public ContentInfo add(T item) {
 			SubGroup gametype = groups.computeIfAbsent(gameSubGroup(item), g -> new SubGroup(this, g));
 			this.count++;
 
-			ContentInfo<T> added = gametype.add(item);
+			ContentInfo added = gametype.add(item);
 
 			added.releaseDate.map(r -> dated.computeIfAbsent(r, d -> new ArrayList<>()).add(added));
 
@@ -235,7 +235,7 @@ public abstract class GenericContentPage<T extends Addon> extends ContentPageGen
 			this.count = 0;
 		}
 
-		public ContentInfo<T> add(T item) {
+		public ContentInfo add(T item) {
 			LetterGroup letter = letters.computeIfAbsent(letterSubGroup(item), l -> new LetterGroup(this, l));
 			this.count++;
 
@@ -258,7 +258,7 @@ public abstract class GenericContentPage<T extends Addon> extends ContentPageGen
 			this.count = 0;
 		}
 
-		public ContentInfo<T> add(T item) {
+		public ContentInfo add(T item) {
 			if (pages.isEmpty()) pages.add(new Page(this, 1));
 			Page page = pages.get(pages.size() - 1);
 			if (page.items.size() == PAGE_SIZE) {
@@ -276,7 +276,7 @@ public abstract class GenericContentPage<T extends Addon> extends ContentPageGen
 		public final LetterGroup letter;
 		public final int number;
 		public final Path path;
-		public final List<ContentInfo<T>> items = new ArrayList<>(PAGE_SIZE);
+		public final List<ContentInfo> items = new ArrayList<>(PAGE_SIZE);
 
 		public Page(LetterGroup letter, int number) {
 			this.letter = letter;
@@ -284,8 +284,8 @@ public abstract class GenericContentPage<T extends Addon> extends ContentPageGen
 			this.path = letter.path.resolve(Integer.toString(number));
 		}
 
-		public ContentInfo<T> add(T item) {
-			ContentInfo<T> added = new ContentInfo<>(this, item);
+		public ContentInfo add(T item) {
+			ContentInfo added = new ContentInfo(this, item);
 			this.items.add(added);
 			Collections.sort(items);
 			return added;
@@ -293,19 +293,19 @@ public abstract class GenericContentPage<T extends Addon> extends ContentPageGen
 	}
 
 	@SuppressWarnings("unchecked")
-	public class ContentInfo<Y extends T> implements Comparable<ContentInfo<Y>> {
+	public class ContentInfo implements Comparable<ContentInfo> {
 
 		public final Page page;
 		public final String itemHash;
 		private final String itemName;
 		public final Path path;
 
-		public final Collection<ContentInfo<Y>> variations;
+		public final Collection<ContentInfo> variations;
 		public final Map<String, Integer> alsoIn;
 
 		public final Optional<LocalDate> releaseDate;
 
-		public ContentInfo(Page page, Y item) {
+		public ContentInfo(Page page, T item) {
 			this.page = page;
 			this.itemHash = item.hash;
 			this.itemName = item.name;
@@ -319,7 +319,7 @@ public abstract class GenericContentPage<T extends Addon> extends ContentPageGen
 
 			this.variations = content.variationsOf(item.hash).stream()
 									 .filter(p -> p.getClass().isAssignableFrom(item.getClass()))
-									 .map(p -> new ContentInfo<>(page, (Y)p))
+									 .map(p -> new ContentInfo(page, (T)p))
 									 .sorted()
 									 .toList();
 
@@ -330,14 +330,14 @@ public abstract class GenericContentPage<T extends Addon> extends ContentPageGen
 			}
 		}
 
-		public Y item() {
+		public T item() {
 			final Addon item = content.forHash(itemHash);
 
-			return (Y)item;
+			return (T)item;
 		}
 
 		@Override
-		public int compareTo(ContentInfo<Y> o) {
+		public int compareTo(ContentInfo o) {
 			return itemName.toLowerCase().compareTo(o.itemName.toLowerCase());
 		}
 	}

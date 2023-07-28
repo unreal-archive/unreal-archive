@@ -36,6 +36,10 @@
 			<#assign themes><@themes themes=map.item.themes/></#assign>
 
 			<#assign author><span title="${map.item.author}"><@authorLink map.item.authorName /></span></#assign>
+			<#assign gametypeLink>
+				<a href="<#if gameTypeInfoPath??>${relPath(gameTypeInfoPath + "/index.html")}<#else>${relPath(gametype.path + "/index.html")}</#if>">${map.item.gametype}</a>
+			</#assign>
+
 			<#assign
 			labels=[
 				  "Name",
@@ -54,7 +58,7 @@
 
 			values=[
 					'${map.item.name}',
-					'<a href="${relPath(gametype.path + "/index.html")}">${map.item.gametype}</a>'?no_esc,
+					'${gametypeLink}'?no_esc,
 					'${map.item.title}',
 					'${author}',
 					'${map.item.playerCount}',

@@ -2,9 +2,13 @@ package org.unrealarchive.www.content;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.unrealarchive.content.Games;
+import org.unrealarchive.content.addons.GameType;
+import org.unrealarchive.content.addons.GameTypeRepository;
 import org.unrealarchive.content.addons.Map;
 import org.unrealarchive.content.addons.SimpleAddonRepository;
 import org.unrealarchive.www.SiteFeatures;
@@ -15,8 +19,13 @@ public class Maps extends GenericContentPage<Map> {
 
 	private static final String SECTION = "Maps";
 
-	public Maps(SimpleAddonRepository content, Path output, Path staticRoot, SiteFeatures features) {
+	private final GameTypeRepository gametypes;
+	private final java.util.Map<Integer, GameType> gameTypeCache = new ConcurrentHashMap<>();
+
+	public Maps(SimpleAddonRepository content, Path output, Path staticRoot, SiteFeatures features,
+				GameTypeRepository gametypes) {
 		super(content, output, output.resolve("maps"), staticRoot, features);
+		this.gametypes = gametypes;
 	}
 
 	@Override
@@ -44,11 +53,11 @@ public class Maps extends GenericContentPage<Map> {
 
 				if (gt.getValue().count < Templates.PAGE_SIZE) {
 					// we can output all maps on a single page
-					List<ContentInfo<Map>> all = gt.getValue().letters.values().stream()
-																	  .flatMap(l -> l.pages.stream())
-																	  .flatMap(e -> e.items.stream())
-																	  .sorted()
-																	  .toList();
+					List<ContentInfo> all = gt.getValue().letters.values().stream()
+																 .flatMap(l -> l.pages.stream())
+																 .flatMap(e -> e.items.stream())
+																 .sorted()
+																 .toList();
 					pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName, gt.getKey()))
 						 .put("gametype", gt.getValue())
 						 .put("maps", all)
@@ -87,8 +96,14 @@ public class Maps extends GenericContentPage<Map> {
 		return pages.pages;
 	}
 
-	private void mapPage(Templates.PageSet pages, ContentInfo<Map> map) {
+	private void mapPage(Templates.PageSet pages, ContentInfo map) {
 		final Map item = map.item();
+
+		final GameType gt = gameTypeCache.computeIfAbsent(
+			Objects.hash(item.game.toLowerCase(), item.gametype.toLowerCase()),
+			k -> gametypes.findGametype(Games.byName(item.game), item.gametype)
+		);
+
 		localImages(item, root.resolve(map.path).getParent());
 
 		pages.add("map.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex), String.join(" / ", SECTION,
@@ -96,8 +111,10 @@ public class Maps extends GenericContentPage<Map> {
 																					  map.page.letter.group.name,
 																					  item.title))
 			 .put("map", map)
+			 .put("gameTypeInfo", gt)
+			 .put("gameTypeInfoPath", gt != null ? gt.slugPath(siteRoot) : null)
 			 .write(item.pagePath(siteRoot));
-		for (ContentInfo<Map> variation : map.variations) {
+		for (ContentInfo variation : map.variations) {
 			this.mapPage(pages, variation);
 		}
 	}

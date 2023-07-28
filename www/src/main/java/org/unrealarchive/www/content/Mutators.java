@@ -40,11 +40,11 @@ public class Mutators extends GenericContentPage<Mutator> {
 			Games game = Games.byName(g.getKey());
 
 			if (g.getValue().count < Templates.PAGE_SIZE) {
-				List<ContentInfo<Mutator>> all = g.getValue().groups.get(SUBGROUP).letters.values().stream()
-																						  .flatMap(l -> l.pages.stream())
-																						  .flatMap(e -> e.items.stream())
-																						  .sorted()
-																						  .toList();
+				List<ContentInfo> all = g.getValue().groups.get(SUBGROUP).letters.values().stream()
+																				 .flatMap(l -> l.pages.stream())
+																				 .flatMap(e -> e.items.stream())
+																				 .sorted()
+																				 .toList();
 				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName))
 					 .put("game", g.getValue())
 					 .put("timeline", timeline)
@@ -88,7 +88,7 @@ public class Mutators extends GenericContentPage<Mutator> {
 		return pages.pages;
 	}
 
-	private void mutatorPage(Templates.PageSet pages, ContentInfo<Mutator> mutator) {
+	private void mutatorPage(Templates.PageSet pages, ContentInfo mutator) {
 		final Addon item = mutator.item();
 		localImages(item, root.resolve(mutator.path).getParent());
 
@@ -99,7 +99,7 @@ public class Mutators extends GenericContentPage<Mutator> {
 			 .write(Paths.get(mutator.path + ".html"));
 
 		// since variations are not top-level things, we need to generate them here
-		for (ContentInfo<Mutator> variation : mutator.variations) {
+		for (ContentInfo variation : mutator.variations) {
 			mutatorPage(pages, variation);
 		}
 	}

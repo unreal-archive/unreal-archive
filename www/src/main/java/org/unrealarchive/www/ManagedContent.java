@@ -75,8 +75,6 @@ public class ManagedContent implements PageGenerator {
 			grp = grp.parent;
 		}
 
-		// FIXME looks like this should use grp rather than group?
-
 		// exclude the root group just used to kick off the generation process
 		if (!group.name.isEmpty()) {
 			pages.add("group.ftl", SiteMap.Page.weekly(0.91f), String.join(" / ", group.parentPath.split("/")))

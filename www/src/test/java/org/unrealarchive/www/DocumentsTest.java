@@ -2,7 +2,6 @@ package org.unrealarchive.www;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -37,7 +36,7 @@ public class DocumentsTest {
 		Path wwwRoot = Files.createTempDirectory("test-docs-www");
 		try {
 			Path docPath = Files.createDirectories(tmpRoot.resolve("test-doc"));
-			Files.write(docPath.resolve("document.yml"), YAML.toString(doc).getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE);
+			Files.writeString(docPath.resolve("document.yml"), YAML.toString(doc), StandardOpenOption.CREATE);
 
 			try (InputStream is = getClass().getResourceAsStream("test.md")) {
 				Files.copy(is, docPath.resolve(doc.name));

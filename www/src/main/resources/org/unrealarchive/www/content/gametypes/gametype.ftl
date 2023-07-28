@@ -42,7 +42,7 @@
 				<section class="contents">
 					<h2><img src="${staticPath()}/images/icons/package.svg" alt="Contents"/> Contents</h2>
 					<#if gametype.gametype.gameTypes?size gt 0>
-						<h3>Game Types (${gametype.gametype.gameTypes?size})</h3>
+						<h3>Included Game Types (${gametype.gametype.gameTypes?size})</h3>
 						<ul class="readable">
 							<#list gametype.gametype.gameTypes as g>
 								<li>
@@ -56,7 +56,7 @@
 					</#if>
 
 					<#if gametype.gametype.mutators?size gt 0>
-						<h3>Mutators (${gametype.gametype.mutators?size})</h3>
+						<h3>Included Mutators (${gametype.gametype.mutators?size})</h3>
 						<ul class="readable">
 							<#list gametype.gametype.mutators as m>
 								<li>
@@ -70,7 +70,7 @@
 					</#if>
 
 					<#if gametype.gametype.maps?size gt 0>
-						<h3>Maps (${gametype.gametype.maps?size})</h3>
+						<h3>Included Maps (${gametype.gametype.maps?size})</h3>
 						<div class="maps">
 							<#list gametype.gametype.maps as m>
 								<div class="map">
