@@ -42,6 +42,7 @@ public class GameType implements ContentEntity<GameType> {
 	public String description = "None";                     // Game mode for jumping and hunting
 	public String titleImage = "title.png";                 // title.jpg - shown on browse page
 	public String bannerImage = "banner.png";               // banner.jpg - shown on detail page
+	public List<String> altNames = new ArrayList<>();
 
 	public Map<String, String> links = new HashMap<>();
 	public Map<String, List<String>> credits = new HashMap<>();

@@ -210,7 +210,12 @@ public interface GameTypeRepository {
 		public GameType findGametype(Games game, String gameType) {
 			return gameTypes.stream()
 							.filter(g -> !g.gametype.deleted())
-							.filter(g -> g.gametype.game().equals(game.name) && g.gametype.name().equalsIgnoreCase(gameType))
+							.filter(g -> g.gametype.game().equals(game.name))
+							.filter(g -> {
+								if (g.gametype.name().equalsIgnoreCase(gameType)) return true;
+								if (g.gametype.altNames == null || g.gametype.altNames.isEmpty()) return false;
+								return g.gametype.altNames.contains(gameType);
+							})
 							.findFirst()
 							.map(h -> h.gametype)
 							.orElse(null);
