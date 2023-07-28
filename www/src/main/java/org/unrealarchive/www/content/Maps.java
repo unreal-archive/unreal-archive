@@ -51,6 +51,11 @@ public class Maps extends GenericContentPage<Map> {
 
 			g.getValue().groups.entrySet().parallelStream().forEach(gt -> {
 
+				final GameType gtInfo = gameTypeCache.computeIfAbsent(
+					Objects.hash(g.getValue().game.name.toLowerCase(), gt.getValue().name.toLowerCase()),
+					k -> gametypes.findGametype(g.getValue().game, gt.getValue().name)
+				);
+
 				if (gt.getValue().count < Templates.PAGE_SIZE) {
 					// we can output all maps on a single page
 					List<ContentInfo> all = gt.getValue().letters.values().stream()
@@ -61,6 +66,8 @@ public class Maps extends GenericContentPage<Map> {
 					pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName, gt.getKey()))
 						 .put("gametype", gt.getValue())
 						 .put("maps", all)
+						 .put("gameTypeInfo", gtInfo)
+						 .put("gameTypeInfoPath", gtInfo != null ? gtInfo.slugPath(siteRoot) : null)
 						 .write(gt.getValue().path.resolve("index.html"));
 
 					// still generate all map pages
@@ -73,6 +80,8 @@ public class Maps extends GenericContentPage<Map> {
 					l.getValue().pages.parallelStream().forEach(p -> {
 						pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName, gt.getKey()))
 							 .put("page", p)
+							 .put("gameTypeInfo", gtInfo)
+							 .put("gameTypeInfoPath", gtInfo != null ? gtInfo.slugPath(siteRoot) : null)
 							 .write(p.path.resolve("index.html"));
 
 						p.items.parallelStream().forEach(map -> mapPage(pages, map));
@@ -81,12 +90,16 @@ public class Maps extends GenericContentPage<Map> {
 					// output first letter/page combo, with appropriate relative links
 					pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName, gt.getKey()))
 						 .put("page", l.getValue().pages.get(0))
+						 .put("gameTypeInfo", gtInfo)
+						 .put("gameTypeInfoPath", gtInfo != null ? gtInfo.slugPath(siteRoot) : null)
 						 .write(l.getValue().path.resolve("index.html"));
 				});
 
 				// output first letter/page combo, with appropriate relative links
 				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName, gt.getKey()))
 					 .put("page", gt.getValue().letters.firstEntry().getValue().pages.get(0))
+					 .put("gameTypeInfo", gtInfo)
+					 .put("gameTypeInfoPath", gtInfo != null ? gtInfo.slugPath(siteRoot) : null)
 					 .write(gt.getValue().path.resolve("index.html"));
 			});
 
@@ -99,7 +112,7 @@ public class Maps extends GenericContentPage<Map> {
 	private void mapPage(Templates.PageSet pages, ContentInfo map) {
 		final Map item = map.item();
 
-		final GameType gt = gameTypeCache.computeIfAbsent(
+		final GameType gtInfo = gameTypeCache.computeIfAbsent(
 			Objects.hash(item.game.toLowerCase(), item.gametype.toLowerCase()),
 			k -> gametypes.findGametype(Games.byName(item.game), item.gametype)
 		);
@@ -111,8 +124,8 @@ public class Maps extends GenericContentPage<Map> {
 																					  map.page.letter.group.name,
 																					  item.title))
 			 .put("map", map)
-			 .put("gameTypeInfo", gt)
-			 .put("gameTypeInfoPath", gt != null ? gt.slugPath(siteRoot) : null)
+			 .put("gameTypeInfo", gtInfo)
+			 .put("gameTypeInfoPath", gtInfo != null ? gtInfo.slugPath(siteRoot) : null)
 			 .write(item.pagePath(siteRoot));
 		for (ContentInfo variation : map.variations) {
 			this.mapPage(pages, variation);

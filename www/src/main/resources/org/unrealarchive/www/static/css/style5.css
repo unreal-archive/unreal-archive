@@ -142,6 +142,13 @@ article.info .screenshots .thumb {
 	border-radius: 4px;
 }
 
+.list .sectionInfo h3 {
+	border-radius: 4px 5px 0 0;
+}
+.list .sectionInfo div {
+	border-radius: 5px;
+}
+
 .contentpage {
 	padding: 15px 0;
 }

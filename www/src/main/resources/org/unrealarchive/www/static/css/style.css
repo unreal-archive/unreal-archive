@@ -404,6 +404,30 @@ nav.letters a.active, nav.pages a.active {
 	box-shadow: var(--paginate-shadow-active);
 }
 
+.list .sectionInfo {
+	background-size: cover;
+	font-size: 1.1em;
+	padding: 0;
+}
+
+.list .sectionInfo div {
+	backdrop-filter: blur(8px) brightness(0.4);
+	padding-bottom: 5px;
+}
+
+.list .sectionInfo p {
+	padding: 20px;
+	margin: 0;
+}
+
+.list .sectionInfo .infoButton {
+	background-color: var(--download-button-bg);
+	display: inline-block;
+	padding: 10px;
+	margin: 5px 0;
+	text-decoration: none;
+}
+
 article.split {
 	margin-top: 10px;
 

@@ -20,6 +20,23 @@
 
 		<@paginator pages=pages currentPage=page />
 
+		<#if gameTypeInfo?? && gameTypeInfoPath??>
+				<#assign gtBg="">
+				<#if gameTypeInfo.leadImage?has_content>
+						<#if gameTypeInfo.leadImage?contains("://")>
+								<#assign gtBg=urlEncode(gameTypeInfo.leadImage)>
+						<#else>
+								<#assign gtBg=rootPath(gameTypeInfo.leadImage)?no_esc>
+						</#if>
+				</#if>
+			<section class="sectionInfo" style='background-image: url("${gtBg}")'>
+				<div>
+					<h3><a href="${relPath(gameTypeInfoPath + "/index.html")}">${gameTypeInfo.name}</a></h3>
+					<p>${gameTypeInfo.description}</p>
+				</div>
+			</section>
+		</#if>
+
 		<table>
 			<thead>
 			<tr>

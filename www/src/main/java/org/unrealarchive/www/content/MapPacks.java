@@ -53,6 +53,12 @@ public class MapPacks extends GenericContentPage<MapPack> {
 				 .write(g.getValue().path.resolve("index.html"));
 
 			g.getValue().groups.entrySet().parallelStream().forEach(gt -> {
+
+				final GameType gtInfo = gameTypeCache.computeIfAbsent(
+					Objects.hash(g.getValue().game.name.toLowerCase(), gt.getValue().name.toLowerCase()),
+					k -> gametypes.findGametype(g.getValue().game, gt.getValue().name)
+				);
+
 				// skip the letter breakdown
 				gt.getValue().letters.get(LETTER_SUBGROUP).pages.parallelStream().forEach(p -> {
 					// don't bother creating numbered single page, default landing page will suffice
@@ -61,6 +67,8 @@ public class MapPacks extends GenericContentPage<MapPack> {
 							 .put("page", p)
 							 .put("pages", gt.getValue().letters.get(LETTER_SUBGROUP).pages)
 							 .put("gametype", gt.getValue())
+							 .put("gameTypeInfo", gtInfo)
+							 .put("gameTypeInfoPath", gtInfo != null ? gtInfo.slugPath(siteRoot) : null)
 							 .write(p.path.resolve("index.html"));
 					}
 
@@ -72,6 +80,8 @@ public class MapPacks extends GenericContentPage<MapPack> {
 					 .put("page", gt.getValue().letters.get(LETTER_SUBGROUP).pages.get(0))
 					 .put("pages", gt.getValue().letters.get(LETTER_SUBGROUP).pages)
 					 .put("gametype", gt.getValue())
+					 .put("gameTypeInfo", gtInfo)
+					 .put("gameTypeInfoPath", gtInfo != null ? gtInfo.slugPath(siteRoot) : null)
 					 .write(gt.getValue().path.resolve("index.html"));
 			});
 
