@@ -31,6 +31,7 @@
 				</#if>
 
 				<li style='background-image: url("${bg}")'>
+					<span class="meta"><img src="${staticPath()}/images/games/icons/${c.game}.png" alt="${c.game}" title="${c.game}"/></span>
 					<a href="${relPath(c.pagePath(siteRoot))}">${c.name}</a>
 				</li>
 			</#list>
