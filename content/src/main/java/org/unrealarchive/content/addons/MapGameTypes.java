@@ -19,7 +19,7 @@ public class MapGameTypes {
 		new MapGameType("BunnyTrack", "CTF-BT", "BT"),
 		new MapGameType("Multi-Team CTF", "CTF4", "CTFM", "MCTF"),
 		new MapGameType("Capture The Flag", "CTF"),
-		new MapGameType("Greed", "CTF-GRD", "VCTF-GRD"),
+		new MapGameType("Greed", "CTF-GRD", "VCTF-GRD", "CTF-Greed-", "VCTF-Greed-"),
 		new MapGameType("Domination", "DOM", "CDOM"),
 		new MapGameType("Assault", "AS"),
 		new MapGameType("Bombing Run", "BR"),
