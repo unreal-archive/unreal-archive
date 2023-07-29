@@ -116,8 +116,8 @@ dependencies {
 	implementation project(':storage')
 	implementation project(':content')
 
-	implementation 'net.shrimpworks:unreal-package-lib:1.10.24'
-	implementation 'net.shrimpworks:package-dependency:1.4.22'
+	implementation 'net.shrimpworks:unreal-package-lib:1.11.25'
+	implementation 'net.shrimpworks:package-dependency:1.4.24'
 
 	implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.3'
 	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.14.3'
