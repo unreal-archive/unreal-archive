@@ -199,7 +199,7 @@ public class Main {
 						 System.getenv().getOrDefault("SITE_URL", ""),
 						 System.getenv().getOrDefault("MES_CONTENT_URL", System.getenv().getOrDefault("MES_URL", "")),
 						 System.getenv().getOrDefault("MES_CONTENT_TOKEN", System.getenv().getOrDefault("MES_TOKEN", "")),
-						 100, // submission batch size
+						 200, // submission batch size
 						 percent -> System.out.printf("\r%.1f%% complete", percent * 100d),
 						 done -> System.out.printf("%nSearch submission complete in %.2fs%n",
 												   (System.currentTimeMillis() - start) / 1000f));
@@ -209,7 +209,7 @@ public class Main {
 						 System.getenv().getOrDefault("SITE_URL", ""),
 						 System.getenv().getOrDefault("MES_WIKI_URL", ""),
 						 System.getenv().getOrDefault("MES_WIKI_TOKEN", ""),
-						 20, // submission batch size
+						 50, // submission batch size
 						 percent -> System.out.printf("\r%.1f%% complete", percent * 100d),
 						 done -> System.out.printf("%nSearch submission complete in %.2fs%n",
 												   (System.currentTimeMillis() - start) / 1000f));
