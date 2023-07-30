@@ -73,28 +73,22 @@ public class Main {
 		}
 
 		switch (cli.commands()[0].toLowerCase()) {
-			case "index":
+			case "index" -> {
 				SimpleAddonRepository indexRepo = contentRepo(cli);
 				index(indexRepo, contentManager(cli, indexRepo), cli);
-				break;
-			case "scan":
-				scan(contentRepo(cli), cli);
-				break;
-			case "edit":
-				edit(contentManager(cli, contentRepo(cli)), cli);
-				break;
-			case "set":
-				set(contentManager(cli, contentRepo(cli)), cli);
-				break;
-			case "gametype":
+			}
+			case "scan" -> scan(contentRepo(cli), cli);
+			case "edit" -> edit(contentManager(cli, contentRepo(cli)), cli);
+			case "set" -> set(contentManager(cli, contentRepo(cli)), cli);
+			case "gametype" -> {
 				GameTypeRepository gameTypeRepo = gameTypeRepo(cli);
 				gametype(gameTypeRepo, gameTypeManager(cli, gameTypeRepo), cli);
-				break;
-			case "managed":
+			}
+			case "managed" -> {
 				ManagedContentRepository managedRepo = managedRepo(cli);
 				managed(managedRepo, managedContentManager(cli, managedRepo), cli);
-				break;
-			case "mirror":
+			}
+			case "mirror" -> {
 				SimpleAddonRepository mirrorRepo = contentRepo(cli);
 				GameTypeRepository gameTypeMirrorRepo = gameTypeRepo(cli);
 				ManagedContentRepository managedMirrorRepo = managedRepo(cli);
@@ -102,33 +96,19 @@ public class Main {
 					   gameTypeMirrorRepo, gameTypeManager(cli, gameTypeMirrorRepo),
 					   managedMirrorRepo, managedContentManager(cli, managedMirrorRepo),
 					   cli);
-				break;
-			case "local-mirror":
-				localMirror(contentRepo(cli), cli);
-				break;
-			case "summary":
-				contentRepo(cli).summary();
-				break;
-			case "ls":
-				list(contentRepo(cli), cli);
-				break;
-			case "filter":
-				filter(contentRepo(cli), cli);
-				break;
-			case "show":
-				show(contentRepo(cli), cli);
-				break;
-			case "unpack":
-				unpack(cli);
-			case "install":
-				install(contentRepo(cli), cli);
-				break;
-			case "wiki":
-				wiki(wikiRepo(cli));
-				break;
-			default:
+			}
+			case "local-mirror" -> localMirror(contentRepo(cli), cli);
+			case "summary" -> System.out.println(contentRepo(cli).summary());
+			case "ls" -> list(contentRepo(cli), cli);
+			case "filter" -> filter(contentRepo(cli), cli);
+			case "show" -> show(contentRepo(cli), cli);
+			case "unpack" -> unpack(cli);
+			case "install" -> install(contentRepo(cli), cli);
+			case "wiki" -> wiki(wikiRepo(cli));
+			default -> {
 				System.out.printf("Command \"%s\" does not exist!%n%n", cli.commands()[0]);
 				usage();
+			}
 		}
 
 		System.exit(0);

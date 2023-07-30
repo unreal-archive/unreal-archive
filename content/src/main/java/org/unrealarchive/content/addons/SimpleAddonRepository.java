@@ -243,8 +243,8 @@ public interface SimpleAddonRepository {
 			this.contentFileMap = new ConcurrentHashMap<>(FILES_INITIAL_SIZE);
 			this.variationsMap = new ConcurrentHashMap<>(VARIATION_INITIAL_SIZE);
 
-			try (Stream<Path> files = Files.find(path, 20, (file, attr) -> file.toString().endsWith(".yml")).parallel()) {
-				files.forEach(file -> {
+			try (Stream<Path> files = Files.find(path, 20, (file, attr) -> file.toString().endsWith(".yml"))) {
+				files.parallel().forEach(file -> {
 					try {
 						Addon c = YAML.fromFile(file, Addon.class);
 						ContentHolder holder = new ContentHolder(file, c);

@@ -89,6 +89,9 @@ def tarBinary = artifacts.add('archives', layout.buildDirectory.file("${project.
 	builtBy 'jlinkTar'
 }
 
+/**
+ * note - creating a tar bundle because the zip one appears to have issues with execution permissions once unpacked.
+ */
 tasks.register('jlinkTar', Tar) {
 	dependsOn jlinkZip
 	archiveFileName = "${jlink.imageName.get()}.tgz"
