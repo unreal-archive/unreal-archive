@@ -66,8 +66,14 @@ public class ContentManager {
 				try {
 					String uploadPath = repo.path().relativize(next.resolve(file.name)).toString();
 					if (file.type == Addon.AttachmentType.IMAGE) {
-						imageStore.store(file.path, uploadPath, (fileUrl, ex) ->
-							indexed.content.attachments.add(new Addon.Attachment(file.type, file.name, fileUrl)));
+						imageStore.store(file.path, uploadPath, (fileUrl, ex) -> {
+							if (ex == null && fileUrl != null) {
+								indexed.content.attachments.add(new Addon.Attachment(file.type, file.name, fileUrl));
+							} else {
+								// FIXME
+								ex.printStackTrace();
+							}
+						});
 					}
 				} finally {
 					// cleanup file once uploaded
