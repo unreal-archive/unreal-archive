@@ -37,7 +37,7 @@ public class ArchiveUtil {
 	private static final Path WIN_UNRAR_BIN = PROGRAM_FILES.resolve("WinRAR").resolve("UnRAR.exe");
 
 	private static final Set<Integer> ALLOWED_EXT_SEVENZIP = Set.of(0, 1);
-	private static final Set<Integer> ALLOWED_EXT_UNRAR = Set.of(0, 1);
+	private static final Set<Integer> ALLOWED_EXT_UNRAR = Set.of(0, 1, 3); // 1 - warning, 3 - crc error on a file
 
 	// these will be populated at runtime and remembered after resolving OS-specific command paths
 	private static String unrar = null;
@@ -69,7 +69,7 @@ public class ArchiveUtil {
 		result = switch (ext) {
 			case "zip", "z", "gz", "7z", "lzh", "lza", "exe" ->
 				exec(sevenZipCmd(source, destination), source, destination, timeout, ALLOWED_EXT_SEVENZIP);
-			case "rar" -> exec(rarCmd(source, destination), source, destination, timeout, ALLOWED_EXT_UNRAR);
+			case "rar" -> exec(unrarCmd(source, destination), source, destination, timeout, ALLOWED_EXT_UNRAR);
 			default -> throw new UnsupportedArchiveException(String.format("Format %s not supported for archive %s", ext, source));
 		};
 
@@ -183,20 +183,20 @@ public class ArchiveUtil {
 			"x",                          // extract
 			"-bd",                        // no progress
 			"-y",                         // yes to all
-			"-aou",                          // overwrite mode: rename
-			"-pPASSWORD",                  // use password "password" by default - prevents sticking archives with passwords
+			"-aou",                       // overwrite mode: rename
+			"-pPASSWORD",                 // use password "password" by default - prevents sticking archives with passwords
 			source.toString(),            // file to extract
 			"-o" + destination.toString() // destination directory
 		};
 	}
 
-	private static String[] rarCmd(Path source, Path destination) {
+	private static String[] unrarCmd(Path source, Path destination) {
 		return new String[] {
 			unrarBin(),
 			"x",                   // extract
 			"-y",                  // yes to all
-			"-or",                   // rename files (overwrite mode?)
-			"-pPASSWORD",           // use password "password" by default - prevents sticking archives with passwords
+			"-or",                 // rename files (overwrite mode?)
+			"-pPASSWORD",          // use password "password" by default - prevents sticking archives with passwords
 			source.toString(),     // file to extract
 			destination.toString() // destination directory
 		};

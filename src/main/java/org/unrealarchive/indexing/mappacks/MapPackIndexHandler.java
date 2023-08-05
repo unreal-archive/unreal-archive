@@ -100,6 +100,12 @@ public class MapPackIndexHandler implements IndexHandler<MapPack> {
 			}
 		}
 
+		try {
+			IndexUtils.saveImages(IndexUtils.SHOT_NAME, m, IndexUtils.findImageFiles(incoming), attachments);
+		} catch (Exception e) {
+			log.log(IndexLog.EntryType.CONTINUE, "Failed finding additional attachment images", e);
+		}
+
 		m.author = UNKNOWN;
 		for (MapPack.PackMap map : m.maps) {
 			if (m.author.equals(UNKNOWN)) {

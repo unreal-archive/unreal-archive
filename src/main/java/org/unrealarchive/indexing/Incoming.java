@@ -166,18 +166,7 @@ public class Incoming implements Closeable {
 
 	private void extract(Path archive, Path destination) throws IOException, UnsupportedOperationException {
 		try {
-			Path rootExtracted = ArchiveUtil.extract(archive, destination, EXTRACT_TIMEOUT, true);
-			Files.walkFileTree(rootExtracted, new SimpleFileVisitor<>() {
-				@Override
-				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-					try {
-						if (ArchiveUtil.isArchive(file)) extract(file, destination.resolve(file.getFileName().toString() + ".ex"));
-					} catch (ArchiveUtil.BadArchiveException ex) {
-						// pass - don't fail on internal file extractions
-					}
-					return FileVisitResult.CONTINUE;
-				}
-			});
+			ArchiveUtil.extract(archive, destination, EXTRACT_TIMEOUT, true); // also extract inner archives recursively
 		} catch (InterruptedException e) {
 			throw new IOException("Extract took too long", e);
 		}
