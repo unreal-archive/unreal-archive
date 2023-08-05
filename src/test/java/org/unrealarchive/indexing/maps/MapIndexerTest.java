@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
+import org.unrealarchive.content.Games;
 import org.unrealarchive.content.addons.Map;
 import org.unrealarchive.content.addons.MapGameTypes;
 import org.unrealarchive.content.addons.SimpleAddonType;
@@ -20,14 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class MapIndexerTest {
-
-	@Test
-	public void gametypeDetection() {
-		assertEquals("Greed", MapGameTypes.forMap("CTF-GRD-Cake").name);
-		assertEquals("Greed", MapGameTypes.forMap("VCTF-GRD-Cake").name);
-		assertEquals("Capture The Flag", MapGameTypes.forMap("CTF-Lies").name);
-		assertEquals("DeathMatch", MapGameTypes.forMap("DM-DeathMatch").name);
-	}
 
 	@Test
 	public void utMap() throws IOException {

@@ -32,6 +32,7 @@ import net.shrimpworks.unreal.packages.entities.properties.StringProperty;
 
 import org.unrealarchive.common.Util;
 import org.unrealarchive.content.FileType;
+import org.unrealarchive.content.Games;
 import org.unrealarchive.content.addons.Addon;
 import org.unrealarchive.content.addons.Map;
 import org.unrealarchive.content.addons.MapGameTypes;
@@ -68,7 +69,6 @@ public class MapIndexHandler implements IndexHandler<Map> {
 
 		// populate basic information; the rest of this will be filled in later if possible
 		m.name = mapName(baseMap);
-		m.gametype = gameType(incoming, m.name);
 		m.title = m.name;
 
 		boolean gameOverride = false;
@@ -78,6 +78,8 @@ public class MapIndexHandler implements IndexHandler<Map> {
 		} else {
 			m.game = IndexUtils.game(incoming).name;
 		}
+
+		m.gametype = gameType(incoming, Games.byName(m.game), m.name);
 
 		Set<IndexResult.NewAttachment> attachments = new HashSet<>();
 
@@ -242,10 +244,10 @@ public class MapIndexHandler implements IndexHandler<Map> {
 		return Util.plainName(mapFile.fileName());
 	}
 
-	private String gameType(Incoming incoming, String name) {
+	private String gameType(Incoming incoming, Games game, String name) {
 		if (incoming.submission.override.get("gameType", null) != null) return incoming.submission.override.get("gameType", "DeathMatch");
 
-		MapGameTypes.MapGameType gameType = MapGameTypes.forMap(name);
+		MapGameTypes.MapGameType gameType = MapGameTypes.forMap(game, name);
 
 		if (gameType == null && maybeSingleplayer(incoming)) return "Single Player";
 

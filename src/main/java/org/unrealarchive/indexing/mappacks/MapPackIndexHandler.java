@@ -25,6 +25,7 @@ import net.shrimpworks.unreal.packages.entities.properties.StringProperty;
 import org.unrealarchive.common.Util;
 import org.unrealarchive.content.AuthorNames;
 import org.unrealarchive.content.FileType;
+import org.unrealarchive.content.Games;
 import org.unrealarchive.content.addons.Addon;
 import org.unrealarchive.content.addons.MapGameTypes;
 import org.unrealarchive.content.addons.MapPack;
@@ -112,7 +113,7 @@ public class MapPackIndexHandler implements IndexHandler<MapPack> {
 		// find a common gametype if possible
 		m.gametype = UNKNOWN;
 		for (MapPack.PackMap map : m.maps) {
-			MapGameTypes.MapGameType gt = MapGameTypes.forMap(map.name);
+			MapGameTypes.MapGameType gt = MapGameTypes.forMap(Games.byName(m.game), map.name);
 			if (gt == null) continue;
 
 			if (m.gametype.equals(UNKNOWN)) {

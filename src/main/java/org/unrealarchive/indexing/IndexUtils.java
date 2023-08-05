@@ -53,7 +53,7 @@ public class IndexUtils {
 
 	public static final String RELEASE_UT99 = "1999-11";
 
-	public static final Pattern AUTHOR_MATCH = Pattern.compile("(.+)?(author|by)(\\(s\\))?([\\s:]+)?([A-Za-z0-9 _\\-\"']{4,35})(\\s+)?",
+	public static final Pattern AUTHOR_MATCH = Pattern.compile("(.+)?(author|by)(\\(s\\))?([\\s:]+)?(.{4,35})(\\s+)?",
 															   Pattern.CASE_INSENSITIVE);
 	public static final Pattern PLAYER_MATCH = Pattern.compile("(.+)?(player)(s| count)?([\\s:]+)?([A-Za-z0-9 \\-]{1,16})(\\s+)?",
 															   Pattern.CASE_INSENSITIVE);
@@ -401,17 +401,23 @@ public class IndexUtils {
 		try {
 			List<String> lines = IndexUtils.textContent(incoming, types);
 
-			for (String s : lines) {
-				Matcher m = AUTHOR_MATCH.matcher(s);
-				if (m.matches() && !m.group(5).trim().isEmpty()) {
-					return m.group(5).trim();
-				}
-			}
+			String maybeAuthor = findAuthor(lines);
+			if (maybeAuthor != null) return maybeAuthor;
 		} catch (IOException e) {
 			incoming.log.log(IndexLog.EntryType.CONTINUE, "Failed attempt to read author", e);
 		}
 
 		return UNKNOWN;
+	}
+
+	public static String findAuthor(List<String> lines) {
+		for (String s : lines) {
+			Matcher m = AUTHOR_MATCH.matcher(s);
+			if (m.matches() && !m.group(5).trim().isEmpty()) {
+				return m.group(5).trim();
+			}
+		}
+		return null;
 	}
 
 	/**
