@@ -150,10 +150,31 @@ public class MutatorIndexHandler implements IndexHandler<Mutator> {
 
 						  if (!mapVal.containsKey("MetaClass")) continue;
 
+						  String[] className = mapVal.get("Name") == null ? new String[0] : mapVal.get("Name").split("\\.", 2);
 						  if (MutatorClassifier.UT_MUTATOR_CLASS.equalsIgnoreCase(mapVal.get("MetaClass"))) {
-							  mutator.mutators.add(new NameDescription(mapVal.get("Description")));
+							  if (mapVal.get("Description") != null) {
+								  mutator.mutators.add(new NameDescription(mapVal.get("Description")));
+							  } else if (className.length == 2) {
+								  mutator.mutators.add(new NameDescription(className[1]));
+							  }
 						  } else if (MutatorClassifier.UT_WEAPON_CLASS.equalsIgnoreCase(mapVal.get("MetaClass"))) {
-							  mutator.weapons.add(new NameDescription(mapVal.get("Description")));
+							  /*
+							    try to find the weapon name and description from alternative language values if available
+							   */
+							  if (mapVal.get("Description") == null && className.length == 2 && intFile.section(className[1]) != null) {
+								  IntFile.Section weapSection = intFile.section(className[1]);
+								  if (weapSection.value("WeaponDescription") != null) {
+									  mutator.weapons.add(
+										  // replacing (literal) \n with | to match UT2004 style multi-line descriptions for rendering simplicity
+										  new NameDescription(className[1], weapSection.value("WeaponDescription")
+																					   .toString().replace("\\n", "|"))
+									  );
+								  }
+							  } else if (mapVal.get("Description") != null) {
+								  mutator.weapons.add(new NameDescription(mapVal.get("Description")));
+							  } else if (className.length == 2) {
+								  mutator.weapons.add(new NameDescription(className[1]));
+							  }
 						  } else if (MutatorClassifier.UT_KEYBINDINGS_CLASS.equalsIgnoreCase(mapVal.get("MetaClass"))) {
 							  mutator.hasKeybinds = true;
 						  } else if (MutatorClassifier.UT_MENU_CLASS.equalsIgnoreCase(mapVal.get("MetaClass"))) {
