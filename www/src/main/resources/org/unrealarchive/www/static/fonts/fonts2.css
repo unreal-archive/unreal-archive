@@ -3,7 +3,7 @@
 	src: url('../fonts/encode-sans-expanded-regular.woff2') format('woff2');
 	font-weight: normal;
 	font-style: normal;
-	font-display: swap;
+	font-display: auto;
 }
 
 @font-face {
@@ -11,7 +11,7 @@
 	src: url('../fonts/encode-sans-semi-condensed-regular.woff2') format('woff2');
 	font-weight: normal;
 	font-style: normal;
-	font-display: swap;
+	font-display: auto;
 }
 
 @font-face {
@@ -19,5 +19,5 @@
 	src: url('../fonts/squada-one-regular.woff2') format('woff2');
 	font-weight: normal;
 	font-style: normal;
-	font-display: swap;
+	font-display: auto;
 }
