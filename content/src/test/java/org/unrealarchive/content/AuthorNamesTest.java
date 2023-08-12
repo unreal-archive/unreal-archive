@@ -1,6 +1,7 @@
 package org.unrealarchive.content;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -13,7 +14,8 @@ public class AuthorNamesTest {
 	@Test
 	public void namesTest() {
 		AuthorNames name = new AuthorNames(new HashMap<>(), Set.of());
-		assertEquals(name.cleanName("Eenocks/MH-Conversion by Barbie"), "Eenocks/Barbie");
+		assertEquals("Eenocks/Barbie", name.cleanName("Eenocks/MH-Conversion by Barbie"));
+		assertEquals("The-Ultimate", name.cleanName("The-Ultimate *Imported from UT by RUSH*"));
 	}
 
 	@Test
@@ -50,6 +52,23 @@ public class AuthorNamesTest {
 		name.maybeAutoAlias("Mr. Banan");
 		assertEquals("Mike \"Mr. Banan\" Bananas", name.cleanName("Mike \"Mr. Banan\" Bananas"));
 		assertEquals("Mr. Banan", name.cleanName("Mr. Banan"));
+	}
+
+	@Test
+	public void ignoreImportedOrConvertedAliasingTest() {
+		AuthorNames name = new AuthorNames(new HashMap<>(), new HashSet<>());
+		name.maybeAutoAlias("Mike \"Mr. Banan\" Bananas (Modified Apples)");
+		name.maybeAutoAlias("Mr. Banan Imported by Other Guy");
+		name.maybeAutoAlias("Cliff Bleszinski (Converted by JiveTurkey)");
+		name.maybeAutoAlias("Cliff \"CliffyB\" Bleszinski");
+		name.maybeAutoAlias("Cliff \"CliffyB\" Bleszinski, converted by");
+		name.maybeAutoAlias("Cliff Bleszinski *Converted from UT to Unreal by Dik*");
+
+		assertEquals("Mike \"Mr. Banan\" Bananas", name.cleanName("Mike \"Mr. Banan\" Bananas"));
+		assertEquals("Mr. Banan", name.cleanName("Mr. Banan"));
+		assertEquals("Cliff \"CliffyB\" Bleszinski", name.cleanName("Cliff \"CliffyB\" Bleszinski"));
+		assertEquals("Cliff \"CliffyB\" Bleszinski", name.cleanName("CliffyB"));
+		assertEquals("Cliff \"CliffyB\" Bleszinski", name.cleanName("Cliff \"CliffyB\" Bleszinski, converted by"));
 	}
 
 	@Test

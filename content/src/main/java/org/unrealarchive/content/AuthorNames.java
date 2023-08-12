@@ -27,8 +27,10 @@ public class AuthorNames {
 		"(-? ?)?\\(?((https?://)?(www\\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\\.[a-zA-Z0-9()]{2,6}\\b([-a-zA-Z0-9()!@:%_+.~#?&/=]*))\\)?"
 	);
 	private static final Pattern BY = Pattern.compile("(([Mm]ade).+)?\\s?([Bb]y)");
-	private static final Pattern CONVERTED = Pattern.compile("([-A-Za-z]+?[Cc]onver[^\\s]+)\\s([Bb]y)?");
+	private static final Pattern CONVERTED = Pattern.compile("(([-A-Za-z]+?|, )[Cc]onver[^\\s]+)(\\s)?([Bb]y)?");
 	private static final Pattern IMPORTED = Pattern.compile("\\s(\\*)?[Ii]mported.*(\\*)?");
+	private static final Pattern MODIFIED = Pattern.compile("([Mm]odifi[^\\s]+)\\s([Bb]y)?");
+	private static final Pattern EDITED = Pattern.compile("([Ee]dit[^\\s]+)\\s([Bb]y)?");
 
 	private static final Pattern AKA = Pattern.compile("(.*)\\s+a\\.?k\\.?a\\.?:?\\s+?(.*)", Pattern.CASE_INSENSITIVE);
 	private static final Pattern HANDLE = Pattern.compile("(.*)\\s+(['\"]([^'^\"]+)['\"])\\s+?(.*)", Pattern.CASE_INSENSITIVE);
@@ -47,7 +49,7 @@ public class AuthorNames {
 						  try {
 							  List<String> names = Files.readAllLines(path);
 							  for (String name : names.subList(1, names.size())) {
-								  if (name.isBlank()) continue;
+								  if (name.isBlank() || name.trim().startsWith("#")) continue;
 								  aliases.put(name.toLowerCase().strip(), names.get(0).strip());
 							  }
 						  } catch (IOException e) {
@@ -59,7 +61,10 @@ public class AuthorNames {
 		final Path exclude = aliasPath.resolve("no-auto-alias").resolve("exclude.txt");
 		if (Files.exists(exclude)) {
 			try {
-				nonAutoAliases.addAll(Files.readAllLines(exclude).stream().map(String::toLowerCase).collect(Collectors.toSet()));
+				nonAutoAliases.addAll(Files.readAllLines(exclude).stream()
+										   .filter(name -> !name.isBlank() && !name.trim().startsWith("#"))
+										   .map(String::toLowerCase)
+										   .collect(Collectors.toSet()));
 			} catch (IOException e) {
 				throw new RuntimeException("Failed to load non-alias names from file " + exclude, e);
 			}
@@ -81,6 +86,11 @@ public class AuthorNames {
 	 */
 	public void maybeAutoAlias(String author) {
 		if (author.isBlank()) return;
+
+		if (MODIFIED.matcher(author).find()) return;
+		if (EDITED.matcher(author).find()) return;
+		if (IMPORTED.matcher(author).find()) return;
+		if (CONVERTED.matcher(author).find()) return;
 
 		if (nonAutoAliases.contains(author.toLowerCase().strip())) return;
 		if (aliases.containsKey(author.toLowerCase().strip())) return;

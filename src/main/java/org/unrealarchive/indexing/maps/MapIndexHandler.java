@@ -176,10 +176,10 @@ public class MapIndexHandler implements IndexHandler<Map> {
 
 		if (!gameOverride) {
 			// use this opportunity to resolve some version overlap between game versions
-			if (screenshot != null && map.version < 117 && !map.objectsByClassName("LevelSummary").isEmpty()) {
+			if (screenshot != null && map.version < 117 && !map.objectsByClassName("LevelSummary").isEmpty()
+				&& m.game.equals("Unreal")) {
 				m.game = "Unreal Tournament";
-			}
-			if (m.gametype.equals("XMP") && map.version >= 126
+			} else if (m.gametype.equals("XMP") && map.version >= 126
 				&& !map.exportsByClassName("DeploymentPoint").isEmpty() && m.game.equals("Unreal Tournament")) {
 				m.game = "Unreal 2";
 			}

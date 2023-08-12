@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: ${rootUrl}/sitemap.xml
+Sitemap: ${rootUrl}sitemap.xml
