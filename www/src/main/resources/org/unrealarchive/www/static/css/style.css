@@ -13,6 +13,7 @@
 	--header-border-color: #f73;
 	--header-logo-color-a: white;
 	--header-logo-color-b: #aaa;
+	--header-shadow: none;
 
 	--header-outline-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
 
@@ -119,7 +120,6 @@ h2 img, h3 img, h4 img {
 
 .mainpage {
 	min-height: 100vh;
-	background-color: rgba(78, 78, 80, 0.2);
 	box-shadow: 0 0 30px 0 rgba(0, 0, 0, 0.5);
 }
 
@@ -131,6 +131,7 @@ header {
 	background-color: var(--header-bg-color);
 	color: var(--header-text-color);
 	border-bottom: 4px solid var(--header-border-color);
+	box-shadow: var(--header-shadow);
 }
 
 footer {
@@ -405,19 +406,30 @@ nav.letters a.active, nav.pages a.active {
 }
 
 .list .sectionInfo {
-	background-size: cover;
 	font-size: 1.1em;
 	padding: 0;
+
+	display: grid;
+	grid-template-columns: auto min-content;
+	grid-template-areas:
+		'top top'
+    'desc pic';
 }
 
-.list .sectionInfo div {
-	backdrop-filter: blur(8px) brightness(0.4);
-	padding-bottom: 5px;
+.list .sectionInfo h3 {
+	grid-area: top;
 }
 
 .list .sectionInfo p {
 	padding: 20px;
 	margin: 0;
+	grid-area: desc;
+}
+
+.list .sectionInfo img {
+	max-height: 120px;
+	grid-area: pic;
+	margin: 10px;
 }
 
 .list .sectionInfo .infoButton {
@@ -426,6 +438,7 @@ nav.letters a.active, nav.pages a.active {
 	padding: 10px;
 	margin: 5px 0;
 	text-decoration: none;
+	border-radius: 5px;
 }
 
 article.split {

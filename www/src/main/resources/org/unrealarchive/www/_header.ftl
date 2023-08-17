@@ -5,7 +5,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
 	<title>${siteName} / ${title}</title>
-	<link rel="stylesheet" href="${staticPath()}/css/all.css?v=20230806">
+	<link rel="stylesheet" href="${staticPath()}/css/all.css?v=20230817">
 	<#if extraCss??>
 		<link rel="stylesheet" href="${staticPath()}/css/${extraCss}">
 	</#if>
@@ -50,7 +50,14 @@
 				"datePublished": "${schemaItemDate}"
 		}</script>
 	</#if>
+
 </head>
+
+<script>
+	// theme switching... sigh.
+	let theme = localStorage.getItem('theme') ? localStorage.getItem('theme') : null;
+	if (theme) document.documentElement.setAttribute('data-theme', theme);
+</script>
 
 <body>
 <#include "title.ftl">

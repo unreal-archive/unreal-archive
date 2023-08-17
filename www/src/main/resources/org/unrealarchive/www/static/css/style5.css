@@ -7,7 +7,7 @@
 	--p6: #a3e312;
 	--p7: #202023;
 
-	--body-bg: var(--p1);
+	--body-bg: #1c1c1f;
 	--body-color: lightgray;
 	--body-font-family: 'Encode Sans Semi Condensed', sans-serif;
 	--article-font-family: 'Encode Sans Expanded', sans-serif;
@@ -21,17 +21,18 @@
 	--header-border-color: var(--p6);
 	--header-logo-color-a: white;
 	--header-logo-color-b: var(--p2);
+	--header-shadow: 0 0 30px 0 rgba(0, 0, 0, 0.5);
 
 	--header-outline-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
 
 	--footer-border-color: var(--p4);
 
 	--menu-font-family: 'Encode Sans Expanded', sans-serif;
-	--menu-text-color: white;
-	--menu-trim-color: 1px dotted white;
+	--menu-text-color: var(--body-color);
+	--menu-trim-color: 1px dotted var(--menu-text-color);
 
 	--section-header-bg: var(--p4);
-	--section-header-shadow: inset 0 0 100px 0 rgba(0, 0, 0, 0.75);
+	--section-header-shadow: 0 0 30px 0 rgba(0, 0, 0, 0.5);
 	--section-header-title-bg: rgba(78, 78, 80, 0.5);
 	--section-header-title-shadow: -1px -2px 15px -4px rgba(0, 0, 0, 0.4);
 	--section-header-title-color: white;
@@ -91,11 +92,6 @@ div.themes img[src$="svg"] {
 header {
 	position: relative;
 	z-index: 5;
-	box-shadow: 0 0 30px 0 rgba(0, 0, 0, 0.5);
-}
-
-section.header {
-	box-shadow: 0 0 30px 0 rgba(0, 0, 0, 0.5);
 }
 
 .biglist ul li a:hover {
@@ -141,9 +137,6 @@ article.info .screenshots .thumb {
 .list .sectionInfo h3 {
 	border-radius: 4px 5px 0 0;
 }
-.list .sectionInfo div {
-	border-radius: 5px;
-}
 
 .contentpage {
 	padding: 15px 0;
@@ -188,96 +181,19 @@ section.downloads .links a {
 }
 
 /**
-  Light theme support - mostly duplicated from `style4`.
+  Light theme support
  */
-@media (prefers-color-scheme: light) {
-	:root {
-		--p1: #fff;
-		--p2: #ccf;
-		--p3: #27f;
-		--p4: #999;
-		--p5: #a7f;
-		--p6: #e45;
-
-		--body-bg: var(--p1);
-		--body-color: #000;
-
-		--link-color: blue;
-		--link-color-visited: purple;
-
-		--header-bg-color: #27f;
-		--header-text-color: white;
-		--header-border-color: var(--p6);
-		--header-logo-color-a: white;
-		--header-logo-color-b: var(--p2);
-
-		--header-outline-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
-
-		--footer-border-color: var(--p4);
-
-		--menu-text-color: white;
-		--menu-trim-color: 1px dotted white;
-
-		--section-header-bg: var(--p4);
-		--section-header-shadow: none;
-		--section-header-title-bg: rgba(170, 170, 180, 0.3);
-		--section-header-title-shadow: none;
-		--section-header-title-color: white;
-		--section-header-title-color-hover: var(--p2);
-
-		--section-subheader-bg: var(--p3);
-		--section-subheader-color: #fff;
-
-		--biglist-shadow: inset 0 0 80px 0 rgba(0, 0, 0, 0.75);
-		--biglist-bg-color: var(--p4);
-		--biglist-bg-color-hover: rgba(255, 255, 255, 0.3);
-		--biglist-text-color: white;
-		--biglist-meta-color: rgba(255, 255, 255, 0.5);
-
-		--paginate-bg-inactive: #fff;
-		--paginate-bg-hover: var(--p6);
-		--paginate-bg-active: #fde;
-		--paginate-shadow-active: inset 0 -4px 0 0 var(--p6);
-		--paginate-border: none;
-
-		--download-button-bg: #2da;
-		--download-button-bg-hover: #afd;
-		--download-info-bg-hover: #afd;
-
-		--table-header-bg: none;
-		--table-header-color: #000;
-		--table-row-alt-bg: #e2e9ff;
-		--table-row-hover: var(--p2);
-
-		--document-meta-border: none;
-		--document-meta-bg: #eaefff;
-	}
-
-	.mainpage {
-		background-color: #f8f9fa00;
-		box-shadow: none;
-	}
-
-	td.meta img[src$="svg"], footer img[src$="svg"], .report img[src$="svg"] {
-		filter: invert(0.2);
-	}
-
-	article.managed section.downloads .download .title img[src$="svg"], .variation img[src$="svg"] {
-		filter: invert(0.8);
-	}
-
-	h2 img:not(#search-results *), h3 img {
-		margin-top: -9px;
-		filter: invert(1);
-	}
-
-	article section h3 {
-		background-color: var(--p5);
-		color: var(--section-header-title-color);
-	}
-
-	table thead, table th {
-		border-bottom: 1px solid #000;
-		text-align: left;
-	}
+[data-theme="light"] {
+	--p1: #1a1a1d;
+	--p7: #f9f7f7;
+	--body-bg: #fff;
+	--body-color: black;
+	--link-color: blue;
+	--link-color-visited: purple;
+	--menu-text-color: white;
+	--download-button-bg: #22dd48;
+	--download-button-bg-hover: #b1ffaa;
+	--download-info-bg-hover: #eee;
+	--table-header-color: black;
+	--table-row-alt-bg: #eee;
 }

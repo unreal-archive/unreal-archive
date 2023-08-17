@@ -12,12 +12,25 @@
 				<input type="checkbox" id="hamburger"/>
 				<ul>
 					<#if features??>
-							<#if features.search><li><a href="${relPath(siteRoot + "/search/index.html")}"><img src="${staticPath()}/images/icons/search.svg" alt="Search"/> Search</a></li></#if>
-							<#if features.latest><li><a href="${relPath(siteRoot + "/latest/index.html")}"><img src="${staticPath()}/images/icons/bulb.svg" alt="Bulb"/> Latest Additions</a></li></#if>
-							<#if features.submit><li><a href="${relPath(siteRoot + "/submit/index.html")}"><img src="${staticPath()}/images/icons/upload.svg" alt="Upload"/> Submit Content</a></li></#if>
+						<#if features.search><li><a href="${relPath(siteRoot + "/search/index.html")}"><img src="${staticPath()}/images/icons/search.svg" alt="Search"/> Search</a></li></#if>
+						<#if features.latest><li><a href="${relPath(siteRoot + "/latest/index.html")}"><img src="${staticPath()}/images/icons/bulb.svg" alt="Bulb"/> Latest Additions</a></li></#if>
+						<#if features.submit><li><a href="${relPath(siteRoot + "/submit/index.html")}"><img src="${staticPath()}/images/icons/upload.svg" alt="Upload"/> Submit Content</a></li></#if>
 					</#if>
+					<li>
+						<a id="theme-switcher" style="cursor:pointer">
+							<img src="${staticPath()}/images/icons/moon-stars.svg" alt="Theme"/> Theme
+						</a>
+					</li>
 				</ul>
 			</div>
 		</div>
 	</div>
+	<script>
+		document.querySelector('#theme-switcher').addEventListener('click', () => {
+		  if (!theme || theme === 'dark') theme = 'light';
+		  else theme = 'dark';
+		  localStorage.setItem('theme', theme);
+		  document.documentElement.setAttribute('data-theme', theme);
+	  });
+	</script>
 </header>

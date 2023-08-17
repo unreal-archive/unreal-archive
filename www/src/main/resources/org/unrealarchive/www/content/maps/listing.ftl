@@ -32,16 +32,21 @@
 			<#assign gtBg="">
 			<#if gameTypeInfo.leadImage?has_content>
 				<#if gameTypeInfo.leadImage?contains("://")>
-						<#assign gtBg=urlEncode(gameTypeInfo.leadImage)>
+					<#assign gtBg=urlEncode(gameTypeInfo.leadImage)>
 				<#else>
-						<#assign gtBg=rootPath(gameTypeInfo.leadImage)?no_esc>
+					<#assign gtBg=rootPath(gameTypeInfo.leadImage)?no_esc>
 				</#if>
 			</#if>
-			<section class="sectionInfo" style='background-image: url("${gtBg}")'>
-				<div>
-					<h3><a href="${relPath(gameTypeInfoPath + "/index.html")}">${gameTypeInfo.name}</a></h3>
-					<p>${gameTypeInfo.description}</p>
-				</div>
+			<section class="sectionInfo">
+				<h3>${gameTypeInfo.name}</h3>
+				<p>
+					${gameTypeInfo.description}
+					<br/>
+					<a href="${relPath(gameTypeInfoPath + "/index.html")}" class="infoButton">${gameTypeInfo.name}</a>
+				</p>
+				<#if gtBg?has_content>
+					<img src="${gtBg}" alt="${gameTypeInfo.name}"/>
+				</#if>
 			</section>
 		</#if>
 
