@@ -31,6 +31,10 @@
 	grid-gap: 5px;
 	align-items: stretch;
 }
+#upload-controls #upload.display-block.single {
+	grid-template-areas:
+		'select-files upload-files'
+}
 
 #upload-controls #url {
 	display: none;

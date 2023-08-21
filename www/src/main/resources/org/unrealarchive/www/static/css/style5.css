@@ -180,6 +180,16 @@ section.downloads .links a {
 	font-size: 1.1em;
 }
 
+#log .good {
+	color: var(--p1);
+	background-color: var(--p6);
+	font-weight: bold;
+}
+
+#log .error, #log .warn {
+	color: var(--p1);
+}
+
 /**
   Light theme support
  */

@@ -89,10 +89,12 @@ public class Main {
 		final boolean withFiles = Boolean.parseBoolean(cli.option("with-files", "true"));
 		final boolean withPackages = Boolean.parseBoolean(cli.option("with-packages", "false"));
 		final boolean withWikis = Boolean.parseBoolean(cli.option("with-wikis", "false"));
+		final boolean withUmod = Boolean.parseBoolean(cli.option("with-umod", "false"));
+
 		final boolean localImages = Boolean.parseBoolean(cli.option("local-images", "false"));
 		if (localImages) System.out.println("Will download a local copy of content images, this will take additional time.");
 
-		final SiteFeatures features = new SiteFeatures(localImages, withLatest, withSubmit, withSearch, withFiles, withWikis);
+		final SiteFeatures features = new SiteFeatures(localImages, withLatest, withSubmit, withSearch, withFiles, withWikis, withUmod);
 
 		final Path staticOutput = outputPath.resolve("static");
 
@@ -156,16 +158,15 @@ public class Main {
 
 		if (features.submit) generators.add(new Submit(outputPath, staticOutput, features));
 		if (features.search) generators.add(new Search(outputPath, staticOutput, features));
+		if (features.umod) generators.add(new UmodRepack(outputPath, staticOutput, features));
 		if (features.latest) generators.add(new Latest(contentRepo, gameTypeRepo, managedRepo, outputPath, staticOutput, features));
 		if (features.files) generators.add(new FileDetails(contentRepo, outputPath, staticOutput, features));
 
 		ForkJoinPool myPool = new ForkJoinPool(Integer.parseInt(cli.option("concurrency", "4")));
-		myPool.submit(() -> {
-			generators.parallelStream().forEach(g -> {
-				System.out.printf("Generating %s pages%n", g.getClass().getSimpleName());
-				allPages.addAll(g.generate());
-			});
-		}).join();
+		myPool.submit(() -> generators.parallelStream().forEach(g -> {
+			System.out.printf("Generating %s pages%n", g.getClass().getSimpleName());
+			allPages.addAll(g.generate());
+		})).join();
 
 		System.out.println("Generating sitemap");
 		allPages.addAll(SiteMap.siteMap(SiteMap.SITE_ROOT, outputPath, allPages, 50000, features).generate());

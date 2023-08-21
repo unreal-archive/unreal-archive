@@ -31,6 +31,17 @@
 	</ul>
 
 	<h1>
+		UMOD Converter
+	</h1>
+	<p>
+		A web service to automatically convert UMOD files to ZIP files you can use
+		for modern systems without needing to install extra tools.
+	</p>
+	<p>
+		<a href="../umod/">Launch UMOD Converter</a>
+	</p>
+
+	<h1>
 		UnrealScript Browser
 	</h1>
 	<p>
