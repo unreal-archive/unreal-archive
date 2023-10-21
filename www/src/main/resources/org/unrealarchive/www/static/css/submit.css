@@ -129,6 +129,7 @@
  */
 @media screen and (max-width: 1024px) {
 	#form {
+		grid-template-columns: auto;
 		grid-template-areas:
 			'upload-block'
 			'info-block';
