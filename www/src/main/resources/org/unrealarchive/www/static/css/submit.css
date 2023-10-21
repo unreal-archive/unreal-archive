@@ -123,3 +123,14 @@
 	grid-gap: 5px;
 	align-items: stretch;
 }
+
+/*
+   responsive adjustments for smaller displays
+ */
+@media screen and (max-width: 1024px) {
+	#form {
+		grid-template-areas:
+			'upload-block'
+			'info-block';
+	}
+}

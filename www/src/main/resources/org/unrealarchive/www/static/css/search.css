@@ -126,3 +126,13 @@
 	font-size: 0.85em;
 	display: inline;
 }
+
+/*
+   responsive adjustments for smaller displays
+ */
+@media screen and (max-width: 1024px) {
+	#search-form span {
+		display: block;
+		padding: 10px;
+	}
+}
