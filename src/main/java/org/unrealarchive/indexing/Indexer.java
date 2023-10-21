@@ -257,7 +257,11 @@ public class Indexer {
 		Submission sub, IndexLog log, boolean force, SimpleAddonType forceType, Consumer<Optional<IndexResult<? extends Addon>>> done) {
 		try (Incoming incoming = new Incoming(sub, log)) {
 			identifyContent(incoming, force, forceType, (ident, content) -> {
-				if (content == null || ident.contentType() == SimpleAddonType.UNKNOWN) return;
+				if (content == null || ident.contentType() == SimpleAddonType.UNKNOWN) {
+					log.log(IndexLog.EntryType.CONTINUE, String.format("No content identified in %s", sub.filePath.getFileName()));
+					done.accept(Optional.empty());
+					return;
+				}
 
 				ident.indexer().get().index(incoming, content, result -> {
 					try {

@@ -122,7 +122,7 @@ public class S3Store implements DataStore {
 			Files.copy(inputStream, outFile, StandardCopyOption.REPLACE_EXISTING);
 			downloaded.accept(outFile);
 		} catch (Exception e) {
-			throw new IOException("[S3] Download failed [" + url + "]: " + e.getMessage(), e);
+			throw new IOException("[S3] Download failed [" + url + "]: " + e, e);
 		}
 	}
 

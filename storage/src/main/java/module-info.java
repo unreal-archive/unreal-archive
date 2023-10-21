@@ -6,6 +6,7 @@ module unreal.archive.storage {
 
 	requires okhttp3;
 	requires minio;
+	requires org.apache.commons.compress;
 
 	exports org.unrealarchive.storage;
 }

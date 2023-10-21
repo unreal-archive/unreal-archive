@@ -4,12 +4,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import io.minio.StatObjectResponse;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Disabled
 public class S3StoreTest {
@@ -30,7 +31,14 @@ public class S3StoreTest {
 		try (S3Store s3 = new S3Store(endpoint, key, secret, bucket, publicUrl)) {
 			s3.store(file, file.getFileName().toString(), (s, ex) -> {
 				try {
-					s3.download(s, dl -> {
+					s3.exists(file.getFileName().toString(), r -> {
+						if (r instanceof StatObjectResponse res) {
+							assertTrue(res.size() > 0);
+						} else {
+							fail("an exists check result was expected");
+						}
+					});
+					s3.download(file.getFileName().toString(), dl -> {
 						try {
 							assertEquals(Files.readString(file), Files.readString(dl));
 						} catch (IOException e) {

@@ -4,16 +4,16 @@ plugins {
 	id 'maven-publish'
 	id 'jacoco'
 
-	id 'org.gradlex.extra-java-module-info' version '1.4'
+	id 'org.gradlex.extra-java-module-info' version '1.4.2'
 }
 
 dependencies {
 	implementation project(':common')
 
 	// S3 compatible storage client
-	implementation 'io.minio:minio:8.5.2'
+	implementation 'io.minio:minio:8.5.6'
 
-	testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
+	testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
 }
 
 extraJavaModuleInfo {

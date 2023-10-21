@@ -43,7 +43,7 @@ public class MapGameTypes {
 		new MapGameType(null, "Flag Domination", "FD"),
 		new MapGameType(null, "Soccer Tournament", "SCR"),
 		new MapGameType(null, "Killing Floor", "KF"),
-		new MapGameType(null, "AirFight", "AF", "DM-AF-", "CTF-AF-", "DOM-AF-"),
+		new MapGameType(null, "AirFight", "AF", "DM-AF-"),
 		new MapGameType(null, "DeathBall", "DB"),
 		new MapGameType(null, "Unreal Racer", "UNR-"),
 		new MapGameType(null, "Air Buccaneers", "ABU"),

@@ -7,6 +7,7 @@ import org.unrealarchive.common.Util;
 import org.unrealarchive.content.FileType;
 import org.unrealarchive.indexing.Classifier;
 import org.unrealarchive.indexing.Incoming;
+import org.unrealarchive.indexing.IndexLog;
 import org.unrealarchive.indexing.IndexUtils;
 
 public class MapPackClassifier implements Classifier {
@@ -53,6 +54,7 @@ public class MapPackClassifier implements Classifier {
 									 return maybeChar || maybeMutator || maybeWeapon || maybeGame;
 								 })
 								 .count();
+		if (notMaps > 0) incoming.log.log(IndexLog.EntryType.INFO, "Not a UT3 map, contains characters, weapons, gametypes, etc.");
 		return notMaps == 0;
 	}
 }

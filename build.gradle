@@ -9,7 +9,7 @@ plugins {
 	id 'jacoco'
 	id 'test-report-aggregation'
 
-	id 'org.beryx.jlink' version '2.26.0'
+	id 'org.beryx.jlink' version '3.0.0'
 }
 
 allprojects {
@@ -122,11 +122,11 @@ dependencies {
 	implementation 'net.shrimpworks:unreal-package-lib:1.11.25'
 	implementation 'net.shrimpworks:package-dependency:1.4.24'
 
-	implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.3'
-	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.14.3'
-	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.3'
+	implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
+	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.15.2'
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.2'
 
-	testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
+	testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
 
 	testReportAggregation project(':common')
 	testReportAggregation project(':storage')
