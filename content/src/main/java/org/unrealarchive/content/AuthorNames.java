@@ -128,6 +128,8 @@ public class AuthorNames {
 	public String cleanName(String author) {
 		if (author.isBlank()) return "Unknown";
 
+		if (nonAutoAliases.contains(author.toLowerCase())) return author;
+
 		String aliased = aliases.getOrDefault(author.toLowerCase().strip(), author).strip();
 
 		String noEmail = EMAIL.matcher(aliased).replaceAll("");
