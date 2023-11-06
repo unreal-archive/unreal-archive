@@ -82,28 +82,13 @@ public class MapIndexHandler implements IndexHandler<Map> {
 		m.gametype = gameType(incoming, Games.byName(m.game), m.name);
 
 		Set<IndexResult.NewAttachment> attachments = new HashSet<>();
+		List<BufferedImage> screenshots = new ArrayList<>();
 
 		try (Package map = map(baseMap)) {
-			List<BufferedImage> screenshots = new ArrayList<>();
 			if (map.version < 200) {
 				scrapeUE12(incoming, m, gameOverride, map, screenshots);
 			} else {
 				scrapeUE3(incoming, m, map, screenshots);
-			}
-
-			screenshots.addAll(IndexUtils.findImageFiles(incoming));
-			IndexUtils.saveImages(IndexUtils.SHOT_NAME, m, screenshots, attachments);
-
-			if (m.author.isBlank() || m.author.equals("Unknown")) m.author = IndexUtils.findAuthor(incoming);
-			if (m.playerCount.isBlank() || m.playerCount.equals("Unknown")) {
-				if (m.gametype.equals("1 on 1")) m.playerCount = "2";
-				else if (m.gametype.equals("Single Player")) m.playerCount = "1";
-				else m.playerCount = IndexUtils.findPlayerCount(incoming);
-			}
-
-			// special case for 1 on 1 maps, which sometimes don't contain the 1on1 at the start
-			if (m.gametype.equalsIgnoreCase("DeathMatch") && m.name.startsWith("DM") && m.name.toLowerCase().contains("1on1")) {
-				m.gametype = "1 on 1";
 			}
 
 			// Find map themes
@@ -115,6 +100,29 @@ public class MapIndexHandler implements IndexHandler<Map> {
 			log.log(IndexLog.EntryType.CONTINUE, "Failed to read map package", e);
 		} catch (Exception e) {
 			log.log(IndexLog.EntryType.CONTINUE, "Caught while parsing map: " + e.getMessage(), e);
+		}
+
+		try {
+			screenshots.addAll(IndexUtils.findImageFiles(incoming));
+			IndexUtils.saveImages(IndexUtils.SHOT_NAME, m, screenshots, attachments);
+		} catch (IOException e) {
+			log.log(IndexLog.EntryType.CONTINUE, "Failed to store images", e);
+		}
+
+		try {
+			if (m.author.isBlank() || m.author.equals("Unknown")) m.author = IndexUtils.findAuthor(incoming);
+			if (m.playerCount.isBlank() || m.playerCount.equals("Unknown")) {
+				if (m.gametype.equals("1 on 1")) m.playerCount = "2";
+				else if (m.gametype.equals("Single Player")) m.playerCount = "1";
+				else m.playerCount = IndexUtils.findPlayerCount(incoming);
+			}
+
+			// special case for 1 on 1 maps, which sometimes don't contain the 1on1 at the start
+			if (m.gametype.equalsIgnoreCase("DeathMatch") && m.name.startsWith("DM") && m.name.toLowerCase().contains("1on1")) {
+				m.gametype = "1 on 1";
+			}
+		} catch (Exception e) {
+			log.log(IndexLog.EntryType.CONTINUE, "Caught while updating map fallbacks: " + e.getMessage(), e);
 		}
 
 		completed.accept(new IndexResult<>(m, attachments));
