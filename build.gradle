@@ -9,7 +9,7 @@ plugins {
 	id 'jacoco'
 	id 'test-report-aggregation'
 
-	id 'org.beryx.jlink' version '3.0.0'
+	id 'org.beryx.jlink' version '3.0.1'
 }
 
 allprojects {

@@ -10,7 +10,7 @@
 			/</span> ${game.name}
 	</@heading>
 
-	<@content class="biglist">
+	<@content class="biglist bigger">
 		<ul>
 		<#list game.gametypes as gametype>
 			<li

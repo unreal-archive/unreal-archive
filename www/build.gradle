@@ -9,7 +9,7 @@ plugins {
 	id 'maven-publish'
 	id 'jacoco'
 
-	id 'org.beryx.jlink' version '3.0.0'
+	id 'org.beryx.jlink'
 }
 
 application {
