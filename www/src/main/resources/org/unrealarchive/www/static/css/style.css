@@ -91,7 +91,7 @@ a:visited {
 	color: var(--link-color-visited);
 }
 
-h1, h2, h3 {
+h1, h2, h3, h4 {
 	font-family: var(--header-font-family);
 	font-weight: normal;
 	margin: 10px auto;
@@ -104,6 +104,10 @@ h1 {
 
 h2 {
 	font-size: 1.75em;
+}
+
+h4 {
+	font-variant: normal;
 }
 
 h2 img, h3 img, h4 img {
@@ -541,6 +545,13 @@ article section h2 {
 
 article section h3 {
 	font-size: 1.4em;
+	background-color: var(--table-header-bg);
+	margin: 10px 0;
+	padding: 5px 10px;
+}
+
+article section h4 {
+	font-size: 1.2em;
 	background-color: var(--table-header-bg);
 	margin: 10px 0;
 	padding: 5px 10px;

@@ -115,15 +115,18 @@ h2 img, h3 img, h4 img {
 article section h3 {
 	background-color: var(--p5);
 	color: var(--section-header-title-color);
+	font-size: 1.6em;
+}
+
+article section h4 {
+	background-color: var(--document-meta-bg);
+	color: var(--section-header-title-color);
+	font-size: 1.3em;
 }
 
 article section h2 {
 	border-radius: 4px 4px 0 0;
 	font-size: 1.8em;
-}
-
-article section h3 {
-	font-size: 1.6em;
 }
 
 article.info {
@@ -207,4 +210,8 @@ section.downloads .links a {
 	--table-header-color: black;
 	--table-row-alt-bg: #eee;
 	--section-subheader-color: #fff;
+
+	article section h4 {
+		color: var(--body-color);
+	}
 }

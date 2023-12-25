@@ -11,7 +11,7 @@ dependencies {
 	implementation project(':common')
 
 	// S3 compatible storage client
-	implementation 'io.minio:minio:8.5.6'
+	implementation 'io.minio:minio:8.5.7'
 
 	testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
 }
