@@ -32,6 +32,9 @@ import org.unrealarchive.www.content.Mutators;
 import org.unrealarchive.www.content.Packages;
 import org.unrealarchive.www.content.Skins;
 import org.unrealarchive.www.content.Voices;
+import org.unrealarchive.www.features.Search;
+import org.unrealarchive.www.features.Submit;
+import org.unrealarchive.www.features.UmodRepack;
 
 import static org.unrealarchive.content.RepoFactory.*;
 import static org.unrealarchive.content.addons.Addon.UNKNOWN;

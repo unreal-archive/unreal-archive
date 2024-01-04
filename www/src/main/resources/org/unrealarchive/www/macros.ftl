@@ -245,7 +245,15 @@
 				<tbody>
 				<#list deps?keys?sort as name>
 					<tr>
-						<td colspan="4"><b>${name}</b></td>
+						<td colspan="4">
+							<b>
+								<#if game??>
+									<a href="${relPath(siteRoot + "/packages/" + slug(game) + "/" + slug(plainName(name)) + "/index.html")}">${name}</a>
+								<#else>
+									${name}
+								</#if>
+							</b>
+						</td>
 					</tr>
 					<#list deps[name]?sort_by('name') as dep>
 						<tr>

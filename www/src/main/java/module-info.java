@@ -13,4 +13,5 @@ open module unreal.archive.www {
 
 	exports org.unrealarchive.www;
 	exports org.unrealarchive.www.content;
+	exports org.unrealarchive.www.features;
 }

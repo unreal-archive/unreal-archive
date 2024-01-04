@@ -1,7 +1,12 @@
-package org.unrealarchive.www;
+package org.unrealarchive.www.features;
 
 import java.nio.file.Path;
 import java.util.Set;
+
+import org.unrealarchive.www.PageGenerator;
+import org.unrealarchive.www.SiteFeatures;
+import org.unrealarchive.www.SiteMap;
+import org.unrealarchive.www.Templates;
 
 public class Search implements PageGenerator {
 
