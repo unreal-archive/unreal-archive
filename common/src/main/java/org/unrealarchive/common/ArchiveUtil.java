@@ -10,34 +10,38 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ArchiveUtil {
 
 	private static final Duration KILL_WAIT = Duration.ofSeconds(1);
 
-	private static final Set<String> ARCHIVES = new HashSet<>(Arrays.asList(
-		"zip", "z", "gz", "7z", "lzh", "lza", "exe", "rar"
-	));
+	private static final Set<String> ARCHIVES_7ZIP = Set.of("zip", "z", "gz", "7z", "lzh", "lza", "exe", "bz2", "tar");
+
+	private static final Set<String> ARCHIVES_RAR = Set.of("rar");
+
+	private static final Set<String> ARCHIVES = Stream.of(ARCHIVES_7ZIP, ARCHIVES_RAR).flatMap(Set::stream).collect(Collectors.toSet());
 
 	private static final boolean IS_WINDOWS = System.getProperty("os.name", "").toLowerCase(Locale.ROOT).startsWith("windows");
 
-	private static final String NIX_SEVENZIP_CMD = "7z";
+	private static final String NIX_7ZIP_CMD = "7z";
 	private static final String NIX_UNRAR_CMD = "unrar";
 
-	private static final String NIX_SEVENZIP_BIN = "/usr/bin/" + NIX_SEVENZIP_CMD;
+	private static final String NIX_7ZIP_BIN = "/usr/bin/" + NIX_7ZIP_CMD;
 	private static final String NIX_UNRAR_BIN = "/usr/bin/" + NIX_UNRAR_CMD;
 
 	private static final Path PROGRAM_FILES = Paths.get(System.getenv().getOrDefault("ProgramFiles", "C:\\Program Files"));
-	private static final Path WIN_SEVENZIP_BIN = PROGRAM_FILES.resolve("7-Zip").resolve("7z.exe");
+	private static final Path WIN_ZIP_BIN = PROGRAM_FILES.resolve("7-Zip").resolve("7z.exe");
 	private static final Path WIN_UNRAR_BIN = PROGRAM_FILES.resolve("WinRAR").resolve("UnRAR.exe");
 
-	private static final Set<Integer> ALLOWED_EXT_SEVENZIP = Set.of(0, 1);
-	private static final Set<Integer> ALLOWED_EXT_UNRAR = Set.of(0, 1, 3); // 1 - warning, 3 - crc error on a file
+	// allowed command exit codes - treat these as success even if non-zero (eg partial extraction, etc)
+	private static final Set<Integer> ALLOWED_EXIT_ZIP = Set.of(0, 1);
+	private static final Set<Integer> ALLOWED_EXIT_UNRAR = Set.of(0, 1, 3); // 1 - warning, 3 - crc error on a file
 
 	// these will be populated at runtime and remembered after resolving OS-specific command paths
 	private static String unrar = null;
@@ -66,12 +70,13 @@ public class ArchiveUtil {
 		Path result;
 
 		String ext = Util.extension(source).toLowerCase();
-		result = switch (ext) {
-			case "zip", "z", "gz", "7z", "lzh", "lza", "exe" ->
-				exec(sevenZipCmd(source, destination), source, destination, timeout, ALLOWED_EXT_SEVENZIP);
-			case "rar" -> exec(unrarCmd(source, destination), source, destination, timeout, ALLOWED_EXT_UNRAR);
-			default -> throw new UnsupportedArchiveException(String.format("Format %s not supported for archive %s", ext, source));
-		};
+		if (ARCHIVES_7ZIP.contains(ext)) {
+			result = exec(sevenZipCmd(source, destination), source, destination, timeout, ALLOWED_EXIT_ZIP);
+		} else if (ARCHIVES_RAR.contains(ext)) {
+			result = exec(unrarCmd(source, destination), source, destination, timeout, ALLOWED_EXIT_UNRAR);
+		} else {
+			throw new UnsupportedArchiveException(String.format("Format %s not supported for archive %s", ext, source));
+		}
 
 		visited.add(source);
 
@@ -129,22 +134,22 @@ public class ArchiveUtil {
 		if (sevenZip != null) return sevenZip;
 
 		if (IS_WINDOWS) {
-			if (Files.exists(WIN_SEVENZIP_BIN)) {
-				sevenZip = WIN_SEVENZIP_BIN.toString();
+			if (Files.exists(WIN_ZIP_BIN)) {
+				sevenZip = WIN_ZIP_BIN.toString();
 			} else {
 				throw new RuntimeException("Could not find 7-Zip. Please install it.",
-										   new FileNotFoundException(WIN_SEVENZIP_BIN.toString()));
+										   new FileNotFoundException(WIN_ZIP_BIN.toString()));
 			}
 		} else {
 			// find 7z executable on *nix
 			try {
 				final Process which = new ProcessBuilder()
-					.command("which", NIX_SEVENZIP_CMD)
+					.command("which", NIX_7ZIP_CMD)
 					.start();
 				final byte[] bytes = which.getInputStream().readAllBytes();
 				sevenZip = new String(bytes, StandardCharsets.UTF_8).trim();
 			} catch (Exception e) {
-				sevenZip = NIX_SEVENZIP_BIN;
+				sevenZip = NIX_7ZIP_BIN;
 			}
 		}
 

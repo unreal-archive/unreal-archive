@@ -24,7 +24,7 @@ public class Scanner {
 	private final SimpleAddonRepository repository;
 
 	private final boolean newOnly;
-	private final Pattern nameMatch;
+	private final Pattern nameInclude;
 	private final Pattern nameExclude;
 	private final long maxFileSize;
 	private final int concurrency;
@@ -36,13 +36,13 @@ public class Scanner {
 		this.maxFileSize = Long.parseLong(cli.option("max-size", "0"));
 		this.concurrency = Integer.parseInt(cli.option("concurrency", "1"));
 
-		if (cli.option("match", "").isEmpty()) {
-			this.nameMatch = null;
+		if (cli.option("include", "").isBlank()) {
+			this.nameInclude = null;
 		} else {
-			this.nameMatch = Pattern.compile(cli.option("match", ""));
+			this.nameInclude = Pattern.compile(cli.option("include", ""));
 		}
 
-		if (cli.option("exclude", "").isEmpty()) {
+		if (cli.option("exclude", "").isBlank()) {
 			this.nameExclude = null;
 		} else {
 			this.nameExclude = Pattern.compile(cli.option("exclude", ""));
@@ -56,7 +56,7 @@ public class Scanner {
 			all.addAll(findFiles(p));
 		}
 
-		events.starting(all.size(), nameMatch, nameExclude);
+		events.starting(all.size(), nameInclude, nameExclude);
 
 		AtomicInteger done = new AtomicInteger();
 
@@ -94,7 +94,7 @@ public class Scanner {
 							//
 						}
 
-						if (nameMatch != null && !nameMatch.matcher(file.getFileName().toString()).matches()) {
+						if (nameInclude != null && !nameInclude.matcher(file.getFileName().toString()).matches()) {
 							return FileVisitResult.CONTINUE;
 						}
 
