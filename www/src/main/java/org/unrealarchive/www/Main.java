@@ -21,6 +21,7 @@ import org.unrealarchive.content.addons.SimpleAddonRepository;
 import org.unrealarchive.content.docs.DocumentRepository;
 import org.unrealarchive.content.managed.ManagedContentRepository;
 import org.unrealarchive.content.wiki.WikiRepository;
+import org.unrealarchive.www.content.Announcers;
 import org.unrealarchive.www.content.Authors;
 import org.unrealarchive.www.content.FileDetails;
 import org.unrealarchive.www.content.GameTypes;
@@ -130,7 +131,8 @@ public class Main {
 					new Skins(contentRepo, outputPath, staticOutput, features),
 					new Models(contentRepo, outputPath, staticOutput, features),
 					new Voices(contentRepo, outputPath, staticOutput, features),
-					new Mutators(contentRepo, outputPath, staticOutput, features)
+					new Mutators(contentRepo, outputPath, staticOutput, features),
+					new Announcers(contentRepo, outputPath, staticOutput, features)
 				));
 			if (withPackages) generators.add(new Packages(contentRepo, gameTypeRepo, managedRepo, outputPath, staticOutput, features));
 		}

@@ -22,7 +22,7 @@ import org.unrealarchive.indexing.IndexUtils;
 
 public class VoiceIndexHandler implements IndexHandler<Voice> {
 
-	public static class ModelIndexHandlerFactory implements IndexHandlerFactory<Voice> {
+	public static class VoiceIndexHandlerFactory implements IndexHandlerFactory<Voice> {
 
 		@Override
 		public IndexHandler<Voice> get() {

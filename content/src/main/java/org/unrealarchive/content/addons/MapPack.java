@@ -3,8 +3,10 @@ package org.unrealarchive.content.addons;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import org.unrealarchive.common.Util;
 import org.unrealarchive.content.AuthorNames;
@@ -46,8 +48,8 @@ public class MapPack extends Addon {
 	}
 
 	@Override
-	public List<String> autoTags() {
-		List<String> tags = new ArrayList<>(super.autoTags());
+	public Set<String> autoTags() {
+		Set<String> tags = new HashSet<>(super.autoTags());
 		tags.add(gametype.toLowerCase());
 		tags.addAll(maps.stream().filter(m -> m.name.contains("-"))
 						.map(m -> m.name.split("-")[0].toLowerCase()).distinct().toList());

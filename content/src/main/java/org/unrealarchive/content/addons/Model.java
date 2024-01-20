@@ -2,8 +2,10 @@ package org.unrealarchive.content.addons;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import org.unrealarchive.content.Games;
 
@@ -40,8 +42,8 @@ public class Model extends Addon {
 	}
 
 	@Override
-	public List<String> autoTags() {
-		List<String> tags = new ArrayList<>(super.autoTags());
+	public Set<String> autoTags() {
+		Set<String> tags = new HashSet<>(super.autoTags());
 		tags.add(name.toLowerCase());
 		tags.addAll(models.stream().map(String::toLowerCase).toList());
 		tags.addAll(skins.stream().map(String::toLowerCase).toList());

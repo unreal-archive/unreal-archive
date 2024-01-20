@@ -7,8 +7,10 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -29,6 +31,7 @@ import org.unrealarchive.content.Games;
 	@JsonSubTypes.Type(value = Model.class, name = "MODEL"),
 	@JsonSubTypes.Type(value = Voice.class, name = "VOICE"),
 	@JsonSubTypes.Type(value = Mutator.class, name = "MUTATOR"),
+	@JsonSubTypes.Type(value = Announcer.class, name = "ANNOUNCER"),
 	@JsonSubTypes.Type(value = UnknownAddon.class, name = "UNKNOWN")
 })
 public abstract class Addon implements ContentEntity<Addon> {
@@ -201,8 +204,8 @@ public abstract class Addon implements ContentEntity<Addon> {
 		return Character.toString(first);
 	}
 
-	public List<String> autoTags() {
-		List<String> tags = new ArrayList<>();
+	public Set<String> autoTags() {
+		Set<String> tags = new HashSet<>();
 		tags.add(this.contentType.toLowerCase().replaceAll("_", " "));
 		tags.addAll(Games.byName(game).tags);
 		return tags;

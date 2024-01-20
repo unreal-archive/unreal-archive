@@ -8,6 +8,8 @@ import org.unrealarchive.common.Util;
 import org.unrealarchive.content.FileType;
 import org.unrealarchive.content.addons.Addon;
 import org.unrealarchive.content.addons.SimpleAddonType;
+import org.unrealarchive.indexing.announcers.AnnouncerClassifier;
+import org.unrealarchive.indexing.announcers.AnnouncerIndexHandler;
 import org.unrealarchive.indexing.mappacks.MapPackClassifier;
 import org.unrealarchive.indexing.mappacks.MapPackIndexHandler;
 import org.unrealarchive.indexing.maps.MapClassifier;
@@ -33,9 +35,11 @@ public class AddonClassifier {
 		SimpleAddonType.MODEL,
 		new AddonIdentifier(SimpleAddonType.MODEL, new ModelClassifier(), new ModelIndexHandler.ModelIndexHandlerFactory()),
 		SimpleAddonType.VOICE,
-		new AddonIdentifier(SimpleAddonType.VOICE, new VoiceClassifier(), new VoiceIndexHandler.ModelIndexHandlerFactory()),
+		new AddonIdentifier(SimpleAddonType.VOICE, new VoiceClassifier(), new VoiceIndexHandler.VoiceIndexHandlerFactory()),
 		SimpleAddonType.MUTATOR,
-		new AddonIdentifier(SimpleAddonType.MUTATOR, new MutatorClassifier(), new MutatorIndexHandler.ModelIndexHandlerFactory()),
+		new AddonIdentifier(SimpleAddonType.MUTATOR, new MutatorClassifier(), new MutatorIndexHandler.MutatorIndexHandlerFactory()),
+		SimpleAddonType.ANNOUNCER,
+		new AddonIdentifier(SimpleAddonType.ANNOUNCER, new AnnouncerClassifier(), new AnnouncerIndexHandler.AnnouncerIndexHandlerFactory()),
 		SimpleAddonType.MOD,
 		new AddonIdentifier(SimpleAddonType.MOD, new Classifier.NoOpClassifier(), new IndexHandler.NoOpIndexHandlerFactory()),
 		SimpleAddonType.UNKNOWN,

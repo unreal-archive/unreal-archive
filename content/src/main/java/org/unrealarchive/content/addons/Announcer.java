@@ -8,23 +8,21 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.unrealarchive.content.Games;
+import org.unrealarchive.content.NameDescription;
 
-public class Skin extends Addon {
+public class Announcer extends Addon {
 
 	// Game/Type/A/
 	private static final String PATH_STRING = "%s/%s/%s/%s/";
 
-	public List<String> skins = new ArrayList<>();
-	public List<String> faces = new ArrayList<>();
-	public String model = "Unknown";
-	public boolean teamSkins = false;
+	public List<NameDescription> announcers = new ArrayList<>();
 
 	@Override
 	public Path contentPath(Path root) {
 		String namePrefix = subGrouping();
 		return root.resolve(String.format(PATH_STRING,
 										  game,
-										  "Skins",
+										  "Announcers",
 										  namePrefix,
 										  hashPath()
 		));
@@ -32,14 +30,11 @@ public class Skin extends Addon {
 
 	@Override
 	public String autoDescription() {
-		return String.format("%s, a player skin for %s with %s%s%s",
+		return String.format("%s, an announcer pack for %s with %s%s",
 							 name, Games.byName(game).bigName,
-							 skins.isEmpty()
-								 ? "no skins"
-								 : skins.size() > 1 ? skins.size() + " skins" : skins.size() + " skin",
-							 faces.isEmpty()
-								 ? ""
-								 : String.format(" and %s", faces.size() > 1 ? faces.size() + " faces" : faces.size() + " face"),
+							 announcers.isEmpty()
+								 ? "no announcers"
+								 : announcers.size() > 1 ? announcers.size() + " announcers" : announcers.size() + " announcer",
 							 authorName().equalsIgnoreCase("unknown") ? "" : ", created by " + authorName());
 	}
 
@@ -47,24 +42,20 @@ public class Skin extends Addon {
 	public Set<String> autoTags() {
 		Set<String> tags = new HashSet<>(super.autoTags());
 		tags.add(name.toLowerCase());
-		tags.addAll(skins.stream().map(String::toLowerCase).toList());
-		tags.addAll(faces.stream().map(String::toLowerCase).toList());
+		tags.addAll(announcers.stream().map(m -> m.name.toLowerCase()).toList());
 		return tags;
 	}
 
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
-		if (!(o instanceof Skin other)) return false;
+		if (!(o instanceof Announcer other)) return false;
 		if (!super.equals(o)) return false;
-		return teamSkins == other.teamSkins &&
-			   Objects.equals(skins, other.skins) &&
-			   Objects.equals(faces, other.faces) &&
-			   Objects.equals(model, other.model);
+		return Objects.equals(announcers, other.announcers);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(super.hashCode(), skins, faces, model, teamSkins);
+		return Objects.hash(super.hashCode(), announcers);
 	}
 }

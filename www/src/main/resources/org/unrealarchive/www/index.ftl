@@ -40,6 +40,10 @@
 			<span class="meta">${count.Voice!"0"}</span>
 			<a href="voices/index.html">Voices</a>
 		</li>
+		<li style='background-image: url("${staticPath()}/images/contents/t_announcers.png")'>
+			<span class="meta">${count.Announcer!"0"}</span>
+			<a href="announcers/index.html">Announcers</a>
+		</li>
 		<li style='background-image: url("${staticPath()}/images/contents/t_wikis.png")'>
 			<a href="wikis/index.html">Wikis</a>
 		</li>

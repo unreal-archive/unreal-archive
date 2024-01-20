@@ -22,7 +22,7 @@ import org.unrealarchive.indexing.IndexUtils;
 
 public class MutatorIndexHandler implements IndexHandler<Mutator> {
 
-	public static class ModelIndexHandlerFactory implements IndexHandlerFactory<Mutator> {
+	public static class MutatorIndexHandlerFactory implements IndexHandlerFactory<Mutator> {
 
 		@Override
 		public IndexHandler<Mutator> get() {

@@ -7,6 +7,7 @@ public enum SimpleAddonType {
 	MODEL(Model.class),
 	VOICE(Voice.class),
 	MUTATOR(Mutator.class),
+	ANNOUNCER(Announcer.class),
 	MOD(UnknownAddon.class),
 	UNKNOWN(UnknownAddon.class),
 	;
