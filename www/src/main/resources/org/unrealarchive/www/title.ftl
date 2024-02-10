@@ -26,11 +26,27 @@
 		</div>
 	</div>
 	<script>
+		function setTheme(theme, save) {
+		  if (save) localStorage.setItem('theme', theme);
+		  document.documentElement.setAttribute('data-theme', theme);
+		}
+
+		document.addEventListener('DOMContentLoaded', () => {
+		  if (theme || !window.matchMedia) return;
+
+		  theme = 'light';
+		  if (window.matchMedia('(prefers-color-scheme:dark)').matches) theme = 'dark';
+          setTheme(theme, false);
+          
+          window.matchMedia('(prefers-color-scheme:dark)').addEventListener('change', e => {
+            setTheme(e.matches ? "dark" : "light", false);
+		  });
+		});
+
 		document.querySelector('#theme-switcher').addEventListener('click', () => {
 		  if (!theme || theme === 'dark') theme = 'light';
 		  else theme = 'dark';
-		  localStorage.setItem('theme', theme);
-		  document.documentElement.setAttribute('data-theme', theme);
-	  });
+		  setTheme(theme, true);
+		});
 	</script>
 </header>
