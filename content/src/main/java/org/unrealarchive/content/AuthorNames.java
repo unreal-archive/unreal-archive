@@ -35,6 +35,8 @@ public class AuthorNames {
 	private static final Pattern AKA = Pattern.compile("(.*)\\s+a\\.?k\\.?a\\.?:?\\s+?(.*)", Pattern.CASE_INSENSITIVE);
 	private static final Pattern HANDLE = Pattern.compile("(.*)\\s+(['\"]([^'^\"]+)['\"])\\s+?(.*)", Pattern.CASE_INSENSITIVE);
 
+	private static final Pattern START_END = Pattern.compile("^['\"](.*)['\"]$");
+
 	private final Map<String, String> aliases;
 	private final Set<String> nonAutoAliases;
 
@@ -131,11 +133,17 @@ public class AuthorNames {
 		if (nonAutoAliases.contains(author.toLowerCase())) return author;
 
 		String aliased = aliases.getOrDefault(author.toLowerCase().strip(), author).strip();
+		
+		String noQuote = aliased;
+		if (START_END.matcher(aliased).find()) {
+			noQuote = START_END.matcher(aliased).replaceFirst("$1");
+		}
 
-		String noEmail = EMAIL.matcher(aliased).replaceAll("");
+		String noEmail = EMAIL.matcher(noQuote).replaceAll("");
 		if (noEmail.isBlank() || noEmail.length() < 3) {
-			if (aliased.indexOf('@') > 0 && aliased.length() > 3) noEmail = aliased.substring(0, aliased.indexOf('@'));
-			else noEmail = aliased;
+			// if the entire author string seems to be an email address, use the username
+			if (noQuote.indexOf('@') > 0 && noQuote.length() > 3) noEmail = noQuote.substring(0, noQuote.indexOf('@'));
+			else noEmail = noQuote;
 		}
 
 		String noUrl = URL.matcher(noEmail).replaceAll("");

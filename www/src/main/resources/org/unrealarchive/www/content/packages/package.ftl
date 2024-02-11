@@ -22,6 +22,7 @@
 						<thead>
 						<tr>
 							<th>Name</th>
+							<th>Type</th>
 							<th>File Size</th>
 							<th>SHA1 Hash</th>
 							<th>Usages</th>
@@ -31,6 +32,7 @@
 						<#list packageFiles as file, packages>
 							<tr>
 								<td><a href="#${file.hash}">${file.name}</a></td>
+								<td>${fileType(file.name)}</td>
 								<td>${fileSize(file.fileSize)}</td>
 								<td>${file.hash}</td>
 								<td>${packages?size}</td>
