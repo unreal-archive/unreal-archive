@@ -26,11 +26,11 @@ public class AuthorNames {
 	private static final Pattern URL = Pattern.compile(
 		"(-? ?)?\\(?((https?://)?(www\\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\\.[a-zA-Z0-9()]{2,6}\\b([-a-zA-Z0-9()!@:%_+.~#?&/=]*))\\)?"
 	);
-	private static final Pattern BY = Pattern.compile("(([Mm]ade).+)?\\s?([Bb]y)");
-	private static final Pattern CONVERTED = Pattern.compile("(([-A-Za-z]+?|, )[Cc]onver[^\\s]+)(\\s)?([Bb]y)?");
+	private static final Pattern BY = Pattern.compile("(([Mm]ade).+)?\\s?([Bb]y\\s)");
+	private static final Pattern CONVERTED = Pattern.compile("(([-A-Za-z]+?|, )[Cc]onver[^\\s]+)(\\s)?([Bb]y\\s)?");
 	private static final Pattern IMPORTED = Pattern.compile("\\s(\\*)?[Ii]mported.*(\\*)?");
-	private static final Pattern MODIFIED = Pattern.compile("([Mm]odifi[^\\s]+)\\s([Bb]y)?");
-	private static final Pattern EDITED = Pattern.compile("([Ee]dit[^\\s]+)\\s([Bb]y)?");
+	private static final Pattern MODIFIED = Pattern.compile("([Mm]odifi[^\\s]+)\\s([Bb]y\\s)?");
+	private static final Pattern EDITED = Pattern.compile("([Ee]dit[^\\s]+)\\s([Bb]y\\s)?");
 
 	private static final Pattern AKA = Pattern.compile("(.*)\\s+a\\.?k\\.?a\\.?:?\\s+?(.*)", Pattern.CASE_INSENSITIVE);
 	private static final Pattern HANDLE = Pattern.compile("(.*)\\s+(['\"]([^'^\"]+)['\"])\\s+?(.*)", Pattern.CASE_INSENSITIVE);
