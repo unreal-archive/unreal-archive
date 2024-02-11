@@ -48,7 +48,7 @@
 						<label>Name</label><span><a href="${relPath(siteRoot + "/files/" + file.hash[0..1] + "/" + file.hash + ".html")}">${file.name}</a></span>
 					</div>
 					<div class="label-value">
-						<label>Type</label><span>${type}</span>
+						<label>Type</label><span>${fileType(file.name)}</span>
 					</div>
 					<div class="label-value">
 						<label>File Size</label><span>${fileSize(file.fileSize)}</span>

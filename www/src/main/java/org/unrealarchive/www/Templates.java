@@ -43,6 +43,7 @@ import freemarker.template.TemplateModelException;
 
 import org.unrealarchive.common.Util;
 import org.unrealarchive.common.Version;
+import org.unrealarchive.content.FileType;
 
 public class Templates {
 
@@ -70,6 +71,7 @@ public class Templates {
 		TPL_VARS.put("relUrl", new RelUrlMethod());
 		TPL_VARS.put("urlEncode", new UrlEncodeMethod());
 		TPL_VARS.put("urlHost", new UrlHostMethod());
+		TPL_VARS.put("fileType", new FileTypeMethod());
 		TPL_VARS.put("fileSize", new FileSizeMethod());
 		TPL_VARS.put("fileName", new FileNameMethod());
 		TPL_VARS.put("plainName", new PlainNameMethod());
@@ -383,6 +385,15 @@ public class Templates {
 
 			if (shortDate) return OUT_FMT_SHORT.format(date);
 			else return OUT_FMT.format(date);
+		}
+	}
+
+	private static class FileTypeMethod implements TemplateMethodModelEx {
+
+		public Object exec(List args) throws TemplateModelException {
+			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a file path");
+
+			return FileType.forFile(args.get(0).toString());
 		}
 	}
 
