@@ -436,7 +436,6 @@ public class Main {
 			}
 			case "sync" -> {
 				managed.sync((total, progress) -> {
-					if (!cli.option("proggers", "").isBlank()) Util.proggers(cli.option("proggers", ""), "sync_managed", total, progress);
 				});
 			}
 			case "add" -> {
@@ -523,13 +522,7 @@ public class Main {
 			mirrorStore,
 			Integer.parseInt(cli.option("concurrency", "3")),
 			since, until,
-			((total, remaining, last) -> {
-				System.out.printf("\r[ %-6s / %-6s ] Processed %-40s",
-								  total - remaining, total, last.name());
-				if (!cli.option("proggers", "").isBlank()) {
-					Util.proggers(cli.option("proggers", ""), "sync_mirror", (int)total, (int)(total - remaining));
-				}
-			})
+			((total, remaining, last) -> System.out.printf("\r[ %-6s / %-6s ] Processed %-40s", total - remaining, total, last.name()))
 		);
 		mirror.mirror();
 

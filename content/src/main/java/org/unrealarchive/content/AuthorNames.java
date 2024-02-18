@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -19,7 +18,7 @@ import org.unrealarchive.common.Util;
 
 public class AuthorNames {
 
-	public static Optional<AuthorNames> instance = Optional.empty();
+	public static AuthorNames instance = null;
 
 	private static final Pattern EMAIL = Pattern.compile(
 		"(-? ?)?\\(?([A-Za-z0-9.-]+@[A-Za-z0-9]+\\.[A-Za-z0-9.]+)\\)?"); // excessively simple, intentionally
@@ -27,10 +26,10 @@ public class AuthorNames {
 		"(-? ?)?\\(?((https?://)?(www\\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\\.[a-zA-Z0-9()]{2,6}\\b([-a-zA-Z0-9()!@:%_+.~#?&/=]*))\\)?"
 	);
 	private static final Pattern BY = Pattern.compile("(([Mm]ade).+)?\\s?([Bb]y\\s)");
-	private static final Pattern CONVERTED = Pattern.compile("(([-A-Za-z]+?|, )[Cc]onver[^\\s]+)(\\s)?([Bb]y\\s)?");
+	private static final Pattern CONVERTED = Pattern.compile("(([-A-Za-z]+?|, )[Cc]onver[^\\s]+)(\\s)?([Bb]y\\s?)?");
 	private static final Pattern IMPORTED = Pattern.compile("\\s(\\*)?[Ii]mported.*(\\*)?");
-	private static final Pattern MODIFIED = Pattern.compile("([Mm]odifi[^\\s]+)\\s([Bb]y\\s)?");
-	private static final Pattern EDITED = Pattern.compile("([Ee]dit[^\\s]+)\\s([Bb]y\\s)?");
+	private static final Pattern MODIFIED = Pattern.compile("([Mm]odifi[^\\s]+)\\s([Bb]y\\s?)?");
+	private static final Pattern EDITED = Pattern.compile("([Ee]dit[^\\s]+)\\s([Bb]y\\s?)?");
 
 	private static final Pattern AKA = Pattern.compile("(.*)\\s+a\\.?k\\.?a\\.?:?\\s+?(.*)", Pattern.CASE_INSENSITIVE);
 	private static final Pattern HANDLE = Pattern.compile("(.*)\\s+(['\"]([^'^\"]+)['\"])\\s+?(.*)", Pattern.CASE_INSENSITIVE);
@@ -149,19 +148,20 @@ public class AuthorNames {
 		String noUrl = URL.matcher(noEmail).replaceAll("");
 		if (noUrl.isBlank() || noUrl.length() < 3) noUrl = noEmail;
 
-		String noMadeBy = BY.matcher(noUrl).replaceAll("");
-		if (noMadeBy.isBlank()) noMadeBy = noUrl;
-
-		String noConverted = CONVERTED.matcher(noMadeBy).replaceAll("");
-		if (noConverted.isBlank()) noConverted = noMadeBy;
+		String noConverted = CONVERTED.matcher(noUrl).replaceAll("");
+		if (noConverted.isBlank()) noConverted = noUrl;
 
 		String noImport = IMPORTED.matcher(noConverted).replaceAll("");
 		if (noImport.isBlank()) noImport = noConverted;
 
-		return aliases.getOrDefault(noImport.toLowerCase().strip(), noImport).strip();
+		String noMadeBy = BY.matcher(noImport).replaceAll("");
+		if (noMadeBy.isBlank()) noMadeBy = noImport;
+
+		return aliases.getOrDefault(noMadeBy.toLowerCase().strip(), noMadeBy).strip();
 	}
 
 	public static String nameFor(String author) {
-		return instance.map(e -> e.cleanName(author)).orElse(author);
+		if (instance == null) return author;
+		else return instance.cleanName(author);
 	}
 }

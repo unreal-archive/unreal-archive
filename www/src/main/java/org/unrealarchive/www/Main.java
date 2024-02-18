@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ForkJoinPool;
@@ -114,7 +113,7 @@ public class Main {
 				   .filter(c -> !UNKNOWN.equalsIgnoreCase(c.author()))
 				   .sorted(Comparator.comparingInt(a -> a.author().length()))
 				   .forEachOrdered(c -> names.maybeAutoAlias(c.author));
-		AuthorNames.instance = Optional.of(names);
+		AuthorNames.instance = names;
 		System.out.printf("Found %d author aliases and names%n", names.aliasCount());
 
 		final Set<SiteMap.Page> allPages = ConcurrentHashMap.newKeySet();
@@ -191,7 +190,7 @@ public class Main {
 				   .filter(c -> !UNKNOWN.equalsIgnoreCase(c.author()))
 				   .sorted(Comparator.comparingInt(a -> a.author().length()))
 				   .forEachOrdered(c -> names.maybeAutoAlias(c.author));
-		AuthorNames.instance = Optional.of(names);
+		AuthorNames.instance = names;
 
 		final long start = System.currentTimeMillis();
 

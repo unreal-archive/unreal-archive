@@ -8,9 +8,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.FileVisitOption;
@@ -287,21 +284,6 @@ public final class Util {
 					e.printStackTrace();
 				}
 			});
-		}
-	}
-
-	public static void proggers(String group, String name, int max, int progress) {
-		try {
-			HttpClient
-				.newHttpClient()
-				.send(HttpRequest.newBuilder(URI.create(
-									 String.format("https://proggers.cloud/progress/%s/%s?max=%d&progress=%d", group, name, max, progress)
-								 ))
-								 .header("User-Agent", USER_AGENT)
-								 .POST(HttpRequest.BodyPublishers.noBody()).build(),
-					  HttpResponse.BodyHandlers.discarding());
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 }
