@@ -1,4 +1,4 @@
-<#assign extraCss="submit.css"/>
+<#assign extraCss="submit.css?v=20240306"/>
 <#include "../_header.ftl">
 <#include "../macros.ftl">
 
@@ -39,8 +39,15 @@
 				<progress id="progress" value="0" max="100" style="width: 100%"></progress>
 			</div>
 
-			<div id="files-list">
-				<h2>Selected Files</h2>
+			<div id="files-area">
+				<div class="info">
+					Choose files to add above, or drop them here.
+				</div>
+
+				<div id="files-list">
+					<h2>Selected Files</h2>
+				</div>
+
 			</div>
 		</div>
 
@@ -107,6 +114,7 @@
 
 	document.addEventListener("DOMContentLoaded", function() {
 
+		let uploadArea = document.querySelector('#upload-block');
 		let selectFilesButton = document.querySelector('#select-files');
 		let fileSelector = document.querySelector('#files');
 		let uploadFilesButton = document.querySelector('#upload-files');
@@ -127,6 +135,8 @@
 		// let uploadUrl = document.querySelector('#url');
 
 		let currentRequest = null;
+
+		let selectedFiles = [];
 
 		selectFilesButton.addEventListener('click', () => {
 			fileSelector.click();
@@ -163,30 +173,31 @@
 		});
 
 	  fileSelector.addEventListener('change', e => {
-		  let totalSize = 0;
-		  resetFilesList();
-
-		  for (let i = 0; i < e.target.files.length; i++) {
-			  let f = e.target.files[i];
-			  let name = document.createElement("div");
-			  name.innerText = f.name;
-			  name.classList.add("name");
-			  let size = document.createElement("div");
-			  size.innerText = (f.size / 1024 / 1024).toFixed(1) + " mb";
-			  size.classList.add("size");
-			  let row = document.createElement("div");
-			  row.classList.add("file");
-			  row.append(name, size);
-			  filesList.append(row);
-			  totalSize += f.size;
-		  }
-
-		  if (!filesList.classList.contains("display-block")) filesList.classList.add("display-block");
-
-		  if (totalSize >= (maxUploadSizeGigabytes * 1024 * 1024 * 1024)) {
-			  alert("Caution!\n\n" +
-			        "The total max size per upload is " + maxUploadSizeGigabytes + " GB. Reduce the total size of the upload or it may fail.");
-		  }
+			addFiles(e.target.files);
+		  // let totalSize = 0;
+		  // resetFilesList();
+			//
+		  // for (let i = 0; i < e.target.files.length; i++) {
+			//   let f = e.target.files[i];
+			//   let name = document.createElement("div");
+			//   name.innerText = f.name;
+			//   name.classList.add("name");
+			//   let size = document.createElement("div");
+			//   size.innerText = (f.size / 1024 / 1024).toFixed(1) + " mb";
+			//   size.classList.add("size");
+			//   let row = document.createElement("div");
+			//   row.classList.add("file");
+			//   row.append(name, size);
+			//   filesList.append(row);
+			//   totalSize += f.size;
+		  // }
+			//
+		  // if (!filesList.classList.contains("display-block")) filesList.classList.add("display-block");
+			//
+		  // if (totalSize >= (maxUploadSizeGigabytes * 1024 * 1024 * 1024)) {
+			//   alert("Caution!\n\n" +
+			//         "The total max size per upload is " + maxUploadSizeGigabytes + " GB. Reduce the total size of the upload or it may fail.");
+		  // }
 	  });
 
 		if (location.hash) {
@@ -210,10 +221,9 @@
 			currentRequest = new XMLHttpRequest();
 			let data = new FormData();
 
-			let files = fileSelector.files;
-			console.log("uploading", files);
-			for (let i = 0; i < files.length; i++) {
-				data.append('files', files[i]);
+			console.log("uploading", selectedFiles);
+			for (let i = 0; i < selectedFiles.length; i++) {
+				data.append('files', selectedFiles[i]);
 			}
 
 			if (uploadTypeOption.value !== "auto") {
@@ -256,6 +266,8 @@
 				if (infoBlurb.classList.contains("display-block")) infoBlurb.classList.remove("display-block");
 				resetLog();
 			} else {
+		  	selectedFiles = [];
+		  	resetFilesList();
 				if (logView.classList.contains("display-block")) logView.classList.remove("display-block");
 				if (progressControls.classList.contains("display-block")) progressControls.classList.remove("display-block");
 				if (!uploadControls.classList.contains("display-block")) uploadControls.classList.add("display-block");
@@ -314,6 +326,59 @@
 			let linkPattern = /(\b(https?|ftp):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gim;
 			return message.replace(linkPattern, '<a href="$1" target="_blank">$1</a>');
 		}
+
+	  /**
+	   * Drag and drop and file handling
+	   */
+
+		function addFiles(fileList) {
+			for (let i = 0; i < fileList.length; i++) {
+				let f = fileList[i];
+		  	selectedFiles.push(f);
+
+				let name = document.createElement("div");
+				name.innerText = f.name;
+				name.classList.add("name");
+				let size = document.createElement("div");
+				size.innerText = (f.size / 1024 / 1024).toFixed(1) + " mb";
+				size.classList.add("size");
+				let row = document.createElement("div");
+				row.classList.add("file");
+				row.append(name, size);
+				filesList.append(row);
+			}
+
+			if (!filesList.classList.contains("display-block")) filesList.classList.add("display-block");
+
+			if (selectedFiles.reduce((a, b) => a+b, 0) >= (maxUploadSizeGigabytes * 1024 * 1024 * 1024)) {
+				alert("Caution!\n\n" +
+					"The total max size per upload is " + maxUploadSizeGigabytes + " GB. Reduce the total size of the upload or it may fail.");
+			}
+		}
+
+		let isAdvancedUpload = function() {
+			let div = document.createElement('div');
+			return (('draggable' in div) || ('ondragover' in div && 'ondrop' in div)) && 'FormData' in window && 'FileReader' in window;
+		}();
+
+	  if (isAdvancedUpload) {
+		  document.querySelector('#files-area .info').classList.add("display-block");
+
+			uploadArea.addEventListener('dragover', e => {
+				e.preventDefault();
+		  	uploadArea.classList.add('dragover');
+			});
+			uploadArea.addEventListener('dragleave', () => {
+				uploadArea.classList.remove('dragover');
+			});
+			uploadArea.addEventListener('drop', e => {
+		  	e.preventDefault();
+		  	uploadArea.classList.remove('dragover');
+			  if (e.dataTransfer && e.dataTransfer.files) {
+				  addFiles(e.dataTransfer.files);
+				}
+			});
+	  }
 	});
 
 </script>
