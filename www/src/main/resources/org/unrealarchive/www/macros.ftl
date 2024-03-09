@@ -69,11 +69,17 @@
   </#compress>
 </#macro>
 
-<#macro links links title="Links" h="h2">
+<#macro problems problems>
+  <@links links=problems title="Problem Reports" icon="alert-triangle" class="problem"
+	  info="Users have reproted issues or problems using this content at the links below."/>
+</#macro>
+
+<#macro links links title="Links" h="h2" icon="link" class="links" info="">
 	<#compress>
 	<#if links?? && links?size gt 0>
-		<section class="meta">
-			<${h}><img src="${staticPath()}/images/icons/link.svg" alt="Link"/>${title}</${h}>
+		<section class="${class}">
+			<${h}><img src="${staticPath()}/images/icons/${icon}.svg" alt="Link"/>${title}</${h}>
+		  <#if info?? && info?length gt 0><span>${info}</span></#if>
 		  <ul>
 				<#list links as name, url>
 					<li><a href="${url}">${name}</a></li>

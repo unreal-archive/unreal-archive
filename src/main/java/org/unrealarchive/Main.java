@@ -263,7 +263,8 @@ public class Main {
 		}
 
 		ContentEditor editor = new ContentEditor(contentManager);
-		editor.set(cli.commands()[1], cli.commands()[2], cli.commands()[3]);
+		String[] attributes = Arrays.copyOfRange(cli.commands(), 3, cli.commands().length);
+		editor.set(cli.commands()[1], cli.commands()[2], attributes);
 	}
 
 	private static void gametype(GameTypeRepository repo, GameTypeManager gametypes, CLI cli) throws IOException {

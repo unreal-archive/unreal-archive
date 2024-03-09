@@ -3,14 +3,19 @@ package org.unrealarchive.indexing;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.FileTime;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.unrealarchive.common.YAML;
 import org.unrealarchive.content.FileType;
@@ -48,8 +53,8 @@ public class ContentEditor {
 	public void edit(String hash) throws IOException, InterruptedException {
 		Addon content = checkoutContent(hash);
 
-		Path yaml = Files.write(Files.createTempFile(content.hash, ".yml"), YAML.toString(content).getBytes(StandardCharsets.UTF_8),
-								StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+		Path yaml = Files.writeString(Files.createTempFile(content.hash, ".yml"), YAML.toString(content),
+									  StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 
 		String editor = System.getenv().getOrDefault("UA_EDITOR", "sensible-editor");
 
@@ -70,7 +75,7 @@ public class ContentEditor {
 		}
 	}
 
-	public void set(String hash, String attribute, String newValue) throws ReflectiveOperationException, IOException {
+	public void set(String hash, String attribute, String... newValue) throws ReflectiveOperationException, IOException {
 		if (attribute.equalsIgnoreCase("attach")) {
 			attach(hash, newValue);
 			return;
@@ -78,29 +83,7 @@ public class ContentEditor {
 
 		Addon content = checkoutContent(hash);
 
-		Field field = content.getClass().getField(attribute);
-		Object old = field.get(content);
-
-		System.out.printf("Setting field %s from value %s to %s%n", field.getName(), old == null ? "<null>" : old, newValue);
-
-		if (newValue.equalsIgnoreCase("null")) {
-			field.set(content, null);
-		} else if (field.getType().equals(boolean.class) || field.getType().equals(Boolean.class)) {
-			field.setBoolean(content, Boolean.parseBoolean(newValue));
-		} else if (field.getType().equals(long.class) || field.getType().equals(Long.class)) {
-			field.set(content, Long.parseLong(newValue));
-		} else if (field.getType().equals(int.class) || field.getType().equals(Integer.class)) {
-			field.set(content, Integer.parseInt(newValue));
-		} else if (field.getType().equals(short.class) || field.getType().equals(Short.class)) {
-			field.set(content, Short.parseShort(newValue));
-		} else if (field.getType().equals(double.class) || field.getType().equals(Double.class)) {
-			field.set(content, Double.parseDouble(newValue));
-		} else if (field.getType().equals(String.class)) {
-			field.set(content, newValue);
-		} else if (field.getType().isEnum()) {
-			Method m = field.getType().getMethod("valueOf", String.class);
-			field.set(content, m.invoke(field, newValue.trim()));
-		}
+		ContentEditor.applyAttribute(content, attribute, newValue);
 
 		if (contentManager.checkin(new IndexResult<>(content, Collections.emptySet()), null)) {
 			System.out.println("Stored changes!");
@@ -109,24 +92,72 @@ public class ContentEditor {
 		}
 	}
 
-	public void attach(String hash, String attachment) throws IOException {
+	public static void applyAttribute(Object content, String attribute, String... newValue) throws ReflectiveOperationException {
+		Field field = content.getClass().getField(attribute);
+		Object old = field.get(content);
+
+		System.out.printf("Setting field %s from value %s to %s%n", field.getName(), old == null ? "<null>" : old,
+						  Arrays.toString(newValue));
+
+		String firstVal = newValue == null || newValue.length == 0 ? null : newValue[0];
+
+		if (firstVal == null || firstVal.equalsIgnoreCase("null")) {
+			field.set(content, null);
+		} else if (field.getType().equals(boolean.class) || field.getType().equals(Boolean.class)) {
+			field.setBoolean(content, Boolean.parseBoolean(firstVal));
+		} else if (field.getType().equals(long.class) || field.getType().equals(Long.class)) {
+			field.set(content, Long.parseLong(firstVal));
+		} else if (field.getType().equals(int.class) || field.getType().equals(Integer.class)) {
+			field.set(content, Integer.parseInt(firstVal));
+		} else if (field.getType().equals(short.class) || field.getType().equals(Short.class)) {
+			field.set(content, Short.parseShort(firstVal));
+		} else if (field.getType().equals(double.class) || field.getType().equals(Double.class)) {
+			field.set(content, Double.parseDouble(firstVal));
+		} else if (field.getType().equals(String.class)) {
+			field.set(content, firstVal);
+		} else if (isStringCollection(field) && old != null) {
+			Method m = Arrays.stream(old.getClass().getMethods()).filter(a -> a.getName().equals("add")).findFirst().orElse(null);
+			if (m != null) m.invoke(old, firstVal.trim());
+		} else if (isStringMap(field) && old != null && newValue.length == 2) {
+			Method m = Arrays.stream(old.getClass().getMethods()).filter(a -> a.getName().equals("put")).findFirst().orElse(null);
+			if (m != null) m.invoke(old, newValue[0].trim(), newValue[1].trim());
+		} else if (field.getType().isEnum()) {
+			Method m = field.getType().getMethod("valueOf", String.class);
+			field.set(content, m.invoke(field, firstVal.trim()));
+		}
+	}
+
+	public static boolean isStringCollection(Field field) {
+		return Collection.class.isAssignableFrom(field.getType())
+			   && (field.getGenericType() instanceof ParameterizedType pType
+				   && pType.getActualTypeArguments()[0].equals(String.class));
+	}
+
+	public static boolean isStringMap(Field field) {
+		return Map.class.isAssignableFrom(field.getType())
+			   && (field.getGenericType() instanceof ParameterizedType pType
+				   && pType.getActualTypeArguments()[0].equals(String.class)
+				   && pType.getActualTypeArguments()[1].equals(String.class));
+	}
+
+	public void attach(String hash, String... attachment) throws IOException {
 		Addon content = checkoutContent(hash);
 
-		Path attfile = Paths.get(attachment);
+		Set<IndexResult.NewAttachment> attachments = Arrays.stream(attachment).map(attach -> {
+			Path attfile = Paths.get(attach);
 
-		if (!Files.exists(attfile)) {
-			System.err.printf("Attachment file \"%s\" does not exist!%n", attachment);
-			System.exit(5);
-		}
+			if (!Files.exists(attfile)) {
+				System.err.printf("Attachment file \"%s\" does not exist!%n", attach);
+				System.exit(5);
+			}
 
-		if (!FileType.IMAGE.matches(attachment)) {
-			System.err.printf("Attachment file \"%s\" is not an image!%n", attachment);
-			System.exit(6);
-		}
+			if (!FileType.IMAGE.matches(attach)) {
+				System.err.printf("Attachment file \"%s\" is not an image!%n", attach);
+				System.exit(6);
+			}
 
-		Set<IndexResult.NewAttachment> attachments = Set.of(
-			new IndexResult.NewAttachment(Addon.AttachmentType.IMAGE, attfile.getFileName().toString(), attfile)
-		);
+			return new IndexResult.NewAttachment(Addon.AttachmentType.IMAGE, attfile.getFileName().toString(), attfile);
+		}).collect(Collectors.toSet());
 
 		if (contentManager.checkin(new IndexResult<>(content, attachments), null)) {
 			System.out.println("Stored changes!");

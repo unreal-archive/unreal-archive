@@ -45,6 +45,7 @@ public class GameType implements ContentEntity<GameType> {
 	public List<String> altNames = new ArrayList<>();
 
 	public Map<String, String> links = new HashMap<>();
+	public Map<String, String> problemLinks = new HashMap<>();
 	public Map<String, List<String>> credits = new HashMap<>();
 
 	public List<NameDescription> gameTypes = new ArrayList<>();
@@ -155,6 +156,11 @@ public class GameType implements ContentEntity<GameType> {
 	}
 
 	@Override
+	public Map<String, String> problemLinks() {
+		return problemLinks;
+	}
+
+	@Override
 	public boolean deleted() {
 		return deleted;
 	}
@@ -179,14 +185,15 @@ public class GameType implements ContentEntity<GameType> {
 			   Objects.equals(titleImage, other.titleImage) &&
 			   Objects.equals(bannerImage, other.bannerImage) &&
 			   Objects.equals(links, other.links) &&
+			   Objects.equals(problemLinks, other.problemLinks) &&
 			   Objects.equals(credits, other.credits) &&
 			   Objects.equals(releases, other.releases);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(contentType, addedDate, game, name, author, description, titleImage, bannerImage, links, credits,
-							releases, deleted);
+		return Objects.hash(contentType, addedDate, game, name, author, description, titleImage, bannerImage, links, problemLinks,
+							credits, releases, deleted);
 	}
 
 	/**

@@ -77,6 +77,7 @@ public abstract class Addon implements ContentEntity<Addon> {
 	public List<Download> downloads = new ArrayList<>();
 
 	public java.util.Map<String, String> links = new HashMap<>();
+	public java.util.Map<String, String> problemLinks = new HashMap<>();
 
 	/**
 	 * If true, will not show up in www output, and will be ignored in index passes.
@@ -181,6 +182,11 @@ public abstract class Addon implements ContentEntity<Addon> {
 	}
 
 	@Override
+	public java.util.Map<String, String> problemLinks() {
+		return problemLinks;
+	}
+
+	@Override
 	public boolean deleted() {
 		return deleted;
 	}
@@ -253,13 +259,15 @@ public abstract class Addon implements ContentEntity<Addon> {
 			   && Objects.equals(files, content.files)
 			   && Objects.equals(downloads, content.downloads)
 			   && Objects.equals(links, content.links)
+			   && Objects.equals(problemLinks, content.problemLinks)
 			   && Objects.equals(dependencies, content.dependencies);
 	}
 
 	@Override
 	public int hashCode() {
 		return Objects.hash(contentType, firstIndex, variationOf, game, name, author, description, releaseDate, attachments,
-							originalFilename, hash, fileSize, files, otherFiles, downloads, links, deleted, dependencies);
+							originalFilename, hash, fileSize, files, otherFiles, downloads, links, problemLinks, deleted,
+							dependencies);
 	}
 
 	public static class ContentFile implements Comparable<ContentFile> {

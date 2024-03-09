@@ -64,6 +64,9 @@
 
 	--document-meta-border: none;
 	--document-meta-bg: var(--p7);
+
+	--problem-border: #dd3;
+	--problem-bg: #dd35;
 }
 
 /**

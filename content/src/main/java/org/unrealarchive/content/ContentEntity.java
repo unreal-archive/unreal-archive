@@ -32,7 +32,15 @@ public interface ContentEntity<T extends ContentEntity<T>> extends Comparable<Co
 
 	public String leadImage();
 
+	/**
+	 * Map of Title -> URL.
+	 */
 	public Map<String, String> links();
+
+	/**
+	 * Map of Title -> URL.
+	 */
+	public Map<String, String> problemLinks();
 
 	public boolean deleted();
 

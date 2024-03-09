@@ -55,6 +55,7 @@ public class Managed implements ContentEntity<Managed> {
 	public List<String> images = new ArrayList<>(); // [image1.png, screenshot.jpg]
 	public List<ManagedFile> downloads = new ArrayList<>();
 	public Map<String, String> links = new HashMap<>();
+	public Map<String, String> problemLinks = new HashMap<>();
 
 	public boolean published = true;                // false will hide it
 
@@ -137,6 +138,11 @@ public class Managed implements ContentEntity<Managed> {
 	}
 
 	@Override
+	public Map<String, String> problemLinks() {
+		return problemLinks;
+	}
+
+	@Override
 	public boolean deleted() {
 		return !published;
 	}
@@ -168,13 +174,14 @@ public class Managed implements ContentEntity<Managed> {
 			   && Objects.equals(description, managed.description)
 			   && Objects.equals(titleImage, managed.titleImage)
 			   && Objects.equals(links, managed.links)
+			   && Objects.equals(problemLinks, managed.problemLinks)
 			   && Objects.equals(images, managed.images);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(createdDate, updatedDate, game, document, path, title, author, homepage, description, titleImage, images,
-							published, links);
+		return Objects.hash(createdDate, updatedDate, game, document, path, title, author, homepage, description, titleImage,
+							images, published, links, problemLinks);
 	}
 
 	public static class ManagedFile {

@@ -56,6 +56,9 @@
 
 	--document-meta-border: #dee3e9;
 	--document-meta-bg: #f0f0f5;
+
+	--problem-border: #f73;
+	--problem-bg: #f735;
 }
 
 html {
@@ -632,6 +635,18 @@ article.document .meta {
 	margin: 0 0 10px 10px;
 	border: 1px solid var(--document-meta-border);
 	background-color: var(--document-meta-bg);
+}
+
+.problem {
+	border: 1px solid var(--problem-border);
+	background-color: var(--problem-bg);
+}
+
+.problem span {
+	font-size: 0.9em;
+	font-style: italic;
+	padding: 10px;
+	display: block;
 }
 
 article.document :not(pre) > code {
