@@ -13,16 +13,18 @@
 		</#list>
 	</@heading>
 
-	<@content class="biglist">
-		<ul>
-		<#list group.groups as k, g>
-			<li style='background-image: url("${staticPath()}/images/games/${g.name}.png")'>
-				<span class="meta">${g.docs}</span>
-				<a href="${relPath(g.path + "/index.html")}">${g.name}</a>
-			</li>
-		</#list>
-		</ul>
-	</@content>
+	<#if group.groups?size gt 0>
+		<@content class="biglist">
+			<ul>
+			<#list group.groups as k, g>
+				<li style='background-image: url("${staticPath()}/images/games/${g.name}.png")'>
+					<span class="meta">${g.docs}</span>
+					<a href="${relPath(g.path + "/index.html")}">${g.name}</a>
+				</li>
+			</#list>
+			</ul>
+		</@content>
+  </#if>
 
 	<#if group.documents?size gt 0>
 		<@content class="list">

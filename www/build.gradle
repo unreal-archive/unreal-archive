@@ -70,11 +70,11 @@ dependencies {
 	implementation project(':common')
 	implementation project(':content')
 
-	implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
+	implementation 'com.fasterxml.jackson.core:jackson-databind:2.16.2'
 
-	implementation 'org.freemarker:freemarker:2.3.31'
+	implementation 'org.freemarker:freemarker:2.3.32'
 	implementation 'org.commonmark:commonmark:0.21.0'
-	implementation 'org.jsoup:jsoup:1.15.4'
+	implementation 'org.jsoup:jsoup:1.17.2'
 
 	testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
 }

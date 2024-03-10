@@ -1,4 +1,6 @@
 :root {
+	--page-width: 1200px;
+
 	--body-bg: none;
 	--body-color: initial;
 	--body-font-family: 'Dosis', sans-serif;
@@ -120,7 +122,7 @@ h2 img, h3 img, h4 img {
 }
 
 .page {
-	max-width: 1200px;
+	max-width: var(--page-width);
 	margin-left: auto;
 	margin-right: auto;
 }
@@ -629,14 +631,6 @@ article .docs .title-image img, article .content .title-image img {
 	max-width: 190px;
 }
 
-article.document .meta {
-	float: right;
-	width: 400px;
-	margin: 0 0 10px 10px;
-	border: 1px solid var(--document-meta-border);
-	background-color: var(--document-meta-bg);
-}
-
 .problem {
 	border: 1px solid var(--problem-border);
 	background-color: var(--problem-bg);
@@ -659,6 +653,16 @@ article.document pre, .mw-code {
 	padding: 10px;
 	border: 1px solid var(--document-meta-border);
 	background-color: var(--document-meta-bg);
+}
+
+article.split7030 pre, .split7030 .mw-code {
+	overflow: scroll;
+	max-width: 750px;
+}
+
+article.split6040 pre, .split6040 .mw-code {
+	overflow: scroll;
+	max-width: 850px;
 }
 
 article.document blockquote {

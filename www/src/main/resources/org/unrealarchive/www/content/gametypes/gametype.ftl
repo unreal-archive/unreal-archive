@@ -163,7 +163,7 @@
               <#if !r.deleted && r.files?size gt 0>
 								<div class="release">
 									<div class="title">
-                      ${r.title} ver ${r.version}
+                      ${r.title} ${r.version}
 									</div>
 									<div class="info">
 										<div>Released: ${r.releaseDate}</div>
