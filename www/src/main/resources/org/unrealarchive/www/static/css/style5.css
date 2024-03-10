@@ -16,7 +16,7 @@
 	--link-color-visited: lightgray;
 
 	--header-font-family: 'Squada One', sans-serif;
-	--header-bg-color: var(--p1);
+	--header-bg-color: rgba(0, 0, 0, 0.65);
 	--header-text-color: white;
 	--header-border-color: var(--p6);
 	--header-logo-color-a: white;
@@ -93,9 +93,21 @@ div.themes img[src$="svg"] {
  */
 
 header {
-	position: relative;
+	position: fixed;
 	z-index: 5;
+	top: 0;
+	width: 100%;
+	backdrop-filter: blur(7px);
+	border: none;
 }
+
+section.header {
+	height: 280px;
+}
+
+/* for pages where there's no big header present, push content down */
+.contentpage { padding: 100px 0; }
+.mainpage section.header + .contentpage {	padding: 20px 0; }
 
 .biglist ul li a:hover {
 	background: linear-gradient(0deg, var(--biglist-bg-color-hover) -5%, #0000 10%);
@@ -142,10 +154,6 @@ article.info .screenshots .thumb {
 
 .list .sectionInfo h3 {
 	border-radius: 4px 5px 0 0;
-}
-
-.contentpage {
-	padding: 15px 0;
 }
 
 section.report {
@@ -216,5 +224,12 @@ section.downloads .links a {
 
 	article section h4 {
 		color: var(--body-color);
+	}
+}
+
+
+@media screen and (max-width: 1024px) {
+	header {
+		position: relative;
 	}
 }

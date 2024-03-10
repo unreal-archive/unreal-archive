@@ -1026,7 +1026,7 @@ div.themes img {
 	}
 
 	section.header {
-		height: auto;
+		height: auto !important;
 		border-radius: 0 !important;
 		padding: 0;
 		margin: 0 0 10px 0;
