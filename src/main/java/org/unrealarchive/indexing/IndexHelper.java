@@ -46,7 +46,10 @@ import org.unrealarchive.content.addons.MapGameTypes;
 import org.unrealarchive.content.addons.MapPack;
 import org.unrealarchive.content.addons.MapThemes;
 import org.unrealarchive.content.addons.Model;
+import org.unrealarchive.content.addons.Mutator;
 import org.unrealarchive.content.addons.SimpleAddonRepository;
+import org.unrealarchive.content.addons.Skin;
+import org.unrealarchive.content.addons.Voice;
 import org.unrealarchive.content.managed.Managed;
 import org.unrealarchive.content.managed.ManagedContentRepository;
 import org.unrealarchive.indexing.maps.MapIndexHandler;
@@ -55,6 +58,11 @@ import org.unrealarchive.storage.DataStore;
 
 import static org.unrealarchive.content.addons.Addon.UNKNOWN;
 
+/**
+ * Implements various quick and dirty helper/cleanup processes
+ * for working with the contents of the addon index via the
+ * content manager.
+ */
 public class IndexHelper {
 
 	public static void main(String[] args) throws IOException {
@@ -90,8 +98,10 @@ public class IndexHelper {
 //		dedupeExtraFiles();
 //		fixDoubleSlashLinks();
 //		relinkMedor();
+//		removeDuplicateEntries();
+		removeDuplicateFiles();
 
-		gc();
+//		gc();
 	}
 
 	private static void gc() throws IOException {
@@ -1522,4 +1532,63 @@ public class IndexHelper {
 		}
 	}
 
+	private static void removeDuplicateEntries() throws IOException {
+		ContentManager cm = manager();
+		Collection<Addon> search = cm.repo().search(null, null, null, null);
+		for (Addon c : search) {
+			Addon co = cm.checkout(c.hash);
+			if (co instanceof Voice thing) {
+				int was = thing.voices.hashCode();
+				thing.voices = thing.voices.stream().distinct().map(s -> {
+					if (s.startsWith("\"")) s = s.substring(1);
+					if (s.endsWith("\"")) s = s.substring(0, s.length() - 1);
+					return s;
+				}).toList();
+				maybeCheckin(cm, thing, was != thing.voices.hashCode());
+			} else if (co instanceof Skin thing) {
+				int was = thing.faces.hashCode() + thing.skins.hashCode();
+				thing.faces = thing.faces.stream().distinct().map(s -> {
+					if (s.startsWith("\"")) s = s.substring(1);
+					if (s.endsWith("\"")) s = s.substring(0, s.length() - 1);
+					return s;
+				}).toList();
+				thing.skins = thing.skins.stream().distinct().map(s -> {
+					if (s.startsWith("\"")) s = s.substring(1);
+					if (s.endsWith("\"")) s = s.substring(0, s.length() - 1);
+					return s;
+				}).toList();
+				maybeCheckin(cm, thing, was != (thing.faces.hashCode() + thing.skins.hashCode()));
+			} else if (co instanceof Model thing) {
+				int was = thing.models.hashCode() + thing.skins.hashCode();
+				thing.models = thing.models.stream().distinct().map(s -> {
+					if (s.startsWith("\"")) s = s.substring(1);
+					if (s.endsWith("\"")) s = s.substring(0, s.length() - 1);
+					return s;
+				}).toList();
+				thing.skins = thing.skins.stream().distinct().map(s -> {
+					if (s.startsWith("\"")) s = s.substring(1);
+					if (s.endsWith("\"")) s = s.substring(0, s.length() - 1);
+					return s;
+				}).toList();
+				maybeCheckin(cm, thing, was != (thing.models.hashCode() + thing.skins.hashCode()));
+			} else if (co instanceof Mutator thing) {
+				int was = thing.mutators.hashCode() + thing.weapons.hashCode() + thing.vehicles.hashCode();
+				thing.mutators = thing.mutators.stream().distinct().toList();
+				thing.weapons = thing.weapons.stream().distinct().toList();
+				thing.vehicles = thing.vehicles.stream().distinct().toList();
+				maybeCheckin(cm, thing, was != (thing.mutators.hashCode() + thing.weapons.hashCode() + thing.vehicles.hashCode()));
+			}
+		}
+	}
+
+	private static void removeDuplicateFiles() throws IOException {
+		ContentManager cm = manager();
+		Collection<Addon> search = cm.repo().search(null, null, null, null);
+		for (Addon c : search) {
+			Addon co = cm.checkout(c.hash);
+			int was = co.files.hashCode();
+			co.files = co.files.stream().distinct().toList();
+			maybeCheckin(cm, co, was != co.files.hashCode());
+		}
+	}
 }

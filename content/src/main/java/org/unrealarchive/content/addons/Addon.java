@@ -293,7 +293,7 @@ public abstract class Addon implements ContentEntity<Addon> {
 			if (this == o) return true;
 			if (o == null || getClass() != o.getClass()) return false;
 			ContentFile that = (ContentFile)o;
-			return Objects.equals(name.toLowerCase(), that.name.toLowerCase()) && Objects.equals(hash, that.hash);
+			return Objects.equals(hash, that.hash);
 		}
 
 		@Override
