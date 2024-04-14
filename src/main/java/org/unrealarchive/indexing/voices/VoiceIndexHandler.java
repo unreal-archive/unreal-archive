@@ -42,11 +42,11 @@ public class VoiceIndexHandler implements IndexHandler<Voice> {
 		// find voice information via .int files
 		v.voices = voiceNames(incoming);
 
-		v.voices.forEach(n -> {
-			if (v.name == null || v.name.equalsIgnoreCase(origName)) {
-				v.name = n.replaceAll("\"", "");
-			}
-		});
+		v.voices = v.voices.stream().map(n -> {
+			n = n.replaceAll("\"", "");
+			if (v.name == null || v.name.equalsIgnoreCase(origName)) v.name = n;
+			return n;
+		}).distinct().toList();
 
 		v.game = IndexUtils.game(incoming).name;
 

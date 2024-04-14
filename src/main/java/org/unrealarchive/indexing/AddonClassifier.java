@@ -105,6 +105,8 @@ public class AddonClassifier {
 																					incoming.submission.filePath), ex);
 					}
 				}
+				newInstance.files = newInstance.files.stream().distinct().toList();
+
 				if (newInstance.releaseDate.equals("Unknown") && releaseDate != null) {
 					newInstance.releaseDate = Addon.RELEASE_DATE_FMT.format(releaseDate);
 				}

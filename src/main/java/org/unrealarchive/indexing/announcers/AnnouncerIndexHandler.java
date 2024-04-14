@@ -51,6 +51,7 @@ public class AnnouncerIndexHandler implements IndexHandler<Announcer> {
 			a.name = a.announcers.get(0).name;
 			a.description = a.announcers.get(0).description;
 		}
+		a.announcers = a.announcers.stream().distinct().toList();
 
 		a.game = IndexUtils.game(incoming).name;
 

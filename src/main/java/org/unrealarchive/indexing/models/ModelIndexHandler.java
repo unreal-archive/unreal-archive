@@ -111,6 +111,9 @@ public class ModelIndexHandler implements IndexHandler<Model> {
 			});
 		}
 
+		m.models = m.models.stream().distinct().toList();
+		m.skins = m.skins.stream().distinct().toList();
+
 		m.author = IndexUtils.findAuthor(incoming);
 
 		try {

@@ -81,6 +81,9 @@ public class SkinIndexHandler implements IndexHandler<Skin> {
 			});
 		}
 
+		s.skins = s.skins.stream().distinct().toList();
+		s.faces = s.faces.stream().distinct().toList();
+
 		s.author = IndexUtils.findAuthor(incoming);
 
 		try {

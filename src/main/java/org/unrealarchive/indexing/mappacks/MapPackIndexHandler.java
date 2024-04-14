@@ -105,6 +105,7 @@ public class MapPackIndexHandler implements IndexHandler<MapPack> {
 		} catch (Exception e) {
 			log.log(IndexLog.EntryType.CONTINUE, "Failed finding additional attachment images", e);
 		}
+		m.maps = m.maps.stream().distinct().toList();
 
 		m.author = UNKNOWN;
 		for (MapPack.PackMap map : m.maps) {

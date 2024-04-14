@@ -62,6 +62,8 @@ public class MutatorIndexHandler implements IndexHandler<Mutator> {
 			m.description = m.mutators.get(0).description;
 		}
 
+		m.mutators = m.mutators.stream().distinct().toList();
+
 		m.game = IndexUtils.game(incoming).name;
 
 		m.author = IndexUtils.findAuthor(incoming, true);
