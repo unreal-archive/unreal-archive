@@ -17,8 +17,8 @@
 
 	<@heading bg=[headerbg]>
 		<span class="crumbs">
-			<a href="${relPath(sectionPath + "/index.html")}">Voices</a>
-			/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
+			<a href="${relPath(game.root + "/index.html")}">${game.name}</a>
+			/ <a href="${relPath(game.path + "/index.html")}">Voices</a>
 			/</span> ${voice.item.name}
 	</@heading>
 
@@ -68,11 +68,11 @@
 			</@contents>
 			</#if>
 
-			<@files files=voice.item.files alsoIn=voice.alsoIn otherFiles=voice.item.otherFiles/>
+			<@files game=game files=voice.item.files alsoIn=voice.alsoIn otherFiles=voice.item.otherFiles/>
 
 			<@downloads downloads=voice.item.downloads/>
 
-      <@dependencies deps=voice.item.dependencies game=voice.item.game/>
+      <@dependencies game=game deps=voice.item.dependencies/>
 
       <@ghIssue text="Report a problem" repoUrl="${dataProjectUrl}" title="[Voice] ${voice.item.name}" hash="${voice.item.hash}" name="${voice.item.name}"/>
 

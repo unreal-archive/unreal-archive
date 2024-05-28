@@ -13,8 +13,8 @@
 
 	<@heading bg=[ogImage, "${staticPath()}/images/games/${game.name}.png"]>
 		<span class="crumbs">
-			<a href="${relPath(sectionPath + "/index.html")}">Maps</a>
-			/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
+			<a href="${relPath(game.root + "/index.html")}">${game.name}</a>
+			/ <a href="${relPath(game.path + "/index.html")}">Maps</a>
 			/</span> <a href="${relPath(gametype.path + "/index.html")}">${gametype.name}</a>
 		<span class="crumbs">
 			<#if page?? && gametype.letters?size gt 1>/ ${page.letter.letter}</#if>

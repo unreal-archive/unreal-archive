@@ -6,8 +6,8 @@
 
 	<@heading bg=[ogImage]>
 		<span class="crumbs">
-			<a href="${relPath(sectionPath + "/index.html")}">Mutators</a>
-			/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
+			<a href="${relPath(game.root + "/index.html")}">${game.name}</a>
+			/ <a href="${relPath(game.path + "/index.html")}">Mutators</a>
 			/</span> ${year?c}
 	</@heading>
 

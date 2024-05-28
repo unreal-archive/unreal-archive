@@ -125,7 +125,7 @@
 	</#compress>
 </#macro>
 
-<#macro files files alsoIn otherFiles h="h2">
+<#macro files game files alsoIn otherFiles h="h2">
 	<#compress>
 	<#if files?size gt 0>
 		<section class="files">
@@ -147,7 +147,7 @@
 						<td class="nomobile">${f.hash}</td>
 						<td class="nomobile">
 						  <#if alsoIn[f.hash]??>
-							<a href="${relPath(siteRoot + "/files/" + f.hash[0..1] + "/" + f.hash + ".html")}">${alsoIn[f.hash]}</a>
+							  <a href="${relPath(game.root + "/files/" + f.hash[0..1] + "/" + f.hash + ".html")}">${alsoIn[f.hash]}</a>
 							<#else>
 							-
 							</#if>
@@ -234,7 +234,7 @@
 	</section>
 </#macro>
 
-<#macro dependencies deps h="h2" game="">
+<#macro dependencies deps game h="h2">
 	<#compress>
 	<#if deps?size gt 0>
 		<section class="dependencies">
@@ -254,7 +254,7 @@
 						<td colspan="4">
 							<b>
 								<#if game??>
-									<a href="${relPath(siteRoot + "/packages/" + slug(game) + "/" + slug(plainName(name)) + "/index.html")}">${name}</a>
+									<a href="${relPath(game.root + "/packages/" + slug(plainName(name)) + "/index.html")}">${name}</a>
 								<#else>
 									${name}
 								</#if>
@@ -265,7 +265,7 @@
 						<tr>
 							<td>&nbsp;</td>
 							<#if game??>
-								<td><a href="${relPath(siteRoot + "/packages/" + slug(game) + "/" + slug(dep.name) + "/index.html")}">${dep.name}</a></td>
+								<td><a href="${relPath(game.root + "/packages/" + slug(dep.name) + "/index.html")}">${dep.name}</a></td>
 							<#else>
 								<td>${dep.name}</td>
 							</#if>

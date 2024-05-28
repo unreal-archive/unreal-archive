@@ -24,19 +24,15 @@ public class Maps extends GenericContentPage<Map> {
 
 	public Maps(SimpleAddonRepository content, Path output, Path staticRoot, SiteFeatures features,
 				GameTypeRepository gametypes) {
-		super(content, output, output.resolve("maps"), staticRoot, features);
+		super(content, output, output, staticRoot, features);
 		this.gametypes = gametypes;
 	}
 
 	@Override
 	public Set<SiteMap.Page> generate() {
-		GameList games = loadContent(Map.class, content);
+		GameList games = loadContent(Map.class, content, "maps");
 
 		Templates.PageSet pages = pageSet("content/maps");
-
-		pages.add("games.ftl", SiteMap.Page.monthly(0.6f), SECTION)
-			 .put("games", games)
-			 .write(root.resolve("index.html"));
 
 		games.games.entrySet().parallelStream().forEach(g -> {
 
@@ -44,7 +40,7 @@ public class Maps extends GenericContentPage<Map> {
 
 			Games game = Games.byName(g.getKey());
 
-			pages.add("gametypes.ftl", SiteMap.Page.monthly(0.62f), String.join(" / ", SECTION, game.bigName))
+			pages.add("gametypes.ftl", SiteMap.Page.monthly(0.62f), String.join(" / ", game.bigName, SECTION))
 				 .put("game", g.getValue())
 				 .put("timeline", timeline)
 				 .write(g.getValue().path.resolve("index.html"));
@@ -63,7 +59,7 @@ public class Maps extends GenericContentPage<Map> {
 																 .flatMap(e -> e.items.stream())
 																 .sorted()
 																 .toList();
-					pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName, gt.getKey()))
+					pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", game.bigName, SECTION, gt.getKey()))
 						 .put("gametype", gt.getValue())
 						 .put("maps", all)
 						 .put("gameTypeInfo", gtInfo)
@@ -78,7 +74,7 @@ public class Maps extends GenericContentPage<Map> {
 
 				gt.getValue().letters.entrySet().parallelStream().forEach(l -> {
 					l.getValue().pages.parallelStream().forEach(p -> {
-						pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName, gt.getKey()))
+						pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", game.bigName, SECTION, gt.getKey()))
 							 .put("page", p)
 							 .put("gameTypeInfo", gtInfo)
 							 .put("gameTypeInfoPath", gtInfo != null ? gtInfo.slugPath(siteRoot) : null)
@@ -88,7 +84,7 @@ public class Maps extends GenericContentPage<Map> {
 					});
 
 					// output first letter/page combo, with appropriate relative links
-					pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName, gt.getKey()))
+					pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", game.bigName, SECTION, gt.getKey()))
 						 .put("page", l.getValue().pages.get(0))
 						 .put("gameTypeInfo", gtInfo)
 						 .put("gameTypeInfoPath", gtInfo != null ? gtInfo.slugPath(siteRoot) : null)
@@ -96,7 +92,7 @@ public class Maps extends GenericContentPage<Map> {
 				});
 
 				// output first letter/page combo, with appropriate relative links
-				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName, gt.getKey()))
+				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", game.bigName, SECTION, gt.getKey()))
 					 .put("page", gt.getValue().letters.firstEntry().getValue().pages.get(0))
 					 .put("gameTypeInfo", gtInfo)
 					 .put("gameTypeInfoPath", gtInfo != null ? gtInfo.slugPath(siteRoot) : null)
@@ -119,8 +115,9 @@ public class Maps extends GenericContentPage<Map> {
 
 		localImages(item, root.resolve(map.path).getParent());
 
-		pages.add("map.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex), String.join(" / ", SECTION,
+		pages.add("map.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex), String.join(" / ",
 																					  map.page.letter.group.game.game.bigName,
+																					  SECTION,
 																					  map.page.letter.group.name,
 																					  item.title))
 			 .put("map", map)

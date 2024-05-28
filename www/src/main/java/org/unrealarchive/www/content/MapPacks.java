@@ -27,19 +27,15 @@ public class MapPacks extends GenericContentPage<MapPack> {
 
 	public MapPacks(SimpleAddonRepository content, Path output, Path staticRoot, SiteFeatures features,
 					GameTypeRepository gametypes) {
-		super(content, output, output.resolve("mappacks"), staticRoot, features);
+		super(content, output, output, staticRoot, features);
 		this.gametypes = gametypes;
 	}
 
 	@Override
 	public Set<SiteMap.Page> generate() {
-		GameList games = loadContent(MapPack.class, content);
+		GameList games = loadContent(MapPack.class, content, "mappacks");
 
 		Templates.PageSet pages = pageSet("content/mappacks");
-
-		pages.add("games.ftl", SiteMap.Page.monthly(0.6f), SECTION)
-			 .put("games", games)
-			 .write(root.resolve("index.html"));
 
 		games.games.entrySet().parallelStream().forEach(g -> {
 
@@ -47,7 +43,7 @@ public class MapPacks extends GenericContentPage<MapPack> {
 
 			Games game = Games.byName(g.getKey());
 
-			pages.add("gametypes.ftl", SiteMap.Page.monthly(0.62f), String.join(" / ", SECTION, game.bigName))
+			pages.add("gametypes.ftl", SiteMap.Page.monthly(0.62f), String.join(" / ", game.bigName, SECTION))
 				 .put("game", g.getValue())
 				 .put("timeline", timeline)
 				 .write(g.getValue().path.resolve("index.html"));
@@ -63,7 +59,7 @@ public class MapPacks extends GenericContentPage<MapPack> {
 				gt.getValue().letters.get(LETTER_SUBGROUP).pages.parallelStream().forEach(p -> {
 					// don't bother creating numbered single page, default landing page will suffice
 					if (gt.getValue().letters.get(LETTER_SUBGROUP).pages.size() > 1) {
-						pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName, gt.getKey()))
+						pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", game.bigName, SECTION, gt.getKey()))
 							 .put("page", p)
 							 .put("pages", gt.getValue().letters.get(LETTER_SUBGROUP).pages)
 							 .put("gametype", gt.getValue())
@@ -76,7 +72,7 @@ public class MapPacks extends GenericContentPage<MapPack> {
 				});
 
 				// output first letter/page combo, with appropriate relative links
-				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName, gt.getKey()))
+				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", game.bigName, SECTION, gt.getKey()))
 					 .put("page", gt.getValue().letters.get(LETTER_SUBGROUP).pages.get(0))
 					 .put("pages", gt.getValue().letters.get(LETTER_SUBGROUP).pages)
 					 .put("gametype", gt.getValue())
@@ -101,8 +97,9 @@ public class MapPacks extends GenericContentPage<MapPack> {
 
 		localImages(item, pack.path.getParent());
 
-		pages.add("mappack.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex), String.join(" / ", SECTION,
+		pages.add("mappack.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex), String.join(" / ",
 																						  pack.page.letter.group.game.game.bigName,
+																						  SECTION,
 																						  pack.page.letter.group.name, item.name))
 			 .put("pack", pack)
 			 .put("gameTypeInfo", gt)

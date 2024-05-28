@@ -11,7 +11,7 @@
 
 <@heading bg=[ogImage]>
 	<span class="crumbs">
-		<a href="${relPath(sectionPath + "/index.html")}">Authors</a>
+		<a href="${relPath(authorsPath + "/index.html")}">Authors</a>
 		/</span> ${author.author}
 </@heading>
 

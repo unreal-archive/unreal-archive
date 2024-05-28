@@ -10,7 +10,7 @@
 		</li>
 		<li style='background-image: url("${staticPath()}/images/contents/t_patches.png")'>
 			<span class="meta">${count.Updates}</span>
-			<a href="patches-updates/index.html">Patches & Updates</a>
+			<a href="managed/index.html">Patches & Updates</a>
 		</li>
 		<li style='background-image: url("${staticPath()}/images/contents/t_mods.png")'>
 			<span class="meta">${count.GameTypes}</span>

@@ -5,12 +5,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -44,8 +42,8 @@ public class Managed implements ContentEntity<Managed> {
 
 	public String game = "Unreal Tournament";
 	public String group = "Patches & Updates";      // root level grouping
+	public String subGroup = "Patches";             // subgrouping
 	public String document = "readme.md";           // file name of an associated markdown document
-	public String path = "";                        // defines a path-like structure for navigation; "Tools/Editor"
 	public String title;                            // Brush Importer for UnrealED
 	public String author = "Unknown";               // Joe Soap
 	public String homepage = "";                    // https://cool-editor-tool.com/
@@ -60,21 +58,21 @@ public class Managed implements ContentEntity<Managed> {
 	public boolean published = true;                // false will hide it
 
 	public String fullPath() {
-		return String.join("/", group, game, path);
+		return String.join("/", game, group, subGroup);
 	}
 
 	@Override
 	public Path contentPath(Path root) {
-		return slugPath(root);
+		return slugPath(root.resolve("managed"));
 	}
 
 	@Override
 	public Path slugPath(Path root) {
-		String group = Util.slug(this.group);
 		String game = Util.slug(this.game);
-		String path = Arrays.stream(this.path.split("/")).map(Util::slug).collect(Collectors.joining("/"));
+		String group = Util.slug(this.group);
+		String subGroup = Util.slug(this.subGroup);
 		String name = Util.slug(this.title);
-		return root.resolve(group).resolve(game).resolve(path).resolve(name);
+		return root.resolve(game).resolve(group).resolve(subGroup).resolve(name);
 	}
 
 	@Override
@@ -167,7 +165,8 @@ public class Managed implements ContentEntity<Managed> {
 			   && Objects.equals(updatedDate, managed.updatedDate)
 			   && Objects.equals(game, managed.game)
 			   && Objects.equals(document, managed.document)
-			   && Objects.equals(path, managed.path)
+			   && Objects.equals(group, managed.group)
+			   && Objects.equals(subGroup, managed.subGroup)
 			   && Objects.equals(title, managed.title)
 			   && Objects.equals(author, managed.author)
 			   && Objects.equals(homepage, managed.homepage)
@@ -180,8 +179,8 @@ public class Managed implements ContentEntity<Managed> {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(createdDate, updatedDate, game, document, path, title, author, homepage, description, titleImage,
-							images, published, links, problemLinks);
+		return Objects.hash(createdDate, updatedDate, game, document, group, subGroup, title, author, homepage, description,
+							titleImage, images, published, links, problemLinks);
 	}
 
 	public static class ManagedFile {

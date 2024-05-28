@@ -20,18 +20,14 @@ public class Mutators extends GenericContentPage<Mutator> {
 	private static final String SUBGROUP = "all";
 
 	public Mutators(SimpleAddonRepository content, Path output, Path staticRoot, SiteFeatures localImages) {
-		super(content, output, output.resolve("mutators"), staticRoot, localImages);
+		super(content, output, output, staticRoot, localImages);
 	}
 
 	@Override
 	public Set<SiteMap.Page> generate() {
-		GameList games = loadContent(Mutator.class, content);
+		GameList games = loadContent(Mutator.class, content, "mutators");
 
 		Templates.PageSet pages = pageSet("content/mutators");
-
-		pages.add("games.ftl", SiteMap.Page.monthly(0.6f), SECTION)
-			 .put("games", games)
-			 .write(root.resolve("index.html"));
 
 		games.games.entrySet().parallelStream().forEach(g -> {
 
@@ -45,7 +41,7 @@ public class Mutators extends GenericContentPage<Mutator> {
 																				 .flatMap(e -> e.items.stream())
 																				 .sorted()
 																				 .toList();
-				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName))
+				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", game.bigName, SECTION))
 					 .put("game", g.getValue())
 					 .put("timeline", timeline)
 					 .put("mutators", all)
@@ -61,7 +57,7 @@ public class Mutators extends GenericContentPage<Mutator> {
 
 			g.getValue().groups.get(SUBGROUP).letters.entrySet().parallelStream().forEach(l -> {
 				l.getValue().pages.parallelStream().forEach(p -> {
-					pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName))
+					pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", game.bigName, SECTION))
 						 .put("timeline", timeline)
 						 .put("page", p)
 						 .write(p.path.resolve("index.html"));
@@ -70,14 +66,14 @@ public class Mutators extends GenericContentPage<Mutator> {
 				});
 
 				// output first letter/page combo, with appropriate relative links
-				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName))
+				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", game.bigName, SECTION))
 					 .put("timeline", timeline)
 					 .put("page", l.getValue().pages.get(0))
 					 .write(l.getValue().path.resolve("index.html"));
 			});
 
 			// output first letter/page combo, with appropriate relative links
-			pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName))
+			pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", game.bigName, SECTION))
 				 .put("timeline", timeline)
 				 .put("page", g.getValue().groups.get(SUBGROUP).letters.firstEntry().getValue().pages.get(0))
 				 .write(g.getValue().path.resolve("index.html"));
@@ -92,8 +88,9 @@ public class Mutators extends GenericContentPage<Mutator> {
 		final Addon item = mutator.item();
 		localImages(item, root.resolve(mutator.path).getParent());
 
-		pages.add("mutator.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex), String.join(" / ", SECTION,
+		pages.add("mutator.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex), String.join(" / ",
 																						  mutator.page.letter.group.game.game.bigName,
+																						  SECTION,
 																						  item.name))
 			 .put("mutator", mutator)
 			 .write(Paths.get(mutator.path + ".html"));

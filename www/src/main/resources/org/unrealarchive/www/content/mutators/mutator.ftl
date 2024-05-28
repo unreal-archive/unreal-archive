@@ -17,8 +17,8 @@
 
 	<@heading bg=[headerbg]>
 		<span class="crumbs">
-			<a href="${relPath(sectionPath + "/index.html")}">Mutators</a>
-			/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
+			<a href="${relPath(game.root + "/index.html")}">${game.name}</a>
+			/ <a href="${relPath(game.path + "/index.html")}">Mutators</a>
 			/</span> ${mutator.item.name}
 	</@heading>
 
@@ -103,11 +103,11 @@
 				<@labellist labels=labels values=values/>
 			</@contents>
 
-			<@files files=mutator.item.files alsoIn=mutator.alsoIn otherFiles=mutator.item.otherFiles/>
+			<@files game=game files=mutator.item.files alsoIn=mutator.alsoIn otherFiles=mutator.item.otherFiles/>
 
 			<@downloads downloads=mutator.item.downloads/>
 
-			<@dependencies deps=mutator.item.dependencies game=mutator.item.game/>
+			<@dependencies game=game deps=mutator.item.dependencies/>
 
       <@ghIssue text="Report a problem" repoUrl="${dataProjectUrl}" title="[Mutator] ${mutator.item.name}" hash="${mutator.item.hash}" name="${mutator.item.name}"/>
 

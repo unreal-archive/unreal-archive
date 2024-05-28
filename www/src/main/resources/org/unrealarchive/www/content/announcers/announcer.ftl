@@ -17,8 +17,8 @@
 
 	<@heading bg=[headerbg]>
 		<span class="crumbs">
-			<a href="${relPath(sectionPath + "/index.html")}">Announcers</a>
-			/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
+			<a href="${relPath(game.root + "/index.html")}">${game.name}</a>
+			/ <a href="${relPath(game.path + "/index.html")}">Announcers</a>
 			/</span> ${announcer.item.name}
 	</@heading>
 
@@ -66,11 +66,11 @@
 			</@contents>
 			</#if>
 
-			<@files files=announcer.item.files alsoIn=announcer.alsoIn otherFiles=announcer.item.otherFiles/>
+			<@files game=game files=announcer.item.files alsoIn=announcer.alsoIn otherFiles=announcer.item.otherFiles/>
 
 			<@downloads downloads=announcer.item.downloads/>
 
-      <@dependencies deps=announcer.item.dependencies game=announcer.item.game/>
+      <@dependencies game=game deps=announcer.item.dependencies game=announcer.item.game/>
 
       <@ghIssue text="Report a problem" repoUrl="${dataProjectUrl}" title="[Announcer] ${announcer.item.name}" hash="${announcer.item.hash}" name="${announcer.item.name}"/>
 

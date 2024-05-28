@@ -1,10 +1,10 @@
-<#assign ogImage="${staticPath()}/images/games/All.png">
+<#assign ogImage="${staticPath()}/images/games/${game}.png">
 
 <#include "../../_header.ftl">
 <#include "../../macros.ftl">
 
 	<@heading bg=[ogImage]>
-		<span class="crumbs">File /</span>
+		<span class="crumbs">${game} / Files /</span>
 		${file.name}
 	</@heading>
 

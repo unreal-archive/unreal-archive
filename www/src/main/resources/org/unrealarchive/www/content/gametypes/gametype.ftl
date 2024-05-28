@@ -18,12 +18,12 @@
 
 	<@heading bg=[headerbg]>
 		<span class="crumbs">
-			<a href="${relPath(sectionPath + "/index.html")}">Game Types &amp; Mods</a>
-				/ <a href="${relPath(gametype.game.path + "/index.html")}">${gametype.game.name}</a>
-				<#if gametype.variationOf??>
-					/ <a href="../index.html">${gametype.variationOf.name}</a>
-				</#if>
-				/</span> ${gametype.gametype.name}
+			<a href="${relPath(gametype.game.root + "/index.html")}">${gametype.game.name}</a>
+			/ <a href="${relPath(gametype.game.path + "/index.html")}">Game Types &amp; Mods</a>
+			<#if gametype.variationOf??>
+				/ <a href="../index.html">${gametype.variationOf.name}</a>
+			</#if>
+			/</span> ${gametype.gametype.name}
 	</@heading>
 
 	<@content class="split split6040" id="gametype">

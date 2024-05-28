@@ -20,17 +20,14 @@ public class Announcers extends GenericContentPage<Announcer> {
 	private static final String SUBGROUP = "all";
 
 	public Announcers(SimpleAddonRepository content, Path output, Path staticRoot, SiteFeatures localImages) {
-		super(content, output, output.resolve("announcers"), staticRoot, localImages);
+		super(content, output, output, staticRoot, localImages);
 	}
 
 	@Override
 	public Set<SiteMap.Page> generate() {
-		GameList games = loadContent(Announcer.class, content);
+		GameList games = loadContent(Announcer.class, content, "announcers");
 
 		Templates.PageSet pages = pageSet("content/announcers");
-		pages.add("games.ftl", SiteMap.Page.monthly(0.6f), SECTION)
-			 .put("games", games)
-			 .write(root.resolve("index.html"));
 
 		games.games.entrySet().parallelStream().forEach(g -> {
 
@@ -44,7 +41,7 @@ public class Announcers extends GenericContentPage<Announcer> {
 																				 .flatMap(e -> e.items.stream())
 																				 .sorted()
 																				 .toList();
-				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName))
+				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", game.bigName, SECTION))
 					 .put("game", g.getValue())
 					 .put("timeline", timeline)
 					 .put("announcers", all)
@@ -60,7 +57,7 @@ public class Announcers extends GenericContentPage<Announcer> {
 
 			g.getValue().groups.get(SUBGROUP).letters.entrySet().parallelStream().forEach(l -> {
 				l.getValue().pages.parallelStream().forEach(p -> {
-					pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName))
+					pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", game.bigName, SECTION))
 						 .put("timeline", timeline)
 						 .put("page", p)
 						 .write(p.path.resolve("index.html"));
@@ -69,14 +66,14 @@ public class Announcers extends GenericContentPage<Announcer> {
 				});
 
 				// output first letter/page combo, with appropriate relative links
-				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName))
+				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", game.bigName, SECTION))
 					 .put("timeline", timeline)
 					 .put("page", l.getValue().pages.get(0))
 					 .write(l.getValue().path.resolve("index.html"));
 			});
 
 			// output first letter/page combo, with appropriate relative links
-			pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName))
+			pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", game.bigName, SECTION))
 				 .put("timeline", timeline)
 				 .put("page", g.getValue().groups.get(SUBGROUP).letters.firstEntry().getValue().pages.get(0))
 				 .write(g.getValue().path.resolve("index.html"));
@@ -91,8 +88,9 @@ public class Announcers extends GenericContentPage<Announcer> {
 		final Addon item = announcer.item();
 		localImages(item, root.resolve(announcer.path).getParent());
 
-		pages.add("announcer.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex), String.join(" / ", SECTION,
+		pages.add("announcer.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex), String.join(" / ",
 																							announcer.page.letter.group.game.game.bigName,
+																							SECTION,
 																							item.name))
 			 .put("announcer", announcer)
 			 .write(Paths.get(announcer.path + ".html"));

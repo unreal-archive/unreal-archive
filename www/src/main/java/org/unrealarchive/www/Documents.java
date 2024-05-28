@@ -19,7 +19,7 @@ import static org.unrealarchive.common.Util.slug;
 
 public class Documents implements PageGenerator {
 
-	private static final String SECTION = "Articles";
+	private static final String SECTION = "Guides & Reference";
 
 	private final DocumentRepository documents;
 	private final Path siteRoot;
@@ -30,147 +30,170 @@ public class Documents implements PageGenerator {
 	public Documents(DocumentRepository documents, Path root, Path staticRoot, SiteFeatures features) {
 		this.documents = documents;
 		this.siteRoot = root;
-		this.root = root.resolve("documents");
+		this.root = root;
 		this.staticRoot = staticRoot;
 		this.features = features;
 	}
 
-	private Map<String, DocumentGroup> loadGroups(DocumentRepository documents) {
-		final Map<String, DocumentGroup> groups = new HashMap<>();
+	private Map<String, Game> loadGames(DocumentRepository documents) {
+		final Map<String, Game> groups = new HashMap<>();
 		documents.all().stream()
 				 .filter(d -> d.published)
 				 .sorted(Comparator.reverseOrder())
 				 .forEach(d -> {
-					 DocumentGroup group = groups.computeIfAbsent(d.game, g -> new DocumentGroup(null, g));
-					 group.add(d);
+					 Game game = groups.computeIfAbsent(d.game, Game::new);
+					 game.add(d);
 				 });
 		return groups;
 	}
-
 	/**
 	 * Generate one or more HTML pages of output.
 	 */
 	@Override
 	public Set<SiteMap.Page> generate() {
-		final Map<String, DocumentGroup> groups = loadGroups(documents);
+		final Map<String, Game> games = loadGames(documents);
 
-		Templates.PageSet pages = new Templates.PageSet("docs", features, siteRoot, staticRoot, root);
+		Templates.PageSet pages = new Templates.PageSet("documents", features, siteRoot, staticRoot, root);
 		try {
-			// create the root landing page, for reasons
-			DocumentGroup rootGroup = new DocumentGroup(null, "");
-			rootGroup.groups.putAll(groups);
-			generateGroup(pages, rootGroup);
+			for (Game game : games.values()) {
+
+				pages.add("game.ftl", SiteMap.Page.monthly(0.7f), String.join(" / ", game.name, SECTION))
+					 .put("game", game)
+					 .write(game.path.resolve("index.html"));
+
+				for (Group g : game.groups.values()) {
+					generateGroup(pages, g);
+				}
+			}
 		} catch (IOException e) {
-			throw new RuntimeException("Failed to render page", e);
+			throw new RuntimeException("Failed to render managed content pages", e);
 		}
 
 		return pages.pages;
 	}
 
-	private void generateGroup(Templates.PageSet pages, DocumentGroup group) throws IOException {
-		// we have to compute the path here, since a template can't do a while loop up its group tree itself
-		List<DocumentGroup> groupPath = new ArrayList<>();
-		DocumentGroup grp = group;
-		while (grp != null) {
-			groupPath.add(0, grp);
-			grp = grp.parent;
-		}
-
-		pages.add("group.ftl", SiteMap.Page.weekly(0.6f), String.join(" / ", SECTION, String.join(" / ", group.parentPath.split("/"))))
-			 .put("groupPath", groupPath)
+	private void generateGroup(Templates.PageSet pages, Group group) throws IOException {
+		pages.add("group.ftl", SiteMap.Page.monthly(0.7f), String.join(" / ", group.game.name, SECTION, group.name))
 			 .put("group", group)
 			 .write(group.path.resolve("index.html"));
 
-		for (DocumentGroup g : group.groups.values()) {
-			generateGroup(pages, g);
-		}
+		for (SubGroup subgroup : group.subGroups.values()) {
+			pages.add("subgroup.ftl", SiteMap.Page.monthly(0.75f), String.join(" / ", group.game.name, SECTION, group.name, subgroup.name))
+				 .put("subgroup", subgroup)
+				 .write(subgroup.path.resolve("index.html"));
 
-		for (DocumentInfo d : group.documents) {
-			generateDocument(pages, d);
+			for (DocumentInfo content : subgroup.documents) {
+				generateDocument(pages, content);
+			}
 		}
 	}
 
 	private void generateDocument(Templates.PageSet pages, DocumentInfo doc) throws IOException {
-		try (ReadableByteChannel docChan = documents.document(doc.document)) {
+		try (ReadableByteChannel docChan = this.documents.document(doc.document)) {
 
-			// we have to compute the path here, since a template can't do a while loop up its group tree itself
-			List<DocumentGroup> groupPath = new ArrayList<>();
-			DocumentGroup grp = doc.group;
-			while (grp != null) {
-				groupPath.add(0, grp);
-				grp = grp.parent;
-			}
-
-			// copy document assets to the output directory
+			// copy content of directory to www output
 			final Path path = Files.createDirectories(doc.path);
-			documents.writeContent(doc.document, path);
+			this.documents.writeContent(doc.document, path);
 
 			final String page = Markdown.renderMarkdown(docChan);
 
-			pages.add("document.ftl", SiteMap.Page.monthly(0.8f, doc.document.updatedDate),
-					  String.join(" / ", SECTION, doc.document.game, String.join(" / ", doc.document.path.split("/")), doc.document.title))
-				 .put("groupPath", groupPath)
+			pages.add("document.ftl", SiteMap.Page.monthly(0.85f, doc.document.updatedDate),
+					  String.join(" / ", doc.subGroup.parent.game.name, SECTION, doc.subGroup.parent.name, doc.subGroup.name,
+								  doc.document.title))
 				 .put("document", doc)
 				 .put("page", page)
-				 .write(path.resolve("index.html"));
+				 .write(doc.document.pagePath(root));
 		}
 	}
 
-	public class DocumentGroup {
+	public class Game {
 
-		private final String parentPath;
+		public final String name;
+		public final String slug;
+		public final Path root;
+		public final Path path;
 
-		public final DocumentGroup parent;
+		public final TreeMap<String, Group> groups = new TreeMap<>();
+
+		public int count;
+
+		public Game(String name) {
+			this.name = name;
+			this.slug = slug(name);
+			this.root = Documents.this.root.resolve(slug);
+			this.path = root.resolve("documents");
+			this.count = 0;
+		}
+
+		public void add(Document d) {
+			groups.computeIfAbsent(d.group, g -> new Group(this, g)).add(d);
+
+			this.count++;
+		}
+	}
+
+	public class Group {
+		public final String name;
+		public final String slug;
+		public final Path path;
+
+		public final Game game;
+		public final TreeMap<String, SubGroup> subGroups = new TreeMap<>();
+
+		public int count;
+
+		public Group(Game game, String name) {
+			this.game = game;
+			this.name = name;
+			this.slug = slug(name);
+			this.path = game.path.resolve(slug);
+			this.count = 0;
+		}
+
+		public void add(Document d) {
+			subGroups.computeIfAbsent(d.subGroup, g -> new SubGroup(this, g)).add(d);
+
+			this.count++;
+		}
+	}
+
+	public class SubGroup {
 
 		public final String name;
 		public final String slug;
 		public final Path path;
 
-		public final TreeMap<String, DocumentGroup> groups = new TreeMap<>();
+		public final Group parent;
 		public final List<DocumentInfo> documents = new ArrayList<>();
+		public int count;
 
-		public int docs;
-
-		public DocumentGroup(DocumentGroup parent, String name) {
-			this.parentPath = parent != null ? parent.parentPath.isEmpty() ? name : String.join("/", parent.parentPath, name) : "";
-
+		public SubGroup(Group parent, String name) {
 			this.parent = parent;
 
 			this.name = name;
 			this.slug = slug(name);
-			this.path = parent != null ? parent.path.resolve(slug) : root.resolve(slug);
-			this.docs = 0;
+			this.path = parent.path.resolve(slug);
+			this.count = 0;
 		}
 
 		public void add(Document d) {
-			Path docPath = d.slugPath(root);
+			documents.add(new DocumentInfo(d, this));
 
-			if (docPath.getParent().equals(this.path)) {
-				// reached leaf of path tree for this document, place it here
-				documents.add(new DocumentInfo(d, this));
-			} else {
-				// this document lives further down the tree, keep adding paths
-				String[] next = (parentPath.isEmpty() ? d.path : d.path.replaceFirst(parentPath + "/", "")).split("/");
-				String nextName = (next.length > 0 && !next[0].isEmpty()) ? next[0] : "";
-
-				DocumentGroup group = groups.computeIfAbsent(nextName, g -> new DocumentGroup(this, g));
-				group.add(d);
-			}
-			this.docs++;
+			count++;
 		}
 	}
 
 	public class DocumentInfo {
 
 		public final Document document;
-		public final DocumentGroup group;
+		public final SubGroup subGroup;
 
 		public final String slug;
 		public final Path path;
 
-		public DocumentInfo(Document document, DocumentGroup group) {
+		public DocumentInfo(Document document, SubGroup subGroup) {
 			this.document = document;
-			this.group = group;
+			this.subGroup = subGroup;
 
 			this.slug = slug(document.title);
 			this.path = document.slugPath(root);
