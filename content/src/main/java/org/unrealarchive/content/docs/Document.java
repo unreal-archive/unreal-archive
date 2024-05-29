@@ -26,7 +26,7 @@ public class Document implements Comparable<Document> {
 		String group = Util.slug(this.group);
 		String subGroup = Util.slug(this.subGroup);
 		String name = Util.slug(this.title);
-		return root.resolve(game).resolve(group).resolve(subGroup).resolve(name);
+		return root.resolve(game).resolve("documents").resolve(group).resolve(subGroup).resolve(name);
 	}
 
 	public Path pagePath(Path root) {
