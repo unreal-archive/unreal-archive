@@ -31,15 +31,16 @@ public class Authors extends ContentPageGenerator {
 	private final AuthorNames names;
 	private final GameTypeRepository gameTypes;
 	private final ManagedContentRepository managed;
+	private final Path sectionPath;
 
 	public Authors(AuthorNames names, SimpleAddonRepository content, GameTypeRepository gameTypes, ManagedContentRepository managed,
-				   Path output, Path staticRoot, SiteFeatures features) {
-		super(content, output, output.resolve("authors"), staticRoot, features);
+				   Path root, Path staticRoot, SiteFeatures features) {
+		super(content, root, staticRoot, features);
 
 		this.names = names;
 		this.gameTypes = gameTypes;
 		this.managed = managed;
-
+		this.sectionPath = root.resolve("authors");
 	}
 
 	private TreeMap<String, LetterGroup> loadLetters(AuthorNames names, SimpleAddonRepository content, GameTypeRepository gameTypes,
@@ -96,6 +97,7 @@ public class Authors extends ContentPageGenerator {
 				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION))
 					 .put("letters", letters)
 					 .put("page", p)
+					 .put("authorsPath", sectionPath)
 					 .write(p.path.resolve("index.html"));
 
 				p.authors.parallelStream().forEach(author -> authorPage(pages, author));
@@ -105,6 +107,7 @@ public class Authors extends ContentPageGenerator {
 			pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION))
 				 .put("letters", letters)
 				 .put("page", l.getValue().pages.get(0))
+				 .put("authorsPath", sectionPath)
 				 .write(l.getValue().path.resolve("index.html"));
 		});
 
@@ -112,7 +115,8 @@ public class Authors extends ContentPageGenerator {
 		pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION))
 			 .put("letters", letters)
 			 .put("page", letters.firstEntry().getValue().pages.get(0))
-			 .write(root.resolve("index.html"));
+			 .put("authorsPath", sectionPath)
+			 .write(sectionPath.resolve("index.html"));
 
 		return pages.pages;
 	}
@@ -120,6 +124,7 @@ public class Authors extends ContentPageGenerator {
 	private void authorPage(Templates.PageSet pages, AuthorInfo author) {
 		pages.add("author.ftl", SiteMap.Page.monthly(author.count > 2 ? 0.92f : 0.67f), String.join(" / ", SECTION, author.author))
 			 .put("author", author)
+			 .put("authorsPath", sectionPath)
 			 .write(Paths.get(author.path.toString() + ".html"));
 	}
 
@@ -132,7 +137,7 @@ public class Authors extends ContentPageGenerator {
 
 		public LetterGroup(String letter) {
 			this.letter = letter;
-			this.path = root.resolve(letter);
+			this.path = sectionPath.resolve(letter);
 		}
 
 		public void add(String author, List<ContentEntity<?>> contents) {
@@ -189,7 +194,7 @@ public class Authors extends ContentPageGenerator {
 			this.contents = new HashMap<>(contents.stream().sorted().collect(Collectors.groupingBy(ContentEntity::friendlyType)));
 			this.slug = authorSlug(author);
 
-			this.path = root.resolve(slug);
+			this.path = sectionPath.resolve(slug);
 
 			this.count = contents.size();
 
@@ -204,7 +209,7 @@ public class Authors extends ContentPageGenerator {
 									if (i.contains("://")) return i;
 
 									// a local path - make it relative
-									return path.relativize(siteRoot.resolve(i)).toString();
+									return path.relativize(root.resolve(i)).toString();
 								})
 								.orElse(null);
 		}

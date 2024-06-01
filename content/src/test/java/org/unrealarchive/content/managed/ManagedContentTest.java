@@ -79,7 +79,7 @@ public class ManagedContentTest {
 		man.updatedDate = LocalDate.now();
 		man.group = "Testing & Stuff";
 		man.game = "General";
-		man.path = "Tests";
+		man.subGroup = "Tests";
 		man.title = "Testing Things";
 		man.author = "Bob";
 		man.description = "There is no description";

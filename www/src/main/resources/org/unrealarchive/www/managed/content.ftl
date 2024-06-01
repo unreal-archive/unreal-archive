@@ -4,6 +4,9 @@
 	<#assign headerbg>${staticPath()}/images/contents/patches.png</#assign>
 </#if>
 
+<#assign group=managed.subGroup.parent>
+<#assign subgroup=managed.subGroup>
+
 <#assign ogDescription=managed.managed.description>
 <#assign ogImage=headerbg>
 
@@ -12,10 +15,9 @@
 
 	<@heading bg=[headerbg]>
 		<span class="crumbs">
-			<#list groupPath as p>
-				<a href="${relPath(p.path + "/index.html")}">${p.name}</a>
-				<#if p?has_next>/</#if>
-			</#list>
+			<a href="${relPath(group.game.path + "/index.html")}">${group.game.name}</a>
+			/ <a href="${relPath(group.path + "/index.html")}">${group.name}</a>
+			/ <a href="${relPath(subgroup.path + "/index.html")}">${subgroup.name}</a>
 			/</span> ${managed.managed.title}
 	</@heading>
 

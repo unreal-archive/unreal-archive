@@ -11,22 +11,20 @@ import org.unrealarchive.www.Templates;
 public class Search implements PageGenerator {
 
 	private final Path root;
-	private final Path siteRoot;
 	private final Path staticRoot;
 	private final SiteFeatures features;
 
-	public Search(Path output, Path staticRoot, SiteFeatures features) {
-		this.root = output.resolve("search");
-		this.siteRoot = output;
+	public Search(Path root, Path staticRoot, SiteFeatures features) {
+		this.root = root;
 		this.staticRoot = staticRoot;
 		this.features = features;
 	}
 
 	@Override
 	public Set<SiteMap.Page> generate() {
-		Templates.PageSet pages = new Templates.PageSet("search", features, siteRoot, staticRoot, root);
+		Templates.PageSet pages = new Templates.PageSet("search", features, root, staticRoot);
 		pages.add("index.ftl", SiteMap.Page.of(0f, SiteMap.ChangeFrequency.never), "Search")
-			 .write(root.resolve("index.html"));
+			 .write(root.resolve("search").resolve("index.html"));
 
 		return pages.pages;
 	}

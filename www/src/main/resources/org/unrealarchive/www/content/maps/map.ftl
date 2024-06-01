@@ -18,8 +18,8 @@
 
 	<@heading bg=[headerbg]>
 		<span class="crumbs">
-			<a href="${relPath(sectionPath + "/index.html")}">Maps</a>
-			/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
+			<a href="${relPath(game.root + "/index.html")}">${game.name}</a>
+			/ <a href="${relPath(game.path + "/index.html")}">Maps</a>
 			/ <a href="${relPath(gametype.path + "/index.html")}">${gametype.name}</a>
 			/</span> ${map.item.name}
 	</@heading>
@@ -78,11 +78,11 @@
 
 			<@variations variations=map.variations/>
 
-			<@files files=map.item.files alsoIn=map.alsoIn otherFiles=map.item.otherFiles/>
+			<@files game=game files=map.item.files alsoIn=map.alsoIn otherFiles=map.item.otherFiles/>
 
 			<@downloads downloads=map.item.downloads/>
 
-			<@dependencies deps=map.item.dependencies game=map.item.game/>
+			<@dependencies game=game deps=map.item.dependencies/>
 
 			<@ghIssue text="Report a problem" repoUrl="${dataProjectUrl}" title="[Map] ${map.item.name}" hash="${map.item.hash}" name="${map.item.name}"/>
 

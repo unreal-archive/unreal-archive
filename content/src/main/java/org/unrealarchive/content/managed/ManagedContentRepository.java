@@ -124,7 +124,7 @@ public interface ManagedContentRepository {
 		}
 
 		@Override
-		public void create(Games game, String group, String path, String title, Consumer<Managed> completed)
+		public void create(Games game, String group, String subGroup, String title, Consumer<Managed> completed)
 			throws IOException {
 			// create path
 			final String neatName = Util.capitalWords(title);
@@ -136,7 +136,7 @@ public interface ManagedContentRepository {
 			man.updatedDate = LocalDate.now();
 			man.game = game.name;
 			man.group = group;
-			man.path = path;
+			man.subGroup = subGroup;
 			man.title = neatName;
 			man.author = Addon.UNKNOWN;
 			man.document = "readme.md";
@@ -163,7 +163,7 @@ public interface ManagedContentRepository {
 						  .filter(m -> !m.managed.deleted())
 						  .filter(m -> m.managed.game().equalsIgnoreCase(game.name))
 						  .filter(m -> m.managed.group.equalsIgnoreCase(group))
-						  .filter(m -> m.managed.path.equalsIgnoreCase(path))
+						  .filter(m -> m.managed.subGroup.equalsIgnoreCase(path))
 						  .filter(m -> m.managed.title.equalsIgnoreCase(title))
 						  .map(m -> m.managed)
 						  .findFirst().orElse(null);

@@ -26,7 +26,8 @@ public class DocumentTest {
 		doc.createdDate = LocalDate.now().minusDays(3);
 		doc.updatedDate = LocalDate.now();
 		doc.game = "General";
-		doc.path = "Tests";
+		doc.group = "Tests";
+		doc.subGroup = "Stuff";
 		doc.title = "Testing Things";
 		doc.author = "Bob";
 		doc.description = "There is no description";
@@ -46,7 +47,8 @@ public class DocumentTest {
 		doc.updatedDate = LocalDate.now();
 		doc.name = "testdoc.md";
 		doc.game = "General";
-		doc.path = "Tests";
+		doc.group = "Tests";
+		doc.subGroup = "Stuff";
 		doc.title = "Testing Things";
 		doc.author = "Bob";
 		doc.description = "There is no description";

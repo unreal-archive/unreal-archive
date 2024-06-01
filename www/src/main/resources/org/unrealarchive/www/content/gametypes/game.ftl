@@ -6,8 +6,8 @@
 
 	<@heading bg=[ogImage]>
 		<span class="crumbs">
-			<a href="${relPath(sectionPath + "/index.html")}">Game Types &amp; Mods</a>
-			/</span> ${game.name}
+			<a href="${relPath(game.root + "/index.html")}">${game.name}</a>
+			/</span>Game Types &amp; Mods
 	</@heading>
 
 	<@content class="biglist bigger">

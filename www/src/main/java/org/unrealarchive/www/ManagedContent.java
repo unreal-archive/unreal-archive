@@ -20,30 +20,30 @@ import static org.unrealarchive.common.Util.slug;
 public class ManagedContent implements PageGenerator {
 
 	private final ManagedContentRepository managedRepo;
-	private final Path siteRoot;
+	private final Path root;
 	private final Path staticRoot;
 	private final SiteFeatures features;
 
 	public ManagedContent(ManagedContentRepository managedRepo, Path root, Path staticRoot, SiteFeatures features) {
 		this.managedRepo = managedRepo;
-		this.siteRoot = root;
+		this.root = root;
 		this.staticRoot = staticRoot;
 		this.features = features;
 	}
 
-	private Map<String, ContentGroup> loadGroups(ManagedContentRepository managedRepo) {
-		final Map<String, ContentGroup> groups = new HashMap<>();
+	private Map<String, Game> loadGames(ManagedContentRepository managedRepo) {
+		final Map<String, Game> games = new HashMap<>();
 
 		managedRepo.all().stream()
 				   .filter(d -> d.published)
 				   .sorted(Comparator.reverseOrder())
 				   .toList()
 				   .forEach(d -> {
-					   ContentGroup group = groups.computeIfAbsent(d.group, g -> new ContentGroup(null, g, 0));
-					   group.add(d);
+					   Game game = games.computeIfAbsent(d.game(), Game::new);
+					   game.add(d);
 				   });
 
-		return groups;
+		return games;
 	}
 
 	/**
@@ -51,57 +51,40 @@ public class ManagedContent implements PageGenerator {
 	 */
 	@Override
 	public Set<SiteMap.Page> generate() {
-		final Map<String, ContentGroup> groups = loadGroups(managedRepo);
+		final Map<String, Game> games = loadGames(managedRepo);
 
-		Templates.PageSet pages = new Templates.PageSet("managed", features, siteRoot, staticRoot, siteRoot);
+		Templates.PageSet pages = new Templates.PageSet("managed", features, root, staticRoot);
 		try {
-			// create the root landing page, for reasons
-			ContentGroup rootGroup = new ContentGroup(null, "", 0);
-			rootGroup.groups.putAll(groups);
-			generateGroup(pages, rootGroup);
+			for (Game game : games.values()) {
+				for (Group g : game.groups.values()) {
+					generateGroup(pages, g);
+				}
+			}
 		} catch (IOException e) {
-			throw new RuntimeException("Failed to render page", e);
+			throw new RuntimeException("Failed to render managed content pages", e);
 		}
 
 		return pages.pages;
 	}
 
-	private void generateGroup(Templates.PageSet pages, ContentGroup group) throws IOException {
-		// we have to compute the path here, since a template can't do a while loop up its group tree itself
-		List<ContentGroup> groupPath = new ArrayList<>();
-		ContentGroup grp = group;
-		while (grp != null) {
-			groupPath.add(0, grp);
-			grp = grp.parent;
-		}
+	private void generateGroup(Templates.PageSet pages, Group group) throws IOException {
+		pages.add("group.ftl", SiteMap.Page.monthly(0.7f), String.join(" / ", group.game.name, group.name))
+			 .put("group", group)
+			 .write(group.path.resolve("index.html"));
 
-		// exclude the root group just used to kick off the generation process
-		if (!group.name.isEmpty()) {
-			pages.add("group.ftl", SiteMap.Page.weekly(0.91f), String.join(" / ", group.parentPath.split("/")))
-				 .put("groupPath", groupPath)
-				 .put("group", group)
-				 .write(group.path.resolve("index.html"));
-		}
+		for (SubGroup subgroup : group.subGroups.values()) {
+			pages.add("subgroup.ftl", SiteMap.Page.monthly(0.75f), String.join(" / ", group.game.name, group.name, subgroup.name))
+				 .put("subgroup", subgroup)
+				 .write(subgroup.path.resolve("index.html"));
 
-		for (ContentGroup g : group.groups.values()) {
-			generateGroup(pages, g);
-		}
-
-		for (ContentInfo d : group.content) {
-			generateDocument(pages, d);
+			for (ContentInfo content : subgroup.content) {
+				generateDocument(pages, content);
+			}
 		}
 	}
 
 	private void generateDocument(Templates.PageSet pages, ContentInfo content) throws IOException {
 		try (ReadableByteChannel docChan = this.managedRepo.document(content.managed)) {
-
-			// we have to compute the path here, since a template can't do a while loop up its group tree itself
-			List<ContentGroup> groupPath = new ArrayList<>();
-			ContentGroup grp = content.group;
-			while (grp != null) {
-				groupPath.add(0, grp);
-				grp = grp.parent;
-			}
 
 			// copy content of directory to www output
 			final Path path = Files.createDirectories(content.path);
@@ -110,77 +93,106 @@ public class ManagedContent implements PageGenerator {
 			final String page = Markdown.renderMarkdown(docChan);
 
 			pages.add("content.ftl", SiteMap.Page.monthly(0.85f, content.managed.updatedDate),
-					  String.join(" / ", String.join(" / ", content.managed.fullPath().split("/")), content.managed.title))
-				 .put("groupPath", groupPath)
+					  String.join(" / ", content.subGroup.parent.game.name, content.subGroup.parent.name, content.subGroup.name,
+								  content.managed.title))
 				 .put("managed", content)
 				 .put("page", page)
-				 .write(content.managed.pagePath(siteRoot));
+				 .write(content.managed.pagePath(root));
 		}
 	}
 
-	public class ContentGroup {
-
-		private final String parentPath;
+	public class Game {
 
 		public final String name;
 		public final String slug;
 		public final Path path;
-		public final ContentGroup parent;
 
-		public final TreeMap<String, ContentGroup> groups = new TreeMap<>();
-		public final List<ContentInfo> content = new ArrayList<>();
+		public final TreeMap<String, Group> groups = new TreeMap<>();
 
 		public int count;
-		private final int depth;
 
-		public ContentGroup(ContentGroup parent, String name, int depth) {
-			this.depth = depth;
-			this.parentPath = parent != null ? parent.parentPath.isEmpty() ? name : String.join("/", parent.parentPath, name) : "";
-
-			this.parent = parent;
-
+		public Game(String name) {
 			this.name = name;
 			this.slug = slug(name);
-			this.path = parent != null ? parent.path.resolve(slug) : siteRoot.resolve(slug);
+			this.path = root.resolve(slug);
 			this.count = 0;
 		}
 
 		public void add(Managed m) {
-			Path docPath = m.slugPath(siteRoot);
+			groups.computeIfAbsent(m.group, g -> new Group(this, g)).add(m);
 
-			// TODO REVIEW fragile
-
-			if (docPath.getParent().equals(this.path)) {
-				// reached leaf of path tree for this content, place it here
-				content.add(new ContentInfo(m, this));
-			} else {
-				// this content lives further down the tree, keep adding paths
-				String[] next = m.fullPath().split("/");
-				String nextName = next[depth + 1];
-
-				ContentGroup group = groups.computeIfAbsent(nextName, g -> new ContentGroup(this, g, depth + 1));
-				group.add(m);
-			}
 			this.count++;
+		}
+	}
+
+	public class Group {
+
+		public final String name;
+		public final String slug;
+		public final Path path;
+
+		public final Game game;
+		public final TreeMap<String, SubGroup> subGroups = new TreeMap<>();
+
+		public int count;
+
+		public Group(Game game, String name) {
+			this.game = game;
+			this.name = name;
+			this.slug = slug(name);
+			this.path = game.path.resolve(slug);
+			this.count = 0;
+		}
+
+		public void add(Managed m) {
+			subGroups.computeIfAbsent(m.subGroup, g -> new SubGroup(this, g)).add(m);
+
+			this.count++;
+		}
+	}
+
+	public class SubGroup {
+
+		public final String name;
+		public final String slug;
+		public final Path path;
+
+		public final Group parent;
+		public final List<ContentInfo> content = new ArrayList<>();
+		public int count;
+
+		public SubGroup(Group parent, String name) {
+			this.parent = parent;
+
+			this.name = name;
+			this.slug = slug(name);
+			this.path = parent.path.resolve(slug);
+			this.count = 0;
+		}
+
+		public void add(Managed m) {
+			content.add(new ContentInfo(m, this));
+
+			count++;
 		}
 	}
 
 	public class ContentInfo {
 
 		public final Managed managed;
-		public final ContentGroup group;
+		public final SubGroup subGroup;
 
 		public final String slug;
 		public final Path path;
 		public final Path indexPath;
 
-		public ContentInfo(Managed managed, ContentGroup group) {
+		public ContentInfo(Managed managed, SubGroup subGroup) {
 			this.managed = managed;
-			this.group = group;
+			this.subGroup = subGroup;
 
 			this.slug = slug(managed.title);
-			this.path = managed.slugPath(siteRoot);
-			this.indexPath = managed.pagePath(siteRoot);
+			this.path = managed.slugPath(root);
+			this.indexPath = managed.pagePath(root);
 		}
 	}
 

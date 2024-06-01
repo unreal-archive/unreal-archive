@@ -20,13 +20,15 @@ import org.unrealarchive.www.Templates;
 
 public class Latest extends ContentPageGenerator {
 
+	private final Path sectionRoot;
 	private final GameTypeRepository gameTypes;
 	private final ManagedContentRepository managed;
 
-	public Latest(SimpleAddonRepository content, GameTypeRepository gameTypes, ManagedContentRepository managed, Path output,
+	public Latest(SimpleAddonRepository content, GameTypeRepository gameTypes, ManagedContentRepository managed, Path root,
 				  Path staticRoot, SiteFeatures features) {
-		super(content, output, output.resolve("latest"), staticRoot, features);
+		super(content, root, staticRoot, features);
 
+		this.sectionRoot = root.resolve("latest");
 		this.gameTypes = gameTypes;
 		this.managed = managed;
 	}
@@ -53,12 +55,12 @@ public class Latest extends ContentPageGenerator {
 		Templates.PageSet pages = pageSet("content/latest");
 		pages.add("index.ftl", SiteMap.Page.weekly(0.97f), "Latest Content Additions")
 			 .put("latest", contentFiles.descendingMap())
-			 .write(root.resolve("index.html"));
+			 .write(sectionRoot.resolve("index.html"));
 
 		// all games RSS
 		pages.add("feed.ftl", SiteMap.Page.weekly(0f), "Latest Content Additions")
 			 .put("latest", contentFiles.descendingMap())
-			 .write(root.resolve("feed.xml"));
+			 .write(sectionRoot.resolve("feed.xml"));
 
 		// per game RSS
 		for (Games game : Games.values()) {
@@ -69,7 +71,7 @@ public class Latest extends ContentPageGenerator {
 			);
 			pages.add("feed.ftl", SiteMap.Page.weekly(0f), "Latest " + game.name + " Additions")
 				 .put("latest", gameContent.descendingMap())
-				 .write(root.resolve(Util.slug(game.name) + ".xml"));
+				 .write(sectionRoot.resolve(Util.slug(game.name) + ".xml"));
 		}
 
 		return pages.pages;

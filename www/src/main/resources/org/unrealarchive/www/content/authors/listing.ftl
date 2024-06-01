@@ -8,7 +8,7 @@
 <#include "../../macros.ftl">
 
 	<@heading bg=[ogImage]>
-		<a href="${relPath(sectionPath + "/index.html")}">Authors</a>
+		<a href="${relPath(authorsPath + "/index.html")}">Authors</a>
 		<span class="crumbs">
 			<#if page?? && letters?size gt 1>/ ${page.letter.letter}</#if>
 			<#if page?? && page.letter.pages?size gt 1>/ pg ${page.number}</#if>

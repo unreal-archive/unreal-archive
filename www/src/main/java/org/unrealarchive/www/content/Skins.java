@@ -19,19 +19,15 @@ public class Skins extends GenericContentPage<Skin> {
 	private static final String SECTION = "Skins";
 	private static final String SUBGROUP = "all";
 
-	public Skins(SimpleAddonRepository content, Path output, Path staticRoot, SiteFeatures localImages) {
-		super(content, output, output.resolve("skins"), staticRoot, localImages);
+	public Skins(SimpleAddonRepository content, Path root, Path staticRoot, SiteFeatures localImages) {
+		super(content, root, staticRoot, localImages);
 	}
 
 	@Override
 	public Set<SiteMap.Page> generate() {
-		GameList games = loadContent(Skin.class, content);
+		GameList games = loadContent(Skin.class, content, "skins");
 
 		Templates.PageSet pages = pageSet("content/skins");
-
-		pages.add("games.ftl", SiteMap.Page.monthly(0.8f), SECTION)
-			 .put("games", games)
-			 .write(root.resolve("index.html"));
 
 		games.games.entrySet().parallelStream().forEach(g -> {
 
@@ -45,7 +41,7 @@ public class Skins extends GenericContentPage<Skin> {
 																				 .flatMap(e -> e.items.stream())
 																				 .sorted()
 																				 .toList();
-				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName))
+				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", game.bigName, SECTION))
 					 .put("game", g.getValue())
 					 .put("timeline", timeline)
 					 .put("skins", all)
@@ -61,7 +57,7 @@ public class Skins extends GenericContentPage<Skin> {
 
 			g.getValue().groups.get(SUBGROUP).letters.entrySet().parallelStream().forEach(l -> {
 				l.getValue().pages.parallelStream().forEach(p -> {
-					pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName))
+					pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", game.bigName, SECTION))
 						 .put("timeline", timeline)
 						 .put("page", p)
 						 .write(p.path.resolve("index.html"));
@@ -70,14 +66,14 @@ public class Skins extends GenericContentPage<Skin> {
 				});
 
 				// output first letter/page combo, with appropriate relative links
-				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName))
+				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", game.bigName, SECTION))
 					 .put("timeline", timeline)
 					 .put("page", l.getValue().pages.get(0))
 					 .write(l.getValue().path.resolve("index.html"));
 			});
 
 			// output first letter/page combo, with appropriate relative links
-			pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName))
+			pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", game.bigName, SECTION))
 				 .put("timeline", timeline)
 				 .put("page", g.getValue().groups.get(SUBGROUP).letters.firstEntry().getValue().pages.get(0))
 				 .write(g.getValue().path.resolve("index.html"));
@@ -92,9 +88,8 @@ public class Skins extends GenericContentPage<Skin> {
 		final Addon item = skin.item();
 		localImages(item, root.resolve(skin.path).getParent());
 
-		pages.add("skin.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex), String.join(" / ", SECTION,
-																					   skin.page.letter.group.game.game.bigName,
-																					   item.name))
+		pages.add("skin.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex),
+				  String.join(" / ", skin.page.letter.group.game.game.bigName, SECTION, item.name))
 			 .put("skin", skin)
 			 .write(Paths.get(skin.path + ".html"));
 

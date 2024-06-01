@@ -4,6 +4,9 @@
 	<#assign headerbg>${staticPath()}/images/contents/documents.png</#assign>
 </#if>
 
+<#assign group=document.subGroup.parent>
+<#assign subgroup=document.subGroup>
+
 <#assign ogDescription=document.document.description>
 <#assign ogImage=headerbg>
 
@@ -11,11 +14,11 @@
 <#include "../macros.ftl">
 
 	<@heading bg=[headerbg]>
-			<span class="crumbs">
-			<a href="${relPath(sectionPath + "/index.html")}">Articles & Guides</a>
-			<#list groupPath as p>
-				/ <a href="${relPath(p.path + "/index.html")}">${p.name}</a>
-			</#list>
+		<span class="crumbs">
+			<a href="${relPath(group.game.root + "/index.html")}">${group.game.name}</a>
+			/ <a href="${relPath(group.game.path + "/index.html")}">Guides &amp; Reference</a>
+			/ <a href="${relPath(group.path + "/index.html")}">${group.name}</a>
+			/ <a href="${relPath(subgroup.path + "/index.html")}">${subgroup.name}</a>
 			/</span> ${document.document.title}
 	</@heading>
 

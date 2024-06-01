@@ -18,8 +18,8 @@
 
 	<@heading bg=[ogImage]>
 		<span class="crumbs">
-			<a href="${relPath(sectionPath + "/index.html")}">Map Packs</a>
-			/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
+			<a href="${relPath(game.root + "/index.html")}">${game.name}</a>
+			/ <a href="${relPath(game.path + "/index.html")}">Map Packs</a>
 			/ <a href="${relPath(gametype.path + "/index.html")}">${gametype.name}</a>
 			/</span> ${pack.item.name}
 	</@heading>
@@ -94,11 +94,11 @@
 				</table>
 			</@contents>
 
-			<@files files=pack.item.files alsoIn=pack.alsoIn otherFiles=pack.item.otherFiles/>
+			<@files game=game files=pack.item.files alsoIn=pack.alsoIn otherFiles=pack.item.otherFiles/>
 
 			<@downloads downloads=pack.item.downloads/>
 
-      <@dependencies deps=pack.item.dependencies game=pack.item.game/>
+      <@dependencies game=game deps=pack.item.dependencies/>
 
       <@ghIssue text="Report a problem" repoUrl="${dataProjectUrl}" title="[Map Pack] ${pack.item.name}" hash="${pack.item.hash}" name="${pack.item.name}"/>
 

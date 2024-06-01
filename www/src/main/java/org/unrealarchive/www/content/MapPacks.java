@@ -25,21 +25,16 @@ public class MapPacks extends GenericContentPage<MapPack> {
 	private final GameTypeRepository gametypes;
 	private final java.util.Map<Integer, GameType> gameTypeCache = new ConcurrentHashMap<>();
 
-	public MapPacks(SimpleAddonRepository content, Path output, Path staticRoot, SiteFeatures features,
-					GameTypeRepository gametypes) {
-		super(content, output, output.resolve("mappacks"), staticRoot, features);
+	public MapPacks(SimpleAddonRepository content, Path root, Path staticRoot, SiteFeatures features, GameTypeRepository gametypes) {
+		super(content, root, staticRoot, features);
 		this.gametypes = gametypes;
 	}
 
 	@Override
 	public Set<SiteMap.Page> generate() {
-		GameList games = loadContent(MapPack.class, content);
+		GameList games = loadContent(MapPack.class, content, "mappacks");
 
 		Templates.PageSet pages = pageSet("content/mappacks");
-
-		pages.add("games.ftl", SiteMap.Page.monthly(0.6f), SECTION)
-			 .put("games", games)
-			 .write(root.resolve("index.html"));
 
 		games.games.entrySet().parallelStream().forEach(g -> {
 
@@ -47,7 +42,7 @@ public class MapPacks extends GenericContentPage<MapPack> {
 
 			Games game = Games.byName(g.getKey());
 
-			pages.add("gametypes.ftl", SiteMap.Page.monthly(0.62f), String.join(" / ", SECTION, game.bigName))
+			pages.add("gametypes.ftl", SiteMap.Page.monthly(0.62f), String.join(" / ", game.bigName, SECTION))
 				 .put("game", g.getValue())
 				 .put("timeline", timeline)
 				 .write(g.getValue().path.resolve("index.html"));
@@ -63,12 +58,12 @@ public class MapPacks extends GenericContentPage<MapPack> {
 				gt.getValue().letters.get(LETTER_SUBGROUP).pages.parallelStream().forEach(p -> {
 					// don't bother creating numbered single page, default landing page will suffice
 					if (gt.getValue().letters.get(LETTER_SUBGROUP).pages.size() > 1) {
-						pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName, gt.getKey()))
+						pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", game.bigName, SECTION, gt.getKey()))
 							 .put("page", p)
 							 .put("pages", gt.getValue().letters.get(LETTER_SUBGROUP).pages)
 							 .put("gametype", gt.getValue())
 							 .put("gameTypeInfo", gtInfo)
-							 .put("gameTypeInfoPath", gtInfo != null ? gtInfo.slugPath(siteRoot) : null)
+							 .put("gameTypeInfoPath", gtInfo != null ? gtInfo.slugPath(root) : null)
 							 .write(p.path.resolve("index.html"));
 					}
 
@@ -76,12 +71,12 @@ public class MapPacks extends GenericContentPage<MapPack> {
 				});
 
 				// output first letter/page combo, with appropriate relative links
-				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName, gt.getKey()))
+				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", game.bigName, SECTION, gt.getKey()))
 					 .put("page", gt.getValue().letters.get(LETTER_SUBGROUP).pages.get(0))
 					 .put("pages", gt.getValue().letters.get(LETTER_SUBGROUP).pages)
 					 .put("gametype", gt.getValue())
 					 .put("gameTypeInfo", gtInfo)
-					 .put("gameTypeInfoPath", gtInfo != null ? gtInfo.slugPath(siteRoot) : null)
+					 .put("gameTypeInfoPath", gtInfo != null ? gtInfo.slugPath(root) : null)
 					 .write(gt.getValue().path.resolve("index.html"));
 			});
 
@@ -101,12 +96,11 @@ public class MapPacks extends GenericContentPage<MapPack> {
 
 		localImages(item, pack.path.getParent());
 
-		pages.add("mappack.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex), String.join(" / ", SECTION,
-																						  pack.page.letter.group.game.game.bigName,
-																						  pack.page.letter.group.name, item.name))
+		pages.add("mappack.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex),
+				  String.join(" / ", pack.page.letter.group.game.game.bigName, SECTION, pack.page.letter.group.name, item.name))
 			 .put("pack", pack)
 			 .put("gameTypeInfo", gt)
-			 .put("gameTypeInfoPath", gt != null ? gt.slugPath(siteRoot) : null)
+			 .put("gameTypeInfoPath", gt != null ? gt.slugPath(root) : null)
 			 .write(Paths.get(pack.path + ".html"));
 
 		for (ContentInfo variation : pack.variations) {

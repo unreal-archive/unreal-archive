@@ -11,22 +11,20 @@ import org.unrealarchive.www.Templates;
 public class UmodRepack implements PageGenerator {
 
 	private final Path root;
-	private final Path siteRoot;
 	private final Path staticRoot;
 	private final SiteFeatures features;
 
-	public UmodRepack(Path output, Path staticRoot, SiteFeatures features) {
-		this.root = output.resolve("umod");
-		this.siteRoot = output;
+	public UmodRepack(Path root, Path staticRoot, SiteFeatures features) {
+		this.root = root;
 		this.staticRoot = staticRoot;
 		this.features = features;
 	}
 
 	@Override
 	public Set<SiteMap.Page> generate() {
-		Templates.PageSet pages = new Templates.PageSet("umod", features, siteRoot, staticRoot, root);
+		Templates.PageSet pages = new Templates.PageSet("umod", features, root, staticRoot);
 		pages.add("index.ftl", SiteMap.Page.of(1f, SiteMap.ChangeFrequency.weekly), "UMOD Repack")
-			 .write(root.resolve("index.html"));
+			 .write(root.resolve("umod").resolve("index.html"));
 
 		return pages.pages;
 	}

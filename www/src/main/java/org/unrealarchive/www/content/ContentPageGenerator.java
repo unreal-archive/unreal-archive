@@ -10,7 +10,6 @@ import org.unrealarchive.www.Templates;
 public abstract class ContentPageGenerator implements PageGenerator {
 
 	final SimpleAddonRepository content;
-	final Path siteRoot;
 	final Path root;
 	final Path staticRoot;
 
@@ -20,21 +19,19 @@ public abstract class ContentPageGenerator implements PageGenerator {
 	 * Create a new Page Generator instance.
 	 *
 	 * @param content    content repository
-	 * @param siteRoot   root directory of the website output
-	 * @param output     path to write this generator's output to
+	 * @param root       root directory of the website output
 	 * @param staticRoot path to static content
 	 * @param features   if true, download and reference local copies of remote images
 	 */
-	public ContentPageGenerator(SimpleAddonRepository content, Path siteRoot, Path output, Path staticRoot, SiteFeatures features) {
+	public ContentPageGenerator(SimpleAddonRepository content, Path root, Path staticRoot, SiteFeatures features) {
 		this.content = content;
-		this.siteRoot = siteRoot;
-		this.root = output;
+		this.root = root;
 		this.staticRoot = staticRoot;
 		this.features = features;
 	}
 
 	Templates.PageSet pageSet(String resourceRoot) {
-		return new Templates.PageSet(resourceRoot, features, siteRoot, staticRoot, root);
+		return new Templates.PageSet(resourceRoot, features, root, staticRoot);
 	}
 
 }

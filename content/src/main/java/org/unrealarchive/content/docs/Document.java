@@ -2,9 +2,7 @@ package org.unrealarchive.content.docs;
 
 import java.nio.file.Path;
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import org.unrealarchive.common.Util;
 
@@ -13,9 +11,10 @@ public class Document implements Comparable<Document> {
 	public LocalDate createdDate;
 	public LocalDate updatedDate;
 
-	public String game = "General";
+	public String game = "Unreal";
+	public String group = "Reference";      // root level grouo
+	public String subGroup = "UnrealEd";    // subgrouping
 	public String name = "document.md";     // file name of the markdown document
-	public String path = "";                // defines a path-like structure for navigation; "Editing/UnrealScript"
 	public String title;                    // How to X and Y
 	public String titleImage;               // "pic.png"
 	public String author = "Unknown";       // Joe Soap
@@ -24,9 +23,14 @@ public class Document implements Comparable<Document> {
 
 	public Path slugPath(Path root) {
 		String game = Util.slug(this.game);
-		String path = Arrays.stream(this.path.split("/")).map(Util::slug).collect(Collectors.joining("/"));
+		String group = Util.slug(this.group);
+		String subGroup = Util.slug(this.subGroup);
 		String name = Util.slug(this.title);
-		return root.resolve(game).resolve(path).resolve(name);
+		return root.resolve(game).resolve("documents").resolve(group).resolve(subGroup).resolve(name);
+	}
+
+	public Path pagePath(Path root) {
+		return slugPath(root).resolve("index.html");
 	}
 
 	@Override
@@ -39,7 +43,8 @@ public class Document implements Comparable<Document> {
 		if (this == o) return true;
 		if (!(o instanceof Document that)) return false;
 		return Objects.equals(game, that.game)
-			   && Objects.equals(path, that.path)
+			   && Objects.equals(group, that.group)
+			   && Objects.equals(subGroup, that.subGroup)
 			   && Objects.equals(title, that.title)
 			   && Objects.equals(titleImage, that.titleImage)
 			   && Objects.equals(author, that.author)
@@ -48,6 +53,6 @@ public class Document implements Comparable<Document> {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(game, path, title, titleImage, author, description);
+		return Objects.hash(game, group, subGroup, title, titleImage, author, description);
 	}
 }

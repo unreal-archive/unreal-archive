@@ -34,11 +34,11 @@ public class MapPack extends Addon {
 
 	@Override
 	public Path slugPath(Path root) {
-		String type = Util.slug(this.contentType.toLowerCase().replaceAll("_", "") + "s");
 		String game = Util.slug(this.game);
+		String type = Util.slug(this.contentType.toLowerCase().replaceAll("_", "") + "s");
 		String gameType = Util.slug(this.gametype);
 		String name = Util.slug(this.name + "_" + this.hash.substring(0, 8));
-		return root.resolve(type).resolve(game).resolve(gameType).resolve(subGrouping()).resolve(name);
+		return root.resolve(game).resolve(type).resolve(gameType).resolve(subGrouping()).resolve(name);
 	}
 
 	@Override

@@ -6,8 +6,8 @@
 
 	<@heading bg=[ogImage]>
 		<span class="crumbs">
-			<a href="${relPath(sectionPath + "/index.html")}">Map Packs</a>
-			/</span> ${game.name}
+			<a href="${relPath(game.root + "/index.html")}">${game.name}</a>
+			/</span> Map Packs
 	</@heading>
 
 	<@tline timeline=timeline game=game></@tline>

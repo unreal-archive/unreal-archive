@@ -4,7 +4,8 @@
 <#include "../../macros.ftl">
 
 	<@heading bg=[ogImage]>
-		<span class="crumbs">Packages / ${game} /</span> ${package}
+		<span class="crumbs">${game} / Packages /</span>
+		${package}
 	</@heading>
 
 	<@content>

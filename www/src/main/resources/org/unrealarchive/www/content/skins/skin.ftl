@@ -17,8 +17,8 @@
 
 	<@heading bg=[headerbg]>
 		<span class="crumbs">
-			<a href="${relPath(sectionPath + "/index.html")}">Skins</a>
-			/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
+			<a href="${relPath(game.root + "/index.html")}">${game.name}</a>
+			/ <a href="${relPath(game.path + "/index.html")}">Skins</a>
 			/</span> ${skin.item.name}
 	</@heading>
 
@@ -71,11 +71,11 @@
 				<@labellist labels=labels values=values/>
 			</@contents>
 
-			<@files files=skin.item.files alsoIn=skin.alsoIn otherFiles=skin.item.otherFiles/>
+			<@files game=game files=skin.item.files alsoIn=skin.alsoIn otherFiles=skin.item.otherFiles/>
 
 			<@downloads downloads=skin.item.downloads/>
 
-			<@dependencies deps=skin.item.dependencies game=skin.item.game/>
+			<@dependencies game=game deps=skin.item.dependencies/>
 
       <@ghIssue text="Report a problem" repoUrl="${dataProjectUrl}" title="[Skin] ${skin.item.name}" hash="${skin.item.hash}" name="${skin.item.name}"/>
 

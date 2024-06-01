@@ -22,6 +22,8 @@ import org.unrealarchive.storage.DataStore;
 
 public class ManagedContentManager {
 
+	private static final String REMOTE_ROOT = "managed";
+
 	private final ManagedContentRepository repo;
 	private final DataStore contentStore;
 
@@ -50,13 +52,13 @@ public class ManagedContentManager {
 		}
 	}
 
-	public void addFile(DataStore contentStore, Games game, String group, String path, String title, Path localFile,
+	public void addFile(DataStore contentStore, Games game, String group, String subGroup, String title, Path localFile,
 						Map<String, String> params)
 		throws IOException {
-		Managed managed = Optional.ofNullable(repo.findManaged(game, group, path, title))
+		Managed managed = Optional.ofNullable(repo.findManaged(game, group, subGroup, title))
 								  .or(() -> {
 									  try {
-										  repo.create(game, group, path, title, newManaged -> {
+										  repo.create(game, group, subGroup, title, newManaged -> {
 											  newManaged.downloads.clear();
 											  newManaged.links.clear();
 											  newManaged.description = "";
@@ -65,7 +67,7 @@ public class ManagedContentManager {
 									  } catch (Exception e) {
 										  throw new RuntimeException(e);
 									  }
-									  return Optional.ofNullable(repo.findManaged(game, group, path, title));
+									  return Optional.ofNullable(repo.findManaged(game, group, subGroup, title));
 								  }).orElseThrow();
 
 		Managed.ManagedFile dl = new Managed.ManagedFile();
@@ -141,7 +143,7 @@ public class ManagedContentManager {
 	}
 
 	private String remotePath(Managed managed) {
-		return String.join("/", managed.contentType(), managed.game, managed.path);
+		return String.join("/", REMOTE_ROOT, managed.game, managed.contentType(), Util.slug(managed.subGroup));
 	}
 
 }

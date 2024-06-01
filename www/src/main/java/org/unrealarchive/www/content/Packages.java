@@ -33,9 +33,9 @@ public class Packages extends ContentPageGenerator {
 	private final GameTypeRepository gameTypes;
 	private final ManagedContentRepository managed;
 
-	public Packages(SimpleAddonRepository content, GameTypeRepository gameTypes, ManagedContentRepository managed, Path output,
+	public Packages(SimpleAddonRepository content, GameTypeRepository gameTypes, ManagedContentRepository managed, Path root,
 					Path staticRoot, SiteFeatures features) {
-		super(content, output, output.resolve("packages"), staticRoot, features);
+		super(content, root, staticRoot, features);
 
 		this.gameTypes = gameTypes;
 		this.managed = managed;
@@ -67,7 +67,10 @@ public class Packages extends ContentPageGenerator {
 
 		contentFiles.entrySet().parallelStream().forEach(game -> {
 			game.getValue().entrySet().parallelStream().forEach(e -> {
-				Path p = root.resolve(Util.slug(game.getKey().name)).resolve(Util.authorSlug(e.getKey())).resolve("index.html");
+				Path p = root.resolve(Util.slug(game.getKey().name))
+							 .resolve("packages")
+							 .resolve(Util.authorSlug(e.getKey()))
+							 .resolve("index.html");
 
 				LinkedHashMap<Addon.ContentFile, List<Addon>> sorted =
 					e.getValue().entrySet()
@@ -76,7 +79,7 @@ public class Packages extends ContentPageGenerator {
 					 .peek(a -> Collections.sort(a.getValue()))
 					 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 
-				pages.add("package.ftl", SiteMap.Page.monthly(0.3f), String.join(" / ", "Packages", game.getKey().name, e.getKey()))
+				pages.add("package.ftl", SiteMap.Page.monthly(0.3f), String.join(" / ", game.getKey().name, "Packages", e.getKey()))
 					 .put("game", game.getKey().name)
 					 .put("package", e.getKey())
 					 .put("packageFiles", sorted)

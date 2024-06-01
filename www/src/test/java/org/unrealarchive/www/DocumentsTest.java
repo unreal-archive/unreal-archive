@@ -26,7 +26,8 @@ public class DocumentsTest {
 		doc.updatedDate = LocalDate.now();
 		doc.name = "testdoc.md";
 		doc.game = "General";
-		doc.path = "Tests/Stuff/Whatever";
+		doc.group = "Tests";
+		doc.subGroup = "Stuff";
 		doc.title = "Testing Things";
 		doc.author = "Bob";
 		doc.description = "There is no description";
@@ -46,7 +47,7 @@ public class DocumentsTest {
 			assertTrue(dm.all().contains(doc));
 
 			Documents documents = new Documents(dm, wwwRoot, wwwRoot, SiteFeatures.ALL);
-			assertEquals(6, documents.generate().size());
+			assertEquals(4, documents.generate().size());
 		} finally {
 			// cleanup temp files
 			ArchiveUtil.cleanPath(tmpRoot);

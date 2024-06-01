@@ -39,7 +39,7 @@ public class ManagedTest {
 			assertTrue(cm.all().contains(man));
 
 			ManagedContent content = new ManagedContent(cm, wwwRoot, wwwRoot, SiteFeatures.ALL);
-			assertEquals(4, content.generate().size());
+			assertEquals(3, content.generate().size());
 		} finally {
 			// cleanup temp files
 			ArchiveUtil.cleanPath(tmpRoot);
@@ -51,9 +51,9 @@ public class ManagedTest {
 		final Managed man = new Managed();
 		man.createdDate = LocalDate.now().minusDays(3);
 		man.updatedDate = LocalDate.now();
-		man.group = "Testing & Stuff";
 		man.game = "General";
-		man.path = "Tests";
+		man.group = "Testing & Stuff";
+		man.subGroup = "Tests";
 		man.title = "Testing Things";
 		man.author = "Bob";
 		man.description = "There is no description";

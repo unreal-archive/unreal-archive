@@ -19,18 +19,15 @@ public class Voices extends GenericContentPage<Voice> {
 	private static final String SECTION = "Voices";
 	private static final String SUBGROUP = "all";
 
-	public Voices(SimpleAddonRepository content, Path output, Path staticRoot, SiteFeatures localImages) {
-		super(content, output, output.resolve("voices"), staticRoot, localImages);
+	public Voices(SimpleAddonRepository content, Path root, Path staticRoot, SiteFeatures localImages) {
+		super(content, root, staticRoot, localImages);
 	}
 
 	@Override
 	public Set<SiteMap.Page> generate() {
-		GameList games = loadContent(Voice.class, content);
+		GameList games = loadContent(Voice.class, content, "voices");
 
 		Templates.PageSet pages = pageSet("content/voices");
-		pages.add("games.ftl", SiteMap.Page.monthly(0.6f), SECTION)
-			 .put("games", games)
-			 .write(root.resolve("index.html"));
 
 		games.games.entrySet().parallelStream().forEach(g -> {
 
@@ -44,7 +41,7 @@ public class Voices extends GenericContentPage<Voice> {
 																				 .flatMap(e -> e.items.stream())
 																				 .sorted()
 																				 .toList();
-				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName))
+				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", game.bigName, SECTION))
 					 .put("game", g.getValue())
 					 .put("timeline", timeline)
 					 .put("voices", all)
@@ -60,7 +57,7 @@ public class Voices extends GenericContentPage<Voice> {
 
 			g.getValue().groups.get(SUBGROUP).letters.entrySet().parallelStream().forEach(l -> {
 				l.getValue().pages.parallelStream().forEach(p -> {
-					pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName))
+					pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", game.bigName, SECTION))
 						 .put("timeline", timeline)
 						 .put("page", p)
 						 .write(p.path.resolve("index.html"));
@@ -69,14 +66,14 @@ public class Voices extends GenericContentPage<Voice> {
 				});
 
 				// output first letter/page combo, with appropriate relative links
-				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName))
+				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", game.bigName, SECTION))
 					 .put("timeline", timeline)
 					 .put("page", l.getValue().pages.get(0))
 					 .write(l.getValue().path.resolve("index.html"));
 			});
 
 			// output first letter/page combo, with appropriate relative links
-			pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION, game.bigName))
+			pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", game.bigName, SECTION))
 				 .put("timeline", timeline)
 				 .put("page", g.getValue().groups.get(SUBGROUP).letters.firstEntry().getValue().pages.get(0))
 				 .write(g.getValue().path.resolve("index.html"));
@@ -91,9 +88,8 @@ public class Voices extends GenericContentPage<Voice> {
 		final Addon item = voice.item();
 		localImages(item, root.resolve(voice.path).getParent());
 
-		pages.add("voice.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex), String.join(" / ", SECTION,
-																						voice.page.letter.group.game.game.bigName,
-																						item.name))
+		pages.add("voice.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex),
+				  String.join(" / ", voice.page.letter.group.game.game.bigName, SECTION, item.name))
 			 .put("voice", voice)
 			 .write(Paths.get(voice.path + ".html"));
 

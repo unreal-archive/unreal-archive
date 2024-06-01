@@ -17,8 +17,8 @@
 
 	<@heading bg=[headerbg]>
 		<span class="crumbs">
-			<a href="${relPath(sectionPath + "/index.html")}">Models &amp; Characters</a>
-			/ <a href="${relPath(game.path + "/index.html")}">${game.name}</a>
+			<a href="${relPath(game.root + "/index.html")}">${game.name}</a>
+			/ <a href="${relPath(game.path + "/index.html")}">Models &amp; Characters</a>
 			/</span> ${model.item.name}
 	</@heading>
 
@@ -69,11 +69,11 @@
       </@contents>
 			</#if>
 
-			<@files files=model.item.files alsoIn=model.alsoIn otherFiles=model.item.otherFiles/>
+			<@files game=game files=model.item.files alsoIn=model.alsoIn otherFiles=model.item.otherFiles/>
 
 			<@downloads downloads=model.item.downloads/>
 
-      <@dependencies deps=model.item.dependencies game=model.item.game/>
+      <@dependencies game=game deps=model.item.dependencies/>
 
       <@ghIssue text="Report a problem" repoUrl="${dataProjectUrl}" title="[Model] ${model.item.name}" hash="${model.item.hash}" name="${model.item.name}"/>
 

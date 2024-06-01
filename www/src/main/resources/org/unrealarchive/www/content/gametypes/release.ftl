@@ -12,13 +12,13 @@
 
 	<@heading bg=[headerbg]>
 		<span class="crumbs">
-			<a href="${relPath(sectionPath + "/index.html")}">Game Types &amp; Mods</a>
-				/ <a href="${relPath(gametype.game.path + "/index.html")}">${gametype.game.name}</a>
-				<#if gametype.variationOf??>
-					/ <a href="../../index.html">${gametype.variationOf.name}</a>
-				</#if>
-				/ <a href="../index.html">${gametype.gametype.name}</a>
-				/</span> ${release.title} ${release.version}
+			<a href="${relPath(gametype.game.root + "/index.html")}">${gametype.game.name}</a>
+			/ <a href="${relPath(gametype.game.path + "/index.html")}">Game Types &amp; Mods</a>
+			<#if gametype.variationOf??>
+				/ <a href="../../index.html">${gametype.variationOf.name}</a>
+			</#if>
+			/ <a href="../index.html">${gametype.gametype.name}</a>
+			/</span> ${release.title} ${release.version}
 	</@heading>
 
 	<@content class="split split7030" id="gametype-release">
@@ -63,9 +63,9 @@
 
           <@downloads downloads=f.downloads h="h3"/>
 
-          <@files files=f.files alsoIn=gametype.filesAlsoIn[slug(f.originalFilename)] otherFiles=f.otherFiles h="h3"/>
+          <@files game=gametype.game files=f.files alsoIn=gametype.filesAlsoIn[slug(f.originalFilename)] otherFiles=f.otherFiles h="h3"/>
 
-					<@dependencies deps=f.dependencies h="h3" game=gametype.game.name/>
+					<@dependencies game=gametype.game deps=f.dependencies h="h3"/>
 
 				</section>
       </#list>
