@@ -22,9 +22,8 @@ public class Maps extends GenericContentPage<Map> {
 	private final GameTypeRepository gametypes;
 	private final java.util.Map<Integer, GameType> gameTypeCache = new ConcurrentHashMap<>();
 
-	public Maps(SimpleAddonRepository content, Path output, Path staticRoot, SiteFeatures features,
-				GameTypeRepository gametypes) {
-		super(content, output, output, staticRoot, features);
+	public Maps(SimpleAddonRepository content, Path root, Path staticRoot, SiteFeatures features, GameTypeRepository gametypes) {
+		super(content, root, staticRoot, features);
 		this.gametypes = gametypes;
 	}
 
@@ -63,7 +62,7 @@ public class Maps extends GenericContentPage<Map> {
 						 .put("gametype", gt.getValue())
 						 .put("maps", all)
 						 .put("gameTypeInfo", gtInfo)
-						 .put("gameTypeInfoPath", gtInfo != null ? gtInfo.slugPath(siteRoot) : null)
+						 .put("gameTypeInfoPath", gtInfo != null ? gtInfo.slugPath(root) : null)
 						 .write(gt.getValue().path.resolve("index.html"));
 
 					// still generate all map pages
@@ -77,7 +76,7 @@ public class Maps extends GenericContentPage<Map> {
 						pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", game.bigName, SECTION, gt.getKey()))
 							 .put("page", p)
 							 .put("gameTypeInfo", gtInfo)
-							 .put("gameTypeInfoPath", gtInfo != null ? gtInfo.slugPath(siteRoot) : null)
+							 .put("gameTypeInfoPath", gtInfo != null ? gtInfo.slugPath(root) : null)
 							 .write(p.path.resolve("index.html"));
 
 						p.items.parallelStream().forEach(map -> mapPage(pages, map));
@@ -87,7 +86,7 @@ public class Maps extends GenericContentPage<Map> {
 					pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", game.bigName, SECTION, gt.getKey()))
 						 .put("page", l.getValue().pages.get(0))
 						 .put("gameTypeInfo", gtInfo)
-						 .put("gameTypeInfoPath", gtInfo != null ? gtInfo.slugPath(siteRoot) : null)
+						 .put("gameTypeInfoPath", gtInfo != null ? gtInfo.slugPath(root) : null)
 						 .write(l.getValue().path.resolve("index.html"));
 				});
 
@@ -95,7 +94,7 @@ public class Maps extends GenericContentPage<Map> {
 				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", game.bigName, SECTION, gt.getKey()))
 					 .put("page", gt.getValue().letters.firstEntry().getValue().pages.get(0))
 					 .put("gameTypeInfo", gtInfo)
-					 .put("gameTypeInfoPath", gtInfo != null ? gtInfo.slugPath(siteRoot) : null)
+					 .put("gameTypeInfoPath", gtInfo != null ? gtInfo.slugPath(root) : null)
 					 .write(gt.getValue().path.resolve("index.html"));
 			});
 
@@ -115,15 +114,12 @@ public class Maps extends GenericContentPage<Map> {
 
 		localImages(item, root.resolve(map.path).getParent());
 
-		pages.add("map.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex), String.join(" / ",
-																					  map.page.letter.group.game.game.bigName,
-																					  SECTION,
-																					  map.page.letter.group.name,
-																					  item.title))
+		pages.add("map.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex),
+				  String.join(" / ", map.page.letter.group.game.game.bigName, SECTION, map.page.letter.group.name, item.title))
 			 .put("map", map)
 			 .put("gameTypeInfo", gtInfo)
-			 .put("gameTypeInfoPath", gtInfo != null ? gtInfo.slugPath(siteRoot) : null)
-			 .write(item.pagePath(siteRoot));
+			 .put("gameTypeInfoPath", gtInfo != null ? gtInfo.slugPath(root) : null)
+			 .write(item.pagePath(root));
 		for (ContentInfo variation : map.variations) {
 			this.mapPage(pages, variation);
 		}

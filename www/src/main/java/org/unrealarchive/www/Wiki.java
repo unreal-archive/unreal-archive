@@ -27,16 +27,16 @@ public class Wiki implements PageGenerator {
 	private static final Pattern FILE_LINK = Pattern.compile(".?/File:(.*)");
 	private static final String IMG_PATH = "w/images";
 
+	private final Path wikiRoot;
 	private final Path root;
-	private final Path siteRoot;
 	private final Path staticRoot;
 	private final SiteFeatures features;
 
 	private final WikiRepository wikiManager;
 
-	public Wiki(Path output, Path staticRoot, SiteFeatures features, WikiRepository wikiRepo) {
-		this.root = output.resolve("wikis");
-		this.siteRoot = output;
+	public Wiki(Path root, Path staticRoot, SiteFeatures features, WikiRepository wikiRepo) {
+		this.root = root;
+		this.wikiRoot = root.resolve("wikis");
 		this.staticRoot = staticRoot;
 		this.features = features;
 		this.wikiManager = wikiRepo;
@@ -44,20 +44,20 @@ public class Wiki implements PageGenerator {
 
 	@Override
 	public Set<SiteMap.Page> generate() {
-		Templates.PageSet pages = new Templates.PageSet("wikis", features, siteRoot, staticRoot, root);
+		Templates.PageSet pages = new Templates.PageSet("wikis", features, root, staticRoot);
 
 		wikiManager.all().forEach(wiki -> buildWiki(wiki, pages));
 
 		// generate wiki landing page
 		pages.add("wikis.ftl", SiteMap.Page.of(0.75f, SiteMap.ChangeFrequency.weekly), "Wikis")
 			 .put("wikis", wikiManager.all())
-			 .write(root.resolve("index.html"));
+			 .write(wikiRoot.resolve("index.html"));
 
 		return pages.pages;
 	}
 
 	public void buildWiki(WikiRepository.Wiki wiki, Templates.PageSet pages) {
-		Path out = root.resolve(Util.slug(wiki.name));
+		Path out = wikiRoot.resolve(Util.slug(wiki.name));
 
 		Map<String, Set<WikiPage>> categories = new ConcurrentHashMap<>();
 		Set<String> users = ConcurrentHashMap.newKeySet();

@@ -138,13 +138,12 @@ public class Templates {
 		public final Set<SiteMap.Page> pages;
 		public final Map<String, Object> vars;
 
-		public PageSet(String resourceRoot, SiteFeatures features, Path siteRoot, Path staticPath, Path sectionPath) {
+		public PageSet(String resourceRoot, SiteFeatures features, Path siteRoot, Path staticPath) {
 			this.resourceRoot = resourceRoot;
 			this.pages = ConcurrentHashMap.newKeySet(PAGES_INITIAL_SIZE);
 			this.vars = Map.of(
 				"siteRoot", siteRoot,
 				"staticRoot", staticPath,
-				"sectionPath", sectionPath,
 				"features", features
 			);
 		}

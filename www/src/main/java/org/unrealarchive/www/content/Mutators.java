@@ -19,8 +19,8 @@ public class Mutators extends GenericContentPage<Mutator> {
 	private static final String SECTION = "Mutators";
 	private static final String SUBGROUP = "all";
 
-	public Mutators(SimpleAddonRepository content, Path output, Path staticRoot, SiteFeatures localImages) {
-		super(content, output, output, staticRoot, localImages);
+	public Mutators(SimpleAddonRepository content, Path root, Path staticRoot, SiteFeatures localImages) {
+		super(content, root, staticRoot, localImages);
 	}
 
 	@Override
@@ -88,10 +88,8 @@ public class Mutators extends GenericContentPage<Mutator> {
 		final Addon item = mutator.item();
 		localImages(item, root.resolve(mutator.path).getParent());
 
-		pages.add("mutator.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex), String.join(" / ",
-																						  mutator.page.letter.group.game.game.bigName,
-																						  SECTION,
-																						  item.name))
+		pages.add("mutator.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex),
+				  String.join(" / ", mutator.page.letter.group.game.game.bigName, SECTION, item.name))
 			 .put("mutator", mutator)
 			 .write(Paths.get(mutator.path + ".html"));
 

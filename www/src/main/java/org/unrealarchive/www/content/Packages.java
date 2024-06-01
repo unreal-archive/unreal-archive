@@ -33,9 +33,9 @@ public class Packages extends ContentPageGenerator {
 	private final GameTypeRepository gameTypes;
 	private final ManagedContentRepository managed;
 
-	public Packages(SimpleAddonRepository content, GameTypeRepository gameTypes, ManagedContentRepository managed, Path output,
+	public Packages(SimpleAddonRepository content, GameTypeRepository gameTypes, ManagedContentRepository managed, Path root,
 					Path staticRoot, SiteFeatures features) {
-		super(content, output, output, staticRoot, features);
+		super(content, root, staticRoot, features);
 
 		this.gameTypes = gameTypes;
 		this.managed = managed;
@@ -67,7 +67,10 @@ public class Packages extends ContentPageGenerator {
 
 		contentFiles.entrySet().parallelStream().forEach(game -> {
 			game.getValue().entrySet().parallelStream().forEach(e -> {
-				Path p = root.resolve(Util.slug(game.getKey().name)).resolve("packages").resolve(Util.authorSlug(e.getKey())).resolve("index.html");
+				Path p = root.resolve(Util.slug(game.getKey().name))
+							 .resolve("packages")
+							 .resolve(Util.authorSlug(e.getKey()))
+							 .resolve("index.html");
 
 				LinkedHashMap<Addon.ContentFile, List<Addon>> sorted =
 					e.getValue().entrySet()

@@ -19,8 +19,8 @@ public class Skins extends GenericContentPage<Skin> {
 	private static final String SECTION = "Skins";
 	private static final String SUBGROUP = "all";
 
-	public Skins(SimpleAddonRepository content, Path output, Path staticRoot, SiteFeatures localImages) {
-		super(content, output, output, staticRoot, localImages);
+	public Skins(SimpleAddonRepository content, Path root, Path staticRoot, SiteFeatures localImages) {
+		super(content, root, staticRoot, localImages);
 	}
 
 	@Override
@@ -88,10 +88,8 @@ public class Skins extends GenericContentPage<Skin> {
 		final Addon item = skin.item();
 		localImages(item, root.resolve(skin.path).getParent());
 
-		pages.add("skin.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex), String.join(" / ",
-																					   skin.page.letter.group.game.game.bigName,
-																					   SECTION,
-																					   item.name))
+		pages.add("skin.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex),
+				  String.join(" / ", skin.page.letter.group.game.game.bigName, SECTION, item.name))
 			 .put("skin", skin)
 			 .write(Paths.get(skin.path + ".html"));
 

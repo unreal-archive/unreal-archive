@@ -54,7 +54,7 @@ public interface SiteMap extends PageGenerator {
 		public Set<Page> generate() {
 			final List<Page> pages = loadPages(allPages, pageLimit);
 
-			Templates.PageSet genPages = new Templates.PageSet("", features, root, root, root);
+			Templates.PageSet genPages = new Templates.PageSet("", features, root, root);
 
 			pages.stream().filter(p -> p.path == null).forEach(System.out::println);
 

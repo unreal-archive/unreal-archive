@@ -41,13 +41,12 @@ public abstract class GenericContentPage<T extends Addon> extends ContentPageGen
 	 * Create a new Page Generator instance.
 	 *
 	 * @param content    content repository
-	 * @param siteRoot   root directory of the website output
-	 * @param output     path to write this generator's output to
+	 * @param root       root directory of the website output
 	 * @param staticRoot path to static content
 	 * @param features   if true, download and reference local copies of remote images
 	 */
-	public GenericContentPage(SimpleAddonRepository content, Path siteRoot, Path output, Path staticRoot, SiteFeatures features) {
-		super(content, siteRoot, output, staticRoot, features);
+	public GenericContentPage(SimpleAddonRepository content, Path root, Path staticRoot, SiteFeatures features) {
+		super(content, root, staticRoot, features);
 	}
 
 	abstract String gameSubGroup(T item);
@@ -307,7 +306,7 @@ public abstract class GenericContentPage<T extends Addon> extends ContentPageGen
 			this.page = page;
 			this.itemHash = item.hash;
 			this.itemName = item.name;
-			this.path = item.slugPath(siteRoot);
+			this.path = item.slugPath(root);
 
 			this.alsoIn = new HashMap<>();
 			for (Addon.ContentFile f : item.files) {

@@ -74,7 +74,7 @@ application {
 
 jlink {
 	mergedModuleName = "unreal.archive.merged"
-	options = ['--compress', '2', '--no-header-files', '--no-man-pages']
+	options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
 
 	imageName = "${project.name}"
 	imageDir = layout.buildDirectory.dir(project.name)

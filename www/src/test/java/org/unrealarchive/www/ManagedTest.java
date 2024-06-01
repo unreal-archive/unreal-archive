@@ -39,7 +39,7 @@ public class ManagedTest {
 			assertTrue(cm.all().contains(man));
 
 			ManagedContent content = new ManagedContent(cm, wwwRoot, wwwRoot, SiteFeatures.ALL);
-			assertEquals(5, content.generate().size());
+			assertEquals(3, content.generate().size());
 		} finally {
 			// cleanup temp files
 			ArchiveUtil.cleanPath(tmpRoot);

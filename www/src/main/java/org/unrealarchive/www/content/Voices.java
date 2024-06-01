@@ -19,8 +19,8 @@ public class Voices extends GenericContentPage<Voice> {
 	private static final String SECTION = "Voices";
 	private static final String SUBGROUP = "all";
 
-	public Voices(SimpleAddonRepository content, Path output, Path staticRoot, SiteFeatures localImages) {
-		super(content, output, output, staticRoot, localImages);
+	public Voices(SimpleAddonRepository content, Path root, Path staticRoot, SiteFeatures localImages) {
+		super(content, root, staticRoot, localImages);
 	}
 
 	@Override
@@ -88,10 +88,8 @@ public class Voices extends GenericContentPage<Voice> {
 		final Addon item = voice.item();
 		localImages(item, root.resolve(voice.path).getParent());
 
-		pages.add("voice.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex), String.join(" / ",
-																						voice.page.letter.group.game.game.bigName,
-																						SECTION,
-																						item.name))
+		pages.add("voice.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex),
+				  String.join(" / ", voice.page.letter.group.game.game.bigName, SECTION, item.name))
 			 .put("voice", voice)
 			 .write(Paths.get(voice.path + ".html"));
 

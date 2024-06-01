@@ -59,7 +59,7 @@ public class Index implements PageGenerator {
 			if (c > 0) games.put(g, c);
 		});
 
-		Templates.PageSet pages = new Templates.PageSet("", features, root, staticRoot, root);
+		Templates.PageSet pages = new Templates.PageSet("", features, root, staticRoot);
 
 		pages.add("index.ftl", SiteMap.Page.of(1f, SiteMap.ChangeFrequency.weekly), "Home")
 			 .put("games", games)

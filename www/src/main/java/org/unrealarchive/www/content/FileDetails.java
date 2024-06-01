@@ -19,8 +19,8 @@ import org.unrealarchive.www.Templates;
 
 public class FileDetails extends ContentPageGenerator {
 
-	public FileDetails(SimpleAddonRepository content, Path output, Path staticRoot, SiteFeatures features) {
-		super(content, output, output, staticRoot, features);
+	public FileDetails(SimpleAddonRepository content, Path root, Path staticRoot, SiteFeatures features) {
+		super(content, root, staticRoot, features);
 	}
 
 	private Map<Addon.ContentFile, List<Addon>> loadContentFiles(SimpleAddonRepository content) {

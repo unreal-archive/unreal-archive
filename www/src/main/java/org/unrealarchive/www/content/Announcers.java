@@ -19,8 +19,8 @@ public class Announcers extends GenericContentPage<Announcer> {
 	private static final String SECTION = "Announcers";
 	private static final String SUBGROUP = "all";
 
-	public Announcers(SimpleAddonRepository content, Path output, Path staticRoot, SiteFeatures localImages) {
-		super(content, output, output, staticRoot, localImages);
+	public Announcers(SimpleAddonRepository content, Path root, Path staticRoot, SiteFeatures localImages) {
+		super(content, root, staticRoot, localImages);
 	}
 
 	@Override
@@ -88,10 +88,8 @@ public class Announcers extends GenericContentPage<Announcer> {
 		final Addon item = announcer.item();
 		localImages(item, root.resolve(announcer.path).getParent());
 
-		pages.add("announcer.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex), String.join(" / ",
-																							announcer.page.letter.group.game.game.bigName,
-																							SECTION,
-																							item.name))
+		pages.add("announcer.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex),
+				  String.join(" / ", announcer.page.letter.group.game.game.bigName, SECTION, item.name))
 			 .put("announcer", announcer)
 			 .write(Paths.get(announcer.path + ".html"));
 

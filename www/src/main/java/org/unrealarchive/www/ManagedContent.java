@@ -20,14 +20,12 @@ import static org.unrealarchive.common.Util.slug;
 public class ManagedContent implements PageGenerator {
 
 	private final ManagedContentRepository managedRepo;
-	private final Path siteRoot;
 	private final Path root;
 	private final Path staticRoot;
 	private final SiteFeatures features;
 
 	public ManagedContent(ManagedContentRepository managedRepo, Path root, Path staticRoot, SiteFeatures features) {
 		this.managedRepo = managedRepo;
-		this.siteRoot = root;
 		this.root = root;
 		this.staticRoot = staticRoot;
 		this.features = features;
@@ -55,7 +53,7 @@ public class ManagedContent implements PageGenerator {
 	public Set<SiteMap.Page> generate() {
 		final Map<String, Game> games = loadGames(managedRepo);
 
-		Templates.PageSet pages = new Templates.PageSet("managed", features, siteRoot, staticRoot, root);
+		Templates.PageSet pages = new Templates.PageSet("managed", features, root, staticRoot);
 		try {
 			for (Game game : games.values()) {
 				for (Group g : game.groups.values()) {

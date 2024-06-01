@@ -37,7 +37,6 @@ public class GameTypes implements PageGenerator {
 
 	private final GameTypeRepository gametypes;
 	private final SimpleAddonRepository content;
-	private final Path siteRoot;
 	private final Path root;
 	private final Path staticRoot;
 	private final SiteFeatures features;
@@ -45,7 +44,6 @@ public class GameTypes implements PageGenerator {
 	public GameTypes(GameTypeRepository gametypes, SimpleAddonRepository content, Path root, Path staticRoot, SiteFeatures features) {
 		this.gametypes = gametypes;
 		this.content = content;
-		this.siteRoot = root;
 		this.root = root;
 		this.staticRoot = staticRoot;
 		this.features = features;
@@ -72,12 +70,8 @@ public class GameTypes implements PageGenerator {
 	public Set<SiteMap.Page> generate() {
 		final Map<String, Game> games = loadGames(gametypes);
 
-		Templates.PageSet pages = new Templates.PageSet("content/gametypes", features, siteRoot, staticRoot, root);
+		Templates.PageSet pages = new Templates.PageSet("content/gametypes", features, root, staticRoot);
 		try {
-//			pages.add("games.ftl", SiteMap.Page.monthly(0.6f), SECTION)
-//				 .put("games", games)
-//				 .write(root.resolve("index.html"));
-
 			for (Game game : games.values()) {
 				generateGame(pages, game);
 			}
@@ -200,9 +194,9 @@ public class GameTypes implements PageGenerator {
 
 			this.slug = slug(gametype.name);
 			this.path = variationOf == null
-				? gametype.slugPath(siteRoot)
-				: variationOf.slugPath(siteRoot).resolve(Util.slug(gametype.name));
-			this.indexPath = gametype.pagePath(siteRoot);
+				? gametype.slugPath(root)
+				: variationOf.slugPath(root).resolve(Util.slug(gametype.name));
+			this.indexPath = gametype.pagePath(root);
 			this.variationOf = variationOf;
 			this.variations = variations;
 

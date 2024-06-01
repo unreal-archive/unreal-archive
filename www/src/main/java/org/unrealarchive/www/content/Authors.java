@@ -34,13 +34,13 @@ public class Authors extends ContentPageGenerator {
 	private final Path sectionPath;
 
 	public Authors(AuthorNames names, SimpleAddonRepository content, GameTypeRepository gameTypes, ManagedContentRepository managed,
-				   Path output, Path staticRoot, SiteFeatures features) {
-		super(content, output, output, staticRoot, features);
+				   Path root, Path staticRoot, SiteFeatures features) {
+		super(content, root, staticRoot, features);
 
 		this.names = names;
 		this.gameTypes = gameTypes;
 		this.managed = managed;
-		this.sectionPath = output.resolve("authors");
+		this.sectionPath = root.resolve("authors");
 	}
 
 	private TreeMap<String, LetterGroup> loadLetters(AuthorNames names, SimpleAddonRepository content, GameTypeRepository gameTypes,
@@ -209,7 +209,7 @@ public class Authors extends ContentPageGenerator {
 									if (i.contains("://")) return i;
 
 									// a local path - make it relative
-									return path.relativize(siteRoot.resolve(i)).toString();
+									return path.relativize(root.resolve(i)).toString();
 								})
 								.orElse(null);
 		}

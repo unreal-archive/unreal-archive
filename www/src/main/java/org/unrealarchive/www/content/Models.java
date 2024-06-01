@@ -19,8 +19,8 @@ public class Models extends GenericContentPage<Model> {
 	private static final String SECTION = "Models";
 	private static final String SUBGROUP = "all";
 
-	public Models(SimpleAddonRepository content, Path output, Path staticRoot, SiteFeatures localImages) {
-		super(content, output, output, staticRoot, localImages);
+	public Models(SimpleAddonRepository content, Path root, Path staticRoot, SiteFeatures localImages) {
+		super(content, root, staticRoot, localImages);
 	}
 
 	@Override
@@ -88,10 +88,8 @@ public class Models extends GenericContentPage<Model> {
 		final Addon item = model.item();
 		localImages(item, root.resolve(model.path).getParent());
 
-		pages.add("model.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex), String.join(" / ",
-																						model.page.letter.group.game.game.bigName,
-																						SECTION,
-																						item.name))
+		pages.add("model.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex),
+				  String.join(" / ", model.page.letter.group.game.game.bigName, SECTION, item.name))
 			 .put("model", model)
 			 .write(Paths.get(model.path + ".html"));
 

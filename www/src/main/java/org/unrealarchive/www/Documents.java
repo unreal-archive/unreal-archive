@@ -22,14 +22,12 @@ public class Documents implements PageGenerator {
 	private static final String SECTION = "Guides & Reference";
 
 	private final DocumentRepository documents;
-	private final Path siteRoot;
 	private final Path root;
 	private final Path staticRoot;
 	private final SiteFeatures features;
 
 	public Documents(DocumentRepository documents, Path root, Path staticRoot, SiteFeatures features) {
 		this.documents = documents;
-		this.siteRoot = root;
 		this.root = root;
 		this.staticRoot = staticRoot;
 		this.features = features;
@@ -53,7 +51,7 @@ public class Documents implements PageGenerator {
 	public Set<SiteMap.Page> generate() {
 		final Map<String, Game> games = loadGames(documents);
 
-		Templates.PageSet pages = new Templates.PageSet("documents", features, siteRoot, staticRoot, root);
+		Templates.PageSet pages = new Templates.PageSet("documents", features, root, staticRoot);
 		try {
 			for (Game game : games.values()) {
 
@@ -66,7 +64,7 @@ public class Documents implements PageGenerator {
 				}
 			}
 		} catch (IOException e) {
-			throw new RuntimeException("Failed to render managed content pages", e);
+			throw new RuntimeException("Failed to render pages", e);
 		}
 
 		return pages.pages;

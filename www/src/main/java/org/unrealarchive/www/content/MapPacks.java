@@ -25,9 +25,8 @@ public class MapPacks extends GenericContentPage<MapPack> {
 	private final GameTypeRepository gametypes;
 	private final java.util.Map<Integer, GameType> gameTypeCache = new ConcurrentHashMap<>();
 
-	public MapPacks(SimpleAddonRepository content, Path output, Path staticRoot, SiteFeatures features,
-					GameTypeRepository gametypes) {
-		super(content, output, output, staticRoot, features);
+	public MapPacks(SimpleAddonRepository content, Path root, Path staticRoot, SiteFeatures features, GameTypeRepository gametypes) {
+		super(content, root, staticRoot, features);
 		this.gametypes = gametypes;
 	}
 
@@ -64,7 +63,7 @@ public class MapPacks extends GenericContentPage<MapPack> {
 							 .put("pages", gt.getValue().letters.get(LETTER_SUBGROUP).pages)
 							 .put("gametype", gt.getValue())
 							 .put("gameTypeInfo", gtInfo)
-							 .put("gameTypeInfoPath", gtInfo != null ? gtInfo.slugPath(siteRoot) : null)
+							 .put("gameTypeInfoPath", gtInfo != null ? gtInfo.slugPath(root) : null)
 							 .write(p.path.resolve("index.html"));
 					}
 
@@ -77,7 +76,7 @@ public class MapPacks extends GenericContentPage<MapPack> {
 					 .put("pages", gt.getValue().letters.get(LETTER_SUBGROUP).pages)
 					 .put("gametype", gt.getValue())
 					 .put("gameTypeInfo", gtInfo)
-					 .put("gameTypeInfoPath", gtInfo != null ? gtInfo.slugPath(siteRoot) : null)
+					 .put("gameTypeInfoPath", gtInfo != null ? gtInfo.slugPath(root) : null)
 					 .write(gt.getValue().path.resolve("index.html"));
 			});
 
@@ -97,13 +96,11 @@ public class MapPacks extends GenericContentPage<MapPack> {
 
 		localImages(item, pack.path.getParent());
 
-		pages.add("mappack.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex), String.join(" / ",
-																						  pack.page.letter.group.game.game.bigName,
-																						  SECTION,
-																						  pack.page.letter.group.name, item.name))
+		pages.add("mappack.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex),
+				  String.join(" / ", pack.page.letter.group.game.game.bigName, SECTION, pack.page.letter.group.name, item.name))
 			 .put("pack", pack)
 			 .put("gameTypeInfo", gt)
-			 .put("gameTypeInfoPath", gt != null ? gt.slugPath(siteRoot) : null)
+			 .put("gameTypeInfoPath", gt != null ? gt.slugPath(root) : null)
 			 .write(Paths.get(pack.path + ".html"));
 
 		for (ContentInfo variation : pack.variations) {
