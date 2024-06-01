@@ -51,16 +51,17 @@ public class Index implements PageGenerator {
 		Map<String, Long> docsByGame = documents.all().stream().collect(Collectors.groupingBy(d -> d.game, Collectors.counting()));
 
 		Arrays.stream(Games.values()).forEach(g -> {
-			long c =
-				contentByGame.getOrDefault(g.name, 0L) + gametypesByGame.getOrDefault(g.name, 0L) + managedByGame.getOrDefault(g.name, 0L) +
-				docsByGame.getOrDefault(g.name, 0L);
+			long c = contentByGame.getOrDefault(g.name, 0L)
+					 + gametypesByGame.getOrDefault(g.name, 0L)
+					 + managedByGame.getOrDefault(g.name, 0L)
+					 + docsByGame.getOrDefault(g.name, 0L);
 
 			if (c > 0) games.put(g, c);
 		});
 
 		Templates.PageSet pages = new Templates.PageSet("", features, root, staticRoot, root);
 
-		pages.add("index-games.ftl", SiteMap.Page.of(1f, SiteMap.ChangeFrequency.weekly), "Home")
+		pages.add("index.ftl", SiteMap.Page.of(1f, SiteMap.ChangeFrequency.weekly), "Home")
 			 .put("games", games)
 			 .put("count", contentCount)
 			 .write(root.resolve("index.html"));
