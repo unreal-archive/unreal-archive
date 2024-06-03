@@ -99,7 +99,8 @@ public class IndexHelper {
 //		fixDoubleSlashLinks();
 //		relinkMedor();
 //		removeDuplicateEntries();
-		removeDuplicateFiles();
+//		removeDuplicateFiles();
+		fixUt3PlayerCounts();
 
 //		gc();
 	}
@@ -538,6 +539,43 @@ public class IndexHelper {
 				}
 			}
 
+		}
+	}
+
+	private static void fixUt3PlayerCounts() throws IOException {
+		ContentManager cm = manager();
+
+		Pattern playerCount = Pattern.compile("(\\d+(\\s?((up )?to|-)\\s?\\d+)?).*");
+		Pattern author = Pattern.compile(".+?(by:\\s?|:\\s+?|by\\s)(.+)");
+
+		Collection<Addon> search = cm.repo().search("Unreal Tournament 3", "MAP", null, null);
+		for (Addon c : search) {
+			if (c instanceof Map) {
+				Map map = (Map)cm.checkout(c.hash);
+
+				final String orig = map.playerCount;
+
+				Matcher pc = playerCount.matcher(orig);
+				boolean changed = false;
+				if (pc.matches()) {
+					map.playerCount = pc.group(1);
+					changed = true;
+				}
+
+				if (map.author.equals("Unknown")) {
+					Matcher am = author.matcher(orig);
+					if (am.matches()) {
+						map.author = am.group(2);
+						changed = true;
+					}
+				}
+
+				if (changed && cm.checkin(new IndexResult<>(map, Collections.emptySet()), null)) {
+					System.out.println("Stored changes for " + String.join(" / ", map.game, map.gametype, map.name));
+				} else {
+					System.out.println("Failed to apply");
+				}
+			}
 		}
 	}
 

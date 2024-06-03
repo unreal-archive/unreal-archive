@@ -9,6 +9,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -325,7 +326,15 @@ public interface SimpleAddonRepository {
 
 		@Override
 		public Addon forHash(String hash) {
-			ContentHolder contentHolder = content.get(hash);
+			String key = hash;
+
+			// attempt to resolve short hash
+			if (key.length() == 8) {
+				List<String> found = content.keySet().stream().filter(h -> h.startsWith(hash)).toList();
+				if (found.size() == 1) key = found.get(0);
+			}
+
+			ContentHolder contentHolder = content.get(key);
 			if (contentHolder != null) return contentHolder.content();
 
 			return null;
