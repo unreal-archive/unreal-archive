@@ -7,8 +7,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -58,8 +56,8 @@ public interface GameTypeRepository {
 
 		public FileRepository(Path path) throws IOException {
 			this.path = path;
-			this.gameTypes = new HashSet<>();
-			this.contentFileMap = new HashMap<>();
+			this.gameTypes = ConcurrentHashMap.newKeySet();
+			this.contentFileMap = new ConcurrentHashMap<>();
 
 			scanPath(path, null);
 		}

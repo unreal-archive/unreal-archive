@@ -11,8 +11,8 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 import org.unrealarchive.common.Util;
@@ -68,7 +68,7 @@ public interface ManagedContentRepository {
 
 		public FileRepository(Path root) throws IOException {
 			this.root = root;
-			this.content = new HashMap<>();
+			this.content = new ConcurrentHashMap<>();
 
 			// load contents from path into content
 			Files.walkFileTree(root, new SimpleFileVisitor<>() {

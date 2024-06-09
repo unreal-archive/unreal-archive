@@ -10,8 +10,8 @@ import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.unrealarchive.common.Util;
 import org.unrealarchive.common.YAML;
@@ -51,7 +51,7 @@ public interface DocumentRepository {
 		private final Map<Document, DocumentHolder> documents;
 
 		public FileRepository(Path path) throws IOException {
-			this.documents = new HashMap<>();
+			this.documents = new ConcurrentHashMap<>();
 
 			// load contents from path into content
 			Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
