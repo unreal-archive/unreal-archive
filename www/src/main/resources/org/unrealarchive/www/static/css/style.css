@@ -186,25 +186,26 @@ header .heading .menu {
 	text-align: right;
 }
 
-.heading .menu ul {
+.right { text-align: right; }
+
+ul.menu, .menu ul {
 	list-style-type: none;
 	margin: 0;
 	padding: 0;
-	text-align: right;
 }
 
-.heading .menu ul li {
+.menu li {
 	display: inline-block;
 	box-sizing: border-box;
 	border-right: var(--menu-trim-color);
 }
 
-.heading .menu a {
+.menu a {
 	padding: 5px;
 }
 
-.heading .menu ul li:first-child {
-	border-left: var(--menu-trim-color);
+.menu li:last-child {
+	border-right: none;
 }
 
 header .heading .a {
@@ -229,6 +230,22 @@ header .header img {
 .heading .menu img[src$="svg"] {
 	filter: invert(1);
 	vertical-align: middle;
+}
+
+section.submenu {}
+section.submenu .page {}
+section.submenu .page .inner {
+	padding: 10px;
+	margin: auto 0 0 0;
+	background-color: var(--section-header-title-bg);
+	border-radius: 0 0 5px 5px;
+	backdrop-filter: blur(15px);
+}
+section.submenu .inner .menu {
+	font-family: var(--menu-font-family);
+	align-self: center;
+	text-align: right;
+	color: var(--menu-text-color);
 }
 
 .readable {

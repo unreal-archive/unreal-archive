@@ -107,9 +107,12 @@ section.header {
 
 /* for pages where there's no big header present, push content down */
 .contentpage { padding: 100px 0; }
-.mainpage section.header + .contentpage {	padding: 20px 0; }
 /* better padding on blocks which follow blocks */
-.page + .contentpage {	padding: 20px 0; }
+.mainpage section.header + .contentpage,
+.page + .contentpage,
+.submenu + .contentpage {
+	padding: 20px 0;
+}
 
 .biglist ul li a:hover {
 	background: linear-gradient(0deg, var(--biglist-bg-color-hover) -5%, #0000 10%);
