@@ -273,10 +273,10 @@ public class Indexer {
 
 						// check if the item is a variation of existing content
 						if (current == null) {
-							Optional<Addon> maybeNewest = repo.search(result.content.game, result.content.contentType,
-																	  result.content.name, result.content.author)
-															  .stream().max(Comparator.comparing(a -> a.releaseDate));
-							Addon existing = maybeNewest.orElse(null);
+							Addon existing = repo.search(result.content.game, result.content.contentType,
+														 result.content.name, result.content.author)
+												 .stream().max(Comparator.comparing(a -> a.releaseDate))
+												 .orElse(null);
 							if (existing != null) {
 								if (existing.variationOf == null && existing.releaseDate.compareTo(result.content.releaseDate) < 0) {
 									Addon variation = contentManager.checkout(existing.hash);

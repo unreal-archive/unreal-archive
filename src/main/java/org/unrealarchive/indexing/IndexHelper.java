@@ -84,6 +84,7 @@ public class IndexHelper {
 //		contentDependencies(args[0], args[1], args[2]);
 //		fixUnknownAuthors(args[0], args[1], args[2]);
 //		umodDependencies(args[0]);
+		ukxDependencies();
 //		fixMissingModels(args[0]);
 //		fixModelNames(args[0]);
 //		dedupeModelsSkinsNames(args[0]);
@@ -100,7 +101,9 @@ public class IndexHelper {
 //		relinkMedor();
 //		removeDuplicateEntries();
 //		removeDuplicateFiles();
-		fixUt3PlayerCounts();
+//		fixUt3PlayerCounts();
+
+//		fixVariations();
 
 //		gc();
 	}
@@ -142,6 +145,31 @@ public class IndexHelper {
 			System.out.println("Stored changes for " + String.join(" / ", co.game, co.name));
 		} else {
 			System.out.println("Failed to apply for " + String.join(" / ", co.game, co.name, co.hash));
+		}
+	}
+
+	public static void fixVariations() throws IOException {
+		ContentManager cm = manager();
+
+		Collection<Addon> search = cm.repo().search(null, null, null, null);
+		for (Addon c : search) {
+			Addon existing = cm.repo().search(c.game, c.contentType,
+											  c.name, c.author)
+							   .stream().max(Comparator.comparing(a -> a.releaseDate))
+							   .orElse(null);
+			if (existing != null) {
+				if (existing.variationOf == null && existing.releaseDate.compareTo(c.releaseDate) < 0) {
+					Addon variation = cm.checkout(existing.hash);
+					variation.variationOf = c.hash;
+					checkinChange(cm, variation);
+					System.out.printf("Flagging original content %s as variation of %s%n", existing.name(), c.name());
+				} else if (c.variationOf == null && existing.releaseDate.compareTo(c.releaseDate) > 0) {
+					Addon variation = cm.checkout(c.hash);
+					variation.variationOf = existing.hash;
+					checkinChange(cm, variation);
+					System.out.printf("Flagging %s as variation of %s%n", c.name(), existing.name());
+				}
+			}
 		}
 	}
 
@@ -809,6 +837,56 @@ public class IndexHelper {
 		List<Addon> contents = search.stream()
 									 .filter(c -> !c.deleted)
 									 .filter(c -> c.files.stream().anyMatch(d -> umods.contains(Util.extension(d.name).toLowerCase())))
+									 .sorted(Comparator.comparingInt(a -> a.fileSize))
+									 .toList();
+
+		System.out.printf("Processing %d contents%n", contents.size());
+
+		for (int i = 0; i < contents.size(); i++) {
+			if (i % 10 == 0) System.out.printf("%d/%d%n", i, contents.size());
+
+			Addon co = cm.checkout(contents.get(i).hash);
+
+			new LocalMirrorClient.Downloader(co, tmpDir, d -> {
+				System.out.printf("Downloaded %s%n", d.destination);
+				try {
+					Submission sub = new Submission(d.destination);
+					IndexLog log = new IndexLog();
+					try (Incoming incoming = new Incoming(sub, log).prepare()) {
+						co.dependencies = IndexUtils.dependencies(Games.byName(co.game), incoming);
+
+						co.files = new ArrayList<>();
+						for (Incoming.IncomingFile f : incoming.files(FileType.ALL)) {
+							if (!FileType.important(f.file)) continue;
+							co.files.add(new Addon.ContentFile(f.fileName(), f.fileSize(), f.hash()));
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+
+					checkinChange(cm, co);
+				} catch (Throwable e) {
+					//
+				} finally {
+					try {
+						Files.deleteIfExists(d.destination);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			}).run();
+		}
+	}
+
+	private static void ukxDependencies() throws IOException {
+		ContentManager cm = manager();
+
+		Collection<Addon> search = cm.repo().search(null, null, null, null);
+		final Path tmpDir = Files.createTempDirectory("ua-deps");
+
+		List<Addon> contents = search.stream()
+									 .filter(c -> !c.deleted)
+									 .filter(c -> c.files.stream().anyMatch(d -> Util.extension(d.name).equalsIgnoreCase("ukx")))
 									 .sorted(Comparator.comparingInt(a -> a.fileSize))
 									 .toList();
 

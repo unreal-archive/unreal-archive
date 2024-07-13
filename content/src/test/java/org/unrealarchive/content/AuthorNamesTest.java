@@ -84,4 +84,10 @@ public class AuthorNamesTest {
 		assertEquals("mike", name.cleanName("mike@banan.co.uk"));
 	}
 
+	@Test
+	public void editedBy() {
+		AuthorNames name = new AuthorNames(new HashMap<>(), Set.of());
+		assertEquals("Bob", name.cleanName("Edit by Bob"));
+	}
+
 }

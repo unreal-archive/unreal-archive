@@ -293,8 +293,8 @@ public interface SimpleAddonRepository {
 						  .filter(c -> {
 							  boolean match = (game == null || c.game.equalsIgnoreCase(game));
 							  match = match && (type == null || c.contentType.equalsIgnoreCase(type));
-							  match = match && (author == null || c.author.toLowerCase().contains(author.toLowerCase()));
-							  match = match && (name == null || c.name.toLowerCase().contains(name.toLowerCase()));
+							  match = match && (author == null || c.author.equalsIgnoreCase(author));
+							  match = match && (name == null || c.name.equalsIgnoreCase(name));
 							  return match;
 						  })
 						  .collect(Collectors.toSet());
