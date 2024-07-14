@@ -44,7 +44,7 @@ public class FileDetails extends ContentPageGenerator {
 			// we're only interested in multi-use files
 			if (e.getValue().size() < 2) return;
 
-			final String game = e.getValue().get(0).game();
+			final String game = e.getValue().getFirst().game();
 			Addon.ContentFile file = e.getKey();
 
 			Path p = root.resolve(Util.slug(game)).resolve("files")

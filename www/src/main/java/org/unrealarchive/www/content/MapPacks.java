@@ -72,7 +72,7 @@ public class MapPacks extends GenericContentPage<MapPack> {
 
 				// output first letter/page combo, with appropriate relative links
 				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", game.bigName, SECTION, gt.getKey()))
-					 .put("page", gt.getValue().letters.get(LETTER_SUBGROUP).pages.get(0))
+					 .put("page", gt.getValue().letters.get(LETTER_SUBGROUP).pages.getFirst())
 					 .put("pages", gt.getValue().letters.get(LETTER_SUBGROUP).pages)
 					 .put("gametype", gt.getValue())
 					 .put("gameTypeInfo", gtInfo)

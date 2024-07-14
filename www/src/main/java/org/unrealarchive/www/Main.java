@@ -166,11 +166,12 @@ public class Main {
 		if (features.latest) generators.add(new Latest(contentRepo, gameTypeRepo, managedRepo, outputPath, staticOutput, features));
 		if (features.files) generators.add(new FileDetails(contentRepo, outputPath, staticOutput, features));
 
-		ForkJoinPool myPool = new ForkJoinPool(Integer.parseInt(cli.option("concurrency", "4")));
-		myPool.submit(() -> generators.parallelStream().forEach(g -> {
-			System.out.printf("Generating %s pages%n", g.getClass().getSimpleName());
-			allPages.addAll(g.generate());
-		})).join();
+		try (ForkJoinPool myPool = new ForkJoinPool(Integer.parseInt(cli.option("concurrency", "4")))) {
+			myPool.submit(() -> generators.parallelStream().forEach(g -> {
+				System.out.printf("Generating %s pages%n", g.getClass().getSimpleName());
+				allPages.addAll(g.generate());
+			})).join();
+		}
 
 		System.out.println("Generating sitemap");
 		allPages.addAll(SiteMap.siteMap(SiteMap.SITE_ROOT, outputPath, allPages, 50000, features).generate());

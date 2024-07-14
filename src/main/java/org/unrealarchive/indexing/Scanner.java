@@ -60,8 +60,7 @@ public class Scanner {
 
 		AtomicInteger done = new AtomicInteger();
 
-		ForkJoinPool fjPool = new ForkJoinPool(concurrency);
-		try {
+		try (ForkJoinPool fjPool = new ForkJoinPool(concurrency)) {
 			fjPool.submit(() -> all.parallelStream().sorted().forEachOrdered(path -> {
 							  events.progress(done.incrementAndGet(), all.size(), path);
 
@@ -71,8 +70,6 @@ public class Scanner {
 							  scanFile(sub, log, events::scanned);
 						  })
 			).join();
-		} finally {
-			fjPool.shutdown();
 		}
 
 		events.completed(done.get());

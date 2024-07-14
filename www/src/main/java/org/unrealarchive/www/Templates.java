@@ -8,7 +8,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Writer;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -160,10 +159,6 @@ public class Templates {
 		}
 	}
 
-	public static Tpl template(String name) throws IOException {
-		return new Tpl(TPL_CONFIG.getTemplate(name), SiteMap.DEFAULT_PAGE);
-	}
-
 	public static Tpl template(String name, SiteMap.Page page) throws IOException {
 		return new Tpl(TPL_CONFIG.getTemplate(name), page);
 	}
@@ -180,6 +175,7 @@ public class Templates {
 				String resource = nameAndDate[0];
 				long lastModified = Long.parseLong(nameAndDate[1]);
 				try (InputStream res = Templates.class.getResourceAsStream(resource)) {
+					assert res != null;
 					Path destPath = destination.resolve(resource);
 					if (destPath.getFileName().toString().equals("generate_thumbs")) {
 						try (BufferedReader thumbDef = new BufferedReader(new InputStreamReader(res))) {
@@ -259,7 +255,7 @@ public class Templates {
 			TemplateModel pagePath = Environment.getCurrentEnvironment().getVariable("pagePath");
 			if (pagePath == null) throw new TemplateModelException("A pagePath variable was not found");
 
-			return Paths.get(pagePath.toString()).relativize(Paths.get(args.get(0).toString()));
+			return Paths.get(pagePath.toString()).relativize(Paths.get(args.getFirst().toString()));
 		}
 	}
 
@@ -272,7 +268,7 @@ public class Templates {
 			TemplateModel siteRoot = Environment.getCurrentEnvironment().getVariable("siteRoot");
 			if (siteRoot == null) throw new TemplateModelException("A pagePath variable was not found");
 
-			return Paths.get(pagePath.toString()).relativize(Paths.get(siteRoot.toString()).resolve(Paths.get(args.get(0).toString())));
+			return Paths.get(pagePath.toString()).relativize(Paths.get(siteRoot.toString()).resolve(Paths.get(args.getFirst().toString())));
 		}
 	}
 
@@ -299,7 +295,7 @@ public class Templates {
 		public Object exec(List args) throws TemplateModelException {
 			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a URL to encode");
 
-			return args.get(0).toString().replaceAll("\n", "%0A");
+			return args.getFirst().toString().replaceAll("\n", "%0A");
 		}
 	}
 
@@ -310,7 +306,7 @@ public class Templates {
 		public Object exec(List args) throws TemplateModelException {
 			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a file size");
 
-			float size = ((SimpleNumber)args.get(0)).getAsNumber().floatValue();
+			float size = ((SimpleNumber)args.getFirst()).getAsNumber().floatValue();
 
 			int cnt = 0;
 			while (size > 1024) {
@@ -344,7 +340,7 @@ public class Templates {
 		public Object exec(List args) throws TemplateModelException {
 			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a string");
 
-			String string = args.get(0).toString();
+			String string = args.getFirst().toString();
 			return Util.slug(string);
 		}
 	}
@@ -354,7 +350,7 @@ public class Templates {
 		public Object exec(List args) throws TemplateModelException {
 			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a string");
 
-			String string = args.get(0).toString();
+			String string = args.getFirst().toString();
 			return Util.authorSlug(string);
 		}
 	}
@@ -376,11 +372,13 @@ public class Templates {
 		public Object exec(List args) throws TemplateModelException {
 			if (args.isEmpty()) throw new TemplateModelException("Wrong arguments, expecting a date");
 
-			if (args.get(0).toString().equalsIgnoreCase("Unknown")) return args.get(0).toString();
+			String arg = args.getFirst().toString();
+
+			if (arg.equalsIgnoreCase("Unknown")) return arg;
 
 			TemporalAccessor date;
-			if (args.get(0).toString().matches("\\d{4}-\\d{2}-\\d{2}")) date = IN_FMT.parse(args.get(0).toString());
-			else date = IN_FMT_SHORT.parse(args.get(0).toString() + "-01");
+			if (arg.matches("\\d{4}-\\d{2}-\\d{2}")) date = IN_FMT.parse(arg);
+			else date = IN_FMT_SHORT.parse(arg + "-01");
 
 			if (shortDate) return OUT_FMT_SHORT.format(date);
 			else return OUT_FMT.format(date);
@@ -392,7 +390,7 @@ public class Templates {
 		public Object exec(List args) throws TemplateModelException {
 			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a file path");
 
-			return FileType.forFile(args.get(0).toString());
+			return FileType.forFile(args.getFirst().toString());
 		}
 	}
 
@@ -401,7 +399,7 @@ public class Templates {
 		public Object exec(List args) throws TemplateModelException {
 			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a file path");
 
-			return Util.fileName(args.get(0).toString());
+			return Util.fileName(args.getFirst().toString());
 		}
 	}
 
@@ -410,7 +408,7 @@ public class Templates {
 		public Object exec(List args) throws TemplateModelException {
 			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a file name");
 
-			return Util.plainName(args.get(0).toString());
+			return Util.plainName(args.getFirst().toString());
 		}
 	}
 
@@ -420,10 +418,10 @@ public class Templates {
 			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a URL");
 
 			try {
-				String host = new URL(args.get(0).toString()).getHost().replaceFirst("www\\.", "");
+				String host = Util.url(args.getFirst().toString()).getHost().replaceFirst("www\\.", "");
 				return HOST_REMAP.getOrDefault(host, host);
 			} catch (MalformedURLException e) {
-				throw new TemplateModelException("Invalid URL: " + args.get(0).toString(), e);
+				throw new TemplateModelException("Invalid URL: " + args.getFirst().toString(), e);
 			}
 		}
 	}

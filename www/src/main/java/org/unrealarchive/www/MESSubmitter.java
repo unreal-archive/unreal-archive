@@ -2,6 +2,7 @@ package org.unrealarchive.www;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
@@ -145,7 +146,8 @@ public class MESSubmitter {
 	}
 
 	private static Set<String> stopWords() throws IOException {
-		try (BufferedReader br = new BufferedReader(new InputStreamReader(MESSubmitter.class.getResourceAsStream("stopWords.txt")))) {
+		try (InputStream stopwords = MESSubmitter.class.getResourceAsStream("stopWords.txt");
+			BufferedReader br = new BufferedReader(new InputStreamReader(stopwords))) {
 			return br.lines()
 					 .map(String::trim)
 					 .filter(s -> !s.isBlank() && !s.startsWith("#"))
@@ -154,7 +156,7 @@ public class MESSubmitter {
 	}
 
 	private static boolean post(String url, String token, String payload) throws IOException {
-		URL urlConnection = new URL(url);
+		URL urlConnection = Util.url(url);
 		HttpURLConnection httpConn = (HttpURLConnection)urlConnection.openConnection();
 
 		httpConn.setRequestMethod("POST");

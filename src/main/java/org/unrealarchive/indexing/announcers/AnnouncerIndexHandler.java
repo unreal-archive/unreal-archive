@@ -48,8 +48,8 @@ public class AnnouncerIndexHandler implements IndexHandler<Announcer> {
 
 		// if there's only one mutator, rename package to that
 		if (a.announcers.size() == 1) {
-			a.name = a.announcers.get(0).name;
-			a.description = a.announcers.get(0).description;
+			a.name = a.announcers.getFirst().name;
+			a.description = a.announcers.getFirst().description;
 		}
 		a.announcers = a.announcers.stream().distinct().toList();
 

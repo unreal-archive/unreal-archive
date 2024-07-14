@@ -58,8 +58,8 @@ public class MutatorIndexHandler implements IndexHandler<Mutator> {
 
 		// if there's only one mutator, rename package to that
 		if (m.mutators.size() == 1) {
-			m.name = m.mutators.get(0).name;
-			m.description = m.mutators.get(0).description;
+			m.name = m.mutators.getFirst().name;
+			m.description = m.mutators.getFirst().description;
 		}
 
 		m.mutators = m.mutators.stream().distinct().toList();
@@ -190,26 +190,24 @@ public class MutatorIndexHandler implements IndexHandler<Mutator> {
 		// search int files for objects describing a mutator and related things
 		IndexUtils.readIntFiles(incoming, iniFiles)
 				  .filter(Objects::nonNull)
-				  .forEach(iniFile -> {
-					  iniFile.sections().forEach(name -> {
-						  IntFile.Section section = iniFile.section(name);
-						  if (name.toLowerCase().endsWith(MutatorClassifier.UT3_MUTATOR_SECTION.toLowerCase())) {
-							  // add mutator
-							  mutator.mutators.add(sectionToNameDesc(section, mutator.name));
-						  } else if (name.toLowerCase().endsWith(MutatorClassifier.UT3_WEAPON_SECTION.toLowerCase())) {
-							  // add weapon
-							  mutator.weapons.add(sectionToNameDesc(section, mutator.name));
-						  } else if (name.toLowerCase().endsWith(MutatorClassifier.UT3_VEHICLE_SECTION.toLowerCase())) {
-							  // add vehicle
-							  mutator.vehicles.add(sectionToNameDesc(section, mutator.name));
-						  }
+				  .forEach(iniFile -> iniFile.sections().forEach(name -> {
+					  IntFile.Section section = iniFile.section(name);
+					  if (name.toLowerCase().endsWith(MutatorClassifier.UT3_MUTATOR_SECTION.toLowerCase())) {
+						  // add mutator
+						  mutator.mutators.add(sectionToNameDesc(section, mutator.name));
+					  } else if (name.toLowerCase().endsWith(MutatorClassifier.UT3_WEAPON_SECTION.toLowerCase())) {
+						  // add weapon
+						  mutator.weapons.add(sectionToNameDesc(section, mutator.name));
+					  } else if (name.toLowerCase().endsWith(MutatorClassifier.UT3_VEHICLE_SECTION.toLowerCase())) {
+						  // add vehicle
+						  mutator.vehicles.add(sectionToNameDesc(section, mutator.name));
+					  }
 
-						  // check for custom configuration things
-						  if (section.value("UIConfigScene") != null && !section.value("UIConfigScene").toString().isBlank()) {
-							  mutator.hasConfigMenu = true;
-						  }
-					  });
-				  });
+					  // check for custom configuration things
+					  if (section.value("UIConfigScene") != null && !section.value("UIConfigScene").toString().isBlank()) {
+						  mutator.hasConfigMenu = true;
+					  }
+				  }));
 	}
 
 	public static NameDescription sectionToNameDesc(IntFile.Section section, String defaultName) {

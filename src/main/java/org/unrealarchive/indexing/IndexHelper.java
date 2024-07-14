@@ -957,7 +957,7 @@ public class IndexHelper {
 				// in this process, we don't want to change files
 				for (IndexResult.NewAttachment file : result.files) {
 					try {
-						Files.deleteIfExists(file.path);
+						Files.deleteIfExists(file.path());
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
@@ -1028,7 +1028,7 @@ public class IndexHelper {
 				// in this process, we don't want to change files
 				for (IndexResult.NewAttachment file : result.files) {
 					try {
-						Files.deleteIfExists(file.path);
+						Files.deleteIfExists(file.path());
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
@@ -1425,7 +1425,7 @@ public class IndexHelper {
 				// in this process, we don't want to change files
 				for (IndexResult.NewAttachment file : result.files) {
 					try {
-						Files.deleteIfExists(file.path);
+						Files.deleteIfExists(file.path());
 					} catch (IOException e) {
 						e.printStackTrace();
 					}

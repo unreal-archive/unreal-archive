@@ -68,14 +68,14 @@ public class Voices extends GenericContentPage<Voice> {
 				// output first letter/page combo, with appropriate relative links
 				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", game.bigName, SECTION))
 					 .put("timeline", timeline)
-					 .put("page", l.getValue().pages.get(0))
+					 .put("page", l.getValue().pages.getFirst())
 					 .write(l.getValue().path.resolve("index.html"));
 			});
 
 			// output first letter/page combo, with appropriate relative links
 			pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", game.bigName, SECTION))
 				 .put("timeline", timeline)
-				 .put("page", g.getValue().groups.get(SUBGROUP).letters.firstEntry().getValue().pages.get(0))
+				 .put("page", g.getValue().groups.get(SUBGROUP).letters.firstEntry().getValue().pages.getFirst())
 				 .write(g.getValue().path.resolve("index.html"));
 
 			generateTimeline(pages, timeline, g.getValue(), SECTION);

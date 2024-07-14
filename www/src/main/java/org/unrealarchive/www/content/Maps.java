@@ -84,7 +84,7 @@ public class Maps extends GenericContentPage<Map> {
 
 					// output first letter/page combo, with appropriate relative links
 					pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", game.bigName, SECTION, gt.getKey()))
-						 .put("page", l.getValue().pages.get(0))
+						 .put("page", l.getValue().pages.getFirst())
 						 .put("gameTypeInfo", gtInfo)
 						 .put("gameTypeInfoPath", gtInfo != null ? gtInfo.slugPath(root) : null)
 						 .write(l.getValue().path.resolve("index.html"));
@@ -92,7 +92,7 @@ public class Maps extends GenericContentPage<Map> {
 
 				// output first letter/page combo, with appropriate relative links
 				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", game.bigName, SECTION, gt.getKey()))
-					 .put("page", gt.getValue().letters.firstEntry().getValue().pages.get(0))
+					 .put("page", gt.getValue().letters.firstEntry().getValue().pages.getFirst())
 					 .put("gameTypeInfo", gtInfo)
 					 .put("gameTypeInfoPath", gtInfo != null ? gtInfo.slugPath(root) : null)
 					 .write(gt.getValue().path.resolve("index.html"));

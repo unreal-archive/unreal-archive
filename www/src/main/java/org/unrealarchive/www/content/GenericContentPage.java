@@ -174,10 +174,6 @@ public abstract class GenericContentPage<T extends Addon> extends ContentPageGen
 	public class GameList {
 
 		public final TreeMap<String, Game> games = new TreeMap<>();
-
-		public void clear() {
-			games.clear();
-		}
 	}
 
 	public class Game {
@@ -257,7 +253,7 @@ public abstract class GenericContentPage<T extends Addon> extends ContentPageGen
 
 		public ContentInfo add(T item) {
 			if (pages.isEmpty()) pages.add(new Page(this, 1));
-			Page page = pages.get(pages.size() - 1);
+			Page page = pages.getLast();
 			if (page.items.size() == PAGE_SIZE) {
 				page = new Page(this, pages.size() + 1);
 				pages.add(page);

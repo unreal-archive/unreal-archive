@@ -68,7 +68,7 @@ public class Announcers extends GenericContentPage<Announcer> {
 				// output first letter/page combo, with appropriate relative links
 				pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", game.bigName, SECTION))
 					 .put("timeline", timeline)
-					 .put("page", l.getValue().pages.get(0))
+					 .put("page", l.getValue().pages.getFirst())
 					 .write(l.getValue().path.resolve("index.html"));
 			});
 

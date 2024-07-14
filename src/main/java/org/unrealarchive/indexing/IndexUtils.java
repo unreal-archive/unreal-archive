@@ -180,34 +180,32 @@ public class IndexUtils {
 
 		// maybe it's a UT3 map
 		if (map.version > 200) {
-			readIntFiles(incoming, incoming.files(FileType.INI)).findFirst().ifPresent(ini -> {
-				ini.sections().forEach(s -> {
-					IntFile.Value shot = ini.section(s).value("PreviewImageMarkup");
-					if (shot instanceof IntFile.SimpleValue) {
-						Matcher matcher = IndexUtils.UT3_SCREENSHOT_MATCH.matcher(((IntFile.SimpleValue)shot).value());
-						if (matcher.find()) {
-							ExportedObject export = map.objectByName(new Name(matcher.group(3)));
-							if (export == null) return;
+			readIntFiles(incoming, incoming.files(FileType.INI)).findFirst().ifPresent(ini -> ini.sections().forEach(s -> {
+				IntFile.Value shot = ini.section(s).value("PreviewImageMarkup");
+				if (shot instanceof IntFile.SimpleValue) {
+					Matcher matcher = IndexUtils.UT3_SCREENSHOT_MATCH.matcher(((IntFile.SimpleValue)shot).value());
+					if (matcher.find()) {
+						ExportedObject export = map.objectByName(new Name(matcher.group(3)));
+						if (export == null) return;
 
-							Object object = export.object();
+						Object object = export.object();
 
-							if (object instanceof Texture2D) images.add(screenshotFromObject(map, object));
+						if (object instanceof Texture2D) images.add(screenshotFromObject(map, object));
 
-							// UT3 maps may use a Material to hold multiple screenshots
-							if (object.className().equals("Material") && object.property("ReferencedTextures") instanceof ArrayProperty) {
-								((ArrayProperty)object.property("ReferencedTextures")).values.forEach(t -> {
-									if (t instanceof ObjectProperty) {
-										Object tex = map.objectByRef(((ObjectProperty)t).value).object();
-										if (tex instanceof Texture2D) {
-											images.add(screenshotFromObject(map, tex));
-										}
+						// UT3 maps may use a Material to hold multiple screenshots
+						if (object.className().equals("Material") && object.property("ReferencedTextures") instanceof ArrayProperty) {
+							((ArrayProperty)object.property("ReferencedTextures")).values.forEach(t -> {
+								if (t instanceof ObjectProperty) {
+									Object tex = map.objectByRef(((ObjectProperty)t).value).object();
+									if (tex instanceof Texture2D) {
+										images.add(screenshotFromObject(map, tex));
 									}
-								});
-							}
+								}
+							});
 						}
 					}
-				});
-			});
+				}
+			}));
 		}
 
 		// we found our screenshot, so we can end here
@@ -357,7 +355,7 @@ public class IndexUtils {
 	 */
 	private static List<String> textContent(Incoming incoming, Incoming.IncomingFile file, List<Charset> encodings) throws IOException {
 		while (!encodings.isEmpty()) {
-			Charset encoding = encodings.remove(0);
+			Charset encoding = encodings.removeFirst();
 			try (BufferedReader br = new BufferedReader(Channels.newReader(file.asChannel(), encoding))) {
 				return (br.lines().toList());
 			} catch (MalformedInputException | UncheckedIOException ex) {
@@ -368,7 +366,7 @@ public class IndexUtils {
 
 				// try another encoding if available
 				incoming.log.log(IndexLog.EntryType.CONTINUE,
-								 "Could not read file file as " + encoding.name() + ", trying " + encodings.get(0).name());
+								 "Could not read file file as " + encoding.name() + ", trying " + encodings.getFirst().name());
 			}
 		}
 		return List.of();
@@ -468,7 +466,7 @@ public class IndexUtils {
 	private static IntFile readIntFile(Incoming incoming, Incoming.IncomingFile intFile, boolean syntheticRoots,
 									   List<Charset> encodings) throws IOException {
 		while (!encodings.isEmpty()) {
-			Charset encoding = encodings.remove(0);
+			Charset encoding = encodings.removeFirst();
 			try {
 				return new IntFile(intFile.asChannel(), syntheticRoots, encoding);
 			} catch (MalformedInputException ex) {
@@ -476,7 +474,7 @@ public class IndexUtils {
 
 				// try another encoding if available
 				incoming.log.log(IndexLog.EntryType.CONTINUE,
-								 "Could not read int file as " + encoding.name() + ", trying " + encodings.get(0).name());
+								 "Could not read int file as " + encoding.name() + ", trying " + encodings.getFirst().name());
 			}
 		}
 		throw new IOException("Failed to load int file");

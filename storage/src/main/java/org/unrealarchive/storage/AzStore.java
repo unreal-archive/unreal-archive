@@ -3,7 +3,6 @@ package org.unrealarchive.storage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -50,13 +49,10 @@ public class AzStore implements DataStore {
 		}
 
 		private String optionOrEnvVar(String option, String envVar, StoreContent type, CLI cli, String defaultValue) {
-			String value = cli.option(option + "-" + type.name().toLowerCase(),
-									  System.getenv(envVar + "_" + type.name()));
+			String value = cli.option(option + "-" + type.name().toLowerCase(), System.getenv(envVar + "_" + type.name()));
 
-			if (value == null || value.isEmpty())
-				value = cli.option(option, System.getenv(envVar));
-			if ((value == null || value.isEmpty()) && defaultValue != null)
-				value = defaultValue;
+			if (value == null || value.isEmpty()) value = cli.option(option, System.getenv(envVar));
+			if ((value == null || value.isEmpty()) && defaultValue != null) value = defaultValue;
 			if (value == null || value.isEmpty())
 				throw new IllegalArgumentException(String.format("Missing AZ store property; --%s or %s", option, envVar));
 			return value;
@@ -79,7 +75,6 @@ public class AzStore implements DataStore {
 	private final String sasstring;
 
 	AzStore(String storageAccount, String sharedAccessSignature, String container, String endpointSuffix) {
-
 		this.container = container;
 		this.storageAccount = storageAccount;
 		this.endpointsuffix = endpointSuffix;
@@ -133,10 +128,10 @@ public class AzStore implements DataStore {
 		// Append SAS to URL
 		url += "?" + this.sasstring;
 
-		int returnCode = 0;
+		int returnCode;
 
 		try {
-			HttpURLConnection httpCon = setupBasicConnection(new URL(url), "DELETE");
+			HttpURLConnection httpCon = setupBasicConnection(Util.url(url), "DELETE");
 			httpCon.connect();
 
 			returnCode = httpCon.getResponseCode();
@@ -207,12 +202,11 @@ public class AzStore implements DataStore {
 	private URL getBlobUrlBase(String name) throws MalformedURLException {
 		String requestedName = name.replaceAll("[ ]", "%20").replaceAll("[\\\\]", "/");
 
-		return new URL(String.format("https://%s.%s/%s/%s", this.storageAccount, this.endpointsuffix, this.container, requestedName));
+		return Util.url(String.format("https://%s.%s/%s/%s", this.storageAccount, this.endpointsuffix, this.container, requestedName));
 	}
 
 	// Get the URL of the blob in Azure storage
-	private URL getBlobUrl(String name, Boolean includeSas, String operation, String currentBlockId)
-		throws MalformedURLException, UnsupportedEncodingException {
+	private URL getBlobUrl(String name, boolean includeSas, String operation, String currentBlockId) throws MalformedURLException {
 		String url = getBlobUrlBase(name) + "?";
 
 		if (operation != null) {
@@ -227,7 +221,7 @@ public class AzStore implements DataStore {
 			url += String.format("&%s", this.sasstring);
 		}
 
-		return new URL(url);
+		return Util.url(url);
 	}
 
 	// For a given stream and blob name, read the stream in chunks and send each
@@ -235,7 +229,7 @@ public class AzStore implements DataStore {
 	// ids for the stream
 	private List<String> sendBlocks(String name, InputStream stream) throws IOException {
 		long currentBlock = 0;
-		int bytesRead = 0;
+		int bytesRead;
 		List<String> sentBlockIds = new ArrayList<>();
 
 		// Chunk the stream into blocks and send
@@ -250,7 +244,7 @@ public class AzStore implements DataStore {
 			String currentBlockId = generateBlockId(currentBlock);
 			URL chunkUrl = getBlobUrl(name, true, "block", currentBlockId);
 
-			Boolean shouldRetry = false;
+			boolean shouldRetry;
 			int attempts = 3;
 
 			// If a failure occurs during a single block upload, we can retry it alone. If
@@ -279,7 +273,7 @@ public class AzStore implements DataStore {
 
 			sentBlockIds.add(currentBlockId);
 			currentBlock++;
-		} while (bytesRead > 0);
+		} while (true); // when bytesRead reaches 0, it breaks the loop
 
 		return sentBlockIds;
 	}
@@ -316,9 +310,7 @@ public class AzStore implements DataStore {
 		StringBuilder blockManifest = new StringBuilder();
 
 		blockManifest.append("<?xml version=\"1.0\" encoding=\"utf-8\"?><BlockList>");
-		sentBlockIds.forEach((blockId) -> {
-			blockManifest.append(String.format("<Latest>%s</Latest>", blockId));
-		});
+		sentBlockIds.forEach((blockId) -> blockManifest.append(String.format("<Latest>%s</Latest>", blockId)));
 		blockManifest.append("</BlockList>");
 
 		return blockManifest.toString().getBytes(StandardCharsets.UTF_8);
@@ -336,8 +328,7 @@ public class AzStore implements DataStore {
 	}
 
 	// Setup an HTTP connection for a PUT request with a known length
-	private HttpURLConnection setupPutConnection(URL url, long bytesToSend, Boolean sendingContent)
-		throws IOException {
+	private HttpURLConnection setupPutConnection(URL url, long bytesToSend, boolean sendingContent) throws IOException {
 		HttpURLConnection httpCon = setupBasicConnection(url, "PUT");
 		httpCon.setDoOutput(true);
 

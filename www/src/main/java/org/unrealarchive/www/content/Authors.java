@@ -56,7 +56,7 @@ public class Authors extends ContentPageGenerator {
 			  ).entrySet().stream()
 			  .sorted(Map.Entry.comparingByKey())
 			  .forEach(e -> {
-				  String authorName = names.cleanName(e.getValue().get(0).author());
+				  String authorName = names.cleanName(e.getValue().getFirst().author());
 				  String pageLetter = pageSelection(authorName);
 				  if (pageLetter != null) {
 					  LetterGroup letter = letters.computeIfAbsent(pageLetter, LetterGroup::new);
@@ -105,7 +105,7 @@ public class Authors extends ContentPageGenerator {
 			// output first letter/page combo, with appropriate relative links
 			pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION))
 				 .put("letters", letters)
-				 .put("page", l.getValue().pages.get(0))
+				 .put("page", l.getValue().pages.getFirst())
 				 .put("authorsPath", sectionPath)
 				 .write(l.getValue().path.resolve("index.html"));
 		});
@@ -113,7 +113,7 @@ public class Authors extends ContentPageGenerator {
 		// output first letter/page combo, with appropriate relative links
 		pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION))
 			 .put("letters", letters)
-			 .put("page", letters.firstEntry().getValue().pages.get(0))
+			 .put("page", letters.firstEntry().getValue().pages.getFirst())
 			 .put("authorsPath", sectionPath)
 			 .write(sectionPath.resolve("index.html"));
 
@@ -141,7 +141,7 @@ public class Authors extends ContentPageGenerator {
 
 		public void add(String author, List<ContentEntity<?>> contents) {
 			if (pages.isEmpty()) pages.add(new Page(this, 1));
-			Page page = pages.get(pages.size() - 1);
+			Page page = pages.getLast();
 			if (page.authors.size() == Templates.PAGE_SIZE) {
 				page = new Page(this, pages.size() + 1);
 				pages.add(page);

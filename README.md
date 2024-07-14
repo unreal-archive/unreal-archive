@@ -7,10 +7,9 @@ browsable website of the content, currently published at
 
 ## Requirements
 
-- Java JRE 17 for running
-- Java JDK 17 for building
+- Java JDK 21 for building
 
-Tested with both OpenJDK 17 on Linux and Azul's Zulu Java 17 on Windows.
+Tested with both OpenJDK 21 on Linux and Azul's Zulu Java 21 on Windows.
 
 
 ## Building

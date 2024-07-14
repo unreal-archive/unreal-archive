@@ -94,12 +94,12 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 		}
 	}
 
-	public boolean mirror() {
+	public void mirror() {
 		this.mirrorThread = Thread.currentThread();
 
 		// limit number of retry cycles
 		try {
-			for (int retryCount = 0; retryCount <= RETRY_LIMIT && content.size() > 0; retryCount++) {
+			for (int retryCount = 0; retryCount <= RETRY_LIMIT && !content.isEmpty(); retryCount++) {
 				if (retryCount > 0) {
 					System.err.printf("%n%d mirror operations failed, retrying (%d/%d)...%n", content.size(), retryCount, RETRY_LIMIT);
 				}
@@ -124,17 +124,14 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 				System.err.printf("%nA total of %d mirror operations failed, giving up after %d retries.%n",
 								  retryQueue.size(), RETRY_LIMIT);
 			}
-
-			return true;
-		} catch (InterruptedException e) {
-			return false;
+		} catch (InterruptedException ignored) {
 		} finally {
 			this.mirrorThread = null;
 		}
 	}
 
 	@Override
-	public void accept(Mirror.Transfer transfer) {
+	public void accept(Transfer transfer) {
 		progress.progress(totalCount, this.content.size(), transfer.content);
 
 		// finally, countdown
@@ -161,7 +158,7 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 		}
 	}
 
-	protected class Transfer implements Runnable {
+	public class Transfer implements Runnable {
 
 		private final ContentEntity<?> content;
 		private final DataStore mirrorStore;
@@ -176,11 +173,13 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 		@Override
 		public void run() {
 			try {
-				if (content instanceof Addon) mirrorContent((Addon)content);
-				else if (content instanceof GameType) mirrorGameType((GameType)content);
-				else if (content instanceof Managed) mirrorManaged((Managed)content);
-				else System.out.printf("%nContent mirroring not yet supported for type %s: %s%n",
-									   content.getClass().getSimpleName(), content.name());
+				switch (content) {
+					case Addon addon -> mirrorContent(addon);
+					case GameType gameType -> mirrorGameType(gameType);
+					case Managed managed -> mirrorManaged(managed);
+					case null, default -> System.out.printf("%nContent mirroring not yet supported for type %s: %s%n",
+															content.getClass().getSimpleName(), content.name());
+				}
 			} catch (MirrorFailedException t) {
 				System.err.printf("%nFailed to transfer content %s: %s (queued for retry)%n", t.filename, t);
 				retryQueue.add(t.content);

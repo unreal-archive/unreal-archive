@@ -51,7 +51,7 @@ public class AuthorNames {
 							  List<String> names = Files.readAllLines(path);
 							  for (String name : names.subList(1, names.size())) {
 								  if (name.isBlank() || name.trim().startsWith("#")) continue;
-								  aliases.put(name.toLowerCase().strip(), names.get(0).strip());
+								  aliases.put(name.toLowerCase().strip(), names.getFirst().strip());
 							  }
 						  } catch (IOException e) {
 							  throw new RuntimeException("Failed to process names from file " + path, e);

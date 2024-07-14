@@ -64,11 +64,11 @@ public class ContentManager {
 			for (IndexResult.NewAttachment file : indexed.files) {
 				// use same path structure as per contentPath
 				try {
-					String uploadPath = repo.path().relativize(next.resolve(file.name)).toString();
-					if (file.type == Addon.AttachmentType.IMAGE) {
-						imageStore.store(file.path, uploadPath, (fileUrl, ex) -> {
+					String uploadPath = repo.path().relativize(next.resolve(file.name())).toString();
+					if (file.type() == Addon.AttachmentType.IMAGE) {
+						imageStore.store(file.path(), uploadPath, (fileUrl, ex) -> {
 							if (ex == null && fileUrl != null) {
-								indexed.content.attachments.add(new Addon.Attachment(file.type, file.name, fileUrl));
+								indexed.content.attachments.add(new Addon.Attachment(file.type(), file.name(), fileUrl));
 							} else {
 								// FIXME
 								ex.printStackTrace();
@@ -77,7 +77,7 @@ public class ContentManager {
 					}
 				} finally {
 					// cleanup file once uploaded
-					Files.deleteIfExists(file.path);
+					Files.deleteIfExists(file.path());
 				}
 			}
 

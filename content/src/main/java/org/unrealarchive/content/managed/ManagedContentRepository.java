@@ -1,6 +1,7 @@
 package org.unrealarchive.content.managed;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -154,7 +155,12 @@ public interface ManagedContentRepository {
 
 			final Path docPath = Files.createDirectories(man.contentPath(root));
 			Path md = Util.safeFileName(docPath.resolve(DOCUMENT_FILE));
-			if (!Files.exists(md)) Files.copy(getClass().getResourceAsStream(DOCUMENT_TEMPLATE_FILE), md);
+			if (!Files.exists(md)) {
+				try (InputStream is = getClass().getResourceAsStream(DOCUMENT_TEMPLATE_FILE)) {
+					assert is != null;
+					Files.copy(is, md);
+				}
+			}
 		}
 
 		@Override

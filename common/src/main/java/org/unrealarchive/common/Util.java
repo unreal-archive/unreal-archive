@@ -182,7 +182,7 @@ public final class Util {
 
 	public static URI toUri(String s) {
 		try {
-			URL url = new URL(s);
+			URL url = url(s);
 			return new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
 		} catch (URISyntaxException | MalformedURLException e) {
 			throw new IllegalArgumentException("Invalid URL: " + s, e);
@@ -198,7 +198,7 @@ public final class Util {
 	}
 
 	public static Path downloadTo(String url, Path output) throws IOException {
-		URL urlConnection = new URL(url);
+		URL urlConnection = url(url);
 		HttpURLConnection httpConn = (HttpURLConnection)urlConnection.openConnection();
 		httpConn.addRequestProperty("User-Agent", USER_AGENT);
 		int responseCode = httpConn.getResponseCode();
@@ -233,7 +233,7 @@ public final class Util {
 	}
 
 	public static void urlRequest(String url, Consumer<HttpURLConnection> onOK) throws IOException {
-		URL urlConnection = new URL(url);
+		URL urlConnection = url(url);
 		HttpURLConnection httpConn = (HttpURLConnection)urlConnection.openConnection();
 		httpConn.addRequestProperty("User-Agent", USER_AGENT);
 		int responseCode = httpConn.getResponseCode();
@@ -246,7 +246,7 @@ public final class Util {
 	}
 
 	public static boolean uploadTo(Path localFile, String url) throws IOException {
-		URL urlConnection = new URL(url);
+		URL urlConnection = url(url);
 		HttpURLConnection httpConn = (HttpURLConnection)urlConnection.openConnection();
 		httpConn.setDoOutput(true);
 		httpConn.setRequestMethod("PUT");
@@ -268,7 +268,7 @@ public final class Util {
 	}
 
 	public static boolean deleteRemote(String url) throws IOException {
-		URL urlConnection = new URL(url);
+		URL urlConnection = url(url);
 		HttpURLConnection httpConn = (HttpURLConnection)urlConnection.openConnection();
 		httpConn.addRequestProperty("User-Agent", USER_AGENT);
 		httpConn.setRequestMethod("DELETE");
@@ -290,4 +290,20 @@ public final class Util {
 			});
 		}
 	}
+
+	/**
+	 * Helper to produce JDK 20+ URLs, throwing an IOException rather than URISyntaxException, for
+	 * easier handling and simpler upgrade.
+	 */
+	public static URL url(String url) throws MalformedURLException {
+		// FIXME: constructing a URI is not exactly the same as creating a URL - does not play well with special characters
+//		try {
+//			//return new URI(url).toURL();
+//		} catch (URISyntaxException e) {
+//			throw new MalformedURLException(e.getMessage());
+//		}
+
+		return new URL(url);
+	}
+
 }

@@ -50,7 +50,7 @@ public class LocalMirrorClient implements Consumer<LocalMirrorClient.Downloader>
 		this.executor = Executors.newFixedThreadPool(concurrency);
 	}
 
-	public synchronized boolean mirror(Collection<Addon> mirrorContent, Path output) {
+	public synchronized void mirror(Collection<Addon> mirrorContent, Path output) {
 		this.mirrorThread = Thread.currentThread();
 		this.mirrorQueue = new ConcurrentLinkedDeque<>(mirrorContent);
 		this.retryQueue = new ConcurrentLinkedDeque<>();
@@ -59,7 +59,7 @@ public class LocalMirrorClient implements Consumer<LocalMirrorClient.Downloader>
 
 		// limit number of retry cycles
 		try {
-			for (int retryCount = 0; retryCount <= RETRY_LIMIT && mirrorQueue.size() > 0; retryCount++) {
+			for (int retryCount = 0; retryCount <= RETRY_LIMIT && !mirrorQueue.isEmpty(); retryCount++) {
 				if (retryCount > 0) {
 					System.err.printf("%nA total of %d download(s) failed, retrying (%d/%d)...%n", mirrorQueue.size(), retryCount,
 									  RETRY_LIMIT);
@@ -79,10 +79,7 @@ public class LocalMirrorClient implements Consumer<LocalMirrorClient.Downloader>
 					retryQueue = new ConcurrentLinkedDeque<>();
 				}
 			}
-
-			return true;
-		} catch (InterruptedException e) {
-			return false;
+		} catch (InterruptedException ignored) {
 		} finally {
 			this.mirrorThread = null;
 		}

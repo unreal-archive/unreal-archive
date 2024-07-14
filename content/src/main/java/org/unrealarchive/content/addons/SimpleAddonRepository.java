@@ -208,7 +208,7 @@ public interface SimpleAddonRepository {
 	default public String summary() {
 		StringBuilder result = new StringBuilder();
 		Map<Class<? extends Addon>, Long> byType = countByType();
-		if (byType.size() > 0) {
+		if (!byType.isEmpty()) {
 			result.append("Current content by Type:").append(System.lineSeparator());
 			byType.forEach((type, count) -> result.append(String.format(" > %s: %d%n", type.getSimpleName(), count)));
 
@@ -331,7 +331,7 @@ public interface SimpleAddonRepository {
 			// attempt to resolve short hash
 			if (key.length() == 8) {
 				List<String> found = content.keySet().stream().filter(h -> h.startsWith(hash)).toList();
-				if (found.size() == 1) key = found.get(0);
+				if (found.size() == 1) key = found.getFirst();
 			}
 
 			ContentHolder contentHolder = content.get(key);

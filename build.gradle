@@ -14,7 +14,7 @@ plugins {
 
 allprojects {
 	group = 'org.unrealarchive'
-	version = "1.16"
+	version = "1.17"
 	if (System.getenv().containsKey("BUILD_NUMBER")) {
 		version += ".${System.env.BUILD_NUMBER}"
 	} else version += ".DEV"
@@ -24,7 +24,7 @@ allprojects {
 	apply plugin: 'jacoco'
 
 	compileJava {
-		options.release = 17
+		options.release = 21
 	}
 
 	repositories {

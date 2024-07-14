@@ -33,7 +33,6 @@ public interface DataStore extends Closeable {
 		IMAGES,
 		ATTACHMENTS,
 		CONTENT,
-		;
 	}
 
 	public static final DataStore NOP = new NopStore();

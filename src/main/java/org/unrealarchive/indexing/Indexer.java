@@ -304,9 +304,9 @@ public class Indexer {
 						// before checkin, remove any "new" attachments which already exist... this is a bit of a hack
 						if (current != null) {
 							result.files.removeIf(f -> {
-								if (current.attachments.stream().anyMatch(a -> a.name.equals(f.name))) {
+								if (current.attachments.stream().anyMatch(a -> a.name.equals(f.name()))) {
 									try {
-										Files.deleteIfExists(f.path);
+										Files.deleteIfExists(f.path());
 									} catch (IOException e) {
 										log.log(IndexLog.EntryType.CONTINUE, "Failed to delete duplicate attachment" + f, e);
 									}
