@@ -117,16 +117,20 @@ public final class Util {
 		return path.getParent().resolve(safeFileName(path.getFileName().toString()));
 	}
 
+	public static String normalised(String input) {
+		return Normalizer.normalize(input, Normalizer.Form.NFD).replaceAll("\\p{M}", "");
+	}
+
 	public static String slug(String input) {
 		String nowhitespace = WHITESPACE.matcher(input).replaceAll("-");
-		String normalized = Normalizer.normalize(nowhitespace, Normalizer.Form.NFD);
+		String normalized = normalised(nowhitespace);
 		String slug = NONLATIN.matcher(normalized).replaceAll("");
 		return slug.toLowerCase(Locale.ENGLISH).replaceAll("(-)\\1+", "-");
 	}
 
 	public static String authorSlug(String input) {
 		String nowhitespace = WHITESPACE.matcher(input).replaceAll("-");
-		String normalized = Normalizer.normalize(nowhitespace, Normalizer.Form.NFD);
+		String normalized = normalised(nowhitespace);
 		String slug = NONLATIN.matcher(normalized).replaceAll("_");
 		return slug.toLowerCase(Locale.ENGLISH).replaceAll("(-)\\1+", "-");
 	}

@@ -2,18 +2,17 @@ package org.unrealarchive.www.content;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.unrealarchive.common.Util;
 import org.unrealarchive.content.AuthorNames;
 import org.unrealarchive.content.ContentEntity;
 import org.unrealarchive.content.addons.GameTypeRepository;
@@ -53,7 +52,7 @@ public class Authors extends ContentPageGenerator {
 			  .filter(c -> !c.author().equalsIgnoreCase("Unknown"))
 			  .filter(c -> !c.author().equalsIgnoreCase("Various"))
 			  .collect(Collectors.groupingBy(
-				  c -> names.cleanName(c.author()).toLowerCase().replaceAll("[\"`()\\[\\]<>{}=*-]", "'"))
+				  c -> names.cleanName(Util.normalised(c.author())).toLowerCase().replaceAll("[\"`()\\[\\]<>{}=*-]", "'"))
 			  ).entrySet().stream()
 			  .sorted(Map.Entry.comparingByKey())
 			  .forEach(e -> {
@@ -71,7 +70,7 @@ public class Authors extends ContentPageGenerator {
 	private String pageSelection(String author) {
 		char first;
 
-		String normalised = Normalizer.normalize(author.toUpperCase(Locale.ENGLISH), Normalizer.Form.NFKD).toUpperCase();
+		String normalised = Util.normalised(author).toUpperCase();
 
 		if (normalised.startsWith("\"")) normalised = normalised.substring(1);
 		if (normalised.startsWith("'")) normalised = normalised.substring(1);

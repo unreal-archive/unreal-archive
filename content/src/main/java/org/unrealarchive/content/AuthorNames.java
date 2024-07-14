@@ -21,7 +21,7 @@ public class AuthorNames {
 	public static AuthorNames instance = null;
 
 	private static final Pattern EMAIL = Pattern.compile(
-		"(-? ?)?\\(?([A-Za-z0-9.-]+@[A-Za-z0-9]+\\.[A-Za-z0-9.]+)\\)?"); // excessively simple, intentionally
+		"(mailto:)?(-? ?)?\\(?([A-Za-z0-9.-]+@[A-Za-z0-9]+\\.[A-Za-z0-9.]+)\\)?"); // excessively simple, intentionally
 	private static final Pattern URL = Pattern.compile(
 		"(-? ?)?\\(?((https?://)?(www\\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\\.[a-zA-Z0-9()]{2,6}\\b([-a-zA-Z0-9()!@:%_+.~#?&/=]*))\\)?"
 	);
@@ -32,9 +32,9 @@ public class AuthorNames {
 	private static final Pattern EDITED = Pattern.compile("^([Ee]dit(ed)?)\\s([Bb]y\\s)?");
 
 	private static final Pattern AKA = Pattern.compile("(.*)\\s+a\\.?k\\.?a\\.?:?\\s+?(.*)", Pattern.CASE_INSENSITIVE);
-	private static final Pattern HANDLE = Pattern.compile("(.*)\\s+(['\"]([^'^\"]+)['\"])\\s+?(.*)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern HANDLE = Pattern.compile("(.*)\\s+([`'\"]([^`^'^\"]+)[`'\"])\\s+?(.*)", Pattern.CASE_INSENSITIVE);
 
-	private static final Pattern START_END = Pattern.compile("^['\"](.*)['\"]$");
+	private static final Pattern START_END = Pattern.compile("^[`'\"](.*)[`'\"]$");
 
 	private final Map<String, String> aliases;
 	private final Set<String> nonAutoAliases;
@@ -88,15 +88,17 @@ public class AuthorNames {
 	public void maybeAutoAlias(String author) {
 		if (author.isBlank()) return;
 
-		if (MODIFIED.matcher(author).find()) return;
-		if (EDITED.matcher(author).find()) return;
-		if (IMPORTED.matcher(author).find()) return;
-		if (CONVERTED.matcher(author).find()) return;
+		String normalised = Util.normalised(author);
 
-		if (nonAutoAliases.contains(author.toLowerCase().strip())) return;
-		if (aliases.containsKey(author.toLowerCase().strip())) return;
+		if (MODIFIED.matcher(normalised).find()) return;
+		if (EDITED.matcher(normalised).find()) return;
+		if (IMPORTED.matcher(normalised).find()) return;
+		if (CONVERTED.matcher(normalised).find()) return;
 
-		String aliased = aliases.getOrDefault(author.toLowerCase().strip(), author).strip();
+		if (nonAutoAliases.contains(normalised.toLowerCase().strip())) return;
+		if (aliases.containsKey(normalised.toLowerCase().strip())) return;
+
+		String aliased = aliases.getOrDefault(normalised.toLowerCase().strip(), author).strip();
 		if (nonAutoAliases.contains(aliased)) return;
 
 		if (aliased.equalsIgnoreCase(author.strip())) {
@@ -106,17 +108,17 @@ public class AuthorNames {
 				aliased = aka.group(1).strip();
 				if (nonAutoAliases.contains(aliased.toLowerCase())) return;
 				if (aliases.containsKey(aliased.toLowerCase())) return;
-				aliases.put(author.strip().toLowerCase(), aliased);
+				aliases.put(normalised.strip().toLowerCase(), aliased);
 				aliases.put(aka.group(2).strip().toLowerCase(), aliased);
 			} else {
 				Matcher handle = HANDLE.matcher(author);
 				if (handle.matches()) {
-					aliased = handle.group(3).strip();
+					aliased = Util.normalised(handle.group(3).strip());
 					// we'll record the full name, aliased by both the handle and real name
 					if (nonAutoAliases.contains(aliased.toLowerCase())) return;
 					if (aliases.containsKey(aliased.toLowerCase())) return;
-					aliases.put((handle.group(1) + " " + handle.group(4)).strip().toLowerCase(), author.strip());
-					aliases.put(handle.group(3).strip().toLowerCase(), author.strip());
+					aliases.put(Util.normalised((handle.group(1) + " " + handle.group(4))).strip().toLowerCase(), author.strip());
+					aliases.put(aliased.toLowerCase(), author.strip());
 				}
 			}
 		}
@@ -131,8 +133,10 @@ public class AuthorNames {
 
 		if (nonAutoAliases.contains(author.toLowerCase())) return author;
 
-		String aliased = aliases.getOrDefault(author.toLowerCase().strip(), author).strip();
-		
+		String noFullstop = author.replaceAll("(\\.)$", "");
+
+		String aliased = aliases.getOrDefault(Util.normalised(noFullstop).toLowerCase().strip(), noFullstop).strip();
+
 		String noQuote = aliased;
 		if (START_END.matcher(aliased).find()) {
 			noQuote = START_END.matcher(aliased).replaceFirst("$1");
