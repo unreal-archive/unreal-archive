@@ -115,7 +115,8 @@ public class ContentEditor {
 		} else if (field.getType().equals(String.class)) {
 			field.set(content, firstVal);
 		} else if (isStringCollection(field) && old != null) {
-			Method m = Arrays.stream(old.getClass().getMethods()).filter(a -> a.getName().equals("add")).findFirst().orElse(null);
+			Method m = Arrays.stream(old.getClass().getMethods()).filter(a -> a.getName().equals("add") && a.getParameterCount() == 1)
+							 .findFirst().orElse(null);
 			if (m != null) m.invoke(old, firstVal.trim());
 		} else if (isStringMap(field) && old != null && newValue.length == 2) {
 			Method m = Arrays.stream(old.getClass().getMethods()).filter(a -> a.getName().equals("put")).findFirst().orElse(null);

@@ -21,6 +21,7 @@ public class ContentEditorTest {
 		ContentEditor.applyAttribute(thing, "stringMap", "myKey", "yourValue");
 
 		assertTrue(thing.stringList.contains("addme"));
+		assertTrue(thing.stringList.contains("again"));
 		assertEquals("yourValue", thing.stringMap.get("myKey"));
 	}
 
