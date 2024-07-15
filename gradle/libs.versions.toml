@@ -1,0 +1,39 @@
+[versions]
+packageLib = "1.12.26"
+packageDependency = "1.5.25"
+
+jackson = "2.17.2"
+minio = "8.5.11"
+freemarker = "2.3.33"
+commonmark = "0.22.0"
+jsoup = "1.17.2"
+
+
+# testing
+junit = "5.12.0"
+
+# plugins
+javaModuleInfo = "1.8"
+jlink = "3.0.1"
+
+[plugins]
+extra-module-info = { id = "org.gradlex.extra-java-module-info", version.ref = "javaModuleInfo" }
+jlink = { id = "org.beryx.jlink", version.ref = "jlink" }
+
+[libraries]
+unreal-package-lib = { module = "net.shrimpworks:unreal-package-lib", version.ref = "packageLib" }
+unreal-package-dependency = { module = "net.shrimpworks:package-dependency", version.ref = "packageDependency" }
+
+jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
+jackson-yaml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml", version.ref = "jackson" }
+jackson-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310", version.ref = "jackson" }
+minio = { module = "io.minio:minio", version.ref = "minio" }
+freemarker = { module = "org.freemarker:freemarker", version.ref = "freemarker" }
+commonmark = { module = "org.commonmark:commonmark", version.ref = "commonmark" }
+jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
+
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
+
+
+[bundles]
+jackson = ["jackson-databind", "jackson-yaml", "jackson-jsr310"]

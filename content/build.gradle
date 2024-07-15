@@ -8,7 +8,7 @@ plugins {
 dependencies {
 	implementation project(':common')
 
-	implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.0'
+	implementation(libs.jackson.databind)
 
-	testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+	testImplementation(libs.junit.jupiter)
 }
