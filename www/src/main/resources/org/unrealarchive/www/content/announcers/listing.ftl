@@ -49,7 +49,7 @@
 						</td>
 						<td class="meta nomobile">
 							<#if a.item.attachments?size gt 0>
-								<img src="${staticPath()}/images/icons/image.svg" alt="Has images" height="22"/>
+								<@icon name="image" title="Has images"/>
 							</#if>
 							<@dependencyIcon a.item.dependencies/>
 						</td>

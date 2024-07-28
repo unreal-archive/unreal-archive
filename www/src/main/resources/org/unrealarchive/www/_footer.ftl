@@ -1,3 +1,4 @@
+<#include "macros.ftl">
 <#compress>
 <footer class="page">
 	<div>
@@ -10,7 +11,7 @@
 		<div><i>${siteName}</i> does not use cookies or employ any visitor tracking analytics.</div>
 		<div style="text-align: right">
 			<a href="https://github.com/unreal-archive">
-				<img src="${staticPath()}/images/icons/github.svg" style="vertical-align: middle" alt="GitHub Logo"/> Contribute on GitHub
+				<@icon "github"/>Contribute on GitHub
 			</a>
 		</div>
 	</div>

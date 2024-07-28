@@ -35,7 +35,7 @@
 	</#if>
 	<#if page.parse.categories?? && page.parse.categories?size gt 0>
 		<section class="readable categories">
-			<h4><img src="${staticPath()}/images/icons/list.svg" alt="Categories"/>Page Categories</h4>
+			<h4><@icon "list"/>Page Categories</h4>
 			<ul>
 				<#list page.parse.categories as cat>
 					<li><a href="./${relPath(wikiPath + "/Category:" + cat.name + ".html")}">${cat.name}</a></li>
@@ -44,7 +44,7 @@
 		</section>
 	</#if>
 	<section class="readable updates">
-		<h4><img src="${staticPath()}/images/icons/info.svg" alt="Info"/> Page Information</h4>
+		<h4><@icon "info"/>Page Information</h4>
 		<div class="label-value">
 			<#if hasDiscussion>
 				<label>&nbsp;</label><span><a href="./Talk:${page.name?replace(" ", "_")}.html">Discussion</a></span>

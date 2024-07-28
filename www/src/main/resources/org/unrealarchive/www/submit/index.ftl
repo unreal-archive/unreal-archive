@@ -15,8 +15,8 @@
 
 				<div id="upload" class="display-block">
 					<input type="file" id="files" accept=".zip,.rar,.7z,.ace,.gz,.bz2,.tar,.tgz,.exe,.umod,.ut2mod,.ut4mod" multiple style="display:none">
-					<button id="select-files"><img src="${staticPath()}/images/icons/file-plus.svg" alt="Add files"/> Add Files</button>
-					<button id="upload-files"><img src="${staticPath()}/images/icons/upload.svg" alt="Upload"/> Upload!</button>
+					<button id="select-files"><@icon "file-plus"/>Add Files</button>
+					<button id="upload-files"><@icon "upload"/>Upload!</button>
 					<select id="upload-type">
 						<option value="auto">Auto-Detect File Types</option>
 						<option value="map">Map</option>
@@ -30,7 +30,7 @@
 
 				<div id="url">
 					<input type="text" id="link" placeholder="paste link here"/>
-					<button id="upload-url"><img src="${staticPath()}/images/icons/upload.svg" alt="Upload"/> Submit!</button>
+					<button id="upload-url"><@icon "upload"/>Submit!</button>
 				</div>
 			</div>
 

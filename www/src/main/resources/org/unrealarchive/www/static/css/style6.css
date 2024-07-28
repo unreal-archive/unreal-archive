@@ -1,0 +1,223 @@
+:root {
+	--p1: #14274E;
+	--p2: #F1F6F9;
+	--p3: #9BA4B4;
+	--p4: #394867;
+	--p5: #74BE57;
+	--p6: #DEE8F8;
+
+	--body-bg: var(--p2);
+	--body-color: black;
+	--body-font-family: 'Encode Sans Semi Condensed', sans-serif;
+	--article-font-family: 'Encode Sans Expanded', sans-serif;
+
+	--link-color: blue;
+	--link-color-visited: purple;
+
+	--header-font-family: 'Squada One', sans-serif;
+	--header-bg-color: var(--p1);
+	--header-text-color: white;
+	--header-border-color: none;
+	--header-logo-color-a: white;
+	--header-logo-color-b: var(--p3);
+	--header-shadow: none;
+
+	--header-outline-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
+
+	--footer-border-color: var(--p4);
+
+	--menu-font-family: 'Encode Sans Expanded', sans-serif;
+	--menu-text-color: var(--p2);
+	--menu-trim-color: 1px dotted var(--menu-text-color);
+
+	--page-shadow: none;
+
+	--section-header-bg: var(--p4);
+	--section-header-shadow: none;
+	--section-header-title-bg: var(--p4);
+	--section-header-title-shadow: -1px -2px 15px -4px rgba(0, 0, 0, 0.4);
+	--section-header-title-color: white;
+	--section-header-title-color-hover: var(--p2);
+
+	--section-subheader-bg: var(--p3);
+	--section-subheader-color: var(--p1);
+
+	--biglist-shadow: inset 0 0 80px 0 rgba(0, 0, 0, 0.75);
+	--biglist-bg-color: var(--p4);
+	--biglist-bg-color-hover: var(--p2);
+	--biglist-text-color: white;
+	--biglist-meta-color: rgba(255, 255, 255, 0.6);
+
+	--paginate-bg-inactive: var(--p2);
+	--paginate-bg-hover: var(--p3);
+	--paginate-bg-active: var(--p3);
+	--paginate-shadow-active: inset 0 -3px 0 0 var(--p1);
+	--paginate-border: none;
+
+	--download-button-bg: var(--p5);
+	--download-button-bg-hover: var(--p5);
+	--download-info-bg-hover: none;
+
+	--table-header-bg: none;
+	--table-header-color: var(--p1);
+	--table-row-alt-bg: var(--p6);
+	--table-row-hover: var(--p3);
+
+	--document-meta-border: none;
+	--document-meta-bg: var(--p6);
+
+	--problem-border: #dd3;
+	--problem-bg: #dd35;
+}
+
+/**
+ * invert svg icons for dark background
+ */
+/*h2 img[src$="svg"], h3 img[src$="svg"], h4 img[src$="svg"] {*/
+/*	filter: invert(0.85);*/
+/*}*/
+
+/*td.meta img[src$="svg"], footer img[src$="svg"], .report img[src$="svg"] {*/
+/*	filter: invert(0.8);*/
+/*}*/
+
+/*article.managed section.downloads .download .title img[src$="svg"], .variation img[src$="svg"] {*/
+/*	filter: invert(0.8);*/
+/*}*/
+
+/*div.themes img[src$="svg"] {*/
+/*	filter: invert(0.8);*/
+/*}*/
+
+/**
+ * custom styling
+ */
+
+header {
+	position: fixed;
+	z-index: 5;
+	top: 0;
+	width: 100%;
+	/*backdrop-filter: blur(7px);*/
+	border: none;
+}
+
+section.header {
+	height: 280px;
+}
+
+/* for pages where there's no big header present, push content down */
+.contentpage { padding: 100px 0; }
+/* better padding on blocks which follow blocks */
+.mainpage section.header + .contentpage,
+.page + .contentpage,
+.submenu + .contentpage {
+	padding: 20px 0;
+}
+
+.biglist ul li a:hover {
+	/*background: linear-gradient(0deg, var(--biglist-bg-color-hover) -5%, #0000 10%);*/
+	border-bottom: 4px solid var(--p3);
+	backdrop-filter: saturate(1.2) brightness(1.2);
+}
+
+/*h2 img, h3 img, h4 img {*/
+/*	padding: 0 7px 5px 0;*/
+/*}*/
+
+article section h3 {
+	background-color: var(--p3);
+	color: var(--section-header-title-color);
+	font-size: 1.6em;
+}
+
+article section h4 {
+	background-color: var(--document-meta-bg);
+	/*color: var(--section-header-title-color);*/
+	font-size: 1.3em;
+}
+
+/*article section h2 {*/
+/*	border-radius: 4px 4px 0 0;*/
+/*	font-size: 1.8em;*/
+/*}*/
+
+article.info {
+	margin-top: 0;
+}
+
+.list .sectionInfo h3 {
+	border-radius: 4px 5px 0 0;
+}
+
+section.report {
+	background-color: transparent;
+}
+
+article section.readable {
+	background: none;
+	color: var(--body-color);
+}
+
+table thead, table th {
+	border-bottom: 1px solid var(--body-color);
+	text-align: left;
+}
+
+table tbody td {
+	padding: 7px 0;
+}
+
+section table {
+	margin: 0 5px;
+	width: calc(100% - 10px);
+}
+
+section.downloads .links a {
+	margin: 10px;
+	border-radius: 4px;
+}
+
+.readable {
+	font-size: 1.1em;
+}
+
+#log .good {
+	color: var(--p1);
+	background-color: var(--p3);
+	font-weight: bold;
+}
+
+#log .error, #log .warn {
+	color: var(--p1);
+}
+
+/**
+  Light theme support
+ */
+/*[data-theme="light"] {*/
+/*	--p1: #1a1a1d;*/
+/*	--p7: #f9f7f7;*/
+/*	--body-bg: #fff;*/
+/*	--body-color: black;*/
+/*	--link-color: blue;*/
+/*	--link-color-visited: purple;*/
+/*	--menu-text-color: white;*/
+/*	--download-button-bg: #22dd48;*/
+/*	--download-button-bg-hover: #b1ffaa;*/
+/*	--download-info-bg-hover: #eee;*/
+/*	--table-header-color: black;*/
+/*	--table-row-alt-bg: #eee;*/
+/*	--section-subheader-color: #fff;*/
+
+/*	article section h4 {*/
+/*		color: var(--body-color);*/
+/*	}*/
+/*}*/
+
+
+@media screen and (max-width: 1024px) {
+	header {
+		position: relative;
+	}
+}

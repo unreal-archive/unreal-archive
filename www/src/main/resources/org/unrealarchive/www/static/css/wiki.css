@@ -42,7 +42,7 @@
   links
 */
 .wiki a.external, .wiki a.extiw {
-	background: url(../images/icons/external-link.svg) center right no-repeat;
+	background: url(../images/icons/external-link-wiki.svg) center right no-repeat;
 	padding-right: 20px;
 	background-size: 20px 20px;
 }

@@ -15,7 +15,7 @@
 				<option value="wiki">Wikis</option>
 			</select>
 			<input type="search" id="q" autofocus="autofocus" />
-			<button><img src="${staticPath()}/images/icons/search.svg" alt="Search"/> Search</button>
+			<button><@icon "search"/>Search</button>
 		</span>
 		<span>
 			<label for="pageSize"> Results per page</label>
@@ -29,7 +29,7 @@
 			<input type="checkbox" id="compact"> <label for="compact">Compact Results</label>
 		</span>
 		<span>
-			<a href="#" id="syntax-toggle"><img src="${staticPath()}/images/icons/info.svg" alt="Info"/> Advanced Search Help</a>
+			<a href="#" id="syntax-toggle"><@icon "info"/>Advanced Search Help</a>
 		</span>
 
 	</form>
@@ -68,9 +68,9 @@
 	</div>
 
 	<div id="search-nav">
-		<button id="nav-back"><img src="${staticPath()}/images/icons/chevron-left.svg" alt="Previous"/> Previous</button>
+		<button id="nav-back"><@icon "chevron-left"/>Previous</button>
 		<span id="nav-text"></span>
-		<button id="nav-next">Next <img src="${staticPath()}/images/icons/chevron-right.svg" alt="Next"/></button>
+		<button id="nav-next">Next <@icon "chevron-right"/></button>
 	</div>
 
 </@content>

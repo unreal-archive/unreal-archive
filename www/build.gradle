@@ -32,7 +32,7 @@ jlink {
 	options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
 
 	imageName = "unreal-archive-${project.name}"
-	imageDir = file("${buildDir}/unreal-archive-${project.name}")
+	imageDir = layout.buildDirectory.dir("unreal-archive-${project.name}")
 
 	jpackage {
 		installerType = project.findProperty('installerType')
@@ -83,25 +83,25 @@ dependencies {
  * Create list of static files, used for later extraction from the jar to disk.
  */
 processResources.doLast {
-	def wwwStaticDir = projectDir.toPath().resolve('src/main/resources/org/unrealarchive/www/static')
-	def destFile = buildDir.toPath().resolve('resources/main/org/unrealarchive/www/static.list')
+	def wwwStaticDir = layout.projectDirectory.dir('src/main/resources/org/unrealarchive/www/static').asFile.toPath()
+	def destFile = layout.buildDirectory.dir('resources/main/org/unrealarchive/www/static.list').get().asFile.toPath()
 	def staticList = new StringBuilder()
 	files { fileTree(wwwStaticDir).matching { exclude('**/*.xcf') } }.each {
-		staticList.append(wwwStaticDir.getParent().relativize(it.toPath())).append("\t").append(it.lastModified()).append("\n")
+		staticList.append(wwwStaticDir.parent.relativize(it.toPath())).append("\t").append(it.lastModified()).append("\n")
 	}
 
 	// create single all.css file - cssOut filename must be used in _header.html
 	def cssSource = files(
 			wwwStaticDir.resolve("fonts/fonts2.css"),
 			wwwStaticDir.resolve("css/style.css"),
-			wwwStaticDir.resolve("css/style5.css")
+			wwwStaticDir.resolve("css/style6.css")
 	)
 	def cssDate = cssSource.max {f -> f.lastModified()}
 	def cssOut = destFile.parent.resolve("static/css/all.css")
 	cssOut.write('') // truncate output if needed
 	// clean up comments and whitespace in combined CSS
 	cssSource.each { f -> cssOut << f.text.replaceAll("\n", "").replaceAll("/\\*.+?\\*/", "").replaceAll("\\s{2,}", " ") }
-	staticList.append(destFile.getParent().relativize(cssOut)).append("\t").append(cssDate.lastModified()).append("\n")
+	staticList.append(destFile.parent.relativize(cssOut)).append("\t").append(cssDate.lastModified()).append("\n")
 
 	Files.write(destFile, staticList.toString().replaceAll("\\\\", "/").getBytes(StandardCharsets.UTF_8),
 			StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
