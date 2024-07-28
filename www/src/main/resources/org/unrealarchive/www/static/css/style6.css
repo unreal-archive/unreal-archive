@@ -116,9 +116,9 @@ section.header {
 }
 
 .biglist ul li a:hover {
-	/*background: linear-gradient(0deg, var(--biglist-bg-color-hover) -5%, #0000 10%);*/
 	border-bottom: 4px solid var(--p3);
-	backdrop-filter: saturate(1.2) brightness(1.2);
+	backdrop-filter: saturate(1.3) brightness(1.3);
+	transition: backdrop-filter 0.2s;
 }
 
 /*h2 img, h3 img, h4 img {*/

@@ -31,9 +31,12 @@
 </#macro>
 
 <#macro bigitem link="" bg="" meta="">
-	<li <#if bg?? && bg?length gt 0>style='background-image: url("${bg}")'</#if>>
+	<li>
+		<a href="${link}">
+			<span class="title"><#nested/></span>
+		</a>
+		<#if bg?? && bg?length gt 0><div class="bg" style='background-image: url("${bg}")'></div></#if>
 		<#if meta?? && meta?length gt 0><span class="meta">${meta}</span></#if>
-		<a href="${link}"><#nested/></a>
 	</li>
 </#macro>
 

@@ -370,10 +370,12 @@ section.header .crumbs:not(:first-child) {
 
 .biglist ul li {
 	position: relative;
-	height: 125px;
+	height: 150px;
 	box-shadow: var(--biglist-shadow);
-	background: var(--biglist-bg-color) center;
+	background: var(--biglist-bg-color);
 	background-size: cover;
+	background-position: center;
+	overflow: hidden;
 
 	font-size: 1.9em;
 	font-weight: bold;
@@ -383,7 +385,7 @@ section.header .crumbs:not(:first-child) {
 }
 
 .biglist.bigger ul li, .biglist.taller ul li {
-	height: 150px;
+	height: 175px;
 }
 
 .biglist ul li a {
@@ -391,19 +393,47 @@ section.header .crumbs:not(:first-child) {
 	color: var(--biglist-text-color);
 	text-shadow: var(--header-outline-shadow);
 
+	z-index: 4;
 	position: absolute;
 	top: 0;
 	bottom: 0;
 	left: 0;
 	right: 0;
-	padding: 10px;
 
 	border-radius: 5px;
 }
 
-.biglist ul li a:hover {
-	/*background: linear-gradient(0deg, var(--biglist-bg-color-hover) 0%, #00000000 100%);*/
-	border-radius: 5px;
+.biglist ul li a:hover ~ div.bg {
+	left: -100px;
+	right: -100px;
+	bottom: -100px;
+	top: 0;
+
+	transition: left 0.25s, right 0.25s, bottom 0.25s, top 0.25s;
+}
+
+.biglist ul li .title {
+	background-color: var(--section-header-bg);
+	border-radius: 5px 5px 0 0;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	padding: 5px 10px;
+}
+
+.biglist ul li .bg {
+	background-size: cover;
+	background-position: center;
+	border-radius: 0 0 5px 5px;
+	z-index: 1;
+	position: absolute;
+	top: 50px;
+	left: 0;
+	right: 0;
+	bottom: 0;
+
+	transition: left 0.1s, right 0.1s, bottom 0.1s, top 0.1s;
 }
 
 .biglist ul li .meta {
@@ -411,6 +441,7 @@ section.header .crumbs:not(:first-child) {
 	font-size: 1.3em;
 
 	position: absolute;
+	z-index: 3;
 	bottom: -3px;
 	right: 3px;
 }
