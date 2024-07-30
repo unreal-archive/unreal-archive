@@ -132,6 +132,7 @@ h2 img, h3 img, h4 img {
 .mainpage {
 	min-height: 100vh;
 	box-shadow: var(--page-shadow);
+	margin-top: 70px;
 }
 
 .contentpage {
@@ -377,7 +378,7 @@ section.header .crumbs:not(:first-child) {
 	background-position: center;
 	overflow: hidden;
 
-	font-size: 1.9em;
+	font-size: 1.7em;
 	font-weight: bold;
 	color: var(--biglist-text-color);
 
@@ -386,6 +387,7 @@ section.header .crumbs:not(:first-child) {
 
 .biglist.bigger ul li, .biglist.taller ul li {
 	height: 175px;
+	font-size: 1.9em;
 }
 
 .biglist ul li a {
@@ -428,12 +430,16 @@ section.header .crumbs:not(:first-child) {
 	border-radius: 0 0 5px 5px;
 	z-index: 1;
 	position: absolute;
-	top: 50px;
+	top: 45px;
 	left: 0;
 	right: 0;
 	bottom: 0;
 
 	transition: left 0.1s, right 0.1s, bottom 0.1s, top 0.1s;
+}
+
+.biglist.bigger ul li .bg {
+	top: 50px;
 }
 
 .biglist ul li .meta {
@@ -444,6 +450,10 @@ section.header .crumbs:not(:first-child) {
 	z-index: 3;
 	bottom: -3px;
 	right: 3px;
+}
+
+.biglist ul li .meta img {
+	filter: drop-shadow(0px 0px 8px black);
 }
 
 .biglist ul li.disabled {
@@ -768,7 +778,7 @@ article.managed section.downloads .download .links a {
 	display: block;
 	width: 100%;
 	padding: 5px;
-	margin: 5px;
+	margin: 5px 0;
 	text-align: center;
 	background-color: var(--download-button-bg);
 	text-decoration: none;
@@ -872,10 +882,8 @@ button img, td img {
 
 #gametype section.releases .release .links a {
 	display: block;
-	width: 100%;
-	height: 100%;
 	padding: 5px;
-	margin: 5px;
+	margin: 5px 0;
 	text-align: center;
 	background-color: var(--download-button-bg);
 	text-decoration: none;

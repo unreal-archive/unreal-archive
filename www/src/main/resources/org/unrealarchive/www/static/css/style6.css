@@ -178,6 +178,10 @@ section.downloads .links a {
 	border-radius: 4px;
 }
 
+section.releases .links a {
+	border-radius: 4px;
+}
+
 .readable {
 	font-size: 1.1em;
 }

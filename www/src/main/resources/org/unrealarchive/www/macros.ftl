@@ -30,13 +30,13 @@
 	</div>
 </#macro>
 
-<#macro bigitem link="" bg="" meta="">
-	<li>
-		<a href="${link}">
+<#macro bigitem link="" bg="", bg2="" meta="" disabled=false>
+	<li <#if disabled>class="disabled"</#if>>
+		<#if link?? && link?trim?length gt 0><a href="${link}"></#if>
 			<span class="title"><#nested/></span>
-		</a>
-		<#if bg?? && bg?length gt 0><div class="bg" style='background-image: url("${bg}")'></div></#if>
-		<#if meta?? && meta?length gt 0><span class="meta">${meta}</span></#if>
+		<#if link?? && link?trim?length gt 0></a></#if>
+		<#if bg?? && bg?trim?length gt 0><div class="bg" style='background-image: url("${bg}")<#if bg2?? && bg2?trim?length gt 0>,url("${bg2}")</#if>'></div></#if>
+		<#if meta?? && meta?trim?length gt 0><span class="meta">${meta?no_esc}</span></#if>
 	</li>
 </#macro>
 
