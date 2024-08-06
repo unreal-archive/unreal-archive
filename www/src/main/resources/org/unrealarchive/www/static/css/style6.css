@@ -68,26 +68,9 @@
 
 	--problem-border: #dd3;
 	--problem-bg: #dd35;
+
+	--radius: 20px;
 }
-
-/**
- * invert svg icons for dark background
- */
-/*h2 img[src$="svg"], h3 img[src$="svg"], h4 img[src$="svg"] {*/
-/*	filter: invert(0.85);*/
-/*}*/
-
-/*td.meta img[src$="svg"], footer img[src$="svg"], .report img[src$="svg"] {*/
-/*	filter: invert(0.8);*/
-/*}*/
-
-/*article.managed section.downloads .download .title img[src$="svg"], .variation img[src$="svg"] {*/
-/*	filter: invert(0.8);*/
-/*}*/
-
-/*div.themes img[src$="svg"] {*/
-/*	filter: invert(0.8);*/
-/*}*/
 
 /**
  * custom styling
@@ -98,7 +81,6 @@ header {
 	z-index: 5;
 	top: 0;
 	width: 100%;
-	/*backdrop-filter: blur(7px);*/
 	border: none;
 }
 
@@ -121,33 +103,30 @@ section.header {
 	transition: backdrop-filter 0.2s;
 }
 
-/*h2 img, h3 img, h4 img {*/
-/*	padding: 0 7px 5px 0;*/
-/*}*/
+article section h2 {
+	border-radius: var(--radius);
+	font-size: 1.75em;
+}
 
 article section h3 {
 	background-color: var(--p3);
 	color: var(--section-header-title-color);
 	font-size: 1.6em;
+	border-radius: var(--radius);
 }
 
 article section h4 {
 	background-color: var(--document-meta-bg);
-	/*color: var(--section-header-title-color);*/
 	font-size: 1.3em;
+	border-radius: var(--radius);
 }
-
-/*article section h2 {*/
-/*	border-radius: 4px 4px 0 0;*/
-/*	font-size: 1.8em;*/
-/*}*/
 
 article.info {
 	margin-top: 0;
 }
 
 .list .sectionInfo h3 {
-	border-radius: 4px 5px 0 0;
+	border-radius: var(--radius);
 }
 
 section.report {
@@ -175,11 +154,11 @@ section table {
 
 section.downloads .links a {
 	margin: 10px;
-	border-radius: 4px;
+	border-radius: var(--radius);
 }
 
 section.releases .links a {
-	border-radius: 4px;
+	border-radius: var(--radius);
 }
 
 .readable {
@@ -219,8 +198,9 @@ section.releases .links a {
 /*	}*/
 /*}*/
 
-
 @media screen and (max-width: 1024px) {
+	--radius: 10px;
+
 	header {
 		position: relative;
 	}

@@ -343,35 +343,35 @@
 	<#if themes?size gt 0>
 		<#list themes as theme, weight>
 			<div class="themes">
-					<#if weight lt 0.2>
-						<img src="${staticPath()}/images/icons/circle.svg" alt="${weight * 100}%"/>
-							<#list 0..3 as n>
-								<img src="${staticPath()}/images/icons/circle-dotted.svg" alt="${weight * 100}%"/>
-							</#list>
-					<#elseif weight lt 0.4>
-							<#list 0..1 as n>
-								<img src="${staticPath()}/images/icons/circle.svg" alt="${weight * 100}%"/>
-							</#list>
-							<#list 0..2 as n>
-								<img src="${staticPath()}/images/icons/circle-dotted.svg" alt="${weight * 100}%"/>
-							</#list>
-					<#elseif weight lt 0.6>
-							<#list 0..2 as n>
-								<img src="${staticPath()}/images/icons/circle.svg" alt="${weight * 100}%"/>
-							</#list>
-							<#list 0..1 as n>
-								<img src="${staticPath()}/images/icons/circle-dotted.svg" alt="${weight * 100}%"/>
-							</#list>
-					<#elseif weight lt 0.8>
-							<#list 0..3 as n>
-								<img src="${staticPath()}/images/icons/circle.svg" alt="${weight * 100}%"/>
-							</#list>
-						<img src="${staticPath()}/images/icons/circle-dotted.svg" alt="${weight * 100}%"/>
-					<#else>
-							<#list 0..4 as n>
-								<img src="${staticPath()}/images/icons/circle.svg" alt="${weight * 100}%"/>
-							</#list>
-					</#if>
+				<#if weight lt 0.2>
+					<@icon name="circle" small=true/>
+					<#list 0..3 as n>
+						<@icon name="circle-dotted" small=true/>
+					</#list>
+				<#elseif weight lt 0.4>
+					<#list 0..1 as n>
+						<@icon name="circle" small=true/>
+					</#list>
+					<#list 0..2 as n>
+						<@icon name="circle-dotted" small=true/>
+					</#list>
+				<#elseif weight lt 0.6>
+					<#list 0..2 as n>
+						<@icon name="circle" small=true/>
+					</#list>
+					<#list 0..1 as n>
+						<@icon name="circle-dotted" small=true/>
+					</#list>
+				<#elseif weight lt 0.8>
+					<#list 0..3 as n>
+						<@icon name="circle" small=true/>
+					</#list>
+					<@icon name="circle-dotted" small=true/>
+				<#else>
+					<#list 0..4 as n>
+						<@icon name="circle" small=true/>
+					</#list>
+				</#if>
 				<span>${theme}</span>
 			</div>
 		</#list>

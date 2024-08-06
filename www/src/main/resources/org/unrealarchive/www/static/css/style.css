@@ -63,6 +63,8 @@
 
 	--problem-border: #f73;
 	--problem-bg: #f735;
+
+	--radius: 5px;
 }
 
 html {
@@ -254,7 +256,7 @@ section.submenu .page .inner {
 	padding: 10px;
 	margin: auto 0 0 0;
 	background-color: var(--section-header-title-bg);
-	border-radius: 0 0 5px 5px;
+	border-radius: 0 0 var(--radius) var(--radius);
 	backdrop-filter: blur(15px);
 }
 section.submenu .inner .menu {
@@ -322,7 +324,7 @@ section.header h1 {
 	margin: auto 0 0 0;
 	background-color: var(--section-header-title-bg);
 	box-shadow: var(--section-header-title-shadow);
-	border-radius: 5px 5px 0 0;
+	border-radius: var(--radius) var(--radius) 0 0;
 	backdrop-filter: blur(15px);
 }
 
@@ -382,7 +384,7 @@ section.header .crumbs:not(:first-child) {
 	font-weight: bold;
 	color: var(--biglist-text-color);
 
-	border-radius: 5px;
+	border-radius: var(--radius);
 }
 
 .biglist.bigger ul li, .biglist.taller ul li {
@@ -402,7 +404,7 @@ section.header .crumbs:not(:first-child) {
 	left: 0;
 	right: 0;
 
-	border-radius: 5px;
+	border-radius: var(--radius);
 }
 
 .biglist ul li a:hover ~ div.bg {
@@ -416,7 +418,7 @@ section.header .crumbs:not(:first-child) {
 
 .biglist ul li .title {
 	background-color: var(--section-header-bg);
-	border-radius: 5px 5px 0 0;
+	border-radius: var(--radius) var(--radius) 0 0;
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -427,7 +429,7 @@ section.header .crumbs:not(:first-child) {
 .biglist ul li .bg {
 	background-size: cover;
 	background-position: center;
-	border-radius: 0 0 5px 5px;
+	border-radius: 0 0 var(--radius) var(--radius);
 	z-index: 1;
 	position: absolute;
 	top: 45px;
@@ -520,7 +522,7 @@ nav.letters a.active, nav.pages a.active {
 	padding: 10px;
 	margin: 5px 0;
 	text-decoration: none;
-	border-radius: 5px;
+	border-radius: var(--radius);
 }
 
 article.split {
@@ -571,7 +573,7 @@ article.info .side .screenshots {
 }
 
 article.info .screenshots .thumb {
-	border-radius: 4px;
+	border-radius: var(--radius);
 	width: 300px;
 	margin: 2px;
 	vertical-align: middle;
@@ -913,7 +915,7 @@ button img, td img {
 	min-width: 80px;
 	max-width: 80px;
 	max-height: 80px;
-	border-radius: 5px;
+	border-radius: var(--radius);
 }
 
 #gametype section.contents .maps .map .info {

@@ -13,12 +13,7 @@
 <@content class="biglist">
 	<ul>
 		<#list group.subGroups as k, group>
-			<li>
-				<a href="${relPath(group.path + "/index.html")}" title="${group.name}">
-					<span class="meta">${group.count}</span>
-					${group.name}
-				</a>
-			</li>
+			<@bigitem link="${relPath(group.path + '/index.html')}" meta="${group.count}">${group.name}</@bigitem>
 		</#list>
 	</ul>
 </@content>

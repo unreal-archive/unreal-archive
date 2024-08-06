@@ -42,31 +42,33 @@
 			</section>
 		</#if>
 
-		<table>
-			<thead>
-			<tr>
-				<th>Name</th>
-				<th>Author</th>
-				<th class="nomobile">Maps</th>
-				<th class="nomobile"> </th>
-			</tr>
-			</thead>
-			<tbody>
-				<#list page.items as p>
+		<section>
+			<table>
+				<thead>
 				<tr>
-					<td><a href="${relPath(p.path + ".html")}">${p.item.name}</a></td>
-					<td><@authorLink p.item.authorName /></td>
-					<td class="nomobile">${p.item.maps?size}</td>
-					<td class="meta nomobile">
-						<#if p.item.attachments?size gt 0>
-							<@icon name="image" title="Has images"/>
-						</#if>
-						<@dependencyIcon p.item.dependencies/>
-					</td>
+					<th>Name</th>
+					<th>Author</th>
+					<th class="nomobile">Maps</th>
+					<th class="nomobile"> </th>
 				</tr>
-				</#list>
-			</tbody>
-		</table>
+				</thead>
+				<tbody>
+					<#list page.items as p>
+					<tr>
+						<td><a href="${relPath(p.path + ".html")}">${p.item.name}</a></td>
+						<td><@authorLink p.item.authorName /></td>
+						<td class="nomobile">${p.item.maps?size}</td>
+						<td class="meta nomobile">
+							<#if p.item.attachments?size gt 0>
+								<@icon name="image" title="Has images"/>
+							</#if>
+							<@dependencyIcon p.item.dependencies/>
+						</td>
+					</tr>
+					</#list>
+				</tbody>
+			</table>
+		</section>
 
 		<@paginator pages=pages currentPage=page />
 	</@content>

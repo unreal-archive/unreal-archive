@@ -14,17 +14,14 @@
 <@content class="biglist">
 	<ul>
 		<#list subgroup.content as content>
-			<li
+			<#outputformat "plainText"><#assign pic>
 				<#if content.managed.titleImage?? && content.managed.titleImage?length gt 0>
-					style='background-image: url("${relPath(content.path + "/" + content.managed.titleImage)}");'
+					${relPath(content.path + "/" + content.managed.titleImage)}
 				<#else>
-					style='background-image: url("${staticPath()}/images/none-managed.png"");'
+					${staticPath()}/images/none-managed.png
 				</#if>
-			>
-				<a href="${relPath(content.path + "/index.html")}" title="${content.managed.name}">
-					${content.managed.name}
-				</a>
-			</li>
+			</#assign></#outputformat>
+			<@bigitem link="${relPath(content.path + '/index.html')}" bg="${pic?trim}">${content.managed.name}</@bigitem>
 		</#list>
 	</ul>
 </@content>
