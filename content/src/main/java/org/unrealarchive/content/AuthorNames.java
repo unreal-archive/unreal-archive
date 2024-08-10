@@ -95,6 +95,9 @@ public class AuthorNames {
 		if (IMPORTED.matcher(normalised).find()) return;
 		if (CONVERTED.matcher(normalised).find()) return;
 
+		// skip things with possibly multiple authors
+		if (normalised.contains(",") || normalised.contains("&") || normalised.contains(" and ")) return;
+
 		if (nonAutoAliases.contains(normalised.toLowerCase().strip())) return;
 		if (aliases.containsKey(normalised.toLowerCase().strip())) return;
 
