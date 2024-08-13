@@ -24,11 +24,11 @@
 </#macro>
 
 <#macro content class="" id="content">
-	<div class="page contentpage">
+	<div class="page contentpage"><div class="content-body">
 		<article id="${id}" <#if class?length gt 0>class="${class}"</#if>>
 			<#nested>
 		</article>
-	</div>
+	</div></div>
 </#macro>
 
 <#macro bigitem link="" bg="", bg2="" meta="" disabled=false>

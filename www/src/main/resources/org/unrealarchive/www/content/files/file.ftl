@@ -8,7 +8,7 @@
 		${file.name}
 	</@heading>
 
-	<@content class="biglist">
+	<@content>
 		<#compress>
 		<div class="info">
 			<section class="meta">

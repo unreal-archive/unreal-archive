@@ -18,15 +18,15 @@
 						<#if features.submit><li><a href="${siteUrl}/submit/index.html"><@icon "upload"/>Submit Content</a></li></#if>
 					</#if>
 					<li>
-						<a id="theme-switcher" style="cursor:pointer">
-                <@icon "moon-stars"/>Theme
-						</a>
+						<a id="theme-switcher" style="cursor:pointer"><@icon "moon-stars"/></a>
 					</li>
 				</ul>
 			</div>
 		</div>
 	</div>
 	<script>
+		const themes = ['light', 'dark', 'orange', 'reds', 'greens', 'accent'];
+
 		function setTheme(theme, save) {
 		  if (save) localStorage.setItem('theme', theme);
 		  document.documentElement.setAttribute('data-theme', theme);
@@ -35,7 +35,7 @@
 		document.addEventListener('DOMContentLoaded', () => {
 		  if (theme || !window.matchMedia) return;
 
-		  theme = 'light';
+		  theme = themes[0];
 		  if (window.matchMedia('(prefers-color-scheme:dark)').matches) theme = 'dark';
           setTheme(theme, false);
           
@@ -45,8 +45,9 @@
 		});
 
 		document.querySelector('#theme-switcher').addEventListener('click', () => {
-		  if (!theme || theme === 'dark') theme = 'light';
-		  else theme = 'dark';
+			let next = themes.indexOf(theme) + 1;
+		  if (next === -1 || next === themes.length) next = 0;
+			theme = themes[next];
 		  setTheme(theme, true);
 		});
 	</script>

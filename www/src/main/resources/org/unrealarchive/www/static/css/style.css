@@ -141,6 +141,8 @@ h2 img, h3 img, h4 img {
 	padding: 10px;
 }
 
+.contentpage .content-body {}
+
 header {
 	background-color: var(--header-bg-color);
 	color: var(--header-text-color);
@@ -371,6 +373,7 @@ section.header .crumbs:not(:first-child) {
 	color: var(--section-subheader-color);
 	margin: 15px 0;
 	padding: 5px 10px;
+	border-radius: var(--radius);
 }
 
 .biglist.bigger ul {
