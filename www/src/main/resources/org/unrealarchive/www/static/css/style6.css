@@ -35,7 +35,7 @@
 	--section-header-bg: var(--p4);
 	--section-header-shadow: none;
 	--section-header-title-bg: var(--p4);
-	--section-header-title-shadow: -1px -2px 15px -4px rgba(0, 0, 0, 0.4);
+	--section-header-title-shadow: 0 -10px 15px -4px rgba(0, 0, 0, 0.4);
 	--section-header-title-color: white;
 	--section-header-title-color-hover: var(--p2);
 
@@ -85,11 +85,15 @@ header {
 }
 
 section.header {
-	height: 280px;
+	height: 150px;
+	border-bottom: 10px solid var(--section-header-title-bg);
+}
+section.header .cover {
+	backdrop-filter: none;
 }
 
 /* for pages where there's no big header present, push content down */
-.contentpage { padding: 100px 0; }
+.contentpage { padding: 30px 0; }
 /* better padding on blocks which follow blocks */
 .mainpage section.header + .contentpage,
 .page + .contentpage,
@@ -97,10 +101,31 @@ section.header {
 	padding: 20px 0;
 }
 
+.page-bg {
+	display: block;
+	z-index: -1;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 800px;
+	background-size: cover;
+	background-position: top center;
+	filter: blur(10px) opacity(0.75);
+}
+
+.page-bg .inner {
+	position: absolute;
+	width: 100%;
+	top: 0;
+	bottom: 0;
+	background: linear-gradient(0deg, var(--body-bg) 0%, rgba(0,0,0,0) 100%);
+}
+
 .biglist ul li a:hover {
 	border-bottom: 4px solid var(--p3);
 	backdrop-filter: saturate(1.3) brightness(1.3);
-	transition: backdrop-filter 0.2s;
+	transition: backdrop-filter 1s;
 }
 
 article section h2 {
@@ -123,6 +148,12 @@ article section h4 {
 
 article.info {
 	margin-top: 0;
+}
+
+article.info .info, article.list, article.document, #gametype {
+	background-color: var(--body-bg);
+	border-radius: var(--radius);
+	padding: 10px;
 }
 
 .list .sectionInfo h3 {
@@ -178,25 +209,10 @@ section.releases .links a {
 /**
   Light theme support
  */
-/*[data-theme="light"] {*/
-/*	--p1: #1a1a1d;*/
-/*	--p7: #f9f7f7;*/
-/*	--body-bg: #fff;*/
-/*	--body-color: black;*/
-/*	--link-color: blue;*/
-/*	--link-color-visited: purple;*/
-/*	--menu-text-color: white;*/
-/*	--download-button-bg: #22dd48;*/
-/*	--download-button-bg-hover: #b1ffaa;*/
-/*	--download-info-bg-hover: #eee;*/
-/*	--table-header-color: black;*/
-/*	--table-row-alt-bg: #eee;*/
-/*	--section-subheader-color: #fff;*/
-
-/*	article section h4 {*/
-/*		color: var(--body-color);*/
-/*	}*/
-/*}*/
+[data-theme="light"] {
+	--body-bg: var(--p1);
+	--body-color: var(--p2);
+}
 
 @media screen and (max-width: 1024px) {
 	--radius: 10px;

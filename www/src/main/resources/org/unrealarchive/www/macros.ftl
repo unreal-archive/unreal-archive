@@ -1,16 +1,14 @@
 <#macro heading bg=[]>
 	<#compress>
-	<#t/><#assign style>
+	<#t/><#assign bgimg>
 		<#t/><#if bg?? && bg?size gt 0>
-			<#t/>style='background-image:
 			<#t/><#list bg as b>
 			<#t/>url("${b}")
 			<#t/><#if b?has_next>,</#if>
 			<#t/></#list>
-			<#t/>'
 		<#t/></#if>
 	<#t/></#assign>
-  <section class="header" ${style!""}>
+  <section class="header" style='background-image:${bgimg!""}'>
 		<div class="cover">
 			<div class="page">
 				<h1>
@@ -19,6 +17,9 @@
 			</div>
 		</div>
 	</section>
+	<#if bgimg??>
+	<div class="page-bg" style='background-image:${bgimg}'><div class="inner"></div></div>
+	</#if>
   </#compress>
 </#macro>
 

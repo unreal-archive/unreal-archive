@@ -191,6 +191,13 @@ header .heading .menu {
 	text-align: right;
 }
 
+.page-bg {
+	display: none;
+}
+
+.page-bg .inner {
+}
+
 .right { text-align: right; }
 
 svg.icon {
@@ -298,8 +305,9 @@ section.intro h1 {
 section.header {
 	height: 200px;
 	box-shadow: var(--section-header-shadow);
-	background: var(--section-header-bg) center;
+	background: var(--section-header-bg);
 	background-size: cover;
+	background-position: top center;
 	/*margin-bottom: 10px;*/
 }
 
@@ -325,7 +333,6 @@ section.header h1 {
 	background-color: var(--section-header-title-bg);
 	box-shadow: var(--section-header-title-shadow);
 	border-radius: var(--radius) var(--radius) 0 0;
-	backdrop-filter: blur(15px);
 }
 
 section.header h1 a {
@@ -413,7 +420,7 @@ section.header .crumbs:not(:first-child) {
 	bottom: -100px;
 	top: 0;
 
-	transition: left 0.25s, right 0.25s, bottom 0.25s, top 0.25s;
+	transition: left 10s linear, right 10s linear, bottom 10s linear, top 10s linear;
 }
 
 .biglist ul li .title {
@@ -437,7 +444,7 @@ section.header .crumbs:not(:first-child) {
 	right: 0;
 	bottom: 0;
 
-	transition: left 0.1s, right 0.1s, bottom 0.1s, top 0.1s;
+	transition: left 0.2s, right 0.2s, bottom 0.2s, top 0.2s;
 }
 
 .biglist.bigger ul li .bg {
