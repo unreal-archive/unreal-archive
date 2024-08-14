@@ -18,7 +18,7 @@
 						<#if features.submit><li><a href="${siteUrl}/submit/index.html"><@icon "upload"/>Submit Content</a></li></#if>
 					</#if>
 					<li>
-						<a id="theme-switcher" style="cursor:pointer"><@icon "moon-stars"/></a>
+						<a id="theme-switcher" style="cursor:pointer"><@icon "palette"/></a>
 					</li>
 				</ul>
 			</div>
