@@ -329,12 +329,14 @@
   </#compress>
 </#macro>
 
-<#macro authorLink author display=author>
+<#macro authorLink content display=content.authorName>
 	<#compress>
-	<#if author?lower_case == "unknown" || author?lower_case == "various">
-    ${display!author}
+	<#if content.authorName?lower_case == "unknown">
+    <@icon name="user-exclamation" small=true/>${display!content.authorName}
+	<#elseif content.authorName?lower_case == "various">
+    <@icon name="users" small=true/>${display!content.authorName}
 	<#else>
-		<a href="${relPath(siteRoot + "/authors/" + authorSlug(author) + ".html")}">${display!author}</a>
+		<a href="${relPath(siteRoot + "/authors/" + authorSlug(content.authorName) + ".html")}" title="${content.author}"><@icon name="user" small=true/>${display!content.authorName}</a>
 	</#if>
   </#compress>
 </#macro>

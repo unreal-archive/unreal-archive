@@ -259,7 +259,9 @@ section.releases .links a {
 }
 
 @media screen and (max-width: 1024px) {
-	--radius: 10px;
+	* {
+		--radius: 0;
+	}
 
 	header {
 		position: relative;

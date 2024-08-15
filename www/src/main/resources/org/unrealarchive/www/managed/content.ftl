@@ -32,7 +32,7 @@
 			<section class="meta">
 				<h2><@icon "info"/>Information</h2>
 				<div class="label-value">
-					<label>Author</label><span><@authorLink managed.managed.authorName /></span>
+					<label>Author</label><span><@authorLink managed.managed /></span>
 				</div>
 				<#if managed.managed.homepage?? && managed.managed.homepage?has_content>
 					<div class="label-value">

@@ -35,7 +35,7 @@
 
 			<#assign themes><@themes themes=map.item.themes/></#assign>
 
-			<#assign author><span title="${map.item.author}"><@authorLink map.item.authorName /></span></#assign>
+			<#assign author><@authorLink map.item /></#assign>
 			<#assign gametypeLink>
 				<a href="<#if gameTypeInfoPath??>${relPath(gameTypeInfoPath + "/index.html")}<#else>${relPath(gametype.path + "/index.html")}</#if>">${map.item.gametype}</a>
 			</#assign>

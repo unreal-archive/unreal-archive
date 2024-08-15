@@ -31,7 +31,7 @@
 
 		<div class="info">
 
-			<#assign author><@authorLink announcer.item.authorName /></#assign>
+			<#assign author><@authorLink announcer.item /></#assign>
 			<#assign
 			labels=[
 					"Name",

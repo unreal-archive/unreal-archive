@@ -31,7 +31,7 @@
 
 		<div class="info">
 
-			<#assign author><@authorLink skin.item.authorName /></#assign>
+			<#assign author><@authorLink skin.item /></#assign>
 			<#assign
 			labels=[
 					"Name",

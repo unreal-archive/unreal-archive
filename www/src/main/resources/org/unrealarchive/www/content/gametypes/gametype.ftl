@@ -136,7 +136,7 @@
 			<section>
 				<h2><@icon "info"/>Information</h2>
 				<div class="label-value">
-					<label>Author</label><span><@authorLink gametype.gametype.authorName /></span>
+					<label>Author</label><span><@authorLink gametype.gametype /></span>
 				</div>
 				<div class="label-value">
 					<label>Summary</label><span>${gametype.gametype.description}</span>

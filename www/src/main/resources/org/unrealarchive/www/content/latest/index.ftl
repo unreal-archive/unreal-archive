@@ -30,7 +30,7 @@
 							<td>
 								<a href="${relPath(c.pagePath(siteRoot))}">${c.name}</a>
 							</td>
-							<td class="nomobile"><@authorLink c.authorName trunc(c.authorName, 30) /></td>
+							<td class="nomobile"><@authorLink c trunc(c.authorName, 30) /></td>
 						</tr>
           </#list>
 					</tbody>

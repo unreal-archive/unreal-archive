@@ -41,7 +41,7 @@
 					<#list announcers as a>
 					<tr>
 						<td nowrap="nowrap"><a href="${relPath(a.path + ".html")}">${a.item.name}</a></td>
-						<td><@authorLink a.item.authorName /></td>
+						<td><@authorLink a.item /></td>
 						<td class="nomobile">
 							<#if a.item.announcers?size gt 0>
 								${a.item.announcers?size} announcer<#if a.item.announcers?size gt 1>s</#if>

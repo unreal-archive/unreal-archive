@@ -30,7 +30,7 @@
 		</div>
 
 		<div class="info">
-			<#assign author><@authorLink model.item.authorName /></#assign>
+			<#assign author><@authorLink model.item /></#assign>
 			<#assign
 			labels=[
 					"Name",

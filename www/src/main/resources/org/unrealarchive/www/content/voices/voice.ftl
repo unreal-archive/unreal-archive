@@ -33,7 +33,7 @@
 
 		<div class="info">
 
-			<#assign author><@authorLink voice.item.authorName /></#assign>
+			<#assign author><@authorLink voice.item /></#assign>
 			<#assign
 			labels=[
 					"Name",

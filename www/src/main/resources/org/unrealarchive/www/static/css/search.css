@@ -1,6 +1,7 @@
 #search-form {
 	padding: 10px 0 10px 0;
 	border-bottom: 4px solid #aaa;
+	font-size: 0.9em;
 }
 
 #search-form input,

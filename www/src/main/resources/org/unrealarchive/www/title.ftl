@@ -14,8 +14,8 @@
 				<ul>
 					<#if features??>
 						<#if features.search><li><a href="${siteUrl}/search/index.html"><@icon "search"/>Search</a></li></#if>
-						<#if features.latest><li><a href="${siteUrl}/latest/index.html"><@icon "bulb"/>Latest Additions</a></li></#if>
-						<#if features.submit><li><a href="${siteUrl}/submit/index.html"><@icon "upload"/>Submit Content</a></li></#if>
+						<#if features.latest><li><a href="${siteUrl}/latest/index.html"><@icon "bulb"/>Latest</a></li></#if>
+						<#if features.submit><li><a href="${siteUrl}/submit/index.html"><@icon "upload"/>Submit</a></li></#if>
 					</#if>
 					<li>
 						<a id="theme-switcher" style="cursor:pointer"><@icon "palette"/></a>

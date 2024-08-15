@@ -30,7 +30,7 @@
 				<#list items as v>
 					<tr>
 						<td nowrap="nowrap"><a href="${relPath(v.path + ".html")}">${v.item.name}</a></td>
-						<td><@authorLink v.item.authorName /></td>
+						<td><@authorLink v.item /></td>
 						<td class="nomobile">
 							<#if v.item.voices?size gt 0>
 								${v.item.voices?size} voice<#if v.item.voices?size gt 1>s</#if>

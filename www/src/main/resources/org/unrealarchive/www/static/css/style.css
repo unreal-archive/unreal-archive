@@ -1043,6 +1043,10 @@ div.themes img {
 	header {
 		/*height: 40px;*/
 	}
+	
+	.mainpage {
+		margin-top: 0;
+	}
 
 	header .heading {
 		grid-template-columns: auto;
@@ -1091,10 +1095,10 @@ div.themes img {
 	.biglist ul, .biglist.bigger ul {
 		grid-template-columns: 100%;
 		grid-template-areas: 'block';
+		font-size: 0.8em;
 	}
 
 	.biglist ul li {
-		border-radius: 0;
 		height: 75px;
 	}
 

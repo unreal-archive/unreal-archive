@@ -66,7 +66,7 @@
 					<tr>
 						<td nowrap="nowrap"><a href="${relPath(m.path + ".html")}">${m.item.name}</a></td>
 						<td class="nomobile">${m.item.title}</td>
-						<td><@authorLink m.item.authorName /></td>
+						<td><@authorLink m.item /></td>
 						<td class="nomobile">${m.item.playerCount}</td>
 						<td class="meta nomobile">
 							<#if m.item.bots>

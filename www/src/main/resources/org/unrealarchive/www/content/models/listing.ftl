@@ -41,7 +41,7 @@
 					<#list models as m>
 					<tr>
 						<td nowrap="nowrap"><a href="${relPath(m.path + ".html")}">${m.item.name}</a></td>
-						<td><@authorLink m.item.authorName /></td>
+						<td><@authorLink m.item /></td>
 						<td class="nomobile">
 							<#if m.item.models?size gt 0>
 								${m.item.models?size} character<#if m.item.models?size gt 1>s</#if>

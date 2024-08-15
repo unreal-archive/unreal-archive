@@ -30,7 +30,7 @@
         <#list items as m>
 					<tr>
 						<td nowrap="nowrap"><a href="${relPath(m.path + ".html")}">${m.item.name}</a></td>
-						<td><@authorLink m.item.authorName /></td>
+						<td><@authorLink m.item /></td>
 						<td class="nomobile">
 							<#if m.item.mutators?size gt 0>
 								${m.item.mutators?size} mutator<#if m.item.mutators?size gt 1>s</#if>
