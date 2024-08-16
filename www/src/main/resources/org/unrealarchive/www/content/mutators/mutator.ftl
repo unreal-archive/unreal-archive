@@ -31,7 +31,7 @@
 
 		<div class="info">
 
-			<#assign author><@authorLink mutator.item.authorName /></#assign>
+			<#assign author><@authorLink mutator.item /></#assign>
 			<#assign
 			labels=[
 					"Name",

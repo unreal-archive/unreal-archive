@@ -29,7 +29,7 @@
 	<@content class="split split6040" id="gametype">
 		<div class="left">
 			<section>
-				<h2><img src="${staticPath()}/images/icons/info.svg" alt="About"/> About</h2>
+				<h2><@icon "info"/>About</h2>
 				<#if gametype.gametype.titleImage?? && gametype.gametype.titleImage?length gt 0>
 					<img src="${relPath(gametype.path + "/" + gametype.gametype.titleImage)}" class="full" alt="${gametype.gametype.name}"/>
 				</#if>
@@ -40,7 +40,7 @@
 			     || gametype.gametype.mutators?size gt 0
 			     || gametype.gametype.maps?size gt 0>
 				<section class="contents">
-					<h2><img src="${staticPath()}/images/icons/package.svg" alt="Contents"/> Contents</h2>
+					<h2><@icon "package"/>Contents</h2>
 					<#if gametype.gametype.gameTypes?size gt 0>
 						<h3>Included Game Types (${gametype.gametype.gameTypes?size})</h3>
 						<ul class="readable">
@@ -94,7 +94,7 @@
 
 			<#if gametype.gallery?size gt 0>
 				<section class="gallery">
-					<h2><img src="${staticPath()}/images/icons/image.svg" alt="Screenshots"/> Screenshots</h2>
+					<h2><@icon "image"/>Screenshots</h2>
 					<div>
 							<#list gametype.gallery as img, thumb><a href="${img}"><img src="${thumb}" alt="screenshot" class="thumb"/></a></#list>
 					</div>
@@ -103,7 +103,7 @@
 
 			<#if gametype.gametype.credits?size gt 0>
 				<section class="credits">
-					<h2><img src="${staticPath()}/images/icons/list.svg" alt="Credits"/> Credits</h2>
+					<h2><@icon "list"/>Credits</h2>
 					<ul class="readable">
 						<#list gametype.gametype.credits as t, l>
 							<li class="group">${t}</li>
@@ -119,7 +119,7 @@
 		<div class="right">
 		  <#if gametype.variationOf??>
 				<section class="variations">
-					<h2><img src="${staticPath()}/images/icons/variant.svg" alt="Variation"/> Variation</h2>
+					<h2><@icon "variant"/>Variation</h2>
 					<p>
 						This is a variation of <a href="../index.html">${gametype.variationOf.name}</a>, which is not
 						necessarily released or supported by the original authors.
@@ -134,9 +134,9 @@
 		  </#if>
 
 			<section>
-				<h2><img src="${staticPath()}/images/icons/info.svg" alt="Information"/> Information</h2>
+				<h2><@icon "info"/>Information</h2>
 				<div class="label-value">
-					<label>Author</label><span><@authorLink gametype.gametype.authorName /></span>
+					<label>Author</label><span><@authorLink gametype.gametype /></span>
 				</div>
 				<div class="label-value">
 					<label>Summary</label><span>${gametype.gametype.description}</span>
@@ -149,7 +149,7 @@
 						<label>Links</label><span>
 						<#list gametype.gametype.links as t, u>
 							<div>
-								<a href="${u}">${t}</a>
+								<a href="${u}"><@icon name="external-link" small=true/>${t}</a>
 							</div>
 						</#list>
 					</span>
@@ -158,7 +158,7 @@
 			</section>
 
 			<section class="releases">
-				<h2><img src="${staticPath()}/images/icons/download.svg" alt="Releases"/> Releases</h2>
+				<h2><@icon "download"/>Releases</h2>
           <#list gametype.gametype.releases as r>
               <#if !r.deleted && r.files?size gt 0>
 								<div class="release">
@@ -179,14 +179,14 @@
 
 			<#if gametype.variations?size gt 0>
 				<section class="variations">
-					<h2><img src="${staticPath()}/images/icons/variant.svg" alt="Variations"/> Variations</h2>
+					<h2><@icon "variant"/>Variations</h2>
 					  <p class="blurb">
 							Enhanced, updated or alternative versions of <b>${gametype.gametype.name}</b>, which
 							are not necessarily released or	supported by the original authors.
 						</p>
 						<#list gametype.variations as v>
 							<div class="variation">
-								<img src="${staticPath()}/images/icons/variant.svg" alt="Variation"/>
+                <@icon "variant"/>
 								<a href="${slug(v.gametype.name)}/index.html">${v.gametype.name}</a>
 							</div>
 						</#list>

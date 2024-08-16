@@ -21,19 +21,19 @@
 		<h2>${contents?size} ${group}<#if contents?size gt 1>s</#if></h2>
 		<ul>
 			<#list contents as c>
-				<#assign bg="">
+				<#assign bgi=""/>
 				<#if c.leadImage?has_content>
 					<#if c.leadImage?contains("://")>
-						<#assign bg=urlEncode(c.leadImage)>
+						<#assign bgi=urlEncode(c.leadImage)/>
 					<#else>
-            <#assign bg=rootPath(c.leadImage)>
+            <#assign bgi=rootPath(c.leadImage)/>
 					</#if>
 				</#if>
+				<#outputformat "plainText">
+					<#assign g><img src="${staticPath()}/images/games/icons/${c.game}.png" alt="${c.game}" title="${c.game}"/></#assign>
+				</#outputformat>
 
-				<li style='background-image: url("${bg}")'>
-					<span class="meta"><img src="${staticPath()}/images/games/icons/${c.game}.png" alt="${c.game}" title="${c.game}"/></span>
-					<a href="${relPath(c.pagePath(siteRoot))}">${c.name}</a>
-				</li>
+				<@bigitem link="${relPath(c.pagePath(siteRoot))}" meta="${g}" bg="${bgi}">${c.name}</@bigitem>
 			</#list>
 		</ul>
 	</#list>

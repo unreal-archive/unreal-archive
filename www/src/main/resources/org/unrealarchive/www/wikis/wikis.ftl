@@ -14,7 +14,7 @@
 		These wiki snapshots are mirrored here for future reference, to help reduce the chances of the
 		vast amounts of knowledge and information they contain becoming lost, inaccessible, or unusable
 		in the future, as well as providing the ability to
-		<a href="/documents/general/archive-mirroring-guide/index.html">host them offline</a>.
+		<a href="/general/documents/unreal-archive/archive-mirroring-guide/index.html">host them offline</a>.
 	</p>
 	<p>
 		Since they are snapshots, they may inevitably become out of date over time, though the sources
@@ -26,9 +26,7 @@
 	</p>
 	<ul>
 		<#list wikis as wiki>
-			<li style='background-image: url("${slug(wiki.name)}/${wiki.title}"),url("${ogImage}")'>
-				<a href="${slug(wiki.name)}/index.html">${wiki.name}</a>
-			</li>
+			<@bigitem link="${slug(wiki.name)}/index.html" bg="${slug(wiki.name)}/${wiki.title}" bg2="${ogImage}">${wiki.name}</@bigitem>
 		</#list>
 	</ul>
 </@content>

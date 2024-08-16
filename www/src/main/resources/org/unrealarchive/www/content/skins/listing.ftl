@@ -41,7 +41,7 @@
 					<#list skins as s>
 					<tr>
 						<td nowrap="nowrap"><a href="${relPath(s.path + ".html")}">${s.item.name}</a></td>
-						<td><@authorLink s.item.authorName /></td>
+						<td><@authorLink s.item /></td>
 						<td class="nomobile">
 							<#if s.item.skins?size gt 0>
 								${s.item.skins?size} skin<#if s.item.skins?size gt 1>s</#if>
@@ -53,7 +53,7 @@
 						</td>
 						<td class="meta nomobile">
 							<#if s.item.attachments?size gt 0>
-								<img src="${staticPath()}/images/icons/image.svg" alt="Has images" height="22"/>
+								<@icon name="image" title="Has images"/>
 							</#if>
 							<@dependencyIcon s.item.dependencies/>
 						</td>

@@ -12,8 +12,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -23,10 +25,16 @@ import org.jsoup.nodes.Document;
 
 import org.unrealarchive.common.JSON;
 import org.unrealarchive.common.Util;
+import org.unrealarchive.content.ContentEntity;
+import org.unrealarchive.content.FileType;
+import org.unrealarchive.content.Games;
 import org.unrealarchive.content.addons.Addon;
+import org.unrealarchive.content.addons.GameType;
+import org.unrealarchive.content.addons.GameTypeRepository;
 import org.unrealarchive.content.addons.SimpleAddonRepository;
 import org.unrealarchive.content.wiki.WikiPage;
 import org.unrealarchive.content.wiki.WikiRepository;
+import org.unrealarchive.www.content.Packages;
 
 /**
  * Submits contents to Minimum Effort Search instance.
@@ -39,32 +47,32 @@ public class MESSubmitter {
 	private static final String ADD_BATCH_ENDPOINT = "/index/addBatch";
 
 	public void submit(
-		SimpleAddonRepository contentRepo, String rootUrl, String mseUrl, String mseToken, int batchSize,
+		SimpleAddonRepository contentRepo, GameTypeRepository gametypeRepo,
+		String rootUrl, String mseUrl, String mseToken, int batchSize,
 		Consumer<Double> progress, Consumer<Boolean> done
 	) throws IOException {
-		Collection<Addon> contents = contentRepo.all(false);
+		Collection<ContentEntity<?>> contents = new HashSet<>();
+		contents.addAll(contentRepo.all(false));
+		contents.addAll(gametypeRepo.all());
 		Path root = Paths.get("");
 		final int count = contents.size();
 		int i = 0;
 
 		final List<Map<String, Object>> batchDocs = new ArrayList<>(batchSize);
 
-		for (Addon content : contents) {
+		for (ContentEntity<?> content : contents) {
 			Map<String, Object> doc = Map.of(
-				"id", content.hash,
-				"score", 1.0d,
+				"id", content.id(),
+				"score", content instanceof GameType ? 2.0d : 1.0d,
 				"fields", Map.of(
-					"name", content.name.replaceAll("-", "\\\\-"),
-					"game", content.game,
+					"name", content.name().replaceAll("-", "\\\\-"),
+					"game", content.game(),
 					"type", content.friendlyType(),
 					"author", content.authorName().replaceAll("-", "\\\\-"),
-					"url", rootUrl + "/" + content.slugPath(root).toString() + ".html",
-					"date", content.releaseDate,
+					"url", rootUrl + "/" + content.pagePath(root).toString(),
+					"date", content.releaseDate(),
 					"description", content.autoDescription(),
-					"image", content.attachments.stream()
-												.filter(a -> a.type == Addon.AttachmentType.IMAGE)
-												.map(a -> a.url)
-												.findFirst().orElse(""),
+					"image", content.leadImage(),
 					"keywords", String.join(" ", content.autoTags())
 				)
 			);
@@ -80,6 +88,59 @@ public class MESSubmitter {
 
 			if (i % 1000 == 0) progress.accept((double)i / (double)count);
 		}
+
+		progress.accept(1.0d);
+		done.accept(true);
+	}
+
+	public void submitPackages(
+		SimpleAddonRepository contentRepo, GameTypeRepository gametypeRepo,
+		String rootUrl, String mseUrl, String mseToken, int batchSize,
+		Consumer<Double> progress, Consumer<Boolean> done
+	) {
+		Map<Games, Map<String, Map<Addon.ContentFile, List<ContentEntity<?>>>>> contents = Packages.loadContentFiles(contentRepo,
+																													 gametypeRepo);
+
+		final int count = contents.values().stream().mapToInt(p -> p.keySet().size()).sum();
+		final int[] i = { 0 };
+
+		final List<Map<String, Object>> batchDocs = new ArrayList<>(batchSize);
+
+		contents.forEach((game, content) -> content.forEach((pkg, file) -> {
+
+			Map<String, Object> doc = Map.of(
+				"id", String.format("%s_%s", Util.slug(game.name()), Util.slug(pkg)),
+				"score", 1.0d,
+				"fields", Map.of(
+					"name", pkg,
+					"fileName", file.keySet().stream().findFirst().map(c -> c.name).orElse(pkg),
+					"game", game.name,
+					"type", file.keySet().stream()
+								.map(f -> FileType.forFile(f.name))
+								.filter(Objects::nonNull)
+								.distinct()
+								.map(Enum::name)
+								.collect(Collectors.joining(", ")),
+					"versions", file.size(),
+					"uses", file.values().stream().mapToInt(List::size).sum(),
+					"url", String.format("/%s/packages/%s/index.html", Util.slug(game.name), Util.slug(pkg)),
+					"keywords", String.join(" ", game.tags)
+				)
+			);
+
+			batchDocs.add(doc);
+
+			if (batchDocs.size() >= batchSize) {
+				try {
+					post(mseUrl + ADD_BATCH_ENDPOINT, mseToken, JSON.toString(Map.of("docs", batchDocs)));
+				} catch (IOException ignored) {}
+				batchDocs.clear();
+			}
+
+			i[0]++;
+
+			if (i[0] % 1000 == 0) progress.accept((double)i[0] / (double)count);
+		}));
 
 		progress.accept(1.0d);
 		done.accept(true);
@@ -147,7 +208,7 @@ public class MESSubmitter {
 
 	private static Set<String> stopWords() throws IOException {
 		try (InputStream stopwords = MESSubmitter.class.getResourceAsStream("stopWords.txt");
-			BufferedReader br = new BufferedReader(new InputStreamReader(stopwords))) {
+			 BufferedReader br = new BufferedReader(new InputStreamReader(stopwords))) {
 			return br.lines()
 					 .map(String::trim)
 					 .filter(s -> !s.isBlank() && !s.startsWith("#"))

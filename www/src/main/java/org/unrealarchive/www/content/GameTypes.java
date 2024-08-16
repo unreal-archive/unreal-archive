@@ -231,20 +231,22 @@ public class GameTypes implements PageGenerator {
 			try {
 				Path gametypePath = outPath.toAbsolutePath();
 				try (Stream<Path> files = Files.list(gametypePath.resolve("gallery"))) {
-					this.gallery.putAll(files
-											.filter(f -> Files.isRegularFile(f) && Util.image(f))
-											.sorted()
-											.collect(Collectors.toMap(f -> gametypePath.relativize(f).toString(), f -> {
-												try {
-													Path thumb = Thumbnails.thumbnail(f,
-																					  outPath.resolve("gallery").resolve(
-																						  "t_" + Util.fileName(f)),
-																					  THUMB_WIDTH);
-													return outPath.relativize(thumb).toString();
-												} catch (Exception e) {
-													return "";
-												}
-											}, (k, v) -> v, () -> new LinkedHashMap<>())));
+					this.gallery.putAll(
+						files
+							.filter(f -> Files.isRegularFile(f) && Util.image(f))
+							.filter(f -> !f.getFileName().toString().startsWith("t_"))
+							.sorted()
+							.collect(Collectors.toMap(f -> gametypePath.relativize(f).toString(), f -> {
+								try {
+									Path thumb = Thumbnails.thumbnail(
+										f, outPath.resolve("gallery").resolve("t_" + Util.fileName(f)), THUMB_WIDTH
+									);
+									return outPath.relativize(thumb).toString();
+								} catch (Exception e) {
+									return "";
+								}
+							}, (k, v) -> v, () -> new LinkedHashMap<>()))
+					);
 				}
 			} catch (IOException e) {
 				// pass

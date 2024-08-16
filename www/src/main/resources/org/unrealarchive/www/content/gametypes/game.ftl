@@ -13,19 +13,16 @@
 	<@content class="biglist bigger">
 		<ul>
 		<#list game.gametypes as gametype>
-			<li
+			<#outputformat "plainText"><#assign pic>
 				<#if gametype.gametype.titleImage?? && gametype.gametype.titleImage?length gt 0>
-					style='background-image: url("${relPath(gametype.path + "/" + gametype.gametype.titleImage)}"); box-shadow: none'
+					${relPath(gametype.path + "/" + gametype.gametype.titleImage)}
 				<#elseif gametype.gametype.bannerImage?? && gametype.gametype.bannerImage?length gt 0>
-					style='background-image: url("${relPath(gametype.path + "/" + gametype.gametype.bannerImage)}");'
+					${relPath(gametype.path + "/" + gametype.gametype.bannerImage)}
 				<#elseif gametype.fallbackTitle?? && gametype.fallbackTitle?length gt 0>
-					style='background-image: url("${gametype.fallbackTitle}");'
+					${gametype.fallbackTitle}
 				</#if>
-			>
-				<a href="${relPath(gametype.path + "/index.html")}" title="${gametype.gametype.name}">
-				  <#if gametype.gametype.titleImage?? && gametype.gametype.titleImage?length gt 0>&nbsp;<#else>${gametype.gametype.name}</#if>
-				</a>
-			</li>
+			</#assign></#outputformat>
+			<@bigitem link="${relPath(gametype.path + '/index.html')}" meta="" bg="${pic?trim}">${gametype.gametype.name}</@bigitem>
 		</#list>
 		</ul>
 	</@content>

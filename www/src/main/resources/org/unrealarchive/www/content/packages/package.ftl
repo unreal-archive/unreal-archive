@@ -14,7 +14,7 @@
 
 			<#if packageFiles?size gt 1>
 				<section class="files">
-					<h2><img src="${staticPath()}/images/icons/list.svg" alt="Files"/> Files</h2>
+					<h2><@icon "list"/>Files</h2>
 					<div>
 						<p>This package has multiple variations with the same name, but likely different contents. The below table lists each variation.</p>
 						<p>Click on a variation to find the release files which use each variation.</p>
@@ -46,7 +46,7 @@
 
 			<#list packageFiles as file, packages>
 				<section>
-					<h2 id="${file.hash}"><img src="${staticPath()}/images/icons/package.svg" alt="Files"/> File</h2>
+					<h2 id="${file.hash}"><@icon "package"/>File</h2>
 					<div class="label-value">
 						<label>Name</label><span><a href="${relPath(siteRoot + "/files/" + file.hash[0..1] + "/" + file.hash + ".html")}">${file.name}</a></span>
 					</div>
@@ -75,9 +75,9 @@
 								<tr>
 									<td>${c.friendlyType}</td>
 									<td>
-										<a href="${relPath(c.slugPath(siteRoot) + ".html")}">${c.name}</a>
+										<a href="${relPath(c.pagePath(siteRoot))}">${c.name}</a>
 									</td>
-									<td><@authorLink c.authorName /></td>
+									<td><@authorLink c /></td>
 								</tr>
 								</#list>
 							</tbody>

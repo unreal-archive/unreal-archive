@@ -17,14 +17,11 @@
 	<@content class="biglist">
 		<ul>
 			<#list months as m, count>
-				<li <#if count == 0>class="disabled"</#if>>
-					<span class="meta">${count}</span>
-					<#if count gt 0>
-						<a href="${relPath(game.path + "/releases/${year?c}/${m}/index.html")}">${monthNames[m-1]}</a>
-					<#else>
-						${monthNames[m-1]}
-					</#if>
-				</li>
+				<#assign disable=(count == 0)/>
+				<#outputformat "plainText">
+					<#assign ref><#if !disable>${relPath(game.path + "/releases/${year?c}/${m}/index.html")}</#if></#assign>
+				</#outputformat>
+				<@bigitem link="${ref}" meta="${count}" disabled=disable>${monthNames[m-1]}</@bigitem>
 			</#list>
 		</ul>
 	</@content>

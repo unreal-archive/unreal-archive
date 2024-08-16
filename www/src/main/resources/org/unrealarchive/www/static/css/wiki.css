@@ -42,7 +42,7 @@
   links
 */
 .wiki a.external, .wiki a.extiw {
-	background: url(../images/icons/external-link.svg) center right no-repeat;
+	background: url(../images/icons/external-link-wiki.svg) center right no-repeat;
 	padding-right: 20px;
 	background-size: 20px 20px;
 }
@@ -77,11 +77,10 @@
 
 .wiki h2, .wiki h3 {
 	margin-top: 20px;
-	border-radius: 0;
 }
 
 .wiki div.infobox[style*="float"] {
-	border-radius: 5px;
+	border-radius: var(--radius);
 	background-color: var(--table-row-alt-bg);
 	padding: 10px;
 	margin: 10px
@@ -91,7 +90,7 @@
 	navbox at bottom of pages
 */
 .wiki table.navbox, .wiki div.infobox-class {
-	border-radius: 5px;
+	border-radius: var(--radius);
 	background-color: var(--document-meta-bg);
 }
 
@@ -116,7 +115,7 @@
  */
 .wiki table.wikitable {
 	width: inherit;
-	border-radius: 5px;
+	border-radius: var(--radius);
 }
 .wiki table.wikitable[style*="margin: 0;"] {
 	width: 100%;

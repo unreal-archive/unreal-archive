@@ -31,7 +31,7 @@
 
 		<div class="info">
 
-			<#assign author><@authorLink announcer.item.authorName /></#assign>
+			<#assign author><@authorLink announcer.item /></#assign>
 			<#assign
 			labels=[
 					"Name",
@@ -59,7 +59,7 @@
 			<@variations variations=announcer.variations/>
 
 			<#if announcer.item.announcers?size gt 0>
-			<@contents title="announcers">
+			<@contents title="Announcers">
 				<#assign announcersList><#list announcer.item.announcers?sort as v><div>${v.name}</div><#else>Unknown</#list></#assign>
 				<#assign labels=["Included Announcers"] values=['${announcersList}']>
 				<@labellist labels=labels values=values/>

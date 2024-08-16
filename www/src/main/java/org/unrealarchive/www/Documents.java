@@ -44,6 +44,7 @@ public class Documents implements PageGenerator {
 				 });
 		return groups;
 	}
+
 	/**
 	 * Generate one or more HTML pages of output.
 	 */

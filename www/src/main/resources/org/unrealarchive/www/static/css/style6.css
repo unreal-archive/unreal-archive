@@ -1,0 +1,269 @@
+:root {
+	--p1: #14274E;
+	--p2: #F1F6F9;
+	--p3: #9BA4B4;
+	--p4: #394867;
+	--p5: #74BE57;
+	--p6: #DEE8F8;
+
+	--body-bg: var(--p2);
+	--body-color: black;
+	--body-font-family: 'Encode Sans Semi Condensed', sans-serif;
+	--article-font-family: 'Encode Sans Expanded', sans-serif;
+
+	--link-color: blue;
+	--link-color-visited: purple;
+
+	--header-font-family: 'Squada One', sans-serif;
+	--header-bg-color: var(--p1);
+	--header-text-color: white;
+	--header-border-color: none;
+	--header-logo-color-a: white;
+	--header-logo-color-b: var(--p3);
+	--header-shadow: none;
+
+	--header-outline-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
+
+	--footer-border-color: var(--p4);
+
+	--menu-font-family: 'Encode Sans Expanded', sans-serif;
+	--menu-text-color: var(--p2);
+	--menu-trim-color: 1px dotted var(--menu-text-color);
+
+	--page-shadow: none;
+
+	--section-header-bg: var(--p4);
+	--section-header-shadow: none;
+	--section-header-title-bg: var(--p4);
+	--section-header-title-shadow: 0 -10px 15px -4px rgba(0, 0, 0, 0.4);
+	--section-header-title-color: white;
+	--section-header-title-color-hover: var(--p2);
+
+	--section-subheader-bg: var(--p3);
+	--section-subheader-color: var(--p1);
+
+	--biglist-shadow: inset 0 0 80px 0 rgba(0, 0, 0, 0.75);
+	--biglist-bg-color: var(--p4);
+	--biglist-bg-color-hover: var(--p2);
+	--biglist-text-color: white;
+	--biglist-meta-color: rgba(255, 255, 255, 0.6);
+
+	--paginate-bg-inactive: var(--p2);
+	--paginate-bg-hover: var(--p3);
+	--paginate-bg-active: var(--p3);
+	--paginate-shadow-active: inset 0 -3px 0 0 var(--p1);
+	--paginate-border: none;
+
+	--download-button-bg: var(--p5);
+	--download-button-bg-hover: var(--p5);
+	--download-info-bg-hover: none;
+
+	--table-header-bg: none;
+	--table-header-color: var(--p1);
+	--table-row-alt-bg: var(--p6);
+	--table-row-hover: var(--p3);
+
+	--document-meta-border: none;
+	--document-meta-bg: var(--p6);
+
+	--problem-border: #dd3;
+	--problem-bg: #dd35;
+
+	--radius: 20px;
+}
+
+/**
+ * custom styling
+ */
+
+header {
+	position: fixed;
+	z-index: 5;
+	top: 0;
+	width: 100%;
+	border: none;
+}
+
+section.header {
+	height: 150px;
+	border-bottom: 10px solid var(--section-header-title-bg);
+}
+section.header .cover {
+	backdrop-filter: none;
+}
+
+/* for pages where there's no big header present, push content down */
+.contentpage { padding: 30px 0; }
+/* better padding on blocks which follow blocks */
+.mainpage section.header + .contentpage,
+.page + .contentpage,
+.submenu + .contentpage {
+	padding: 20px 0;
+}
+
+.contentpage .content-body:not(:has(.biglist)) {
+	background-color: var(--p2);
+	border-radius: var(--radius);
+	padding: 10px;
+}
+
+.page-bg {
+	display: block;
+	z-index: -1;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 800px;
+	background-size: cover;
+	background-position: top center;
+	filter: blur(10px) opacity(0.75);
+}
+
+.page-bg .inner {
+	position: absolute;
+	width: 100%;
+	top: 0;
+	bottom: 0;
+	background: linear-gradient(0deg, var(--body-bg) 0%, rgba(0,0,0,0) 100%);
+}
+
+.biglist ul li a:hover {
+	border-bottom: 4px solid var(--p3);
+	backdrop-filter: saturate(1.3) brightness(1.3);
+	transition: backdrop-filter 1s;
+}
+
+article section h2 {
+	border-radius: var(--radius);
+	font-size: 1.75em;
+}
+
+article section h3 {
+	background-color: var(--p3);
+	color: var(--section-header-title-color);
+	font-size: 1.6em;
+	border-radius: var(--radius);
+}
+
+article section h4 {
+	background-color: var(--document-meta-bg);
+	font-size: 1.3em;
+	border-radius: var(--radius);
+}
+
+article.info {
+	margin-top: 0;
+}
+
+article.info .info, article.list, article.document, #gametype, #gametype-release {
+	/*background-color: var(--p2);*/
+	/*border-radius: var(--radius);*/
+	/*padding: 10px;*/
+}
+
+.list .sectionInfo h3 {
+	border-radius: var(--radius);
+}
+
+section.report {
+	background-color: transparent;
+}
+
+article section.readable {
+	background: none;
+	color: var(--body-color);
+}
+
+table thead, table th {
+	border-bottom: 1px solid var(--body-color);
+	text-align: left;
+}
+
+table tbody td {
+	padding: 7px 0;
+}
+
+section table {
+	margin: 0 5px;
+	width: calc(100% - 10px);
+}
+
+section.downloads .links a {
+	margin: 10px;
+	border-radius: var(--radius);
+}
+
+section.releases .links a {
+	border-radius: var(--radius);
+}
+
+.readable {
+	font-size: 1.1em;
+}
+
+#log .good {
+	color: var(--p1);
+	background-color: var(--p3);
+	font-weight: bold;
+}
+
+#log .error, #log .warn {
+	color: var(--p1);
+}
+
+/**
+  Light theme support
+ */
+[data-theme="dark"] {
+	--body-bg: var(--p1);
+}
+
+[data-theme="orange"] {
+	--p1: #4F200D;
+	--p2: #F6F1E9;
+	--p3: #FFD93D;
+	--p4: #FF8400;
+	--p5: #74BE57;
+	--p6: #F4EEE7;
+}
+
+[data-theme="reds"] {
+	--p1: #151515;
+	--p2: #EEEEEE;
+	--p3: #C73659;
+	--p4: #A91D3A;
+	--p5: #74BE57;
+	--p6: #ECECEC;
+	--body-bg: var(--p1);
+}
+
+[data-theme="greens"] {
+	--p1: #3A4D39;
+	--p2: #ECE3CE;
+	--p3: #739072;
+	--p4: #4F6F52;
+	--p5: #74BE57;
+	--p6: #EAE1CC;
+	--body-bg: var(--p1);
+}
+
+[data-theme="accent"] {
+	--p1: #393E46;
+	--p2: #EEEEEE;
+	--p3: #00ADB5;
+	--p4: #222831;
+	--p5: #74BE57;
+	--p6: #ECECEC;
+	--body-bg: var(--p1);
+}
+
+@media screen and (max-width: 1024px) {
+	* {
+		--radius: 0;
+	}
+
+	header {
+		position: relative;
+	}
+}

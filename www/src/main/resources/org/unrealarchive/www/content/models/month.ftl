@@ -30,7 +30,7 @@
         <#list items as m>
 					<tr>
 						<td nowrap="nowrap"><a href="${relPath(m.path + ".html")}">${m.item.name}</a></td>
-						<td><@authorLink m.item.authorName /></td>
+						<td><@authorLink m.item /></td>
 						<td class="nomobile">
 							<#if m.item.models?size gt 0>
 								${m.item.models?size} character<#if m.item.models?size gt 1>s</#if>
@@ -42,7 +42,7 @@
 						</td>
 						<td class="meta nomobile">
 							<#if m.item.attachments?size gt 0>
-								<img src="${staticPath()}/images/icons/image.svg" alt="Has images" height="22"/>
+								<@icon name="image" title="Has images"/>
 							</#if>
 							<@dependencyIcon m.item.dependencies/>
 						</td>

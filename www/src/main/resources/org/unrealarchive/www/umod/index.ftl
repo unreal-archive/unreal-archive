@@ -15,8 +15,8 @@
 
 				<div id="upload" class="display-block single">
 					<input type="file" id="files" accept=".zip,.rar,.7z,.ace,.gz,.bz2,.tar,.tgz,.exe,.umod,.ut2mod,.ut4mod" multiple style="display:none">
-					<button id="select-files"><img src="${staticPath()}/images/icons/file-plus.svg" alt="Add files"/> Add Files</button>
-					<button id="upload-files"><img src="${staticPath()}/images/icons/upload.svg" alt="Upload"/> Convert!</button>
+					<button id="select-files"><@icon "file-plus"/>Add Files</button>
+					<button id="upload-files"><@icon "upload"/>Convert!</button>
 				</div>
 			</div>
 

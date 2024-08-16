@@ -25,6 +25,8 @@
 	--menu-text-color: white;
 	--menu-trim-color: 1px dotted white;
 
+	--page-shadow: 0 0 30px 0 rgba(0, 0, 0, 0.5);
+
 	--section-header-bg: gray;
 	--section-header-shadow: inset 0 0 100px 0 rgba(0, 0, 0, 0.75);
 	--section-header-title-bg: rgba(255, 255, 255, 0.4);
@@ -61,6 +63,8 @@
 
 	--problem-border: #f73;
 	--problem-bg: #f735;
+
+	--radius: 5px;
 }
 
 html {
@@ -129,12 +133,15 @@ h2 img, h3 img, h4 img {
 
 .mainpage {
 	min-height: 100vh;
-	box-shadow: 0 0 30px 0 rgba(0, 0, 0, 0.5);
+	box-shadow: var(--page-shadow);
+	margin-top: 70px;
 }
 
 .contentpage {
 	padding: 10px;
 }
+
+.contentpage .content-body {}
 
 header {
 	background-color: var(--header-bg-color);
@@ -186,7 +193,27 @@ header .heading .menu {
 	text-align: right;
 }
 
+.page-bg {
+	display: none;
+}
+
+.page-bg .inner {
+}
+
 .right { text-align: right; }
+
+svg.icon {
+	height: 28px;
+	width: 28px;
+	vertical-align: middle;
+	padding: 0 5px 5px 0;
+}
+
+svg.icon.small {
+	height: 20px;
+	width: 20px;
+	padding-bottom: 3px;
+}
 
 ul.menu, .menu ul {
 	list-style-type: none;
@@ -238,7 +265,7 @@ section.submenu .page .inner {
 	padding: 10px;
 	margin: auto 0 0 0;
 	background-color: var(--section-header-title-bg);
-	border-radius: 0 0 5px 5px;
+	border-radius: 0 0 var(--radius) var(--radius);
 	backdrop-filter: blur(15px);
 }
 section.submenu .inner .menu {
@@ -280,8 +307,9 @@ section.intro h1 {
 section.header {
 	height: 200px;
 	box-shadow: var(--section-header-shadow);
-	background: var(--section-header-bg) center;
+	background: var(--section-header-bg);
 	background-size: cover;
+	background-position: top center;
 	/*margin-bottom: 10px;*/
 }
 
@@ -306,8 +334,7 @@ section.header h1 {
 	margin: auto 0 0 0;
 	background-color: var(--section-header-title-bg);
 	box-shadow: var(--section-header-title-shadow);
-	border-radius: 5px 5px 0 0;
-	backdrop-filter: blur(15px);
+	border-radius: var(--radius) var(--radius) 0 0;
 }
 
 section.header h1 a {
@@ -346,6 +373,7 @@ section.header .crumbs:not(:first-child) {
 	color: var(--section-subheader-color);
 	margin: 15px 0;
 	padding: 5px 10px;
+	border-radius: var(--radius);
 }
 
 .biglist.bigger ul {
@@ -355,20 +383,23 @@ section.header .crumbs:not(:first-child) {
 
 .biglist ul li {
 	position: relative;
-	height: 125px;
+	height: 150px;
 	box-shadow: var(--biglist-shadow);
-	background: var(--biglist-bg-color) center;
+	background: var(--biglist-bg-color);
 	background-size: cover;
+	background-position: center;
+	overflow: hidden;
 
-	font-size: 1.9em;
+	font-size: 1.7em;
 	font-weight: bold;
 	color: var(--biglist-text-color);
 
-	border-radius: 5px;
+	border-radius: var(--radius);
 }
 
 .biglist.bigger ul li, .biglist.taller ul li {
-	height: 150px;
+	height: 175px;
+	font-size: 1.9em;
 }
 
 .biglist ul li a {
@@ -376,28 +407,65 @@ section.header .crumbs:not(:first-child) {
 	color: var(--biglist-text-color);
 	text-shadow: var(--header-outline-shadow);
 
+	z-index: 4;
 	position: absolute;
 	top: 0;
 	bottom: 0;
 	left: 0;
 	right: 0;
-	padding: 10px;
 
-	border-radius: 5px;
+	border-radius: var(--radius);
 }
 
-.biglist ul li a:hover {
-	background: linear-gradient(0deg, var(--biglist-bg-color-hover) 0%, #00000000 100%);
-	border-radius: 5px;
+.biglist ul li a:hover ~ div.bg {
+	left: -100px;
+	right: -100px;
+	bottom: -100px;
+	top: 0;
+
+	transition: left 10s linear, right 10s linear, bottom 10s linear, top 10s linear;
+}
+
+.biglist ul li .title {
+	background-color: var(--section-header-bg);
+	border-radius: var(--radius) var(--radius) 0 0;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	padding: 5px 10px;
+}
+
+.biglist ul li .bg {
+	background-size: cover;
+	background-position: center;
+	border-radius: 0 0 var(--radius) var(--radius);
+	z-index: 1;
+	position: absolute;
+	top: 45px;
+	left: 0;
+	right: 0;
+	bottom: 0;
+
+	transition: left 0.2s, right 0.2s, bottom 0.2s, top 0.2s;
+}
+
+.biglist.bigger ul li .bg {
+	top: 50px;
 }
 
 .biglist ul li .meta {
 	color: var(--biglist-meta-color);
-	font-size: 1.5em;
+	font-size: 1.3em;
 
 	position: absolute;
-	bottom: -10px;
-	right: 0;
+	z-index: 3;
+	bottom: -3px;
+	right: 3px;
+}
+
+.biglist ul li .meta img {
+	filter: drop-shadow(0px 0px 8px black);
 }
 
 .biglist ul li.disabled {
@@ -464,7 +532,7 @@ nav.letters a.active, nav.pages a.active {
 	padding: 10px;
 	margin: 5px 0;
 	text-decoration: none;
-	border-radius: 5px;
+	border-radius: var(--radius);
 }
 
 article.split {
@@ -515,6 +583,7 @@ article.info .side .screenshots {
 }
 
 article.info .screenshots .thumb {
+	border-radius: var(--radius);
 	width: 300px;
 	margin: 2px;
 	vertical-align: middle;
@@ -721,7 +790,7 @@ article.managed section.downloads .download .links a {
 	display: block;
 	width: 100%;
 	padding: 5px;
-	margin: 5px;
+	margin: 5px 0;
 	text-align: center;
 	background-color: var(--download-button-bg);
 	text-decoration: none;
@@ -825,10 +894,8 @@ button img, td img {
 
 #gametype section.releases .release .links a {
 	display: block;
-	width: 100%;
-	height: 100%;
 	padding: 5px;
-	margin: 5px;
+	margin: 5px 0;
 	text-align: center;
 	background-color: var(--download-button-bg);
 	text-decoration: none;
@@ -858,7 +925,7 @@ button img, td img {
 	min-width: 80px;
 	max-width: 80px;
 	max-height: 80px;
-	border-radius: 5px;
+	border-radius: var(--radius);
 }
 
 #gametype section.contents .maps .map .info {
@@ -976,6 +1043,10 @@ div.themes img {
 	header {
 		/*height: 40px;*/
 	}
+	
+	.mainpage {
+		margin-top: 0;
+	}
 
 	header .heading {
 		grid-template-columns: auto;
@@ -1024,10 +1095,10 @@ div.themes img {
 	.biglist ul, .biglist.bigger ul {
 		grid-template-columns: 100%;
 		grid-template-areas: 'block';
+		font-size: 0.8em;
 	}
 
 	.biglist ul li {
-		border-radius: 0;
 		height: 75px;
 	}
 

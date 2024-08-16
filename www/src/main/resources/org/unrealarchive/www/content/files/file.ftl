@@ -8,7 +8,7 @@
 		${file.name}
 	</@heading>
 
-	<@content class="biglist">
+	<@content>
 		<#compress>
 		<div class="info">
 			<section class="meta">
@@ -44,9 +44,9 @@
 							<td>${c.friendlyType}</td>
 							<td>${c.game}</td>
 							<td>
-								<a href="${relPath(c.slugPath(siteRoot) + ".html")}">${c.name}</a>
+								<a href="${relPath(c.pagePath(siteRoot))}">${c.name}</a>
 							</td>
-							<td><@authorLink c.authorName /></td>
+							<td><@authorLink c /></td>
 						</tr>
 						</#list>
 					</tbody>

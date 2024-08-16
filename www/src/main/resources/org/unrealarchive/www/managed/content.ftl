@@ -30,13 +30,13 @@
 
 		<div class="right">
 			<section class="meta">
-				<h2><img src="${staticPath()}/images/icons/info.svg" alt="Information"/>Information</h2>
+				<h2><@icon "info"/>Information</h2>
 				<div class="label-value">
-					<label>Author</label><span><@authorLink managed.managed.authorName /></span>
+					<label>Author</label><span><@authorLink managed.managed /></span>
 				</div>
 				<#if managed.managed.homepage?? && managed.managed.homepage?has_content>
 					<div class="label-value">
-						<label> </label><span><a href="${managed.managed.homepage}">Homepage</a></span>
+						<label> </label><span><a href="${managed.managed.homepage}"><@icon name="external-link" small=true/>Homepage</a></span>
 					</div>
 				</#if>
 				<#if managed.managed.releaseDate?? && managed.managed.releaseDate?has_content>
@@ -51,12 +51,12 @@
 				</#if>
 
 				<section class="downloads">
-					<h2><img src="${staticPath()}/images/icons/download.svg" alt="Downloads"/> Downloads</h2>
+					<h2><@icon "download"/>Downloads</h2>
 					<#list managed.managed.downloads as d>
 						<#if !d.deleted && d.downloads?size gt 0>
 							<div class="download">
 								<div class="title">
-									<img src="${staticPath()}/images/icons/os-${d.platform?lower_case}.svg" title="${d.platform}" alt="${d.platform}"/>
+									<@icon name="os-${d.platform?lower_case}" title="${d.platform}"/>
 									${d.title} ${d.version}
 								</div>
 								<div class="info">

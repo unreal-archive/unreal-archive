@@ -36,7 +36,7 @@
 
 			<#assign themes><@themes themes=pack.item.themes/></#assign>
 
-			<#assign author><@authorLink pack.item.authorName /></#assign>
+			<#assign author><@authorLink pack.item /></#assign>
 			<#assign gametypeLink>
 				<a href="<#if gameTypeInfoPath??>${relPath(gameTypeInfoPath + "/index.html")}<#else>${relPath(gametype.path + "/index.html")}</#if>">${pack.item.gametype}</a>
 			</#assign>
@@ -87,7 +87,7 @@
 						<tr>
 							<td>${m.name}</td>
 							<td class="nomobile">${m.title}</td>
-							<td><@authorLink m.authorName /></td>
+							<td><@authorLink m /></td>
 						</tr>
           </#list>
 					</tbody>

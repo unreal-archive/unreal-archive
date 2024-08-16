@@ -5,25 +5,16 @@
 <@content class="biglist bigger">
 	<ul>
 		<#list games as g, cnt>
-			<li style='background-image: url("${staticPath()}/images/games/t_${g.name}.png")'>
-				<span class="meta">${cnt}</span>
-				<a href="${slug(g.name)}/index.html">${g.name}</a>
-			</li>
+			<@bigitem link="${slug(g.name)}/index.html" meta="${cnt}" bg="${staticPath()}/images/games/t_${g.name}.png">${g.name}</@bigitem>
 		</#list>
 	</ul>
 </@content>
 
 <@content class="biglist">
 	<ul>
-		<li style='background-image: url("${staticPath()}/images/contents/t_wikis.png")'>
-			<a href="wikis/index.html">Wikis</a>
-		</li>
-		<li style='background-image: url("${staticPath()}/images/games/All.png")'>
-			<a href="authors/index.html">Browse by Author</a>
-		</li>
-		<li style='background-image: url("${staticPath()}/images/gametypes/Unreal/t_Single Player.png")'>
-			<a href="misc/index.html">Miscellaneous</a>
-		</li>
+		<@bigitem link="wikis/index.html" bg="${staticPath()}/images/contents/t_wikis.png">Wikis</@bigitem>
+		<@bigitem link="authors/index.html" bg="${staticPath()}/images/games/All.png">Browse by Author</@bigitem>
+		<@bigitem link="misc/index.html" bg="${staticPath()}/images/gametypes/Unreal/t_Single Player.png">Miscellaneous</@bigitem>
 	</ul>
 </@content>
 

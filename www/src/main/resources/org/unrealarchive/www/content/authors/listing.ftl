@@ -25,18 +25,15 @@
 			<ul>
 				<#list authors as a>
 					<#if a.count lt 2>
-							<#continue />
+						<#continue />
 					</#if>
 
-					<#assign bg="">
+					<#assign bgi=""/>
 					<#if a.leadImage??>
-						<#assign bg=urlEncode(a.leadImage)>
+						<#assign bgi=urlEncode(a.leadImage)/>
 					</#if>
 
-					<li style='background-image: url("${bg}")'>
-						<span class="meta">${a.count}</span>
-						<a href="${relPath(a.path + ".html")}">${a.author}</a>
-					</li>
+					<@bigitem link="${relPath(a.path + '.html')}" meta="${a.count}" bg="${bgi}">${a.author}</@bigitem>
 				</#list>
 			</ul>
 		</div>

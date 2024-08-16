@@ -13,6 +13,7 @@
 	</@heading>
 
 	<@content class="list">
+		<section>
 		<table class="docs">
 			<thead>
 			<tr>
@@ -44,6 +45,7 @@
 				</#list>
 			</tbody>
 		</table>
+		</section>
 	</@content>
 
 <#include "../_footer.ftl">

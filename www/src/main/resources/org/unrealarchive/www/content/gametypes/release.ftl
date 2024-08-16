@@ -24,7 +24,7 @@
 	<@content class="split split7030" id="gametype-release">
 		<div class="left">
 			<section>
- 				<h2><img src="${staticPath()}/images/icons/list.svg" alt="Release Files"/> ${gametype.gametype.name} ${release.title} ${release.version} Files</h2>
+ 				<h2><@icon "list"/>${gametype.gametype.name} ${release.title} ${release.version} Files</h2>
 				<div>${gametype.gametype.description}</div>
 				<ul class="readable">
 					<#list release.files as f>
@@ -38,7 +38,7 @@
 				<#if f.deleted><#continue/></#if>
 				<section>
 					<h2 id="${slug(f.title)}">
-						<img src="${staticPath()}/images/icons/os-${f.platform?lower_case}.svg" title="${f.platform}" alt="${f.platform}"/>
+            <@icon name="os-${f.platform?lower_case}" title="${f.platform}"/>
 						${f.title}
 					</h2>
 					<#assign
@@ -73,7 +73,7 @@
 
 		<div class="right">
 			<section>
-				<h2><img src="${staticPath()}/images/icons/info.svg" alt="Information"/>Release Information</h2>
+				<h2><@icon "info"/>Release Information</h2>
 				<div class="label-value">
 					<label>Title</label><span>${release.title}</span>
 				</div>

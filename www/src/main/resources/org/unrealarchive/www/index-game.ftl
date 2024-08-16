@@ -6,55 +6,43 @@
 
 <@heading bg=[ogImage]>${game.name}</@heading>
 
-<@content class="biglist">
+<@content class="biglist bigger">
 	<ul>
 		<#if managed?size gt 0>
 			<#list managed as m, c>
-				<li style='background-image: url("${staticPath()}/images/contents/t_patches.png")'>
-					<span class="meta">${c}</span>
-					<a href="${slug(m)}/index.html">${m}</a>
-				</li>
+        <@bigitem link="${slug(m)}/index.html" meta="${c}" bg="${staticPath()}/images/contents/t_patches.png">${m}</@bigitem>
 			</#list>
 		</#if>
 
-		<#if count.Documents gt 0><li style='background-image: url("${staticPath()}/images/contents/t_documents.png")'>
-			<span class="meta">${count.Documents}</span>
-			<a href="documents/index.html">Guides &amp; Reference</a>
-		</li></#if>
+		<#if count.Documents gt 0>
+			<@bigitem link="documents/index.html" meta="${count.Documents}" bg="${staticPath()}/images/contents/t_documents.png">Guides &amp; Reference</@bigitem>
+		</#if>
 
-		<#if count.GameTypes gt 0><li style='background-image: url("${staticPath()}/images/contents/t_mods.png")'>
-			<span class="meta">${count.GameTypes}</span>
-			<a href="gametypes/index.html">Game Types &amp; Mods</a>
-		</li></#if>
+		<#if count.GameTypes gt 0>
+      <@bigitem link="gametypes/index.html" meta="${count.GameTypes}" bg="${staticPath()}/images/contents/t_mods.png">Game Types &amp; Mods</@bigitem>
+		</#if>
 
-		<#if count.Map??><li style='background-image: url("${staticPath()}/images/contents/t_maps.png")'>
-			<span class="meta">${count.Map}</span>
-			<a href="maps/index.html">Maps</a>
-		</li></#if>
-		<#if count.MapPack??><li style='background-image: url("${staticPath()}/images/contents/t_mappacks.png")'>
-			<span class="meta">${count.MapPack}</span>
-			<a href="mappacks/index.html">Map Packs</a>
-		</li></#if>
-		<#if count.Mutator??><li style='background-image: url("${staticPath()}/images/contents/t_mutators.png")'>
-			<span class="meta">${count.Mutator!"0"}</span>
-			<a href="mutators/index.html">Mutators</a>
-		</li></#if>
-		<#if count.Model??><li style='background-image: url("${staticPath()}/images/contents/t_models.png")'>
-			<span class="meta">${count.Model!"0"}</span>
-			<a href="models/index.html">Models &amp; Characters</a>
-		</li></#if>
-		<#if count.Skin??><li style='background-image: url("${staticPath()}/images/contents/t_skins.png")'>
-			<span class="meta">${count.Skin!"0"}</span>
-			<a href="skins/index.html">Skins</a>
-		</li></#if>
-		<#if count.Voice??><li style='background-image: url("${staticPath()}/images/contents/t_voices.png")'>
-			<span class="meta">${count.Voice!"0"}</span>
-			<a href="voices/index.html">Voices</a>
-		</li></#if>
-      <#if count.Announcer??><li style='background-image: url("${staticPath()}/images/contents/t_announcers.png")'>
-			<span class="meta">${count.Announcer!"0"}</span>
-			<a href="announcers/index.html">Announcers</a>
-		</li></#if>
+		<#if count.Map??>
+			<@bigitem link="maps/index.html" meta="${count.Map}" bg="${staticPath()}/images/contents/t_maps.png">Maps</@bigitem>
+		</#if>
+		<#if count.MapPack??>
+			<@bigitem link="mappacks/index.html" meta="${count.MapPack}" bg="${staticPath()}/images/contents/t_mappacks.png">Map Packs</@bigitem>
+		</#if>
+		<#if count.Mutator??>
+			<@bigitem link="mutators/index.html" meta="${count.Mutator}" bg="${staticPath()}/images/contents/t_mutators.png">Mutators</@bigitem>
+		</#if>
+		<#if count.Model??>
+      <@bigitem link="models/index.html" meta="${count.Model}" bg="${staticPath()}/images/contents/t_models.png">Models &amp; Characters</@bigitem>
+		</#if>
+		<#if count.Skin??>
+			<@bigitem link="skins/index.html" meta="${count.Skin}" bg="${staticPath()}/images/contents/t_skins.png">Skins</@bigitem>
+		</#if>
+		<#if count.Voice??>
+			<@bigitem link="voices/index.html" meta="${count.Voice}" bg="${staticPath()}/images/contents/t_voices.png">Voices</@bigitem>
+		</#if>
+		<#if count.Announcer??>
+      <@bigitem link="announcers/index.html" meta="${count.Announcer}" bg="${staticPath()}/images/contents/t_announcers.png">Announcers</@bigitem>
+    </#if>
 	</ul>
 </@content>
 

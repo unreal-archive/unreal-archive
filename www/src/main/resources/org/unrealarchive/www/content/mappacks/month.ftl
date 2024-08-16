@@ -41,11 +41,11 @@
 						<#if p.item.gametype != gametype><#continue/></#if>
 						<tr>
 							<td><a href="${relPath(p.path + ".html")}">${p.item.name}</a></td>
-							<td><@authorLink p.item.authorName /></td>
+							<td><@authorLink p.item /></td>
 							<td class="nomobile">${p.item.maps?size}</td>
 							<td class="meta nomobile">
 								<#if p.item.attachments?size gt 0>
-									<img src="${staticPath()}/images/icons/image.svg" alt="Has images" height="22"/>
+									<@icon name="image" title="Has images"/>
 								</#if>
 								<@dependencyIcon p.item.dependencies/>
 							</td>

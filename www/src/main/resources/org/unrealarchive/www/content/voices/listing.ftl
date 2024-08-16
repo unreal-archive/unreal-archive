@@ -41,7 +41,7 @@
 					<#list voices as v>
 					<tr>
 						<td nowrap="nowrap"><a href="${relPath(v.path + ".html")}">${v.item.name}</a></td>
-						<td><@authorLink v.item.authorName /></td>
+						<td><@authorLink v.item /></td>
 						<td class="nomobile">
 							<#if v.item.voices?size gt 0>
 								${v.item.voices?size} voice<#if v.item.voices?size gt 1>s</#if>
@@ -49,7 +49,7 @@
 						</td>
 						<td class="meta nomobile">
 							<#if v.item.attachments?size gt 0>
-								<img src="${staticPath()}/images/icons/image.svg" alt="Has images" height="22"/>
+								<@icon name="image" title="Has images"/>
 							</#if>
 							<@dependencyIcon v.item.dependencies/>
 						</td>

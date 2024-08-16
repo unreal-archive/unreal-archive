@@ -1,16 +1,14 @@
 <#macro heading bg=[]>
 	<#compress>
-	<#t/><#assign style>
+	<#t/><#assign bgimg>
 		<#t/><#if bg?? && bg?size gt 0>
-			<#t/>style='background-image:
 			<#t/><#list bg as b>
 			<#t/>url("${b}")
 			<#t/><#if b?has_next>,</#if>
 			<#t/></#list>
-			<#t/>'
 		<#t/></#if>
 	<#t/></#assign>
-  <section class="header" ${style!""}>
+  <section class="header" style='background-image:${bgimg!""}'>
 		<div class="cover">
 			<div class="page">
 				<h1>
@@ -19,15 +17,28 @@
 			</div>
 		</div>
 	</section>
+	<#if bgimg??>
+	<div class="page-bg" style='background-image:${bgimg}'><div class="inner"></div></div>
+	</#if>
   </#compress>
 </#macro>
 
 <#macro content class="" id="content">
-	<div class="page contentpage">
+	<div class="page contentpage"><div class="content-body">
 		<article id="${id}" <#if class?length gt 0>class="${class}"</#if>>
 			<#nested>
 		</article>
-	</div>
+	</div></div>
+</#macro>
+
+<#macro bigitem link="" bg="", bg2="" meta="" disabled=false>
+	<li <#if disabled>class="disabled"</#if>>
+		<#if link?? && link?trim?length gt 0><a href="${link}"></#if>
+			<span class="title"><#nested/></span>
+		<#if link?? && link?trim?length gt 0></a></#if>
+		<#if bg?? && bg?trim?length gt 0><div class="bg" style='background-image: url("${bg}")<#if bg2?? && bg2?trim?length gt 0>,url("${bg2}")</#if>'></div></#if>
+		<#if meta?? && meta?trim?length gt 0><span class="meta">${meta?no_esc}</span></#if>
+	</li>
 </#macro>
 
 <#macro letterPages letters currentLetter pages currentPage>
@@ -70,15 +81,15 @@
 </#macro>
 
 <#macro problems problems>
-  <@links links=problems title="Problem Reports" icon="alert-triangle" class="problem"
+  <@links links=problems title="Problem Reports" ico="alert-triangle" class="problem"
 	  info="Users have reproted issues or problems using this content at the links below."/>
 </#macro>
 
-<#macro links links title="Links" h="h2" icon="link" class="links" info="">
+<#macro links links title="Links" h="h2" ico="link" class="links" info="">
 	<#compress>
 	<#if links?? && links?size gt 0>
 		<section class="${class}">
-			<${h}><img src="${staticPath()}/images/icons/${icon}.svg" alt="Link"/>${title}</${h}>
+			<${h}><@icon name="${ico}" small=true/>${title}</${h}>
 		  <#if info?? && info?length gt 0><span>${info}</span></#if>
 		  <ul>
 				<#list links as name, url>
@@ -107,10 +118,18 @@
     </#compress>
 </#macro>
 
+<#macro icon name title="" class="icon" small=false>
+	<#compress>
+		<#t/><#if title != ""><span title="${title}"></#if>
+		<#t/><svg class="${class}${small?string(" small","")}" viewbox="0 0 24 24"><use href="${staticPath()}/images/icons/${name}.svg#icon"></use></svg>
+		<#t/><#if title != ""></span></#if>
+	</#compress>
+</#macro>
+
 <#macro meta title labels values styles={} h="h2">
 	<#compress>
 	<section class="meta">
-		<${h}><img src="${staticPath()}/images/icons/info.svg" alt="Info"/>${title}</${h}>
+		<${h}><@icon "info"/>${title}</${h}>
 		<@labellist labels=labels values=values styles=styles/>
 	</section>
   </#compress>
@@ -119,7 +138,7 @@
 <#macro contents title h="h2">
 	<#compress>
 	<section class="contents">
-		<${h}><img src="${staticPath()}/images/icons/list.svg" alt="Contents"/>${title}</${h}>
+		<${h}><@icon "list"/>${title}</${h}>
 		<#nested>
 	</section>
 	</#compress>
@@ -129,7 +148,7 @@
 	<#compress>
 	<#if files?size gt 0>
 		<section class="files">
-			<${h}><img src="${staticPath()}/images/icons/package.svg" alt="Files"/>Packaged Files</${h}>
+			<${h}><@icon "package"/>Packaged Files</${h}>
 			<table>
 				<thead>
 				<tr>
@@ -171,7 +190,7 @@
 <#macro downloads downloads h="h2">
 	<#compress>
 	<section class="downloads">
-		<${h}><img src="${staticPath()}/images/icons/download.svg" alt="Download"/> Download Mirrors</${h}>
+		<${h}><@icon "download"/>Download Mirrors</${h}>
 		<div class="links">
 			<#list downloads as d>
 				<#if d.state == 'OK'>
@@ -187,7 +206,7 @@
 	<#compress>
 	<#if variations?size gt 0>
 		<section class="variations">
-			<${h}><img src="${staticPath()}/images/icons/variant.svg" alt="Variations"/>Variations</${h}>
+			<${h}><@icon "variant"/>Variations</${h}>
 			<table>
 				<thead>
 				<tr>
@@ -227,7 +246,7 @@
 	<#assign url="${repoUrl}/issues/new?title=${stitle}&labels=${slabels}&body=${urlEncode(sbody)}">
 
 	<section class="report">
-		<a href="${url}" id="r_${hash}"><img src="${staticPath()}/images/icons/alert.svg" alt="Alert Icon"/> ${text}</a>
+		<a href="${url}" id="r_${hash}"><@icon "alert"/>${text}</a>
 		<script>
 			const l = document.getElementById("r_${hash}"); l.href = l.href.replace('---', '---%0A		URL: ' + encodeURI(document.location.href));
 		</script>
@@ -238,7 +257,7 @@
 	<#compress>
 	<#if deps?size gt 0>
 		<section class="dependencies">
-			<${h}><img src="${staticPath()}/images/icons/file-check.svg" alt="Required Files"/> Required Files</${h}>
+			<${h}><@icon "file-check"/>Required Files</${h}>
 			<table>
 				<thead>
 				<tr>
@@ -303,19 +322,21 @@
    	</#list>
   </#list>
 	<#if status>
-		<img src="${staticPath()}/images/icons/file-check.svg" alt="No dependencies" title="No dependency problems" height="22"/>
+    <@icon name="file-check" title="No dependency problems"/>
 	<#else>
-		<img src="${staticPath()}/images/icons/file-x.svg" alt="Missing dependencies" title="Missing dependencies" height="22"/>
+    <@icon name="file-x" title="Missing dependencies"/>
 	</#if>
   </#compress>
 </#macro>
 
-<#macro authorLink author display=author>
+<#macro authorLink content display=content.authorName>
 	<#compress>
-	<#if author?lower_case == "unknown" || author?lower_case == "various">
-    ${display!author}
+	<#if content.authorName?lower_case == "unknown">
+    <@icon name="user-exclamation" small=true/>${display!content.authorName}
+	<#elseif content.authorName?lower_case == "various">
+    <@icon name="users" small=true/>${display!content.authorName}
 	<#else>
-		<a href="${relPath(siteRoot + "/authors/" + authorSlug(author) + ".html")}">${display!author}</a>
+		<a href="${relPath(siteRoot + "/authors/" + authorSlug(content.authorName) + ".html")}" title="${content.author}"><@icon name="user" small=true/>${display!content.authorName}</a>
 	</#if>
   </#compress>
 </#macro>
@@ -325,35 +346,35 @@
 	<#if themes?size gt 0>
 		<#list themes as theme, weight>
 			<div class="themes">
-					<#if weight lt 0.2>
-						<img src="${staticPath()}/images/icons/circle.svg" alt="${weight * 100}%"/>
-							<#list 0..3 as n>
-								<img src="${staticPath()}/images/icons/circle-dotted.svg" alt="${weight * 100}%"/>
-							</#list>
-					<#elseif weight lt 0.4>
-							<#list 0..1 as n>
-								<img src="${staticPath()}/images/icons/circle.svg" alt="${weight * 100}%"/>
-							</#list>
-							<#list 0..2 as n>
-								<img src="${staticPath()}/images/icons/circle-dotted.svg" alt="${weight * 100}%"/>
-							</#list>
-					<#elseif weight lt 0.6>
-							<#list 0..2 as n>
-								<img src="${staticPath()}/images/icons/circle.svg" alt="${weight * 100}%"/>
-							</#list>
-							<#list 0..1 as n>
-								<img src="${staticPath()}/images/icons/circle-dotted.svg" alt="${weight * 100}%"/>
-							</#list>
-					<#elseif weight lt 0.8>
-							<#list 0..3 as n>
-								<img src="${staticPath()}/images/icons/circle.svg" alt="${weight * 100}%"/>
-							</#list>
-						<img src="${staticPath()}/images/icons/circle-dotted.svg" alt="${weight * 100}%"/>
-					<#else>
-							<#list 0..4 as n>
-								<img src="${staticPath()}/images/icons/circle.svg" alt="${weight * 100}%"/>
-							</#list>
-					</#if>
+				<#if weight lt 0.2>
+					<@icon name="circle" small=true/>
+					<#list 0..3 as n>
+						<@icon name="circle-dotted" small=true/>
+					</#list>
+				<#elseif weight lt 0.4>
+					<#list 0..1 as n>
+						<@icon name="circle" small=true/>
+					</#list>
+					<#list 0..2 as n>
+						<@icon name="circle-dotted" small=true/>
+					</#list>
+				<#elseif weight lt 0.6>
+					<#list 0..2 as n>
+						<@icon name="circle" small=true/>
+					</#list>
+					<#list 0..1 as n>
+						<@icon name="circle-dotted" small=true/>
+					</#list>
+				<#elseif weight lt 0.8>
+					<#list 0..3 as n>
+						<@icon name="circle" small=true/>
+					</#list>
+					<@icon name="circle-dotted" small=true/>
+				<#else>
+					<#list 0..4 as n>
+						<@icon name="circle" small=true/>
+					</#list>
+				</#if>
 				<span>${theme}</span>
 			</div>
 		</#list>

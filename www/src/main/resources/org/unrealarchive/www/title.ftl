@@ -1,3 +1,4 @@
+<#include "macros.ftl">
 <header>
 	<div class="page">
 		<div class="heading">
@@ -12,20 +13,20 @@
 				<input type="checkbox" id="hamburger"/>
 				<ul>
 					<#if features??>
-						<#if features.search><li><a href="${siteUrl}/search/index.html"><img src="${staticPath()}/images/icons/search.svg" alt="Search"/> Search</a></li></#if>
-						<#if features.latest><li><a href="${siteUrl}/latest/index.html"><img src="${staticPath()}/images/icons/bulb.svg" alt="Bulb"/> Latest Additions</a></li></#if>
-						<#if features.submit><li><a href="${siteUrl}/submit/index.html"><img src="${staticPath()}/images/icons/upload.svg" alt="Upload"/> Submit Content</a></li></#if>
+						<#if features.search><li><a href="${siteUrl}/search/index.html"><@icon "search"/>Search</a></li></#if>
+						<#if features.latest><li><a href="${siteUrl}/latest/index.html"><@icon "bulb"/>Latest</a></li></#if>
+						<#if features.submit><li><a href="${siteUrl}/submit/index.html"><@icon "upload"/>Submit</a></li></#if>
 					</#if>
 					<li>
-						<a id="theme-switcher" style="cursor:pointer">
-							<img src="${staticPath()}/images/icons/moon-stars.svg" alt="Theme"/> Theme
-						</a>
+						<a id="theme-switcher" style="cursor:pointer"><@icon "palette"/></a>
 					</li>
 				</ul>
 			</div>
 		</div>
 	</div>
 	<script>
+		const themes = ['light', 'dark', 'orange', 'reds', 'greens', 'accent'];
+
 		function setTheme(theme, save) {
 		  if (save) localStorage.setItem('theme', theme);
 		  document.documentElement.setAttribute('data-theme', theme);
@@ -34,7 +35,7 @@
 		document.addEventListener('DOMContentLoaded', () => {
 		  if (theme || !window.matchMedia) return;
 
-		  theme = 'light';
+		  theme = themes[0];
 		  if (window.matchMedia('(prefers-color-scheme:dark)').matches) theme = 'dark';
           setTheme(theme, false);
           
@@ -44,8 +45,9 @@
 		});
 
 		document.querySelector('#theme-switcher').addEventListener('click', () => {
-		  if (!theme || theme === 'dark') theme = 'light';
-		  else theme = 'dark';
+			let next = themes.indexOf(theme) + 1;
+		  if (next === -1 || next === themes.length) next = 0;
+			theme = themes[next];
 		  setTheme(theme, true);
 		});
 	</script>

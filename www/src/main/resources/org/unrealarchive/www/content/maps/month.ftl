@@ -43,14 +43,14 @@
 						<tr>
 							<td nowrap="nowrap"><a href="${relPath(m.path + ".html")}">${m.item.name}</a></td>
 							<td class="nomobile">${m.item.title}</td>
-							<td><@authorLink m.item.authorName /></td>
+							<td><@authorLink m.item /></td>
 							<td class="nomobile">${m.item.playerCount}</td>
 							<td class="meta nomobile">
 								<#if m.item.bots>
-									<img src="${staticPath()}/images/icons/bots.svg" alt="AI/Bot support" title="AI/Bot support" height="22"/>
+									<@icon name="bots" title="AI/Bot support"/>
 								</#if>
 								<#if m.item.attachments?size gt 0>
-									<img src="${staticPath()}/images/icons/image.svg" alt="Has images" title="Has images" height="22"/>
+									<@icon name="image" title="Has images"/>
 								</#if>
 								<@dependencyIcon m.item.dependencies/>
 							</td>
