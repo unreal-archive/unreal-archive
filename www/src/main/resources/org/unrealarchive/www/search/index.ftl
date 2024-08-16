@@ -79,7 +79,7 @@
 <script type="application/javascript">
 	const searchRoots = {
 		"content": "./api/ua",
-		"packages": "http://unrealarchive.org:8598/search/api/uap",
+		"packages": "./api/uap",
 		"wiki": "./api/uaw",
   };
 
