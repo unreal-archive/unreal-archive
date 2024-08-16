@@ -3,8 +3,11 @@ package org.unrealarchive.content;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Set;
 
 public interface ContentEntity<T extends ContentEntity<T>> extends Comparable<ContentEntity<?>> {
+
+	public String id();
 
 	public Path contentPath(Path root);
 
@@ -23,6 +26,8 @@ public interface ContentEntity<T extends ContentEntity<T>> extends Comparable<Co
 	public String releaseDate();
 
 	public String autoDescription();
+
+	public Set<String> autoTags();
 
 	public LocalDateTime addedDate();
 

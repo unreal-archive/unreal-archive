@@ -7,9 +7,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -18,6 +20,7 @@ import org.unrealarchive.common.Util;
 import org.unrealarchive.content.AuthorNames;
 import org.unrealarchive.content.ContentEntity;
 import org.unrealarchive.content.Download;
+import org.unrealarchive.content.Games;
 import org.unrealarchive.content.NameDescription;
 
 /**
@@ -60,6 +63,11 @@ public class GameType implements ContentEntity<GameType> {
 	public boolean deleted = false;
 
 	public transient boolean variation = false;
+
+	@Override
+	public String id() {
+		return String.format("%s_%s", Util.slug(game), Util.slug(name));
+	}
 
 	@Override
 	public Path contentPath(Path root) {
@@ -126,6 +134,16 @@ public class GameType implements ContentEntity<GameType> {
 	@Override
 	public String autoDescription() {
 		return description;
+	}
+
+	@Override
+	public Set<String> autoTags() {
+		Set<String> tags = new HashSet<>();
+		tags.add(this.contentType.toLowerCase().replaceAll("_", " "));
+		tags.addAll(Games.byName(game).tags);
+		tags.addAll(altNames);
+		tags.addAll(gameTypes.stream().map(n -> n.name).toList());
+		return tags;
 	}
 
 	@Override

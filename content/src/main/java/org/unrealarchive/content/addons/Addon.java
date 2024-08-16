@@ -84,6 +84,11 @@ public abstract class Addon implements ContentEntity<Addon> {
 	 */
 	public boolean deleted = false;
 
+	@Override
+	public String id() {
+		return hash;
+	}
+
 	/**
 	 * Generate a path to where this content should live within a directory tree.
 	 *
@@ -210,6 +215,7 @@ public abstract class Addon implements ContentEntity<Addon> {
 		return Character.toString(first);
 	}
 
+	@Override
 	public Set<String> autoTags() {
 		Set<String> tags = new HashSet<>();
 		tags.add(this.contentType.toLowerCase().replaceAll("_", " "));

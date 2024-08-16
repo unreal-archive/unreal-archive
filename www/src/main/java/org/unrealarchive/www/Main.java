@@ -58,7 +58,8 @@ public class Main {
 
 		switch (cli.commands()[0].toLowerCase()) {
 			case "www" -> www(contentRepo(cli), gameTypeRepo(cli), documentRepo(cli), managedRepo(cli), wikiRepo(cli), cli);
-			case "search-submit" -> searchSubmit(contentRepo(cli), documentRepo(cli), managedRepo(cli), wikiRepo(cli), cli);
+			case "search-submit" ->
+				searchSubmit(contentRepo(cli), gameTypeRepo(cli), documentRepo(cli), managedRepo(cli), wikiRepo(cli), cli);
 			case "summary" -> System.out.println(contentRepo(cli).summary());
 			default -> {
 				System.out.printf("Command \"%s\" does not exist!%n%n", cli.commands()[0]);
@@ -113,6 +114,7 @@ public class Main {
 				   .filter(c -> !UNKNOWN.equalsIgnoreCase(c.author()))
 				   .sorted(Comparator.comparingInt(a -> a.author().length()))
 				   .forEachOrdered(c -> names.maybeAutoAlias(c.author));
+		// TODO: add other content type authors including map pack contributors, gametype credits, maybe wiki editors, etc
 		AuthorNames.instance = names;
 		System.out.printf("Found %d author aliases and names%n", names.aliasCount());
 
@@ -179,10 +181,10 @@ public class Main {
 		System.out.printf("Output %d pages in %.2fs%n", allPages.size(), (System.currentTimeMillis() - start) / 1000f);
 	}
 
-	private static void searchSubmit(SimpleAddonRepository contentRepo, DocumentRepository documentRepo,
+	private static void searchSubmit(SimpleAddonRepository contentRepo, GameTypeRepository gameTypeRepo, DocumentRepository documentRepo,
 									 ManagedContentRepository managedContentManager, WikiRepository wikiManager, CLI cli)
 		throws IOException {
-		// TODO documents, managed content, and gametypes
+		// TODO documents, managed content
 
 		// meh
 		Path authorPath = contentPathHelper(cli).resolve(AUTHORS_DIR);
@@ -201,13 +203,13 @@ public class Main {
 						  System.getenv().getOrDefault("MSE_CONTENT_URL", System.getenv().getOrDefault("MSE_URL", ""))
 		);
 
-		submitter.submit(contentRepo,
+		submitter.submit(contentRepo, gameTypeRepo,
 						 System.getenv().getOrDefault("SITE_URL", ""),
 						 System.getenv().getOrDefault("MES_CONTENT_URL", System.getenv().getOrDefault("MES_URL", "")),
 						 System.getenv().getOrDefault("MES_CONTENT_TOKEN", System.getenv().getOrDefault("MES_TOKEN", "")),
 						 200, // submission batch size
-						 percent -> System.out.printf("\r%.1f%% complete", percent * 100d),
-						 done -> System.out.printf("%nSearch submission complete in %.2fs%n",
+						 percent -> System.out.printf("\r%.1f%% complete contents", percent * 100d),
+						 done -> System.out.printf("%nContent search submission complete in %.2fs%n",
 												   (System.currentTimeMillis() - start) / 1000f));
 
 		System.out.printf("Submitting wikis to search instance at %s%n", System.getenv().getOrDefault("MES_WIKI_URL", ""));
@@ -216,8 +218,17 @@ public class Main {
 						 System.getenv().getOrDefault("MES_WIKI_URL", ""),
 						 System.getenv().getOrDefault("MES_WIKI_TOKEN", ""),
 						 50, // submission batch size
-						 percent -> System.out.printf("\r%.1f%% complete", percent * 100d),
-						 done -> System.out.printf("%nSearch submission complete in %.2fs%n",
+						 percent -> System.out.printf("\r%.1f%% complete wikis", percent * 100d),
+						 done -> System.out.printf("%nWiki search submission complete in %.2fs%n",
+												   (System.currentTimeMillis() - start) / 1000f));
+
+		submitter.submitPackages(contentRepo, gameTypeRepo,
+						 System.getenv().getOrDefault("SITE_URL", ""),
+						 System.getenv().getOrDefault("MES_PACKAGE_URL", ""),
+						 System.getenv().getOrDefault("MES_PACKAGE_TOKEN", ""),
+						 500, // submission batch size
+						 percent -> System.out.printf("\r%.1f%% complete packages", percent * 100d),
+						 done -> System.out.printf("%nPackage search submission complete in %.2fs%n",
 												   (System.currentTimeMillis() - start) / 1000f));
 	}
 

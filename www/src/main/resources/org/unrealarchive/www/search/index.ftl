@@ -12,6 +12,7 @@
 		<span>
 			<select id="kind">
 				<option value="content">Downloads &amp; Content</option>
+				<option value="packages">Packages</option>
 				<option value="wiki">Wikis</option>
 			</select>
 			<input type="search" id="q" autofocus="autofocus" />
@@ -78,8 +79,8 @@
 <script type="application/javascript">
 	const searchRoots = {
 		"content": "./api/ua",
+		"packages": "http://unrealarchive.org:8598/search/api/uap",
 		"wiki": "./api/uaw",
-		"files": "./api/uaf",
   };
 
 	let pageSize = 30;
@@ -177,6 +178,7 @@
 
 		function addResult(result) {
 			if (result.fields.wiki) addWikiResult(result);
+			else if (result.fields.fileName) addPackageResult(result);
 			else addContentResult(result);
 		}
 
@@ -210,6 +212,40 @@
 		  const resultRow = document.createElement("div");
 		  resultRow.classList.add('result', 'wiki');
 		  resultRow.append(imageDiv, info);
+		  results.append(resultRow);
+	  }
+
+	  function addPackageResult(result) {
+			const game = document.createElement("img");
+			game.setAttribute("src", "${staticPath()}/images/games/icons/" + result.fields.game + ".png");
+			game.setAttribute("alt", result.fields.game);
+			game.setAttribute("title", result.fields.game);
+
+		  const link = document.createElement("a");
+		  link.setAttribute("href", result.fields.url);
+		  link.innerText = result.fields.fileName.replace(/\\-/g, "-");
+		  const title = document.createElement("h2");
+		  title.append(game, link);
+
+			const type = document.createElement("div");
+			type.classList.add('author');
+			type.innerText = result.fields.game + " " + result.fields.type;
+
+			const versions = result.fields.versions;
+			const uses = result.fields.uses;
+			const description = document.createElement("div");
+			description.classList.add('description');
+			description.innerText = "There "
+					+ (versions === "1" ? "is 1 version": " are " + versions +" versions ")
+					+ " of this file, used in " + uses + " download" + (uses === "1" ? "." :"s.");
+
+		  const info = document.createElement("div");
+		  info.classList.add('info');
+		  info.append(title, type, description);
+
+		  const resultRow = document.createElement("div");
+		  resultRow.classList.add('result', 'package');
+		  resultRow.append(info);
 		  results.append(resultRow);
 	  }
 

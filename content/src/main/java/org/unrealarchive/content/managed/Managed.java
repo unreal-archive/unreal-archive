@@ -6,9 +6,11 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -17,6 +19,7 @@ import org.unrealarchive.common.Util;
 import org.unrealarchive.content.AuthorNames;
 import org.unrealarchive.content.ContentEntity;
 import org.unrealarchive.content.Download;
+import org.unrealarchive.content.Games;
 
 /**
  * Managed files represent content we cannot automatically index and
@@ -59,6 +62,11 @@ public class Managed implements ContentEntity<Managed> {
 
 	public String fullPath() {
 		return String.join("/", game, group, subGroup);
+	}
+
+	@Override
+	public String id() {
+		return String.format("%s_%s_%s", Util.slug(game), Util.slug(group), Util.slug(title));
 	}
 
 	@Override
@@ -108,6 +116,14 @@ public class Managed implements ContentEntity<Managed> {
 	@Override
 	public String autoDescription() {
 		return description;
+	}
+
+	@Override
+	public Set<String> autoTags() {
+		Set<String> tags = new HashSet<>(Games.byName(game).tags);
+		tags.add(group);
+		tags.add(subGroup);
+		return tags;
 	}
 
 	@Override

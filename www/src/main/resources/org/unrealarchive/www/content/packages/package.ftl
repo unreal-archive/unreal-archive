@@ -75,7 +75,7 @@
 								<tr>
 									<td>${c.friendlyType}</td>
 									<td>
-										<a href="${relPath(c.slugPath(siteRoot) + ".html")}">${c.name}</a>
+										<a href="${relPath(c.pagePath(siteRoot))}">${c.name}</a>
 									</td>
 									<td><@authorLink c /></td>
 								</tr>
