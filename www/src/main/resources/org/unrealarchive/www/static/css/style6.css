@@ -239,9 +239,9 @@ section.releases .links a {
 	--p5: #74BE57;
 	--p6: #ECECEC;
 	--body-bg: var(--p1);
-}
-footer {
-	color: var(--p2);
+	footer {
+		color: var(--p2);
+	}
 }
 
 [data-theme="greens"] {
