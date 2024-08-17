@@ -213,10 +213,13 @@ section.releases .links a {
 }
 
 /**
-  Light theme support
+  alternative colour scheme support
  */
 [data-theme="dark"] {
 	--body-bg: var(--p1);
+	footer {
+		color: var(--p2);
+	}
 }
 
 [data-theme="orange"] {
@@ -237,6 +240,9 @@ section.releases .links a {
 	--p6: #ECECEC;
 	--body-bg: var(--p1);
 }
+footer {
+	color: var(--p2);
+}
 
 [data-theme="greens"] {
 	--p1: #3A4D39;
@@ -246,6 +252,9 @@ section.releases .links a {
 	--p5: #74BE57;
 	--p6: #EAE1CC;
 	--body-bg: var(--p1);
+	footer {
+		color: var(--p2);
+	}
 }
 
 [data-theme="accent"] {
@@ -256,6 +265,9 @@ section.releases .links a {
 	--p5: #74BE57;
 	--p6: #ECECEC;
 	--body-bg: var(--p1);
+	footer {
+		color: var(--p2);
+	}
 }
 
 @media screen and (max-width: 1024px) {

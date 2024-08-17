@@ -6,11 +6,11 @@ jackson = "2.17.2"
 minio = "8.5.11"
 freemarker = "2.3.33"
 commonmark = "0.22.0"
-jsoup = "1.17.2"
+jsoup = "1.18.1"
 
 
 # testing
-junit = "5.10.3"
+junit = "5.11.0"
 
 # plugins
 javaModuleInfo = "1.8"
