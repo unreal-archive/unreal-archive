@@ -66,6 +66,7 @@ import static org.unrealarchive.content.addons.Addon.UNKNOWN;
 public class IndexHelper {
 
 	public static void main(String[] args) throws IOException {
+		fixDDOMMaps();
 //		fixCDOMMaps();
 //		reindexMapsWithThemes(args[0], args[1], args[2]);
 //		removeGamefrontOnlineLinks();
@@ -84,7 +85,7 @@ public class IndexHelper {
 //		contentDependencies(args[0], args[1], args[2]);
 //		fixUnknownAuthors(args[0], args[1], args[2]);
 //		umodDependencies(args[0]);
-		ukxDependencies();
+//		ukxDependencies();
 //		fixMissingModels(args[0]);
 //		fixModelNames(args[0]);
 //		dedupeModelsSkinsNames(args[0]);
@@ -617,6 +618,39 @@ public class IndexHelper {
 				&& !(((Map)c).gametype.equalsIgnoreCase("Domination"))) {
 				Map map = (Map)cm.checkout(c.hash);
 				map.gametype = "Domination";
+				if (cm.checkin(new IndexResult<>(map, Collections.emptySet()), null)) {
+					System.out.println("Stored changes for " + String.join(" / ", map.game, map.gametype, map.name));
+				} else {
+					System.out.println("Failed to apply");
+				}
+			}
+		}
+	}
+
+	private static void fixDDOMMaps() throws IOException {
+		ContentManager cm = manager();
+
+		Collection<Addon> maps = cm.repo().search("Unreal Tournament 2004", "MAP", "DOM-", null);
+		for (Addon c : maps) {
+			if (c instanceof Map
+				&& c.name.startsWith("DOM")
+				&& !(((Map)c).gametype.equalsIgnoreCase("Double Domination"))) {
+				Map map = (Map)cm.checkout(c.hash);
+				map.gametype = "Double Domination";
+				if (cm.checkin(new IndexResult<>(map, Collections.emptySet()), null)) {
+					System.out.println("Stored changes for " + String.join(" / ", map.game, map.gametype, map.name));
+				} else {
+					System.out.println("Failed to apply");
+				}
+			}
+		}
+
+		Collection<Addon> packs = cm.repo().search("Unreal Tournament 2004", "MAP_PACK", null, null);
+		for (Addon c : packs) {
+			if (c instanceof MapPack
+				&& (((MapPack)c).gametype.equalsIgnoreCase("Domination"))) {
+				MapPack map = (MapPack)cm.checkout(c.hash);
+				map.gametype = "Double Domination";
 				if (cm.checkin(new IndexResult<>(map, Collections.emptySet()), null)) {
 					System.out.println("Stored changes for " + String.join(" / ", map.game, map.gametype, map.name));
 				} else {

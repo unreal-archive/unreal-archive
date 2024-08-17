@@ -294,7 +294,7 @@ public interface SimpleAddonRepository {
 							  boolean match = (game == null || c.game.equalsIgnoreCase(game));
 							  match = match && (type == null || c.contentType.equalsIgnoreCase(type));
 							  match = match && (author == null || c.author.equalsIgnoreCase(author));
-							  match = match && (name == null || c.name.equalsIgnoreCase(name));
+							  match = match && (name == null || c.name.toLowerCase().contains(name.toLowerCase()));
 							  return match;
 						  })
 						  .collect(Collectors.toSet());
