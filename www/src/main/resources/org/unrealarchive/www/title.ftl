@@ -25,7 +25,7 @@
 		</div>
 	</div>
 	<script>
-		const themes = ['light', 'dark', 'orange', 'reds', 'greens', 'accent', 'bu'];
+		const themes = ['light', 'dark', 'orange', 'reds', 'greens', 'accent', 'bu', 'pu'];
 
 		function setTheme(theme, save) {
 		  if (save) localStorage.setItem('theme', theme);
