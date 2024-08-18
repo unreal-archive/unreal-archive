@@ -227,7 +227,6 @@ section.releases .links a {
 	--p2: #F6F1E9;
 	--p3: #FFD93D;
 	--p4: #FF8400;
-	--p5: #74BE57;
 	--p6: #F4EEE7;
 }
 
@@ -236,7 +235,6 @@ section.releases .links a {
 	--p2: #EEEEEE;
 	--p3: #C73659;
 	--p4: #A91D3A;
-	--p5: #74BE57;
 	--p6: #ECECEC;
 	--body-bg: var(--p1);
 	footer {
@@ -249,7 +247,6 @@ section.releases .links a {
 	--p2: #ECE3CE;
 	--p3: #739072;
 	--p4: #4F6F52;
-	--p5: #74BE57;
 	--p6: #EAE1CC;
 	--body-bg: var(--p1);
 	footer {
@@ -262,11 +259,53 @@ section.releases .links a {
 	--p2: #EEEEEE;
 	--p3: #00ADB5;
 	--p4: #222831;
-	--p5: #74BE57;
 	--p6: #ECECEC;
 	--body-bg: var(--p1);
 	footer {
 		color: var(--p2);
+	}
+}
+
+[data-theme="bu"] {
+	--p1: #c0c0c0;
+	--p2: #d1d1d1;
+	--p3: black;
+	--p4: #c0c0c0;
+	--p6: #ECECEC;
+	--header-shadow: 0 0px 5px 0px rgba(0, 0, 0, 0.8);
+	--header-logo-color-b: var(--p2);
+	--body-color: var(--p3);
+	--link-color: #3B5293;
+	--link-color-visited: #4c4c4c;
+	--menu-text-color: white;
+	--section-subheader-bg: none;
+	--section-subheader-color: var(--p3);
+	--section-header-title-shadow: none;
+	--radius: 0;
+	--article-font-family: 'Verdana', sans-serif;
+	--table-header-bg: var(--p1);
+	--table-header-color: var(--p3);
+	--table-row-hover: none;
+	header {
+		background-image: url("bu/topbar_back.gif");
+		background-position: bottom;
+		height: 80px;
+		text-shadow: 2px 2px 5px #00000090;
+	}
+	header img, header svg {
+		filter: drop-shadow(2px 2px 5px #00000090);
+	}
+	article section h2, article section h3, article section h4 {
+		border-bottom: 1px solid #808080;
+		background: none;
+		color: var(--p3);
+	}
+	.biglist ul li {
+		border: 1px solid var(--p3);
+	}
+	.biglist ul li a {
+		color: initial;
+		text-shadow: none;
 	}
 }
 
