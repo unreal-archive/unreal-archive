@@ -30,6 +30,7 @@ jackson-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr
 minio = { module = "io.minio:minio", version.ref = "minio" }
 freemarker = { module = "org.freemarker:freemarker", version.ref = "freemarker" }
 commonmark = { module = "org.commonmark:commonmark", version.ref = "commonmark" }
+commonmark-ext-tables = { module = "org.commonmark:commonmark-ext-gfm-tables", version.ref = "commonmark" }
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }

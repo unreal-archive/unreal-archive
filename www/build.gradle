@@ -74,6 +74,7 @@ dependencies {
 
 	implementation(libs.freemarker)
 	implementation(libs.commonmark)
+	implementation(libs.commonmark.ext.tables)
 	implementation(libs.jsoup)
 
 	testImplementation(libs.junit.jupiter)

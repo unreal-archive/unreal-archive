@@ -9,6 +9,7 @@ open module unreal.archive.www {
 
 	requires freemarker;
 	requires org.commonmark;
+	requires org.commonmark.ext.gfm.tables;
 	requires org.jsoup;
 
 	exports org.unrealarchive.www;
