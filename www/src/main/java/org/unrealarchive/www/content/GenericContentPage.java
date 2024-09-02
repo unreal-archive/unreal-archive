@@ -165,6 +165,12 @@ public abstract class GenericContentPage<T extends Addon> extends ContentPageGen
 			   .sorted()
 			   .forEach(m -> {
 				   Game g = games.games.computeIfAbsent(m.game, name -> new Game(name, sectionName));
+				   if (Games.byName(m.game) == Games.UNREAL_TOURNAMENT_2003) {
+					   games.games.computeIfAbsent(
+						Games.UNREAL_TOURNAMENT_2004.name, 
+						n -> new Game(Games.UNREAL_TOURNAMENT_2004.name, sectionName)
+					   ).add(m);
+				   }
 				   g.add(m);
 			   });
 
