@@ -64,9 +64,12 @@ import static org.unrealarchive.content.addons.Addon.UNKNOWN;
  * content manager.
  */
 public class IndexHelper {
+	
+	private static String ROOT = "../unreal-archive-data";
 
 	public static void main(String[] args) throws IOException {
-		fixDDOMMaps();
+//		fixDDOMMaps();
+		reassignUT2003();
 //		fixCDOMMaps();
 //		reindexMapsWithThemes(args[0], args[1], args[2]);
 //		removeGamefrontOnlineLinks();
@@ -114,15 +117,15 @@ public class IndexHelper {
 	}
 
 	private static SimpleAddonRepository repo() throws IOException {
-		return new SimpleAddonRepository.FileRepository(Paths.get("unreal-archive-data/content/"));
+		return new SimpleAddonRepository.FileRepository(Paths.get(ROOT).resolve("content"));
 	}
 
 	private static GameTypeRepository gametypeRepo() throws IOException {
-		return new GameTypeRepository.FileRepository(Paths.get("unreal-archive-data/gametypes/"));
+		return new GameTypeRepository.FileRepository(Paths.get(ROOT).resolve("gametypes"));
 	}
 
 	private static ManagedContentRepository managedRepo() throws IOException {
-		return new ManagedContentRepository.FileRepository(Paths.get("unreal-archive-data/managed/"));
+		return new ManagedContentRepository.FileRepository(Paths.get(ROOT).resolve("managed"));
 	}
 
 	private static ContentManager manager() throws IOException {
@@ -143,9 +146,30 @@ public class IndexHelper {
 
 	private static void checkinChange(ContentManager cm, Addon co) throws IOException {
 		if (cm.checkin(new IndexResult<>(co, Collections.emptySet()), null)) {
-			System.out.println("Stored changes for " + String.join(" / ", co.game, co.name));
+			System.out.println("Stored changes for " + String.join(" / ", co.game, co.contentType(), co.name));
 		} else {
-			System.out.println("Failed to apply for " + String.join(" / ", co.game, co.name, co.hash));
+			System.out.println("Failed to apply for " + String.join(" / ", co.game, co.contentType(), co.name, co.hash));
+		}
+	}
+
+	public static void reassignUT2003() throws IOException {
+		ContentManager cm = manager();
+		
+		final String dateFrom = "2002-09-30"; // UT2003 release date
+		final String dateTo = "2004-02-28"; // ~UT2004 release date (2004-02, to be safe)
+
+		Collection<Addon> search = cm.repo()
+										.search("Unreal Tournament 2004", null, null, null)
+										.stream()
+										.filter(c -> 
+											c.originalFilename.toLowerCase().contains("ut2k3") || 
+											(c.releaseDate.compareTo(dateFrom) > 0 && c.releaseDate.compareTo(dateTo) < 0))
+										.collect(Collectors.toSet());;
+		for (Addon c : search) {
+			Addon co = cm.checkout(c.hash);
+			co.game = "Unreal Tournament 2003";
+			checkinChange(cm, co);
+			//System.out.printf("Move to UT2003: %s%n", String.join(" / ", co.game, co.contentType(), co.name, co.releaseDate, co.hash));
 		}
 	}
 

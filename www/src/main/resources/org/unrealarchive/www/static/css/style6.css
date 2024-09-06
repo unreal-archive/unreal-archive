@@ -322,7 +322,7 @@ section.releases .links a {
 	--body-color: var(--p3);
 	--link-color: #ffc600;
 	--link-color-visited: #cca600;
-  --biglist-text-color: var(--link-color);
+	--biglist-text-color: var(--link-color);
 	--biglist-shadow: -2px -2px #5d65bc;
 	--menu-text-color: var(--link-color);
 	--section-header-bg: var(--p1);
@@ -348,6 +348,53 @@ section.releases .links a {
 	}
 	section.downloads .links a {
 		color: white;
+	}
+}
+
+[data-theme="gh"] {
+	--p1: #212830;
+	--p2: #151b23;
+	--p3: #d1d7e0;
+	--p4: #212830;
+	--p5: #347d39;
+	--p6: #262c36;
+	--body-bg: var(--p1);
+	--body-color: var(--p3);
+	--header-bg-color: var(--p2);
+	--link-color: #417dcd;
+	--link-color-visited: #417dcd;
+	--radius: 6px;
+	--table-header-bg: var(--p6);
+	--table-row-hover: var(--p6);
+	--table-border-color: #3d444d;
+	--table-row-alt-bg: none;
+	--table-header-color: var(--p3);
+	.readable h1, article section h2, article section h3, article section h4, .biglist h2 {
+		border-bottom: 1px solid var(--table-border-color);
+		background-color: transparent;
+		border-radius: 0;
+		color: var(--p3);
+	}
+	.biglist ul li {
+		border: 1px solid var(--table-border-color);
+	}
+	.biglist .title {
+		background-color: var(--p6);
+	}
+	.contentpage .content-body:not(:has(.biglist)) {
+		background-color: transparent;
+		border: none;
+	}
+	article section {
+		border-radius: var(--radius);
+		background-color: var(--p1);
+		border: 1px solid var(--table-border-color);
+	}
+	.links a {
+		color: white;
+	}
+	table thead {
+		border-bottom: 1px solid var(--table-border-color);
 	}
 }
 

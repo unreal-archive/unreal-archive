@@ -46,6 +46,7 @@ import org.unrealarchive.indexing.GameTypeManager;
 import org.unrealarchive.indexing.Incoming;
 import org.unrealarchive.indexing.IndexLog;
 import org.unrealarchive.indexing.Indexer;
+import org.unrealarchive.indexing.IndexHelper;
 import org.unrealarchive.indexing.ManagedContentManager;
 import org.unrealarchive.indexing.Scanner;
 import org.unrealarchive.indexing.Submission;
@@ -73,6 +74,10 @@ public class Main {
 		}
 
 		switch (cli.commands()[0].toLowerCase()) {
+			case "helper" -> {
+				IndexHelper.main(Arrays.copyOfRange(cli.commands(), 1, cli.commands().length));
+			}
+			//case "cache" -> contentRepo(cli).createCache();
 			case "index" -> {
 				SimpleAddonRepository indexRepo = contentRepo(cli);
 				index(indexRepo, contentManager(cli, indexRepo), cli);
