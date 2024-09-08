@@ -371,7 +371,7 @@ section.releases .links a {
 	--table-header-color: var(--p3);
 	.readable h1, article section h2, article section h3, article section h4, .biglist h2 {
 		border-bottom: 1px solid var(--table-border-color);
-		background-color: transparent;
+		background-color: var(--p6);
 		border-radius: 0;
 		color: var(--p3);
 	}
@@ -393,7 +393,7 @@ section.releases .links a {
 	.links a {
 		color: white;
 	}
-	table thead {
+	table thead, table th, table tr {
 		border-bottom: 1px solid var(--table-border-color);
 	}
 }
