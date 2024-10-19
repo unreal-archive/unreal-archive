@@ -125,8 +125,13 @@ public class Templates {
 		HOST_REMAP.put("unreal-archive-files.eu-central-1.linodeobjects.com", "Unreal Archive EU");
 		HOST_REMAP.put("files.vohzd.com", "vohzd");
 		HOST_REMAP.put("medor.no-ip.org", "medor");
+		HOST_REMAP.put("ut-files.com", "UT-Files");
+		HOST_REMAP.put("ut2004.ut-files.com", "UT-Files");
 		HOST_REMAP.put("unrealarchiveusa.blob.core.windows.net", "Azure US");
 		HOST_REMAP.put("unrealarchivesgp.blob.core.windows.net", "Azure Singapore");
+		HOST_REMAP.put("moddb.com", "ModDB");
+		HOST_REMAP.put("utzone.de", "UTzone.de");
+		HOST_REMAP.put("gamebanana.com", "GameBanana");
 	}
 
 	public static class PageSet {
