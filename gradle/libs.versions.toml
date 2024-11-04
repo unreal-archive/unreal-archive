@@ -2,10 +2,10 @@
 packageLib = "1.12.26"
 packageDependency = "1.5.25"
 
-jackson = "2.17.2"
-minio = "8.5.11"
+jackson = "2.18.1"
+minio = "8.5.13"
 freemarker = "2.3.33"
-commonmark = "0.22.0"
+commonmark = "0.24.0"
 jsoup = "1.18.1"
 
 
@@ -13,7 +13,7 @@ jsoup = "1.18.1"
 junit = "5.11.0"
 
 # plugins
-javaModuleInfo = "1.8"
+javaModuleInfo = "1.9"
 jlink = "3.0.1"
 
 [plugins]
