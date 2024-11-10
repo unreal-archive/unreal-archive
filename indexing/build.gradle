@@ -28,7 +28,7 @@ jlink {
 	}
 }
 
-def tarBinary = artifacts.add('archives', layout.buildDirectory.file("${project.name}.tgz").get().asFile) {
+def tarBinary = artifacts.add('archives', layout.buildDirectory.file("unreal-archive-${project.name}.tgz").get().asFile) {
 	type 'tgz'
 	builtBy 'jlinkTar'
 }
