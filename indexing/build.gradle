@@ -1,0 +1,92 @@
+import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+import java.nio.file.StandardOpenOption
+
+plugins {
+	id 'java'
+	id 'application'
+	id 'maven-publish'
+	id 'jacoco'
+
+	alias(libs.plugins.jlink)
+}
+
+application {
+	mainClassName = 'org.unrealarchive.Main'
+	mainModule = 'unreal.archive'
+}
+
+jlink {
+	mergedModuleName = "unreal.archive.merged"
+	options = ['--strip-debug', '--compress', 'zip-6', '--no-header-files', '--no-man-pages']
+
+	imageName = "unreal-archive-${project.name}"
+	imageDir = layout.buildDirectory.dir("unreal-archive-${project.name}")
+
+	jpackage {
+		installerType = project.findProperty('installerType')
+	}
+}
+
+def tarBinary = artifacts.add('archives', layout.buildDirectory.file("${project.name}.tgz").get().asFile) {
+	type 'tgz'
+	builtBy 'jlinkTar'
+}
+
+/**
+ * note - creating a tar bundle because the zip one appears to have issues with execution permissions once unpacked.
+ */
+tasks.register('jlinkTar', Tar) {
+	dependsOn jlinkZip
+	archiveFileName = "${jlink.imageName.get()}.tgz"
+	destinationDirectory = layout.buildDirectory
+	compression = Compression.GZIP
+
+	into("${jlink.imageName.get()}") {
+		from jlink.imageDir
+	}
+}
+
+publishing {
+	publications {
+		mavenLatest(MavenPublication) {
+			pom {
+				version = "latest"
+			}
+			artifact tarBinary
+		}
+	}
+}
+
+dependencies {
+	implementation project(':common')
+	implementation project(':storage')
+	implementation project(':content')
+	implementation project(':storage')
+
+	implementation(libs.unreal.package.lib)
+	implementation(libs.unreal.package.dependency)
+
+	implementation(libs.bundles.jackson)
+
+	testImplementation(libs.junit.jupiter)
+}
+
+processResources.doLast {
+	// write version resource file
+	Files.write(
+			Files.createDirectories(buildDir.toPath().resolve('resources/main/org/unrealarchive')).resolve('VERSION'),
+			"${project.version}".getBytes(StandardCharsets.UTF_8),
+			StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING
+	)
+}
+
+jar {
+	manifest {
+		attributes(
+				'Implementation-Title': project.name,
+				'Implementation-Version': project.version,
+				'Main-Class': mainClassName,
+		)
+	}
+}

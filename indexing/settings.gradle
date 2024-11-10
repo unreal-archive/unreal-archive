@@ -1,0 +1,5 @@
+rootProject.name = 'unreal-archive-indexing'
+
+include '../common'
+include '../content'
+include '../storage'
