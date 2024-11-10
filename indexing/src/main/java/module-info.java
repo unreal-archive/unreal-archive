@@ -1,4 +1,4 @@
-open module unreal.archive {
+open module unreal.archive.indexing {
 	requires java.base;
 	requires java.net.http;
 	requires java.desktop;
