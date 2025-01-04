@@ -4,7 +4,7 @@ type: docker
 
 steps:
   - name: test
-    image: gradle:8.10.2-jdk21-jammy
+    image: gradle:8.12-jdk21-jammy
     commands:
       - export BUILD_NUMBER=${DRONE_BUILD_NUMBER}
       - apt-get update && apt-get install -y p7zip-full unrar git-restore-mtime
@@ -12,7 +12,7 @@ steps:
       - gradle --no-daemon test
 
   - name: publish
-    image: gradle:8.10.2-jdk21-jammy
+    image: gradle:8.12-jdk21-jammy
     environment:
       ARTEFACTS_USER:
         from_secret: ARTEFACTS_USER
@@ -28,7 +28,7 @@ steps:
         - refs/heads/master
 
   - name: www
-    image: gradle:8.10.2-jdk21-jammy
+    image: gradle:8.12-jdk21-jammy
     environment:
       DRONE_TOKEN:
         from_secret: DRONE_TOKEN

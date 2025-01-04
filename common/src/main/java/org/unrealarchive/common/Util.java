@@ -233,13 +233,21 @@ public final class Util {
 	}
 
 	public static void urlRequest(String url, Consumer<HttpURLConnection> onOK) throws IOException {
+		urlRequest(url, "GET", onOK, null);
+	}
+
+	public static void urlRequest(String url, String method, Consumer<HttpURLConnection> onOK, Consumer<HttpURLConnection> onFailure)
+		throws IOException {
 		URL urlConnection = url(url);
 		HttpURLConnection httpConn = (HttpURLConnection)urlConnection.openConnection();
 		httpConn.addRequestProperty("User-Agent", USER_AGENT);
+		httpConn.setRequestMethod(method);
 		int responseCode = httpConn.getResponseCode();
 
 		if (responseCode == HttpURLConnection.HTTP_OK) {
 			onOK.accept(httpConn);
+		} else if (onFailure != null) {
+			onFailure.accept(httpConn);
 		}
 
 		httpConn.disconnect();

@@ -67,12 +67,13 @@ public class IndexHelper {
 
 	private static String ROOT = "./unreal-archive-data";
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, InterruptedException {
 //		fixDDOMMaps();
 //		reassignUT2003();
 //		fixCDOMMaps();
 //		reindexMapsWithThemes(args[0], args[1], args[2]);
 //		removeGamefrontOnlineLinks();
+		removeVohzdUnrealLinks();
 //		removeDeadLinks();
 //		attachmentMove();
 //		attachmentGametypeMove();
@@ -106,8 +107,7 @@ public class IndexHelper {
 //		removeDuplicateEntries();
 //		removeDuplicateFiles();
 //		fixUt3PlayerCounts();
-
-		fixVariations();
+//		fixVariations();
 
 //		gc();
 	}
@@ -1404,15 +1404,38 @@ public class IndexHelper {
 					changed = true;
 				}
 			}
-			if (changed) {
-				if (cm.checkin(new IndexResult<>(co, Collections.emptySet()), null)) {
-					System.out.println("Stored changes for " + String.join(" / ", co.game, co.name));
-				} else {
-//					System.out.println("Failed to apply for " + String.join(" / ", co.game, co.name, co.hash));
-				}
-			}
+			maybeCheckin(cm, co, changed);
 		}
 
+	}
+
+	/**
+	 * Unreal lings all appear dead.
+	 */
+	public static void removeVohzdUnrealLinks() throws IOException, InterruptedException {
+		ContentManager cm = manager();
+		Collection<Addon> search = cm.repo().all();
+		for (Addon c : search) {
+			Addon co = cm.checkout(c.hash);
+			final boolean[] changed = { false };
+			for (Download dl : co.downloads) {
+				Thread.sleep((long)(250 * Math.random()));
+				if (dl.url.contains("files.vohzd.com")
+					&& (co.game().equalsIgnoreCase("unreal") || co.game().equalsIgnoreCase("unreal 2"))
+					&& dl.state == Download.DownloadState.OK) {
+
+					Util.urlRequest(
+						dl.url, "HEAD",
+						ok -> System.out.printf("OK: %s%n", co.name()),
+						failed -> {
+							dl.state = Download.DownloadState.MISSING;
+							changed[0] = true;
+						}
+					);
+				}
+			}
+			maybeCheckin(cm, co, changed[0]);
+		}
 	}
 
 	public static void removeDeadLinks() throws IOException {
