@@ -64,12 +64,12 @@ import static org.unrealarchive.content.addons.Addon.UNKNOWN;
  * content manager.
  */
 public class IndexHelper {
-	
-	private static String ROOT = "../unreal-archive-data";
+
+	private static String ROOT = "./unreal-archive-data";
 
 	public static void main(String[] args) throws IOException {
 //		fixDDOMMaps();
-		reassignUT2003();
+//		reassignUT2003();
 //		fixCDOMMaps();
 //		reindexMapsWithThemes(args[0], args[1], args[2]);
 //		removeGamefrontOnlineLinks();
@@ -107,7 +107,7 @@ public class IndexHelper {
 //		removeDuplicateFiles();
 //		fixUt3PlayerCounts();
 
-//		fixVariations();
+		fixVariations();
 
 //		gc();
 	}
@@ -154,17 +154,18 @@ public class IndexHelper {
 
 	public static void reassignUT2003() throws IOException {
 		ContentManager cm = manager();
-		
+
 		final String dateFrom = "2002-09-30"; // UT2003 release date
 		final String dateTo = "2004-02-28"; // ~UT2004 release date (2004-02, to be safe)
 
 		Collection<Addon> search = cm.repo()
-										.search("Unreal Tournament 2004", null, null, null)
-										.stream()
-										.filter(c -> 
-											c.originalFilename.toLowerCase().contains("ut2k3") || 
-											(c.releaseDate.compareTo(dateFrom) > 0 && c.releaseDate.compareTo(dateTo) < 0))
-										.collect(Collectors.toSet());;
+									 .search("Unreal Tournament 2004", null, null, null)
+									 .stream()
+									 .filter(c ->
+												 c.originalFilename.toLowerCase().contains("ut2k3") ||
+												 c.originalFilename.toLowerCase().contains("ut2003") ||
+												 (c.releaseDate.compareTo(dateFrom) > 0 && c.releaseDate.compareTo(dateTo) < 0))
+									 .collect(Collectors.toSet()); ;
 		for (Addon c : search) {
 			Addon co = cm.checkout(c.hash);
 			co.game = "Unreal Tournament 2003";
@@ -176,23 +177,36 @@ public class IndexHelper {
 	public static void fixVariations() throws IOException {
 		ContentManager cm = manager();
 
-		Collection<Addon> search = cm.repo().search(null, null, null, null);
+		Collection<Addon> search = cm.repo().search("Unreal Tournament 2003", null, null, null)
+									 .stream().sorted(Comparator.comparing(Addon::addedDate))
+									 .toList();
 		for (Addon c : search) {
+			Addon cur = cm.repo().forHash(c.hash);
 			Addon existing = cm.repo().search(c.game, c.contentType,
 											  c.name, c.author)
-							   .stream().max(Comparator.comparing(a -> a.releaseDate))
+							   .stream()
+							   .filter(m -> !Objects.equals(m.hash, c.hash))
+							   .filter(m -> !Objects.equals(m.hash, cur.variationOf))
+							   .filter(m -> !Objects.equals(m.variationOf, c.hash))
+							   .max(Comparator.comparing(a -> a.releaseDate))
 							   .orElse(null);
 			if (existing != null) {
+				// get current representation: may have been reassigned
 				if (existing.variationOf == null && existing.releaseDate.compareTo(c.releaseDate) < 0) {
 					Addon variation = cm.checkout(existing.hash);
 					variation.variationOf = c.hash;
 					checkinChange(cm, variation);
 					System.out.printf("Flagging original content %s as variation of %s%n", existing.name(), c.name());
-				} else if (c.variationOf == null && existing.releaseDate.compareTo(c.releaseDate) > 0) {
+				} else if (cur.variationOf == null && existing.releaseDate.compareTo(c.releaseDate) > 0) {
 					Addon variation = cm.checkout(c.hash);
 					variation.variationOf = existing.hash;
 					checkinChange(cm, variation);
 					System.out.printf("Flagging %s as variation of %s%n", c.name(), existing.name());
+				} else if (existing.variationOf == null && existing.firstIndex.isBefore(c.firstIndex)) {
+					Addon variation = cm.checkout(existing.hash);
+					variation.variationOf = c.hash;
+					checkinChange(cm, variation);
+					System.out.printf("Flagging content %s as variation of %s%n", existing.name(), c.name());
 				}
 			}
 		}

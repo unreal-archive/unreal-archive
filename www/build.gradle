@@ -40,14 +40,14 @@ jlink {
 }
 
 def tarBinary = artifacts.add('archives', layout.buildDirectory.file("unreal-archive-${project.name}.tgz").get().asFile) {
-	type 'tgz'
+	type = 'tgz'
 	builtBy 'jlinkTar'
 }
 
 tasks.register('jlinkTar', Tar) {
 	dependsOn jlinkZip
 	archiveFileName = "${jlink.imageName.get()}.tgz"
-	destinationDirectory = file("${buildDir}")
+	destinationDirectory = layout.buildDirectory
 	compression = Compression.GZIP
 
 	into("${jlink.imageName.get()}") {
@@ -109,7 +109,7 @@ processResources.doLast {
 
 	// write version resource file
 	Files.write(
-			Files.createDirectories(buildDir.toPath().resolve('resources/main/org/unrealarchive/www')).resolve('VERSION'),
+			Files.createDirectories(file(layout.buildDirectory).toPath().resolve('resources/main/org/unrealarchive/www')).resolve('VERSION'),
 			"${project.version}".getBytes(StandardCharsets.UTF_8),
 			StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING
 	)

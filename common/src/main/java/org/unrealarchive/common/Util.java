@@ -285,7 +285,7 @@ public final class Util {
 					if (!Files.isDirectory(copyPath.getParent())) Files.createDirectories(copyPath.getParent());
 					Files.copy(p, copyPath, StandardCopyOption.REPLACE_EXISTING);
 				} catch (IOException e) {
-					e.printStackTrace();
+					throw new RuntimeException(e);
 				}
 			});
 		}
@@ -296,14 +296,30 @@ public final class Util {
 	 * easier handling and simpler upgrade.
 	 */
 	public static URL url(String url) throws MalformedURLException {
-		// FIXME: constructing a URI is not exactly the same as creating a URL - does not play well with special characters
-//		try {
-//			//return new URI(url).toURL();
-//		} catch (URISyntaxException e) {
-//			throw new MalformedURLException(e.getMessage());
-//		}
-
-		return new URL(url);
+		try {
+			// manual encoding hack, since URI expects it to already be encoded.
+			// however if using `URLEncoder` on the whole URL, that encodes the
+			// entire URL not just path elements.
+			// as such, to avoid the `new URL()` deprecation which didn't care,
+			// we're doing manual hacks.
+			return new URI(
+				url
+					.replaceAll(" ", "%20")
+					.replaceAll("\\+", "%2B")
+					.replaceAll("#", "%23")
+					.replaceAll(",", "%2C")
+					.replaceAll("&", "%26")
+					.replaceAll("\\[", "%5B")
+					.replaceAll("]", "%5D")
+					.replaceAll("\\{", "%7B")
+					.replaceAll("}", "%7D")
+					.replaceAll("`", "%60")
+					.replaceAll("\\^", "%5E")
+			).toURL();
+		} catch (Throwable e) {
+			System.err.println(url + " " + e.getMessage());
+			throw new MalformedURLException(e.getMessage());
+		}
 	}
 
 }

@@ -233,7 +233,7 @@ public class Main {
 	}
 
 	private static void usage() {
-		System.out.println("Usage: unreal-archive.jar <command> [options]");
+		System.out.println("Usage: www <command> [options]");
 		System.out.println();
 		System.out.println("Commands:");
 		System.out.println("  www <output-path> [--content-path=<path> | --content-download]");

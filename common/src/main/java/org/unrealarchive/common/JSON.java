@@ -72,8 +72,8 @@ public class JSON {
 		}
 	}
 
-	public static <T> T fromString(String yaml, Class<T> type) throws IOException {
-		return MAPPER.readValue(yaml, type);
+	public static <T> T fromString(String json, Class<T> type) throws IOException {
+		return MAPPER.readValue(json, type);
 	}
 
 	private static class DateTimeSerializer extends JsonSerializer<LocalDateTime> {

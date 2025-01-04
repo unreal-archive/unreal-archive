@@ -17,7 +17,7 @@ subprojects {
 	repositories {
 		mavenCentral()
 		maven {
-			url "https://code.shrimpworks.za.net/artefacts"
+			url = "https://code.shrimpworks.za.net/artefacts"
 		}
 	}
 

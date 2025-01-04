@@ -24,6 +24,11 @@ import org.unrealarchive.common.YAML;
 public interface SimpleAddonRepository {
 
 	/**
+	 * Sync with another addon repository.
+	 */
+	public void syncWith(SimpleAddonRepository other) throws IOException;
+
+	/**
 	 * The root content path.
 	 * <p>
 	 * May not apply to all repository implementations. Figure that out.
@@ -271,6 +276,11 @@ public interface SimpleAddonRepository {
 		}
 
 		@Override
+		public void syncWith(SimpleAddonRepository other) {
+			throw new UnsupportedOperationException("Sync with repository not supported");
+		}
+
+		@Override
 		public Path path() {
 			return path;
 		}
@@ -294,7 +304,7 @@ public interface SimpleAddonRepository {
 							  boolean match = (game == null || c.game.equalsIgnoreCase(game));
 							  match = match && (type == null || c.contentType.equalsIgnoreCase(type));
 							  match = match && (author == null || c.author.equalsIgnoreCase(author));
-							  match = match && (name == null || c.name.toLowerCase().contains(name.toLowerCase()));
+							  match = match && (name == null || c.name.equalsIgnoreCase(name));
 							  return match;
 						  })
 						  .collect(Collectors.toSet());

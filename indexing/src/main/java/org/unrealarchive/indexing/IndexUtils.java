@@ -72,6 +72,8 @@ public class IndexUtils {
 
 		// sometimes people name the packages after 227
 		if (incoming.submission.filePath.getFileName().toString().contains("227")) return Games.UNREAL;
+		if (incoming.submission.filePath.getFileName().toString().contains("ut2003")) return Games.UNREAL_TOURNAMENT_2003;
+		if (incoming.submission.filePath.getFileName().toString().contains("ut2k3")) return Games.UNREAL_TOURNAMENT_2003;
 
 		if (!incoming.files(FileType.PLAYER).isEmpty()) return Games.UNREAL_TOURNAMENT_2004;
 		if (!incoming.files(FileType.PACKAGE).isEmpty()) return Games.UNREAL_TOURNAMENT_3;

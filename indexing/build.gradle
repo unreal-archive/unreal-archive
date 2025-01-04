@@ -13,7 +13,7 @@ plugins {
 
 application {
 	mainClassName = 'org.unrealarchive.Main'
-	mainModule = 'unreal.archive'
+	mainModule = 'unreal.archive.indexing'
 }
 
 jlink {
@@ -29,7 +29,7 @@ jlink {
 }
 
 def tarBinary = artifacts.add('archives', layout.buildDirectory.file("unreal-archive-${project.name}.tgz").get().asFile) {
-	type 'tgz'
+	type = 'tgz'
 	builtBy 'jlinkTar'
 }
 
