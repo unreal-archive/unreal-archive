@@ -37,7 +37,7 @@ steps:
       - |
         curl -s -X POST \
         -H "Authorization: Bearer ${DRONE_TOKEN}" \
-        https://build.shrimpworks.za.net/api/repos/unreal-archive/unreal-archive-data/builds
+        https://build.shrimp.works/api/repos/unreal-archive/unreal-archive-data/builds
     when:
       ref:
         - refs/heads/master
