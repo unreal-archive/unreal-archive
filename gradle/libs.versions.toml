@@ -1,9 +1,9 @@
 [versions]
-packageLib = "1.12.26"
-packageDependency = "1.5.25"
+packageLib = "1.13.28"
+packageDependency = "1.6.26"
 
 jackson = "2.18.2"
-minio = "8.5.14"
+minio = "8.5.17"
 freemarker = "2.3.34"
 commonmark = "0.24.0"
 jsoup = "1.18.3"
