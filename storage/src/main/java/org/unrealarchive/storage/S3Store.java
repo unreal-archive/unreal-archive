@@ -76,9 +76,8 @@ public class S3Store implements DataStore {
 	public void store(InputStream stream, long dataSize, String name, BiConsumer<String, IOException> stored) throws IOException {
 		final String nom = name.replaceAll("\\$", "s"); // $ seems to not play well with S3 objects
 		exists(nom, (exits) -> {
-			if (exits instanceof StatObjectResponse) {
-				stored.accept(Util.toUriString(makePublicUrl(((StatObjectResponse)exits).bucket(), ((StatObjectResponse)exits).object())),
-							  null);
+			if (exits instanceof StatObjectResponse obj) {
+				stored.accept(Util.toUriString(makePublicUrl(obj.bucket(), obj.object())), null);
 			} else {
 				try {
 					client.putObject(

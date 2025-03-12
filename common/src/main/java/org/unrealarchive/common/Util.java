@@ -6,7 +6,6 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -182,19 +181,14 @@ public final class Util {
 
 	public static URI toUri(String s) {
 		try {
-			URL url = url(s);
-			return new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
-		} catch (URISyntaxException | MalformedURLException e) {
+			return uri(s);
+		} catch (MalformedURLException e) {
 			throw new IllegalArgumentException("Invalid URL: " + s, e);
 		}
 	}
 
 	public static String toUriString(String s) {
-		return toUri(s).toString()
-					   .replaceAll("\\+", "%2B")
-					   .replaceAll("#", "%23")
-					   .replaceAll(",", "%2C")
-					   .replaceAll("&", "%26");
+		return toUri(s).toString();
 	}
 
 	public static Path downloadTo(String url, Path output) throws IOException {
@@ -299,6 +293,32 @@ public final class Util {
 		}
 	}
 
+	public static URI uri(String uri) throws MalformedURLException {
+		try {
+			// manual encoding hack, since URI expects it to already be encoded.
+			// however if using `URLEncoder` on the whole URL, that encodes the
+			// entire URL not just path elements.
+			// as such, to avoid the `new URL()` deprecation which didn't care,
+			// we're doing manual hacks.
+			return new URI(
+				uri
+					.replaceAll(" ", "%20")
+					.replaceAll("#", "%23")
+					.replaceAll(",", "%2C")
+					.replaceAll("&", "%26")
+					.replaceAll("\\[", "%5B")
+					.replaceAll("]", "%5D")
+					.replaceAll("\\{", "%7B")
+					.replaceAll("}", "%7D")
+					.replaceAll("`", "%60")
+					.replaceAll("\\^", "%5E")
+			);
+		} catch (Throwable e) {
+			System.err.println(uri + " " + e.getMessage());
+			throw new MalformedURLException(e.getMessage());
+		}
+	}
+
 	/**
 	 * Helper to produce JDK 20+ URLs, throwing an IOException rather than URISyntaxException, for
 	 * easier handling and simpler upgrade.
@@ -310,20 +330,7 @@ public final class Util {
 			// entire URL not just path elements.
 			// as such, to avoid the `new URL()` deprecation which didn't care,
 			// we're doing manual hacks.
-			return new URI(
-				url
-					.replaceAll(" ", "%20")
-					.replaceAll("\\+", "%2B")
-					.replaceAll("#", "%23")
-					.replaceAll(",", "%2C")
-					.replaceAll("&", "%26")
-					.replaceAll("\\[", "%5B")
-					.replaceAll("]", "%5D")
-					.replaceAll("\\{", "%7B")
-					.replaceAll("}", "%7D")
-					.replaceAll("`", "%60")
-					.replaceAll("\\^", "%5E")
-			).toURL();
+			return uri(url).toURL();
 		} catch (Throwable e) {
 			System.err.println(url + " " + e.getMessage());
 			throw new MalformedURLException(e.getMessage());

@@ -8,9 +8,9 @@
 		Master Servers
 	</h1>
 	<p>
-		Unreal Archive hosts two <a href="https://333networks.com/">333networks</a>
-		master servers, supported by various Unreal Engine and other games, in the
-		UK and Germany regions.
+		Unreal Archive hosts a <a href="https://333networks.com/">333networks</a>
+		master server, supporting various Unreal Engine and other older games, in
+		Australia.
 	</p>
 	<p>
 		Following the shutdown of official master servers for most games, using
@@ -23,11 +23,10 @@
 		page</a>.
 	</p>
 	<p>
-		Unreal Archive master servers:
+		Unreal Archive master server:
 	</p>
 	<ul>
-		<li><a href="https://master-uk.unrealarchive.org">master-uk.unrealarchive.org</a></li>
-		<li><a href="https://master-de.unrealarchive.org">master-de.unrealarchive.org</a></li>
+		<li><a href="https://master-au.unrealarchive.org">master-au.unrealarchive.org</a></li>
 	</ul>
 
 	<h1>

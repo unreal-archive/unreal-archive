@@ -1,8 +1,6 @@
 package org.unrealarchive.mirror;
 
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -260,9 +258,7 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 					try {
 						Path base = Paths.get("");
 						Path uploadPath = content.contentPath(base);
-						String uploadName = base.relativize(uploadPath.resolve(
-							URLEncoder.encode(Util.fileName(content.originalFilename), StandardCharsets.UTF_8)
-						)).toString();
+						String uploadName = base.relativize(uploadPath.resolve(Util.fileName(content.originalFilename))).toString();
 						long length = httpConn.getContentLength() > -1 ? httpConn.getContentLength() : content.fileSize;
 						mirrorStore.store(httpConn.getInputStream(), length, uploadName, (newUrl, ex) -> {
 							if (ex != null) {

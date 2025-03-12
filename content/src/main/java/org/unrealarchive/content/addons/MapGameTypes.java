@@ -72,6 +72,7 @@ public class MapGameTypes {
 		new MapGameType(null, "UT2D", "UT2D-"),
 		new MapGameType(UNREAL_TOURNAMENT_3, "Kilter's Bombing Run", "KBR-", "VKBR-"),
 		new MapGameType(UNREAL_TOURNAMENT_3, "The Haunted", "TH-"),
+		new MapGameType(null, "Crystal Castles", "CC-"),
 		// Rune gametypes
 		new MapGameType(RUNE, "Arena Match", "AR-"),
 		new MapGameType(RUNE, "Headball", "HB-"),

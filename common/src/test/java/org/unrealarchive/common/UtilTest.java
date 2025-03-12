@@ -20,4 +20,15 @@ public class UtilTest {
 			System.out.println(Util.url(u));
 		}
 	}
+
+	@Test
+	public void urlEncodingTest() throws MalformedURLException {
+		for (String u : List.of(
+			"https://example.com/Unreal Tournament/maps/DeathMatch/DM-My Cool Map][.zip",
+			"https://example.com/Unreal Tournament/maps/DeathMatch/DM-My+Cool+Map][.zip"
+		)) {
+			System.out.println(new URL(u));
+			System.out.println(Util.url(u));
+		}
+	}
 }

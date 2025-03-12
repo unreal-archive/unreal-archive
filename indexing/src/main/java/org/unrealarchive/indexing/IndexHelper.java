@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -68,18 +69,20 @@ public class IndexHelper {
 	private static String ROOT = "./unreal-archive-data";
 
 	public static void main(String[] args) throws IOException, InterruptedException {
+		fixMissingScreenshots();
 //		fixDDOMMaps();
 //		reassignUT2003();
-//		fixCDOMMaps();
+//		fixCCMaps();
 //		reindexMapsWithThemes(args[0], args[1], args[2]);
 //		removeGamefrontOnlineLinks();
-		removeVohzdUnrealLinks();
+//		removeVohzdUnrealLinks();
 //		removeDeadLinks();
 //		attachmentMove();
 //		attachmentGametypeMove();
 //		removeB2Attachments();
 //		removeB2Links();
 //		fixDirectDownloads();
+//		fixDownloadEncoding();
 //		findUnrealPlayground();
 //		moveAll();
 //		removeWasabiLinks();
@@ -165,7 +168,7 @@ public class IndexHelper {
 												 c.originalFilename.toLowerCase().contains("ut2k3") ||
 												 c.originalFilename.toLowerCase().contains("ut2003") ||
 												 (c.releaseDate.compareTo(dateFrom) > 0 && c.releaseDate.compareTo(dateTo) < 0))
-									 .collect(Collectors.toSet()); ;
+									 .collect(Collectors.toSet());
 		for (Addon c : search) {
 			Addon co = cm.checkout(c.hash);
 			co.game = "Unreal Tournament 2003";
@@ -456,6 +459,27 @@ public class IndexHelper {
 		}
 	}
 
+	public static void fixDownloadEncoding() throws IOException {
+		ContentManager cm = manager();
+		Collection<Addon> search = cm.repo().all();
+		for (Addon c : search) {
+			Addon co = cm.checkout(c.hash);
+			boolean changed = false;
+			for (Download dl : co.downloads) {
+				final String from = "Single%2520Player";
+				final String to = from.replaceAll("%2520", "%20");
+				if (dl.url.contains(from)) {
+					System.out.println(dl.url);
+					dl.url = dl.url.replaceAll(from, to);
+					System.out.println(dl.url);
+					changed = true;
+				}
+			}
+
+			maybeCheckin(cm, co, changed);
+		}
+	}
+
 	public static void relinkMedor() throws IOException {
 		ContentManager cm = manager();
 		Collection<Addon> search = cm.repo().all();
@@ -646,16 +670,16 @@ public class IndexHelper {
 		}
 	}
 
-	private static void fixCDOMMaps() throws IOException {
+	private static void fixCCMaps() throws IOException {
 		ContentManager cm = manager();
 
-		Collection<Addon> search = cm.repo().search("Unreal Tournament 3", "MAP", "CDOM-", null);
+		Collection<Addon> search = cm.repo().search("Unreal", "MAP", "CC-", null);
 		for (Addon c : search) {
 			if (c instanceof Map
-				&& c.name.startsWith("CDOM")
-				&& !(((Map)c).gametype.equalsIgnoreCase("Domination"))) {
+				&& c.name.startsWith("CC")
+				&& !(((Map)c).gametype.equalsIgnoreCase("Crystal Castles"))) {
 				Map map = (Map)cm.checkout(c.hash);
-				map.gametype = "Domination";
+				map.gametype = "Crystal Castles";
 				if (cm.checkin(new IndexResult<>(map, Collections.emptySet()), null)) {
 					System.out.println("Stored changes for " + String.join(" / ", map.game, map.gametype, map.name));
 				} else {
@@ -1678,7 +1702,11 @@ public class IndexHelper {
 						  )).keySet();
 	}
 
-	private static void fixMissingMapPics(String game) throws IOException {
+	private static void fixMissingScreenshots() throws IOException {
+
+		final LocalDate dateFrom = LocalDate.parse("2025-02-01");
+		final LocalDate dateTo = LocalDate.parse("2025-03-12");
+
 		final CLI cli = CLI.parse();
 		final DataStore imageStore = Main.store(DataStore.StoreContent.IMAGES, cli);
 		final DataStore contentStore = Main.store(DataStore.StoreContent.CONTENT, cli);
@@ -1702,19 +1730,28 @@ public class IndexHelper {
 			public void indexed(Submission sub, Addon before, IndexResult<? extends Addon> result) {
 				// do not let some things get reassigned during this process
 				if (before != null) {
+					result.content.name = before.name;
+					result.content.description = before.description;
 					result.content.game = before.game;
 					result.content.author = before.author;
 					result.content.variationOf = before.variationOf;
+
+					if (result.content instanceof Map m) m.gametype = ((Map)before).gametype;
+					if (result.content instanceof MapPack p) p.gametype = ((MapPack)before).gametype;
 				}
 			}
 		});
 
-		Collection<Addon> search = cm.repo().search(game, null, null, null);
-		final Path tmpDir = Files.createTempDirectory("ua-pics-maps");
+		Collection<Addon> search = cm.repo().all(true);
+		final Path tmpDir = Files.createTempDirectory("ua-pics");
 
 		final List<Addon> contents = search.stream()
 										   .filter(c -> !c.deleted)
-										   .filter(c -> c.attachments.isEmpty())
+										   .filter(c ->
+													   c.attachments.isEmpty() &&
+													   (c.firstIndex.toLocalDate().isAfter(dateFrom) &&
+														c.firstIndex.toLocalDate().isBefore(dateTo))
+										   )
 										   .sorted(Comparator.comparingInt(c -> c.fileSize))
 										   .toList();
 

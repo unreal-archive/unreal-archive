@@ -110,7 +110,7 @@
 
 <script type="application/javascript">
 	let url = "../incoming/";
-	let maxUploadSizeGigabytes = 1;
+	let maxUploadSizeGigabytes = 0.1;
 
 	document.addEventListener("DOMContentLoaded", function() {
 
