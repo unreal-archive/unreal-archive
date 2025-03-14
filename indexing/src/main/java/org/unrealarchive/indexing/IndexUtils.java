@@ -287,7 +287,7 @@ public class IndexUtils {
 	) throws IOException {
 		for (BufferedImage screenshot : screenshots) {
 			String shotName = String.format(shotTemplate, Util.slug(content.name), content.hash.substring(0, 8), attachments.size() + 1);
-			Path out = Paths.get(shotName);
+			Path out = Paths.get(System.getProperty("java.io.tmpdir")).resolve(shotName);
 			ImageIO.write(screenshot, "png", out.toFile());
 			attachments.add(new IndexResult.NewAttachment(Addon.AttachmentType.IMAGE, shotName, out));
 		}

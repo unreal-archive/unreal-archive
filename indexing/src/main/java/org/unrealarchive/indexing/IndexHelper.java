@@ -1704,8 +1704,8 @@ public class IndexHelper {
 
 	private static void fixMissingScreenshots() throws IOException {
 
-		final LocalDate dateFrom = LocalDate.parse("2025-02-01");
-		final LocalDate dateTo = LocalDate.parse("2025-03-12");
+		final LocalDate dateFrom = LocalDate.parse("2025-03-12");
+		final LocalDate dateTo = LocalDate.parse("2025-03-15");
 
 		final CLI cli = CLI.parse();
 		final DataStore imageStore = Main.store(DataStore.StoreContent.IMAGES, cli);
