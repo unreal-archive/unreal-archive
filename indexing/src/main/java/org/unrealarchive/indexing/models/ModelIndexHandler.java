@@ -99,6 +99,8 @@ public class ModelIndexHandler implements IndexHandler<Model> {
 
 					if (d.get("MetaClass").equalsIgnoreCase(ModelClassifier.RUNE_PLAYER_CLASS)) {
 						m.game = Games.RUNE.name;
+					} else if (d.get("MetaClass").equalsIgnoreCase(ModelClassifier.UNREAL_PLAYER_CLASS)) {
+						m.game = Games.UNREAL.name;
 					}
 				}
 			});
@@ -150,6 +152,7 @@ public class ModelIndexHandler implements IndexHandler<Model> {
 									 && mapVal.containsKey("MetaClass")
 									 && mapVal.containsKey("Description")
 									 && (mapVal.get("MetaClass").equalsIgnoreCase(ModelClassifier.UT_PLAYER_CLASS)
+										 || (mapVal.get("MetaClass").equalsIgnoreCase(ModelClassifier.UNREAL_PLAYER_CLASS))
 										 || (mapVal.get("MetaClass").equalsIgnoreCase(ModelClassifier.RUNE_PLAYER_CLASS)))
 								 ) {
 									 vals.add(mapVal);

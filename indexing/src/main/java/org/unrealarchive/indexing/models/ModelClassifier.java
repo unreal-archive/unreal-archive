@@ -34,6 +34,7 @@ public class ModelClassifier implements Classifier {
 		"engine.mutator", "botpack.tournamentweapon", "botpack.tournamentgameinfo"
 	);
 
+	static final String UNREAL_PLAYER_CLASS = "UnrealShare.UnrealiPlayer";
 	static final String UT_PLAYER_CLASS = "Botpack.TournamentPlayer";
 	static final String RUNE_PLAYER_CLASS = "RuneI.RunePlayer";
 	static final String UT3_CHARACTER_DEF = "UTGame.UTCustomChar_Data";
@@ -95,6 +96,7 @@ public class ModelClassifier implements Classifier {
 							  && mapVal.containsKey("MetaClass")
 							  && mapVal.containsKey("Description")
 							  && (mapVal.get("MetaClass").equalsIgnoreCase(UT_PLAYER_CLASS)
+								  || mapVal.get("MetaClass").equalsIgnoreCase(UNREAL_PLAYER_CLASS)
 								  || mapVal.get("MetaClass").equalsIgnoreCase(RUNE_PLAYER_CLASS))
 						  ) {
 							  seemsToBeAModel.set(true);
