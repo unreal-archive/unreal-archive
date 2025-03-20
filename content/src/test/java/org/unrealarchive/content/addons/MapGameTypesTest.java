@@ -10,13 +10,13 @@ public class MapGameTypesTest {
 
 	@Test
 	public void gametypeDetection() {
-		assertEquals("Greed", MapGameTypes.forMap(Games.UNREAL_TOURNAMENT_3, "CTF-GRD-Cake").name);
-		assertEquals("Greed", MapGameTypes.forMap(Games.UNREAL_TOURNAMENT_3, "VCTF-GRD-Cake").name);
-		assertEquals("Capture The Flag", MapGameTypes.forMap(Games.RUNE, "CTF-Lies").name);
-		assertEquals("DeathMatch", MapGameTypes.forMap(Games.UNREAL_TOURNAMENT, "DM-DeathMatch").name);
+		assertEquals("Greed", MapGameTypes.forMap(Games.UNREAL_TOURNAMENT_3, "CTF-GRD-Cake").name());
+		assertEquals("Greed", MapGameTypes.forMap(Games.UNREAL_TOURNAMENT_3, "VCTF-GRD-Cake").name());
+		assertEquals("Capture The Flag", MapGameTypes.forMap(Games.RUNE, "CTF-Lies").name());
+		assertEquals("DeathMatch", MapGameTypes.forMap(Games.UNREAL_TOURNAMENT, "DM-DeathMatch").name());
 
-		assertEquals("Thievery", MapGameTypes.forMap(Games.UNREAL_TOURNAMENT, "TH-Sneaky").name);
-		assertEquals("The Haunted", MapGameTypes.forMap(Games.UNREAL_TOURNAMENT_3, "TH-Scary").name);
+		assertEquals("Thievery", MapGameTypes.forMap(Games.UNREAL_TOURNAMENT, "TH-Sneaky").name());
+		assertEquals("The Haunted", MapGameTypes.forMap(Games.UNREAL_TOURNAMENT_3, "TH-Scary").name());
 	}
 
 }
