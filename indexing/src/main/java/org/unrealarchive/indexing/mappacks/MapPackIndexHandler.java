@@ -124,8 +124,8 @@ public class MapPackIndexHandler implements IndexHandler<MapPack> {
 			if (gt == null) continue;
 
 			if (m.gametype.equals(UNKNOWN)) {
-				m.gametype = gt.name;
-			} else if (!m.gametype.equalsIgnoreCase(gt.name)) {
+				m.gametype = gt.name();
+			} else if (!m.gametype.equalsIgnoreCase(gt.name())) {
 				m.gametype = "Mixed";
 				break;
 			}

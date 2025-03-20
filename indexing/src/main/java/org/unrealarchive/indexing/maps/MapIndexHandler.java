@@ -259,7 +259,7 @@ public class MapIndexHandler implements IndexHandler<Map> {
 
 		if (gameType == null && maybeSingleplayer(incoming)) return "Single Player";
 
-		if (gameType != null) return gameType.name;
+		if (gameType != null) return gameType.name();
 
 		return UNKNOWN;
 	}

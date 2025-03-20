@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.unrealarchive.content.Games;
 
@@ -27,8 +28,9 @@ public class MapGameTypes {
 		new MapGameType(null, "Onslaught", "ONS"),
 		new MapGameType(null, "Vehicle CTF", "VCTF"),
 		new MapGameType(null, "Warfare", "WAR"),
-		new MapGameType(null, "Monster Hunt", "MH"),
-		new MapGameType(null, "Monster Arena", "MA"),
+		new MapGameType(UNREAL_TOURNAMENT, "Monster Hunt", "MH"),
+		new MapGameType(UNREAL_TOURNAMENT, "Monster Arena", "MA"),
+		new MapGameType(UNREAL, "Sniper's Paradise Monster Hunt", "MH-[SP]", "MH-"),
 		new MapGameType(null, "Team Monster Hunt", "TMH"),
 		new MapGameType(null, "Rocket Arena", "RA-"),
 		new MapGameType(null, "Jailbreak", "JB"),
@@ -82,6 +84,9 @@ public class MapGameTypes {
 		new MapGameType(RUNE, "Capture the Torch", "CTT-")
 	);
 
+	// byName is called many times while generating output - cache the lookup results for small optimisation
+	private static final java.util.Map<String, MapGameType> LOOKUP_CACHE = new ConcurrentHashMap<>();
+
 	/**
 	 * Attempt to find a gametype for a given map name, using a very naive longest prefix match.
 	 */
@@ -103,27 +108,19 @@ public class MapGameTypes {
 
 	public static MapGameType byName(String name) {
 		String lower = name.toLowerCase();
-		for (MapGameType gt : GAME_TYPES) {
-			if (gt.name.toLowerCase().equals(lower)) return gt;
-		}
-		return null;
+		return LOOKUP_CACHE.computeIfAbsent(lower, l -> {
+			for (MapGameType gt : GAME_TYPES) {
+				if (gt.name.toLowerCase().equals(lower)) return gt;
+			}
+			return null;
+		});
 	}
 
-	public static class MapGameType {
-
-		public final Games game;
-
-		public final String name;
-		public final Collection<String> mapPrefixes;
-
-		public MapGameType(Games game, String name, Collection<String> mapPrefixes) {
-			this.game = game;
-			this.name = name;
-			this.mapPrefixes = mapPrefixes;
-		}
+	public record MapGameType(Games game, String name, Collection<String> mapPrefixes) {
 
 		public MapGameType(Games game, String name, String... mapPrefixes) {
 			this(game, name, Arrays.asList(mapPrefixes));
 		}
 	}
+
 }

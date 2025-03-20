@@ -66,10 +66,10 @@ import static org.unrealarchive.content.addons.Addon.UNKNOWN;
  */
 public class IndexHelper {
 
-	private static String ROOT = "./unreal-archive-data";
+	private static final String ROOT = "./unreal-archive-data";
 
 	public static void main(String[] args) throws IOException, InterruptedException {
-		fixMissingScreenshots();
+//		fixMissingScreenshots();
 //		fixDDOMMaps();
 //		reassignUT2003();
 //		fixCCMaps();
@@ -99,7 +99,7 @@ public class IndexHelper {
 //		fixDuplicateMapPics(args[0], args[1]);
 //		fixMapGametypes(args[0]);
 //		fixMissingMapPics(args[0]);
-//		fixMonterHuntSnipersParadise();
+		fixMonsterHuntSnipersParadise();
 //		fixGreedMaps();
 //		setMapPackGametypes();
 //		findAutoIndexLinks(args[0], args[1], Integer.parseInt(args[2]));
@@ -615,13 +615,13 @@ public class IndexHelper {
 
 		ContentManager cm = manager();
 
-		for (String mapPrefix : gameType.mapPrefixes) {
+		for (String mapPrefix : gameType.mapPrefixes()) {
 			Collection<Addon> search = cm.repo().search(null, "MAP", mapPrefix, null);
 			for (Addon c : search) {
-				if (c instanceof Map && !((Map)c).gametype.equalsIgnoreCase(gameType.name)
+				if (c instanceof Map && !((Map)c).gametype.equalsIgnoreCase(gameType.name())
 					&& c.name.toLowerCase().startsWith(mapPrefix.toLowerCase())) {
 					Map map = (Map)cm.checkout(c.hash);
-					map.gametype = gameType.name;
+					map.gametype = gameType.name();
 					if (cm.checkin(new IndexResult<>(map, Collections.emptySet()), null)) {
 						System.out.println("Stored changes for " + String.join(" / ", map.game, map.gametype, map.name));
 					} else {
@@ -722,14 +722,14 @@ public class IndexHelper {
 		}
 	}
 
-	private static void fixMonterHuntSnipersParadise() throws IOException {
+	private static void fixMonsterHuntSnipersParadise() throws IOException {
 		ContentManager cm = manager();
 
-		Collection<Addon> search = cm.repo().search("Unreal Tournament", "MAP", "MH-[SP]", null);
+		Collection<Addon> search = cm.repo().search("Unreal", "MAP", "MH-", null);
 		for (Addon c : search) {
-			if (c instanceof Map && c.name.toLowerCase().startsWith("mh-[sp]".toLowerCase())) {
+			if (c instanceof Map && c.name.toLowerCase().startsWith("mh-".toLowerCase())) {
 				Map map = (Map)cm.checkout(c.hash);
-				map.game = "Unreal";
+				map.gametype = "Sniper's Paradise Monster Hunt";
 				if (cm.checkin(new IndexResult<>(map, Collections.emptySet()), null)) {
 					System.out.println("Stored changes for " + String.join(" / ", map.game, map.gametype, map.name));
 				} else {
@@ -753,8 +753,8 @@ public class IndexHelper {
 				if (gt == null) continue;
 
 				if (mapPack.gametype.equalsIgnoreCase(UNKNOWN)) {
-					mapPack.gametype = gt.name;
-				} else if (!mapPack.gametype.equalsIgnoreCase(gt.name)) {
+					mapPack.gametype = gt.name();
+				} else if (!mapPack.gametype.equalsIgnoreCase(gt.name())) {
 					mapPack.gametype = "Mixed";
 					break;
 				}

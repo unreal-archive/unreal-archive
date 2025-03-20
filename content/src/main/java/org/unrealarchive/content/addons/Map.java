@@ -25,9 +25,9 @@ public class Map extends Addon {
 		MapGameTypes.MapGameType gt = MapGameTypes.byName(gametype);
 		if (gt != null) {
 			String s = name.toLowerCase().trim();
-			for (String prefix : gt.mapPrefixes) {
+			for (String prefix : gt.mapPrefixes()) {
 				if (s.startsWith(prefix.toLowerCase())) {
-					char first = s.replaceFirst(prefix.toLowerCase(), "").toUpperCase().replaceAll("[^A-Z0-9]", "").charAt(0);
+					char first = s.substring(prefix.length()).trim().toUpperCase().replaceAll("[^A-Z0-9]", "").charAt(0);
 					if (Character.isDigit(first)) first = '0';
 					return Character.toString(first);
 				}
