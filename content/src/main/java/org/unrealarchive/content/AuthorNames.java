@@ -25,6 +25,7 @@ public class AuthorNames {
 	private static final Pattern URL = Pattern.compile(
 		"(-? ?)?\\(?((https?://)?(www\\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\\.[a-zA-Z0-9()]{2,6}\\b([-a-zA-Z0-9()!@:%_+.~#?&/=]*))\\)?"
 	);
+	private static final Pattern DATE = Pattern.compile("\\d{1,4}[/-]\\d{1,2}[/-]\\d{1,4}");
 	private static final Pattern BY = Pattern.compile("^(([Mm]ade).+)?\\s?([Bb]y\\s)");
 	private static final Pattern CONVERTED = Pattern.compile("(([-A-Za-z]+?|, )[Cc]onver[^\\s]+)(\\s)?([Bb]y\\s?)?");
 	private static final Pattern IMPORTED = Pattern.compile("\\s(\\*)?[Ii]mported.*(\\*)?");
@@ -138,7 +139,9 @@ public class AuthorNames {
 
 		String noFullstop = author.replaceAll("(\\.)$", "");
 
-		String aliased = aliases.getOrDefault(Util.normalised(noFullstop).toLowerCase().strip(), noFullstop).strip();
+		String noDate = DATE.matcher(noFullstop).replaceAll("");
+
+		String aliased = aliases.getOrDefault(Util.normalised(noDate).toLowerCase().strip(), noDate).strip();
 
 		String noQuote = aliased;
 		if (START_END.matcher(aliased).find()) {

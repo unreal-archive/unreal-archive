@@ -29,6 +29,13 @@ public class AuthorNamesTest {
 	}
 
 	@Test
+	public void noDateTest() {
+		AuthorNames name = new AuthorNames(new HashMap<>(), Set.of());
+		assertEquals("VoiceGuy", name.cleanName("VoiceGuy 22/04/2024"));
+		assertEquals("VoiceGuy", name.cleanName("VoiceGuy 2024-04-22"));
+	}
+
+	@Test
 	public void autoAliasTest() {
 		AuthorNames name = new AuthorNames(new HashMap<>(), Set.of());
 		name.maybeAutoAlias("Mike \"Mr. Banan\" Bananas");
