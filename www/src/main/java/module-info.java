@@ -11,6 +11,7 @@ open module unreal.archive.www {
 	requires org.commonmark;
 	requires org.commonmark.ext.gfm.tables;
 	requires org.jsoup;
+	requires jdk.compiler;
 
 	exports org.unrealarchive.www;
 	exports org.unrealarchive.www.content;

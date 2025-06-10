@@ -121,17 +121,17 @@ public final class Util {
 	}
 
 	public static String slug(String input) {
-		String nowhitespace = WHITESPACE.matcher(input).replaceAll("-");
+		String nowhitespace = WHITESPACE.matcher(input.strip()).replaceAll("-");
 		String normalized = normalised(nowhitespace);
 		String slug = NONLATIN.matcher(normalized).replaceAll("");
-		return slug.toLowerCase(Locale.ENGLISH).replaceAll("(-)\\1+", "-");
+		return slug.toLowerCase(Locale.ENGLISH).replaceAll("([-_])\\1+", "-");
 	}
 
 	public static String authorSlug(String input) {
-		String nowhitespace = WHITESPACE.matcher(input).replaceAll("-");
+		String nowhitespace = WHITESPACE.matcher(input.strip()).replaceAll("-");
 		String normalized = normalised(nowhitespace);
 		String slug = NONLATIN.matcher(normalized).replaceAll("_");
-		return slug.toLowerCase(Locale.ENGLISH).replaceAll("(-)\\1+", "-");
+		return slug.toLowerCase(Locale.ENGLISH).replaceAll("([-_])\\1+", "$1").replaceAll("^[-_]+|[-_]+$", "");
 	}
 
 	public static String capitalWords(String input) {

@@ -107,6 +107,19 @@ section.header .cover {
 	padding: 10px;
 }
 
+.contentpage .content-body .sidebar {
+	background-color: var(--p2);
+	border-radius: var(--radius);
+}
+
+.contentpage .content-body .sidebar .label-value {
+	padding: 5px 10px;
+}
+
+.contentpage .content-body .sidebar .label-value:last-child {
+	padding: 5px 10px 15px 10px;
+}
+
 .page-bg {
 	display: block;
 	z-index: -1;
@@ -126,6 +139,45 @@ section.header .cover {
 	top: 0;
 	bottom: 0;
 	background: linear-gradient(0deg, var(--body-bg) 0%, rgba(0,0,0,0) 100%);
+}
+
+.authors {
+	width: 100%;
+}
+.authors .author {
+	width: 100%;
+}
+.authors .contributors {
+	font-size: 0.9em;
+	line-height: 0;
+}
+.authors .contributors a {
+	display: block;
+}
+.authors .contributors img {
+	max-height: 20px;
+	max-width: 20px;
+	border-radius: 3px;
+}
+.authors .modified .lbl {
+	display: inline-block;
+	min-width: 55px;
+	font-size: 0.85em;
+}
+.authors .modified .editors {
+	font-size: 0.9em;
+	line-height: 0;
+}
+.authors .modified .editors .editor {
+	display: block;
+}
+.authors .modified .editors .editor img {
+	max-height: 20px;
+	max-width: 20px;
+	border-radius: 3px;
+}
+.authors .modified .original {
+	display: block;
 }
 
 .biglist ul li a:hover {

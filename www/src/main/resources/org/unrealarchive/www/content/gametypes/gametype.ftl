@@ -135,22 +135,14 @@
 
 			<section>
 				<h2><@icon "info"/>Information</h2>
-				<div class="label-value">
-					<label>Author</label><span><@authorLink gametype.gametype /></span>
-				</div>
-				<div class="label-value">
-					<label>Summary</label><span>${gametype.gametype.description}</span>
-				</div>
-				<div class="label-value">
-					<label>Release Date</label><span>${gametype.gametype.releaseDate!"-"}</span>
-				</div>
+				<div class="label-value"><label>Author</label><span><@authorLink gametype.gametype /></span></div>
+				<div class="label-value"><label>Summary</label><span>${gametype.gametype.description}</span></div>
+				<div class="label-value"><label>Release Date</label><span>${gametype.gametype.releaseDate!"-"}</span></div>
 				<#if gametype.gametype.links?size gt 0>
 					<div class="label-value">
 						<label>Links</label><span>
 						<#list gametype.gametype.links as t, u>
-							<div>
-								<a href="${u}"><@icon name="external-link" small=true/>${t}</a>
-							</div>
+							<div><a href="${u}"><@icon name="external-link" small=true/>${t}</a></div>
 						</#list>
 					</span>
 					</div>

@@ -11,14 +11,17 @@ import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
 import java.util.stream.Collectors;
 
-import org.unrealarchive.common.ArchiveUtil;
 import org.unrealarchive.common.YAML;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class DocumentTest {
+
+	@TempDir
+	Path tempDir;
 
 	@Test
 	public void documentYaml() throws IOException {
@@ -54,28 +57,21 @@ public class DocumentTest {
 		doc.description = "There is no description";
 
 		// create a simple on-disk structure containing a test document and metadata
-		Path tmpRoot = Files.createTempDirectory("test-docs");
-		try {
-			Path docPath = Files.createDirectories(tmpRoot.resolve("test-doc"));
-			Files.writeString(docPath.resolve("document.yml"), YAML.toString(doc), StandardOpenOption.CREATE);
+		Path docPath = Files.createDirectories(tempDir.resolve("test-doc"));
+		Files.writeString(docPath.resolve("document.yml"), YAML.toString(doc), StandardOpenOption.CREATE);
 
-			try (InputStream is = getClass().getResourceAsStream("doc.md")) {
-				Files.copy(is, docPath.resolve(doc.name));
-			}
+		try (InputStream is = getClass().getResourceAsStream("doc.md")) {
+			Files.copy(is, docPath.resolve(doc.name));
+		}
 
-			DocumentRepository dm = new DocumentRepository.FileRepository(tmpRoot);
-			assertTrue(dm.all().contains(doc));
+		DocumentRepository dm = new DocumentRepository.FileRepository(tempDir);
+		assertTrue(dm.all().contains(doc));
 
-			try (BufferedReader reader = new BufferedReader(Channels.newReader(dm.document(doc), StandardCharsets.UTF_8))) {
-				assertNotNull(reader);
+		try (BufferedReader reader = new BufferedReader(Channels.newReader(dm.document(doc), StandardCharsets.UTF_8))) {
+			assertNotNull(reader);
 
-				String docContent = reader.lines().collect(Collectors.joining("\n"));
-				assertTrue(docContent.contains("Testing Document"));
-			}
-		} finally {
-			// cleanup temp files
-			ArchiveUtil.cleanPath(tmpRoot);
+			String docContent = reader.lines().collect(Collectors.joining("\n"));
+			assertTrue(docContent.contains("Testing Document"));
 		}
 	}
-
 }

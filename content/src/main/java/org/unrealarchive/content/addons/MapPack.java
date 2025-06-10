@@ -9,7 +9,10 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.unrealarchive.common.Util;
-import org.unrealarchive.content.AuthorNames;
+import org.unrealarchive.content.Author;
+import org.unrealarchive.content.AuthorInfo;
+import org.unrealarchive.content.Authors;
+import org.unrealarchive.content.Contributors;
 import org.unrealarchive.content.Games;
 
 public class MapPack extends Addon {
@@ -75,11 +78,13 @@ public class MapPack extends Addon {
 		return Objects.hash(super.hashCode(), maps, gametype, themes);
 	}
 
-	public static class PackMap implements Comparable<PackMap> {
+	public static class PackMap implements Comparable<PackMap>, HasAuthors {
 
 		public String name;
 		public String title;
 		public String author = "Unknown";
+
+		private transient AuthorInfo authorInfo;
 
 		public PackMap() {
 		}
@@ -90,8 +95,10 @@ public class MapPack extends Addon {
 			this.author = author;
 		}
 
-		public String authorName() {
-			return AuthorNames.nameFor(author);
+		@Override
+		public AuthorInfo authorInfo() {
+			if (authorInfo == null) authorInfo = new AuthorInfo(author);
+			return authorInfo;
 		}
 
 		@Override

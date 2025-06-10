@@ -2,16 +2,21 @@ package org.unrealarchive.content.addons;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class SimpleAddonRepositoryTest {
 
+	@TempDir
+	Path tempDir;
+
 	@Test
 	public void filterTest() throws IOException {
-		SimpleAddonRepository repo = new SimpleAddonRepository.FileRepository(Files.createTempDirectory("ua_test"));
+		SimpleAddonRepository repo = new SimpleAddonRepository.FileRepository(tempDir);
 		testData(repo);
 
 		assertEquals(2, repo.filter("game", "Unreal Tournament").size());
