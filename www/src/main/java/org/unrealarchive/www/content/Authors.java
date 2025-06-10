@@ -169,13 +169,6 @@ public class Authors extends ContentPageGenerator {
 					}
 				});
 			}
-
-			// output first letter/page combo, with appropriate relative links
-//			pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", SECTION))
-//				 .put("letters", letters)
-//				 .put("page", l.getValue().pages.getFirst())
-//				 .put("authorsPath", sectionPath)
-//				 .write(l.getValue().path.resolve("index.html"));
 		});
 
 		// output first letter/page combo, with appropriate relative links
