@@ -145,6 +145,8 @@ public class Contributors {
 	}
 
 	public static Set<String> names(String authorString) {
+		if (Authors.noAlias(authorString)) return Set.of(authorString);
+
 		Set<String> names = new HashSet<>();
 
 		String[] s = MODIFIED_SPLIT.split(authorString);

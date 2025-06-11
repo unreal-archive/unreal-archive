@@ -76,6 +76,7 @@ public class Authors {
 			try {
 				NON_AUTO_ALIASES.addAll(Files.readAllLines(exclude).stream()
 											 .filter(name -> !name.isBlank() && !name.trim().startsWith("#"))
+											 .map(Util::normalised)
 											 .map(String::toLowerCase)
 											 .collect(Collectors.toSet()));
 			} catch (IOException e) {
@@ -100,6 +101,7 @@ public class Authors {
 	public static Contributors contributors(String name) {
 		if (name == null || name.isBlank() || name.equalsIgnoreCase(AuthorRepository.UNKNOWN.name)) return null;
 		if (name.equalsIgnoreCase(AuthorRepository.VARIOUS.name)) return null;
+		if (noAlias(name)) return null;
 
 		Contributors contributors = new Contributors(name);
 		if (contributors.modifiedBy.isEmpty() && contributors.contributors.isEmpty()) return null;
@@ -121,6 +123,10 @@ public class Authors {
 			   && !name.isBlank()
 			   && !name.strip().equalsIgnoreCase(AuthorRepository.UNKNOWN.name)
 			   && !name.strip().equalsIgnoreCase(AuthorRepository.VARIOUS.name);
+	}
+
+	public static boolean noAlias(String name) {
+		return NON_AUTO_ALIASES.contains(Util.normalised(name).toLowerCase());
 	}
 
 	/**
@@ -163,7 +169,7 @@ public class Authors {
 			normalised.toLowerCase().contains(" and ")) return;
 
 		// FIXME this author should still be recorded
-		if (NON_AUTO_ALIASES.contains(normalised.toLowerCase())) return;
+		if (noAlias(normalised)) return;
 
 		Author putAuthor;
 
@@ -177,8 +183,8 @@ public class Authors {
 			String realname = aka.group(2).strip();
 
 			// FIXME these authors still need to fall through to final else condition
-			if (NON_AUTO_ALIASES.contains(Util.normalised(aliased).toLowerCase())) return;
-			if (NON_AUTO_ALIASES.contains(Util.normalised(realname).toLowerCase())) return;
+			if (noAlias(aliased)) return;
+			if (noAlias(realname)) return;
 
 			if (byName(aliased) != null) return;
 			Author maybeAuthor = byName(realname);
@@ -194,8 +200,8 @@ public class Authors {
 			String aliased = handle.group(3).strip();
 			String realname = handle.group(1).strip() + " " + handle.group(4).strip();
 
-			if (NON_AUTO_ALIASES.contains(Util.normalised(aliased).toLowerCase())) return;
-			if (NON_AUTO_ALIASES.contains(Util.normalised(realname).toLowerCase())) return;
+			if (noAlias(aliased)) return;
+			if (noAlias(realname)) return;
 
 			if (byName(aliased) != null) return;
 			Author maybeAuthor = byName(realname);
@@ -209,8 +215,8 @@ public class Authors {
 			String aliased = handleAfter.group(3).strip();
 			String realname = handleAfter.group(1).strip();
 
-			if (NON_AUTO_ALIASES.contains(Util.normalised(aliased).toLowerCase())) return;
-			if (NON_AUTO_ALIASES.contains(Util.normalised(realname).toLowerCase())) return;
+			if (noAlias(aliased)) return;
+			if (noAlias(realname)) return;
 
 			if (byName(aliased) != null) return;
 			Author maybeAuthor = byName(realname);

@@ -135,9 +135,14 @@ public class Authors extends ContentPageGenerator {
 		// skip names which are nothing but unprintable characters
 		if (normalised.replaceAll("([^A-Za-z0-9])", "").trim().isBlank()) return null;
 
+		// special handling hacks
+		else if (normalised.charAt(0) == 'Ð') first = 'D';
+		else if (normalised.charAt(0) == 'º') first = '§';
+
 		else if (Character.isDigit(normalised.charAt(0))) first = '0';
 		else if (Character.isAlphabetic(normalised.charAt(0))) first = normalised.charAt(0);
-		else first = '_';
+
+		else first = '§';
 
 		return Character.toString(first);
 	}
