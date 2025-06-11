@@ -117,8 +117,7 @@ public final class Util {
 	}
 
 	public static String normalised(String input) {
-		return Normalizer.normalize(input, Normalizer.Form.NFD)
-						 .replaceAll("\\p{M}", "");
+		return Normalizer.normalize(input, Normalizer.Form.NFD).replaceAll("\\p{M}", "");
 	}
 
 	public static String slug(String input) {
