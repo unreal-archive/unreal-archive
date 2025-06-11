@@ -201,6 +201,8 @@ public class Contributors {
 	}
 
 	private Set<Author> parseAuthors(String a) {
+		if (Authors.noAlias(a)) return Set.of(author(a));
+
 		String[] s = AUTHOR_SPLIT.split(a);
 		if (s.length == 1) return Set.of(author(a));
 
