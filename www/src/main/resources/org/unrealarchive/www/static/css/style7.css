@@ -1,0 +1,367 @@
+:root {
+	--p1: #BEBECB;
+	--p2: #13131A;
+	--p3: #EFEFFF;
+	--p4: #293857;
+	--p5: #74FF5777;
+	--p6: #22223545;
+
+	--icon: #FFAA00;
+
+	--body-bg: var(--p2);
+	--body-color: var(--p3);
+	--body-font-family: 'Encode Sans Semi Condensed', sans-serif;
+	--article-font-family: 'Encode Sans Expanded', sans-serif;
+
+	--link-color: white;
+	--link-color-visited: lightgrey;
+
+	--header-font-family: 'Squada One', sans-serif;
+	--header-bg-color: var(--p6);
+	--header-bg-scrolled: #222235EE;
+	--header-text-color: white;
+	--header-border-color: none;
+	--header-logo-color-a: white;
+	--header-logo-color-b: var(--p3);
+	--header-shadow: none;
+
+	--header-bg-glow: radial-gradient(70% 100% at 50% -20%, #FFF7 0%, #FFF0 90%);
+
+	--header-outline-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
+
+	--footer-border-color: var(--p4);
+
+	--menu-font-family: 'Encode Sans Expanded', sans-serif;
+	--menu-text-color: var(--p3);
+	--menu-trim-color: 1px dotted var(--menu-text-color);
+
+	--page-shadow: none;
+
+	--section-header-bg: revert;
+	--section-header-shadow: none;
+	--section-header-title-bg: var(--p6);
+	--section-header-title-shadow: none;
+	--section-header-title-color: white;
+	--section-header-title-color-hover: var(--icon);
+
+	--section-subheader-bg: var(--p4);
+	--section-subheader-color: var(--p1);
+
+	--biglist-shadow: inset 0 0 80px 0 rgba(0, 0, 0, 0.75);
+	--biglist-bg-color: var(--p4);
+	--biglist-bg-color-hover: var(--p2);
+	--biglist-text-color: white;
+	--biglist-meta-color: rgba(255, 255, 255, 0.6);
+
+	--paginate-bg-inactive: var(--p6);
+	--paginate-bg-hover: var(--icon);
+	--paginate-bg-active: var(--p2);
+	--paginate-shadow-active: inset 0 -3px 0 0 var(--icon);
+	--paginate-border: none;
+
+	--download-button-bg: var(--p5);
+	--download-button-bg-hover: #74FF5799;
+	--download-info-bg-hover: none;
+
+	--table-header-bg: none;
+	--table-header-color: var(--p1);
+	--table-row-alt-bg: var(--p6);
+	--table-row-hover: var(--p4);
+
+	--document-meta-border: none;
+	--document-meta-bg: var(--p6);
+
+	--problem-border: #dd3;
+	--problem-bg: #dd35;
+
+	--radius: 20px;
+}
+
+/**
+ * custom styling
+ */
+
+body, header, .content-body, h2, h3 {
+	transition: background-color 0.5s linear;
+}
+header {
+	position: fixed;
+	z-index: 5;
+	top: 0;
+	width: 100%;
+	border: none;
+}
+header.scrolled {
+	background-color: var(--header-bg-scrolled);
+}
+
+section.header {
+	height: 150px;
+	border-bottom: none;
+	background-image: none !important;
+}
+section.header .cover {
+	backdrop-filter: none;
+}
+section.header h1 {
+	background-color: revert;
+	border-bottom: 1px solid var(--p4);
+}
+
+/* for pages where there's no big header present, push content down */
+.contentpage { padding: 30px 0; }
+/* better padding on blocks which follow blocks */
+.mainpage section.header + .contentpage,
+.page + .contentpage,
+.submenu + .contentpage {
+	padding: 20px 0;
+}
+
+.contentpage .content-body {
+	background-color: var(--p6);
+	border-radius: var(--radius);
+	padding: 10px;
+	box-shadow: 0 0 30px -20px rgba(0,0,0,0.75);
+}
+
+.contentpage .content-body .sidebar .label-value {
+	padding: 5px 10px;
+}
+
+.contentpage .content-body .sidebar .label-value:last-child {
+	padding: 5px 10px 15px 10px;
+}
+
+.page-bg {
+	display: block;
+	z-index: -100;
+	position: absolute;
+	top: -100px;
+	left: 0;
+	right: 0;
+	height: 900px;
+	background-size: cover;
+	background-position: top center;
+	filter: blur(15px) opacity(0.5);
+}
+
+.page-bg .inner {
+	position: absolute;
+	z-index: -50;
+	width: 100%;
+	top: 0;
+	bottom: 0;
+	background: linear-gradient(0deg, var(--body-bg) 0%, rgba(0,0,0,0) 100%);
+}
+
+.page-bg .extra {
+	background: var(--header-bg-glow);
+	z-index: -20;
+	position: absolute;
+	top: 0;
+	height: 400px;
+	width: 1200px;
+	left: calc(50% - 600px);
+}
+
+.authors {
+	width: 100%;
+}
+.authors .author {
+	width: 100%;
+}
+.authors .contributors {
+	font-size: 0.9em;
+	line-height: 0;
+}
+.authors .contributors a {
+	display: block;
+}
+.authors .contributors img {
+	max-height: 20px;
+	max-width: 20px;
+	border-radius: 3px;
+}
+.authors .lbl {
+	display: inline-block;
+	min-width: 55px;
+	font-size: 0.85em;
+}
+.authors .editors {
+	font-size: 0.9em;
+	line-height: 0;
+}
+.authors .editors .editor {
+	display: block;
+}
+.authors .editors .editor img {
+	max-height: 20px;
+	max-width: 20px;
+	border-radius: 3px;
+}
+.authors .original {
+	display: block;
+}
+
+.biglist h2 {
+	font-size: 1.75em;
+}
+.biglist ul li .title {
+	background-color: var(--p6);
+}
+.biglist ul li a:hover {
+	backdrop-filter: saturate(1.3) brightness(1.3);
+	transition: backdrop-filter 0.25s;
+}
+.biglist ul li:hover {
+	outline: 2px solid var(--icon);
+}
+.biglist ul li .bg, .biglist.bigger ul li .bg {
+	 top: 0;
+ }
+.biglist ul li a:hover ~ div.bg {
+	left: -10px;
+	right: -10px;
+	bottom: -10px;
+	top: -10px;
+
+	transition: left 0.5s linear, right 0.5s linear, bottom 0.5s linear, top 0.5s linear;
+	transition-timing-function: cubic-bezier(.4,0,.2,1);
+}
+.biglist ul li .meta {
+	filter: drop-shadow(0px 0px 8px black);
+}
+
+article section h2 {
+	border-radius: var(--radius);
+	font-size: 1.75em;
+}
+
+article section h3 {
+	background-color: var(--p6);
+	color: var(--section-header-title-color);
+	font-size: 1.6em;
+	border-radius: var(--radius);
+}
+
+article section h4 {
+	background-color: var(--document-meta-bg);
+	font-size: 1.3em;
+	border-radius: var(--radius);
+}
+
+article.info {
+	margin-top: 0;
+}
+
+.list .sectionInfo h3 {
+	border-radius: var(--radius);
+}
+
+section.report {
+	background-color: transparent;
+}
+
+article section.readable {
+	background: none;
+	color: var(--body-color);
+}
+
+table thead, table th {
+	border-bottom: 1px solid var(--p4);
+	text-align: left;
+}
+
+table tbody td {
+	padding: 7px 0;
+}
+
+section table {
+	margin: 0 5px;
+	width: calc(100% - 10px);
+}
+
+section.downloads .links a {
+	margin: 10px;
+	border-radius: var(--radius);
+}
+
+section.releases .links a {
+	border-radius: var(--radius);
+}
+
+.readable {
+	font-size: 1.1em;
+}
+
+h1 svg.icon, h2 svg.icon, h3 svg.icon, h4 svg.icon {
+	color: var(--icon);
+}
+
+#log .good {
+	color: var(--p1);
+	background-color: var(--p3);
+	font-weight: bold;
+}
+
+#log .error, #log .warn {
+	color: var(--p1);
+}
+
+[data-theme="default"] {
+	--p1: #BEBECB;
+	--p2: #13131A;
+	--p3: #EFEFFF;
+	--p4: #293857;
+	--p5: #74FF5777;
+	--p6: #22223545;
+	--icon: #FFAA00;
+	--header-bg-scrolled: #222235EE;
+	--header-bg-glow: radial-gradient(70% 100% at 50% -20%, #FFF7 0%, #FFF0 90%);
+}
+
+[data-theme="red"] {
+	--p1: #CBBEBE;
+	--p2: #1A1313;
+	--p3: #FFEFEF;
+	--p4: #573829;
+	--p5: #74FF5777;
+	--p6: #35222245;
+	--icon: #FFAA00;
+	--header-bg-scrolled: #352222EE;
+	--header-bg-glow: radial-gradient(70% 100% at 50% -20%, #FFF7 0%, #FFF0 90%);
+}
+
+[data-theme="green"] {
+	--p1: #BECBBE;
+	--p2: #131A13;
+	--p3: #EFFFEF;
+	--p4: #295738;
+	--p5: #5774FF77;
+	--p6: #22352245;
+	--icon: #FFAA00;
+	--header-bg-scrolled: #223522EE;
+	--header-bg-glow: radial-gradient(70% 100% at 50% -20%, #FFF7 0%, #FFF0 90%);
+}
+
+[data-theme="grey"] {
+	--p1: #BEBEBE;
+	--p2: #131313;
+	--p3: #EFFEEF;
+	--p4: #292929;
+	--p5: #74FF5777;
+	--p6: #22222245;
+	--icon: #FFAA00;
+	--header-bg-scrolled: #222222EE;
+	--header-bg-glow: radial-gradient(70% 100% at 50% -20%, #FFF7 0%, #FFF0 90%);
+}
+
+@media screen and (max-width: 1024px) {
+	* {
+		--radius: 0;
+	}
+
+	header {
+		position: relative;
+	}
+}

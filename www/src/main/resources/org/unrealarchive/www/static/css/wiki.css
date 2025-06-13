@@ -184,49 +184,49 @@
   Lifted CSS styling for unreal script highlighting
  */
 .wiki .mw-code .kw1 {
-	color:#0000FF
+	color:#77F;
 }
 .wiki .mw-code .kw2 {
-	color:#0000FF
+	color:#77F;
 }
 .wiki .mw-code .kw3 {
-	color:#0066AA
+	color:#48E
 }
 .wiki .mw-code .kw4 {
-	color:#0088FF
+	color:#49F
 }
 .wiki .mw-code .kw5 {
-	color:#E000E0
+	color:#E6E;
 }
 .wiki .mw-code .kw6 {
-	color:#900000
+	color:#D44;
 }
 .wiki .mw-code .kw7 {
-	color:#888800
+	color:#AA4;
 }
 .wiki .mw-code .kw8 {
-	color:#AA6600
+	color:#B94
 }
 .wiki .mw-code .kw9 {
-	color:#FF8800
+	color:#FA0;
 }
 .wiki .mw-code .kw10 {
-	color:#0000FF
+	color:#77F;
 }
 .wiki .mw-code .co1 {
-	color:#008080;
+	color:#5A5;
 	font-style:italic
 }
 .wiki .mw-code .co2 {
-	color:#000000;
+	color:#5A5;
 	font-weight:bold
 }
 .wiki .mw-code .coMULTI {
-	color:#008080;
+	color:#EEE;
 	font-style:italic
 }
 .wiki .mw-code .br0 {
-	color:#000000
+	color:#EEE;
 }
 .wiki .mw-code .sy0 {
 	color:#669966

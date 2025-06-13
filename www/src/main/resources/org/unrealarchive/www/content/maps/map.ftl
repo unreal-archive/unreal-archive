@@ -78,9 +78,9 @@
 
 			<@variations variations=map.variations/>
 
-			<@files game=game files=map.item.files alsoIn=map.alsoIn otherFiles=map.item.otherFiles/>
-
 			<@downloads downloads=map.item.downloads/>
+
+			<@files game=game files=map.item.files alsoIn=map.alsoIn otherFiles=map.item.otherFiles/>
 
 			<@dependencies game=game deps=map.item.dependencies/>
 

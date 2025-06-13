@@ -103,9 +103,9 @@
 				<@labellist labels=labels values=values/>
 			</@contents>
 
-			<@files game=game files=mutator.item.files alsoIn=mutator.alsoIn otherFiles=mutator.item.otherFiles/>
-
 			<@downloads downloads=mutator.item.downloads/>
+
+			<@files game=game files=mutator.item.files alsoIn=mutator.alsoIn otherFiles=mutator.item.otherFiles/>
 
 			<@dependencies game=game deps=mutator.item.dependencies/>
 

@@ -94,9 +94,9 @@
 				</table>
 			</@contents>
 
-			<@files game=game files=pack.item.files alsoIn=pack.alsoIn otherFiles=pack.item.otherFiles/>
-
 			<@downloads downloads=pack.item.downloads/>
+
+			<@files game=game files=pack.item.files alsoIn=pack.alsoIn otherFiles=pack.item.otherFiles/>
 
       <@dependencies game=game deps=pack.item.dependencies/>
 

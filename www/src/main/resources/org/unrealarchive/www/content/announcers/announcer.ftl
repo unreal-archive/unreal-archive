@@ -66,9 +66,9 @@
 			</@contents>
 			</#if>
 
-			<@files game=game files=announcer.item.files alsoIn=announcer.alsoIn otherFiles=announcer.item.otherFiles/>
-
 			<@downloads downloads=announcer.item.downloads/>
+
+      <@files game=game files=announcer.item.files alsoIn=announcer.alsoIn otherFiles=announcer.item.otherFiles/>
 
       <@dependencies game=game deps=announcer.item.dependencies game=announcer.item.game/>
 

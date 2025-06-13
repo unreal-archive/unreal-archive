@@ -24,13 +24,13 @@
           <#list content as c>
 						<tr>
 							<td>
-									<img src="${staticPath()}/images/games/icons/${c.game}.png" alt="${c.game} icon" height="22"/>
-									${c.game} ${c.friendlyType}
+								<img src="${staticPath()}/images/games/icons/${c.game}.png" alt="${c.game} icon" height="22"/>
+								${c.game} ${c.friendlyType}
 							</td>
 							<td>
 								<a href="${relPath(c.pagePath(siteRoot))}">${c.name}</a>
 							</td>
-							<td class="nomobile"><@authorLink c trunc(c.authorName, 30) /></td>
+							<td class="nomobile"><@authorLink content=c small=true/></td>
 						</tr>
           </#list>
 					</tbody>

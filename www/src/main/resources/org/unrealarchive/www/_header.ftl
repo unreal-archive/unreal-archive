@@ -54,7 +54,7 @@
 </head>
 
 <script>
-	// theme switching... sigh.
+	// theme loading. theme switcher is in title.
 	let theme = localStorage.getItem('theme') ? localStorage.getItem('theme') : null;
 	if (theme) document.documentElement.setAttribute('data-theme', theme);
 </script>

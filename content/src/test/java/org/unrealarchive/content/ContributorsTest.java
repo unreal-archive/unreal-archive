@@ -112,8 +112,8 @@ public class ContributorsTest {
 
 		for (String sample : samples) {
 			System.out.println(sample);
-			Contributors authorInfo = new Contributors(sample);
-			System.out.println(authorInfo);
+			Contributors contribs = new Contributors(sample);
+			System.out.println(contribs);
 			System.out.println();
 		}
 	}

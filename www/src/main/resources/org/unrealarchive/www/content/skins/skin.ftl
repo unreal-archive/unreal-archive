@@ -71,9 +71,9 @@
 				<@labellist labels=labels values=values/>
 			</@contents>
 
-			<@files game=game files=skin.item.files alsoIn=skin.alsoIn otherFiles=skin.item.otherFiles/>
-
 			<@downloads downloads=skin.item.downloads/>
+
+			<@files game=game files=skin.item.files alsoIn=skin.alsoIn otherFiles=skin.item.otherFiles/>
 
 			<@dependencies game=game deps=skin.item.dependencies/>
 

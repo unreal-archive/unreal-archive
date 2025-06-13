@@ -69,9 +69,9 @@
       </@contents>
 			</#if>
 
-			<@files game=game files=model.item.files alsoIn=model.alsoIn otherFiles=model.item.otherFiles/>
-
 			<@downloads downloads=model.item.downloads/>
+
+			<@files game=game files=model.item.files alsoIn=model.alsoIn otherFiles=model.item.otherFiles/>
 
       <@dependencies game=game deps=model.item.dependencies/>
 

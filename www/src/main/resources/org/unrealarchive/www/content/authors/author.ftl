@@ -21,7 +21,7 @@
 	<div class="left">
 		<section class="biglist bigger">
 			<#if author.created?size gt 0>
-				<h2>Original Works</h2>
+				<h2><@icon name="bulb"/>Original Works</h2>
 				<#list author.created as group, content>
 					<h3>${content?size} ${group}<#if content?size gt 1>s</#if></h3>
 					<ul>
@@ -44,7 +44,7 @@
 			</#if>
 
 			<#if author.contributed?size gt 0>
-				<h2>Collaborative Works</h2>
+				<h2><@icon name="users"/>Collaborative Works</h2>
 				<#list author.contributed as group, content>
 					<h3>${content?size} ${group}<#if content?size gt 1>s</#if></h3>
 					<ul>
@@ -67,7 +67,7 @@
 			</#if>
 
 			<#if author.modified?size gt 0>
-				<h2>Modifications and Edits</h2>
+				<h2><@icon name="variant"/>Modifications and Edits</h2>
 				<#list author.modified as group, content>
 					<h3>${content?size} ${group}<#if content?size gt 1>s</#if></h3>
 					<ul>
@@ -122,7 +122,7 @@
 			</#if>
 
 			<#if author.created?size gt 0>
-				<h3><@icon "package"/>Original Works</h3>
+				<h3><@icon "bulb"/>Original Works</h3>
 				<div class="label-value">
 				<#list author.created as group, contents>
 					<label>${group}</label><span>${contents?size}</span>
@@ -131,7 +131,7 @@
       </#if>
 
 			<#if author.contributed?size gt 0>
-				<h3><@icon "package"/>Collaborative Works</h3>
+				<h3><@icon "users"/>Collaborative Works</h3>
 				<div class="label-value">
 				<#list author.contributed as group, contents>
 					<label>${group}</label><span>${contents?size}</span>
@@ -140,7 +140,7 @@
       </#if>
 
 			<#if author.modified?size gt 0>
-				<h3><@icon "package"/>Modifications and Edits</h3>
+				<h3><@icon "variant"/>Modifications and Edits</h3>
 				<div class="label-value">
 				<#list author.modified as group, contents>
 					<label>${group}</label><span>${contents?size}</span>
