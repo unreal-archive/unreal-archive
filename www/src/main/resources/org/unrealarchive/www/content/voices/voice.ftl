@@ -9,7 +9,7 @@
 <#assign ogImage=headerbg>
 
 <#assign schemaItemName="${voice.item.name}">
-<#assign schemaItemAuthor="${voice.item.author}">
+<#assign schemaItemAuthor="${voice.item.authorName}">
 <#assign schemaItemDate="${voice.item.releaseDate}-01">
 
 <#include "../../_header.ftl">

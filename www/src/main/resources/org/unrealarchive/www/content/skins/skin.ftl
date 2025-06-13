@@ -9,7 +9,7 @@
 <#assign ogImage=headerbg>
 
 <#assign schemaItemName="${skin.item.name}">
-<#assign schemaItemAuthor="${skin.item.author}">
+<#assign schemaItemAuthor="${skin.item.authorName}">
 <#assign schemaItemDate="${skin.item.releaseDate}-01">
 
 <#include "../../_header.ftl">

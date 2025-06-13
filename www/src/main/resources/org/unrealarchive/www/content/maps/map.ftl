@@ -10,7 +10,7 @@
 <#assign ogImage=headerbg>
 
 <#assign schemaItemName="${map.item.name}">
-<#assign schemaItemAuthor="${map.item.author}">
+<#assign schemaItemAuthor="${map.item.authorName}">
 <#assign schemaItemDate="${map.item.releaseDate}-01">
 
 <#include "../../_header.ftl">
