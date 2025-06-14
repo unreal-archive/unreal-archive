@@ -5,6 +5,18 @@ Tournament 2003/4, and Unreal Tournament 3 content, and builds a static
 browsable website of the content, currently published at 
 [https://unrealarchive.org/](https://unrealarchive.org/).
 
+## Table of Contents
+
+- [Requirements](#requirements)
+- [Structure and Modules](#structure-and-modules)
+- [Building](#building)
+- [Usage and Functionality](#usage-and-functionality)
+- [Content Submission and Indexing Pipeline](#content-submission-and-indexing-pipeline)
+- [Author Management](#author-management)
+- [Mirroring](#mirroring)
+- [Storage Configuration](#storage-configuration)
+
+
 ## Requirements
 
 - Java JDK 21 for building
@@ -12,36 +24,7 @@ browsable website of the content, currently published at
 Tested with both OpenJDK 21 on Linux and Azul's Zulu Java 21 on Windows.
 
 
-## Building
-
-The project is build with Gradle. The provided `gradlew` wrapper may be 
-invoked as follows to produce an executable file:
-
-### On Linux
-
-```
-./gradlew jlink
-```
-
-To run, execute:
-
-```
-./build/unreal-archive/bin/unreal-archive
-```
-
-### On Windows
-
-```
-gradlew.bat jlink
-```
-
-To run, execute:
-
-```
-build\unreal-archive\bin\unreal-archive.bat
-```
-
-## Components and Modules
+## Structure and Modules
 
 The project is arranged into several modules, and published as Java Modules so
 components may be reused by other software projects.
@@ -51,23 +34,69 @@ These are:
 - `common`: the usual assortment of shared boilerplate code and utility classes
   and functions.
 - `content`: the definition of the content types, Maps, Map Packs, Skins, Game
-  Types, etc. These are the elements which are serialiased to and from YAML 
-  format stored in the archive data repository, and projects wishing to work 
-  with the Unreal Archive data types should re-use these if possible. 
-  In addition, the code for loading, saving, and generally working with the 
+  Types, etc. These are the elements which are serialiased to and from YAML
+  format stored in the archive data repository, and projects wishing to work
+  with the Unreal Archive data types should re-use these if possible.
+  In addition, the code for loading, saving, and generally working with the
   data sets are here too.
 - `storage`: the remote storage/mirror implementations, for S3 and Azure and
   associated interfaces.
+- `indexing`: implements the primary "archiving" functionality, including 
+  repositories for content, mods, gametypes, documents, wikis, etc. It's also
+  used for data ingest, categorisation, storage, replication, and management 
+  of repository content and files.
 - `www`: the code and templates responsible for generating the static website
   output.
-- root project: the content indexing and mirroring implementation and 
+- root project: the content indexing and mirroring implementation and
   management. This will likely move into its own module(s) later.
+
+
+## Building
+
+The project is built with Gradle. The provided `gradlew` wrapper may be 
+invoked as follows to build all modules and generate the `indexing` `www`
+executables:
+
+### On Linux
+
+```shell
+./gradlew jlink
+```
+
+To run, execute either:
+
+```shell
+# indexing
+./indexing/build/unreal-archive-indexing/bin/indexing
+
+# www
+./www/build/unreal-archive-www/bin/www
+```
+
+### On Windows
+
+```shell
+gradlew.bat jlink
+```
+
+To run, execute:
+
+```shell
+# indexing
+indexing\build\unreal-archive-indexing\bin\indexing.bat
+
+# www
+www\build\unreal-archive-www\bin\www.bat
+```
+
 
 ## Usage and Functionality
 
 > TODO: complete this section 
 
-Run with no arguments to see input arguments and additional help for each command.
+Run executables with no arguments to see input arguments and additional help for each command.
+
+### Indexing Commands 
 
 **Browsing and Information:**
 - `ls`: List indexed content filtered by game, type or author.
@@ -81,6 +110,7 @@ Run with no arguments to see input arguments and additional help for each comman
 - `edit`: Edit the metadata for the <hash> provided.
 - `set`: Convenience, set an attribute for the <hash> provided. Eg: `set <hash> author Bob`.
 - `sync`: Sync managed files' local files to remote storage.
+- `authors`: Manage authors and aliases.
 
 **Gametype Management**
 - All commands prefixed by `gametype`:
@@ -103,8 +133,36 @@ Run with no arguments to see input arguments and additional help for each comman
 - `install`: Unpack the contents of a file, URL or hash, and place within an Unreal
       game's standard directory layout (Maps, System, Textures etc).
 
+### WWW Commands
+
 **Website Build:**
 - `www`: Generate the HTML website for browsing content.
+
+
+## Author Management
+
+Author names and aliases can be managed using the `indexing` binary. 
+Specifically, this can be used to create an author record which can then be
+further tweaked by hand.
+
+Add an author and associated aliases:
+
+```
+./indexing authors add "Author Primary Name" "Alias 1" "Another Alias" 
+```
+
+This will generate an author file in the content directory, under path
+`authors/author-primary-name/author.yml`. The file may be edited by hand, 
+refer to the README in the authors directory for more information.
+
+An author with aliases will cause any content set as created by either the
+author's primary name, or any of the defined aliases, to be rolled up under
+the primary name. All content will be shown as created by the primary name
+defined, regardless of which alias the content was actually tagged as.
+
+This allows a single author with different spellings, changing handles over
+their career, or typos in names from long ago, to be grouped under a single
+author profile.
 
 
 ## Content Submission and Indexing Pipeline
@@ -147,8 +205,8 @@ as a public mirror for archive content, the following steps should be taken.
 1. Fork and clone the [`unreal-archive-data`](https://github.com/unreal-archive/unreal-archive-data)
    repository.
    - This dataset will be updated during the mirroring process.
-2. Download or [build](#building) the `unreal-archive` project binary
-3. Execute `unreal-archive mirror` with the following command-line options:
+2. Download or [build](#building) the `indexing` project binary
+3. Execute `indexing mirror` with the following command-line options:
    - `--content-path=/path/to/unreal-archive-data`
    - `--store=[dav|s3|az]` and appropriate 
       [configuration and credentials](#storage-configuration).

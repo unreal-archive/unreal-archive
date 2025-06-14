@@ -9,7 +9,7 @@
 <#assign ogImage=headerbg>
 
 <#assign schemaItemName="${skin.item.name}">
-<#assign schemaItemAuthor="${skin.item.author}">
+<#assign schemaItemAuthor="${skin.item.authorName}">
 <#assign schemaItemDate="${skin.item.releaseDate}-01">
 
 <#include "../../_header.ftl">
@@ -71,9 +71,9 @@
 				<@labellist labels=labels values=values/>
 			</@contents>
 
-			<@files game=game files=skin.item.files alsoIn=skin.alsoIn otherFiles=skin.item.otherFiles/>
-
 			<@downloads downloads=skin.item.downloads/>
+
+			<@files game=game files=skin.item.files alsoIn=skin.alsoIn otherFiles=skin.item.otherFiles/>
 
 			<@dependencies game=game deps=skin.item.dependencies/>
 

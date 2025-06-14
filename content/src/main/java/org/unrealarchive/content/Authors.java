@@ -47,7 +47,7 @@ public class Authors {
 	private static final Pattern CONVERTED = Pattern.compile("(([-A-Za-z(]+?|, )conv[^\\s]+)(\\s)?(by:?\\s?)?",
 															 Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 	private static final Pattern IMPORTED = Pattern.compile("\\s(\\*)?imported.*(\\*)?", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
-	private static final Pattern MODIFIED = Pattern.compile("(mod([^\\s]+)?)\\s(by:?\\s?)?",
+	private static final Pattern MODIFIED = Pattern.compile("((port|mod)([^\\s]+)?)\\s(by:?\\s?)?",
 															Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 	private static final Pattern EDITED = Pattern.compile("((edit|fix)([^\\s]+)?)\\s(by:?\\s)?",
 														  Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);

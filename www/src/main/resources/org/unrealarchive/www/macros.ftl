@@ -18,7 +18,7 @@
 		</div>
 	</section>
 	<#if bgimg??>
-	<div class="page-bg" style='background-image:${bgimg}'><div class="inner"></div></div>
+	<div class="page-bg" style='background-image:${bgimg}'><div class="inner"></div><div class="extra"></div></div>
 	</#if>
   </#compress>
 </#macro>
@@ -329,10 +329,10 @@
   </#compress>
 </#macro>
 
-<#macro renderAuthor author alt=author.name>
+<#macro renderAuthor author alt=author.name small=false>
 	<#if author.iconImage??>
 		<a href="${authorPath(author.name)}/index.html" title="${alt}">
-			<img src="${authorPath(author.name)}/${author.iconImage}" alt="${author.name}" class="author-icon"/>${author.name}
+			<img src="${authorPath(author.name)}/${author.iconImage}" alt="${author.name}" class="author-icon <#if small>small</#if>"/>${author.name}
 		</a>
 	<#elseif author.name?lower_case == "unknown">
 		<@icon name="user-exclamation" small=true/>${author.name}
@@ -343,33 +343,39 @@
 	</#if>
 </#macro>
 
-<#macro authorLink content author=content.authorInfo display=content.name>
+<#macro authorLink content author=content.authorInfo display=content.name small=false>
 	<#compress>
 	<span class="authors">
 		<#if author.contributors??>
-			<#if author.contributors.contributors?size gt 0>
+			<#if author.contributors.contributors?size gt 0 && author.contributors.modifiedBy?size == 0>
 				<span class="contributors">
 					<#list author.contributors.contributors as cont>
-						<@renderAuthor author=cont alt=content.author/>
+						<@renderAuthor author=cont alt=content.author small=small/>
 					</#list>
 				</span>
 			<#elseif author.contributors.modifiedBy?size gt 0>
-				<span class="modified">
-					<span class="original">
-						<span class="lbl">Original:</span><@renderAuthor author=author.contributors.originalAuthor alt=content.author/>
-					</span>
-					<span class="editors">
-					<#list author.contributors.modifiedBy as mods>
-						<span class="editor">
-							<span class="lbl">Edit By:</span><@renderAuthor author=mods alt=content.author/>
+        <#if author.contributors.contributors?size gt 0>
+          <#list author.contributors.contributors as cont>
+						<span class="original">
+							<span class="lbl">Original:</span><@renderAuthor author=cont alt=content.author small=small/>
 						</span>
-					</#list>
+          </#list>
+				<#else>
+					<span class="original">
+						<span class="lbl">Original:</span><@renderAuthor author=author.contributors.originalAuthor alt=content.author small=small/>
 					</span>
+				</#if>
+				<span class="editors">
+				<#list author.contributors.modifiedBy as mods>
+					<span class="editor">
+						<span class="lbl">Edit By:</span><@renderAuthor author=mods alt=content.author small=small/>
+					</span>
+				</#list>
 				</span>
 			</#if>
 		<#else>
 			<span class="author">
-				<@renderAuthor author=author.author alt=content.author/>
+				<@renderAuthor author=author.author alt=content.author small=small/>
 			</span>
 		</#if>
   </span>

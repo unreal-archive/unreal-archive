@@ -9,7 +9,7 @@
 <#assign ogImage=headerbg>
 
 <#assign schemaItemName="${mutator.item.name}">
-<#assign schemaItemAuthor="${mutator.item.author}">
+<#assign schemaItemAuthor="${mutator.item.authorName}">
 <#assign schemaItemDate="${mutator.item.releaseDate}-01">
 
 <#include "../../_header.ftl">
@@ -103,9 +103,9 @@
 				<@labellist labels=labels values=values/>
 			</@contents>
 
-			<@files game=game files=mutator.item.files alsoIn=mutator.alsoIn otherFiles=mutator.item.otherFiles/>
-
 			<@downloads downloads=mutator.item.downloads/>
+
+			<@files game=game files=mutator.item.files alsoIn=mutator.alsoIn otherFiles=mutator.item.otherFiles/>
 
 			<@dependencies game=game deps=mutator.item.dependencies/>
 

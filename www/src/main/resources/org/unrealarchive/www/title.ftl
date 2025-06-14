@@ -25,30 +25,27 @@
 		</div>
 	</div>
 	<script>
-		const themes = ['light', 'dark', 'orange', 'reds', 'greens', 'accent', 'bu', 'pu', 'gh'];
+		header = document.querySelector('header');
+		document.addEventListener('scroll', function(e) {
+			if (window.scrollY > 0) {
+				header.classList.add('scrolled');
+			} else {
+				header.classList.remove('scrolled');
+			}
+		});
 
-		function setTheme(theme, save) {
+	  const themes = ['default', 'red', 'green', 'grey', 'darkgrey'];
+
+	  function setTheme(theme, save) {
 		  if (save) localStorage.setItem('theme', theme);
 		  document.documentElement.setAttribute('data-theme', theme);
-		}
+	  }
 
-		document.addEventListener('DOMContentLoaded', () => {
-		  if (theme || !window.matchMedia) return;
-
-		  theme = themes[0];
-		  if (window.matchMedia('(prefers-color-scheme:dark)').matches) theme = 'dark';
-          setTheme(theme, false);
-          
-          window.matchMedia('(prefers-color-scheme:dark)').addEventListener('change', e => {
-            setTheme(e.matches ? "dark" : "light", false);
-		  });
-		});
-
-		document.querySelector('#theme-switcher').addEventListener('click', () => {
-			let next = themes.indexOf(theme) + 1;
+	  document.querySelector('#theme-switcher').addEventListener('click', () => {
+		  let next = themes.indexOf(theme) + 1;
 		  if (next === -1 || next === themes.length) next = 0;
-			theme = themes[next];
+		  theme = themes[next];
 		  setTheme(theme, true);
-		});
+	  });
 	</script>
 </header>

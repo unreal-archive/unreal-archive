@@ -9,7 +9,7 @@
 <#assign ogImage=headerbg>
 
 <#assign schemaItemName="${model.item.name}">
-<#assign schemaItemAuthor="${model.item.author}">
+<#assign schemaItemAuthor="${model.item.authorName}">
 <#assign schemaItemDate="${model.item.releaseDate}-01">
 
 <#include "../../_header.ftl">
@@ -69,9 +69,9 @@
       </@contents>
 			</#if>
 
-			<@files game=game files=model.item.files alsoIn=model.alsoIn otherFiles=model.item.otherFiles/>
-
 			<@downloads downloads=model.item.downloads/>
+
+			<@files game=game files=model.item.files alsoIn=model.alsoIn otherFiles=model.item.otherFiles/>
 
       <@dependencies game=game deps=model.item.dependencies/>
 

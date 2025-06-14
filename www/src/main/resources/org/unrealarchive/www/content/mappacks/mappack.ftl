@@ -10,7 +10,7 @@
 <#assign ogImage=headerbg>
 
 <#assign schemaItemName="${pack.item.name}">
-<#assign schemaItemAuthor="${pack.item.author}">
+<#assign schemaItemAuthor="${pack.item.authorName}">
 <#assign schemaItemDate="${pack.item.releaseDate}-01">
 
 <#include "../../_header.ftl">
@@ -94,9 +94,9 @@
 				</table>
 			</@contents>
 
-			<@files game=game files=pack.item.files alsoIn=pack.alsoIn otherFiles=pack.item.otherFiles/>
-
 			<@downloads downloads=pack.item.downloads/>
+
+			<@files game=game files=pack.item.files alsoIn=pack.alsoIn otherFiles=pack.item.otherFiles/>
 
       <@dependencies game=game deps=pack.item.dependencies/>
 

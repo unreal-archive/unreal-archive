@@ -10,7 +10,7 @@
 <#assign ogImage=headerbg>
 
 <#assign schemaItemName="${map.item.name}">
-<#assign schemaItemAuthor="${map.item.author}">
+<#assign schemaItemAuthor="${map.item.authorName}">
 <#assign schemaItemDate="${map.item.releaseDate}-01">
 
 <#include "../../_header.ftl">
@@ -78,9 +78,9 @@
 
 			<@variations variations=map.variations/>
 
-			<@files game=game files=map.item.files alsoIn=map.alsoIn otherFiles=map.item.otherFiles/>
-
 			<@downloads downloads=map.item.downloads/>
+
+			<@files game=game files=map.item.files alsoIn=map.alsoIn otherFiles=map.item.otherFiles/>
 
 			<@dependencies game=game deps=map.item.dependencies/>
 

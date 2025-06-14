@@ -95,13 +95,13 @@ processResources.doLast {
 	def cssSource = files(
 			wwwStaticDir.resolve("fonts/fonts2.css"),
 			wwwStaticDir.resolve("css/style.css"),
-			wwwStaticDir.resolve("css/style6.css")
+			wwwStaticDir.resolve("css/style7.css")
 	)
 	def cssDate = cssSource.max {f -> f.lastModified()}
-	def cssOut = destFile.parent.resolve("static/css/all.css")
+	def cssOut = destFile.parent.resolve("static/css/202506.css")
 	cssOut.write('') // truncate output if needed
 	// clean up comments and whitespace in combined CSS
-	cssSource.each { f -> cssOut << f.text.replaceAll("\n", "").replaceAll("/\\*.+?\\*/", "").replaceAll("\\s{2,}", " ") }
+	cssSource.each { f -> cssOut << f.text.replaceAll("[\n\\t]", "").replaceAll("/\\*.+?\\*/", "").replaceAll("\\s{2,}", " ") }
 	staticList.append(destFile.parent.relativize(cssOut)).append("\t").append(cssDate.lastModified()).append("\n")
 
 	Files.write(destFile, staticList.toString().replaceAll("\\\\", "/").getBytes(StandardCharsets.UTF_8),

@@ -40,7 +40,7 @@ public class Contributors {
 	 * - Bob - Rad Edit by Joe
 	 */
 	private static final Pattern MODIFIED_SPLIT = Pattern.compile(
-		"(,?\\s+|/)((-+|[^A-Za-z\\s])\\s+)?((\\S+\\s+)?(edit(ed)?|mod(ified|ded|s))|((\\S+\\s+)?((conv(er(sion|ted))?)|(version)|(remix(ed)?)))|(rema([kd])e)):?\\s+(by:?\\s+)?",
+		"(,?\\s+|/)((-+|[^A-Za-z\\s])\\s+)?((\\S+\\s+)?(edit(ed)?|mod(ified|ifications|ded|s))|((\\S+\\s+)?((conv(er(sion|ted))?)|(version)|(remix(ed)?)))|(rema([kd])e)|(revamp(ed)?))[\\s->:]?\\s+(by:?\\s+)?",
 		Pattern.CASE_INSENSITIVE
 	);
 
@@ -236,51 +236,9 @@ public class Contributors {
 
 	private static String cleanup(String name) {
 		return name.strip()
-				   .replaceAll("(?i)^(conv(er(sion|ted))?|original(ly)?|made|done|edit(ed)?|remix(ed)?|modified|and|by)(\\s+by)?", "")
-				   .replaceAll("(?i)(conv(er(sion|ted))?|original(ly)?|made|done|edit(ed)?|remix(ed)?|modified|and|by)(\\s+by)?$", "")
+				   .replaceAll("(?i)^(conv(er(sion|ted))?|original(ly)?|made|map|done|port(ed)?|edit(ed)?|remix(ed)?|modified|and|by)(\\s+by)?:?", "")
+				   .replaceAll("(?i)(conv(er(sion|ted))?|original(ly)?|made|map|done|port(ed)?|edit(ed)?|remix(ed)?|modified|and|by)(\\s+by)?:?$", "")
 				   .strip();
-	}
-
-	/**
-	 * Removes trailing non-alphanumeric characters from a string.
-	 * For example, removes trailing parenthesis from "world)" but not from "(hello world)",
-	 * and removes trailing dash from "world-" but not "- hello world -".
-	 *
-	 * @param str The string to clean
-	 * @return The string with trailing non-alphanumeric characters removed
-	 */
-	private static String removeTrailingNonAlphanumeric(String str) {
-		if (str == null || str.isEmpty()) return str;
-
-		// Check for balanced parentheses, brackets, etc.
-		if (hasBalancedDelimiters(str)) {
-			return str;
-		}
-
-		int lastIndex = str.length() - 1;
-		while (lastIndex >= 0 && !Character.isLetterOrDigit(str.charAt(lastIndex))) {
-			lastIndex--;
-		}
-
-		return lastIndex < 0 ? str : str.substring(0, lastIndex + 1);
-	}
-
-	/**
-	 * Checks if a string has balanced delimiters (parentheses, brackets, etc.)
-	 *
-	 * @param str The string to check
-	 * @return true if the string has balanced delimiters, false otherwise
-	 */
-	private static boolean hasBalancedDelimiters(String str) {
-		// Check for common paired delimiters
-		char firstChar = str.charAt(0);
-		char lastChar = str.charAt(str.length() - 1);
-
-		return (firstChar == '(' && lastChar == ')') ||
-			   (firstChar == '[' && lastChar == ']') ||
-			   (firstChar == '{' && lastChar == '}') ||
-			   (firstChar == '<' && lastChar == '>') ||
-			   (firstChar == '-' && lastChar == '-');
 	}
 
 	private Author author(String name) {
