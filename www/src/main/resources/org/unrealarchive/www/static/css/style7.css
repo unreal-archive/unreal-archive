@@ -357,15 +357,26 @@ h1 svg.icon, h2 svg.icon, h3 svg.icon, h4 svg.icon {
 }
 
 [data-theme="darkgrey"] {
-	--p1: #BEBEBE;
-	--p2: #333333;
-	--p3: #EFFEEF;
-	--p4: #292929;
-	--p5: #74FF5777;
-	--p6: #00000077;
+	--p1: #AAA;
+	--p2: #CCC;
+	--p3: #111;
+	--p4: #333;
+	--p5: #4C4;
+	--p6: #BBC6;
 	--icon: #FFAA00;
-	--header-bg-scrolled: #111111EE;
+	--header-bg-scrolled: #BBCE;
 	--header-bg-glow: radial-gradient(70% 100% at 50% -20%, #FFF7 0%, #FFF0 90%);
+	--link-color: blue;
+	--link-color-visited: purple;
+
+	--section-subheader-bg: var(--p4);
+	--section-subheader-color: var(--p2);
+	--table-header-color: var(--p4);
+	--table-row-hover: var(--p1);
+	article section h3 {
+		background-color: var(--p1);
+		color: var(--p3);
+	}
 }
 
 @media screen and (max-width: 1024px) {
