@@ -10,15 +10,21 @@ import java.time.LocalDate;
 import org.unrealarchive.common.ArchiveUtil;
 import org.unrealarchive.common.Platform;
 import org.unrealarchive.common.YAML;
+import org.unrealarchive.content.AuthorRepository;
+import org.unrealarchive.content.Authors;
 import org.unrealarchive.content.managed.Managed;
 import org.unrealarchive.content.managed.ManagedContentRepository;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ManagedTest {
+
+	@TempDir
+	Path temp;
 
 	@Test
 	public void contentWww() throws IOException {
@@ -47,7 +53,10 @@ public class ManagedTest {
 		}
 	}
 
-	private Managed mockContent() {
+	private Managed mockContent() throws IOException {
+		final AuthorRepository authors = new AuthorRepository.FileRepository(temp);
+		Authors.setRepository(authors, temp);
+
 		final Managed man = new Managed();
 		man.createdDate = LocalDate.now().minusDays(3);
 		man.updatedDate = LocalDate.now();

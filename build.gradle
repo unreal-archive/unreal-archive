@@ -1,7 +1,7 @@
 
 subprojects {
 	group = 'org.unrealarchive'
-	version = "1.18"
+	version = "1.20"
 	if (System.getenv().containsKey("BUILD_NUMBER")) {
 		version += ".${System.env.BUILD_NUMBER}"
 	} else version += ".DEV"

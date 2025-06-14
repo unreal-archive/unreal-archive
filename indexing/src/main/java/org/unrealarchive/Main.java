@@ -31,6 +31,9 @@ import org.unrealarchive.common.CLI;
 import org.unrealarchive.common.Util;
 import org.unrealarchive.common.Version;
 import org.unrealarchive.common.YAML;
+import org.unrealarchive.content.Author;
+import org.unrealarchive.content.AuthorRepository;
+import org.unrealarchive.content.Authors;
 import org.unrealarchive.content.FileType;
 import org.unrealarchive.content.Games;
 import org.unrealarchive.content.addons.Addon;
@@ -44,9 +47,9 @@ import org.unrealarchive.indexing.ContentEditor;
 import org.unrealarchive.indexing.ContentManager;
 import org.unrealarchive.indexing.GameTypeManager;
 import org.unrealarchive.indexing.Incoming;
+import org.unrealarchive.indexing.IndexHelper;
 import org.unrealarchive.indexing.IndexLog;
 import org.unrealarchive.indexing.Indexer;
-import org.unrealarchive.indexing.IndexHelper;
 import org.unrealarchive.indexing.ManagedContentManager;
 import org.unrealarchive.indexing.Scanner;
 import org.unrealarchive.indexing.Submission;
@@ -93,6 +96,7 @@ public class Main {
 				ManagedContentRepository managedRepo = managedRepo(cli);
 				managed(managedRepo, managedContentManager(cli, managedRepo), cli);
 			}
+			case "authors" -> authors(authorRepo(cli), cli);
 			case "mirror" -> {
 				SimpleAddonRepository mirrorRepo = contentRepo(cli);
 				GameTypeRepository gameTypeMirrorRepo = gameTypeRepo(cli);
@@ -492,6 +496,51 @@ public class Main {
 			}
 			default -> {
 				System.err.println("Unknown managed content operation" + cli.commands()[1]);
+				System.exit(3);
+			}
+		}
+	}
+
+	private static void authors(AuthorRepository authorRepository, CLI cli) throws IOException {
+		if (cli.commands().length < 2) {
+			System.err.println("An author operation is required:");
+			System.err.println("  add <name>");
+			System.err.println("    convenience, which initialises a new author config");
+			System.err.println("  summary");
+			System.err.println("    print a summary of the author repository content");
+			System.err.println("  print");
+			System.err.println("    print all authors, useful for debugging");
+			System.exit(2);
+		}
+
+		switch (cli.commands()[1]) {
+			case "add" -> {
+				if (cli.commands().length < 3) {
+					System.err.println("An author name is required");
+					System.exit(1);
+				}
+
+				Author newAuthor = new Author(cli.commands()[2].strip(), Arrays.copyOfRange(cli.commands(), 2, cli.commands().length));
+				authorRepository.put(newAuthor, false);
+			}
+			case "summary" -> {
+				// prepare author names and aliases
+				Authors.autoPopRepository(authorRepository, contentRepo(cli), gameTypeRepo(cli), managedRepo(cli));
+
+				System.out.println(authorRepository.summary());
+			}
+			case "print" -> {
+				// prepare author names and aliases
+				Authors.autoPopRepository(authorRepository, contentRepo(cli), gameTypeRepo(cli), managedRepo(cli));
+
+				authorRepository.all().stream().sorted().forEach(a -> {
+					try {
+						System.out.println(YAML.toString(a));
+					} catch (IOException ignore) {}
+				});
+			}
+			default -> {
+				System.err.println("Unknown author operation" + cli.commands()[1]);
 				System.exit(3);
 			}
 		}

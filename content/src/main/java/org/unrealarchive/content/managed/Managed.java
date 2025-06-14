@@ -16,8 +16,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import org.unrealarchive.common.Platform;
 import org.unrealarchive.common.Util;
-import org.unrealarchive.content.AuthorNames;
+import org.unrealarchive.content.Author;
+import org.unrealarchive.content.AuthorInfo;
+import org.unrealarchive.content.Authors;
 import org.unrealarchive.content.ContentEntity;
+import org.unrealarchive.content.Contributors;
 import org.unrealarchive.content.Download;
 import org.unrealarchive.content.Games;
 
@@ -59,6 +62,8 @@ public class Managed implements ContentEntity<Managed> {
 	public Map<String, String> problemLinks = new HashMap<>();
 
 	public boolean published = true;                // false will hide it
+
+	private transient AuthorInfo authorInfo;
 
 	public String fullPath() {
 		return String.join("/", game, group, subGroup);
@@ -104,8 +109,9 @@ public class Managed implements ContentEntity<Managed> {
 	}
 
 	@Override
-	public String authorName() {
-		return AuthorNames.nameFor(author);
+	public AuthorInfo authorInfo() {
+		if (authorInfo == null) authorInfo = new AuthorInfo(author);
+		return authorInfo;
 	}
 
 	@Override

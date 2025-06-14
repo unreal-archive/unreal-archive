@@ -5,7 +5,9 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Set;
 
-public interface ContentEntity<T extends ContentEntity<T>> extends Comparable<ContentEntity<?>> {
+import org.unrealarchive.content.addons.HasAuthors;
+
+public interface ContentEntity<T extends ContentEntity<T>> extends Comparable<ContentEntity<?>>, HasAuthors {
 
 	public String id();
 
@@ -21,7 +23,7 @@ public interface ContentEntity<T extends ContentEntity<T>> extends Comparable<Co
 
 	public String author();
 
-	public String authorName();
+	public AuthorInfo authorInfo();
 
 	public String releaseDate();
 

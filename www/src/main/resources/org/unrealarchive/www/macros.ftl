@@ -329,15 +329,50 @@
   </#compress>
 </#macro>
 
-<#macro authorLink content display=content.authorName>
-	<#compress>
-	<#if content.authorName?lower_case == "unknown">
-    <@icon name="user-exclamation" small=true/>${display!content.authorName}
-	<#elseif content.authorName?lower_case == "various">
-    <@icon name="users" small=true/>${display!content.authorName}
+<#macro renderAuthor author alt=author.name>
+	<#if author.iconImage??>
+		<a href="${authorPath(author.name)}/index.html" title="${alt}">
+			<img src="${authorPath(author.name)}/${author.iconImage}" alt="${author.name}" class="author-icon"/>${author.name}
+		</a>
+	<#elseif author.name?lower_case == "unknown">
+		<@icon name="user-exclamation" small=true/>${author.name}
+	<#elseif author.name?lower_case == "various">
+		<@icon name="users" small=true/>${author.name}
 	<#else>
-		<a href="${relPath(siteRoot + "/authors/" + authorSlug(content.authorName) + ".html")}" title="${content.author}"><@icon name="user" small=true/>${display!content.authorName}</a>
+		<a href="${authorPath(author.name)}/index.html" title="${alt}"><@icon name="user" small=true/>${author.name}</a>
 	</#if>
+</#macro>
+
+<#macro authorLink content author=content.authorInfo display=content.name>
+	<#compress>
+	<span class="authors">
+		<#if author.contributors??>
+			<#if author.contributors.contributors?size gt 0>
+				<span class="contributors">
+					<#list author.contributors.contributors as cont>
+						<@renderAuthor author=cont alt=content.author/>
+					</#list>
+				</span>
+			<#elseif author.contributors.modifiedBy?size gt 0>
+				<span class="modified">
+					<span class="original">
+						<span class="lbl">Original:</span><@renderAuthor author=author.contributors.originalAuthor alt=content.author/>
+					</span>
+					<span class="editors">
+					<#list author.contributors.modifiedBy as mods>
+						<span class="editor">
+							<span class="lbl">Edit By:</span><@renderAuthor author=mods alt=content.author/>
+						</span>
+					</#list>
+					</span>
+				</span>
+			</#if>
+		<#else>
+			<span class="author">
+				<@renderAuthor author=author.author alt=content.author/>
+			</span>
+		</#if>
+  </span>
   </#compress>
 </#macro>
 
@@ -345,7 +380,7 @@
 	<#compress>
 	<#if themes?size gt 0>
 		<#list themes as theme, weight>
-			<div class="themes">
+			<span class="themes">
 				<#if weight lt 0.2>
 					<@icon name="circle" small=true/>
 					<#list 0..3 as n>
@@ -376,7 +411,7 @@
 					</#list>
 				</#if>
 				<span>${theme}</span>
-			</div>
+			</span>
 		</#list>
 	</#if>
   </#compress>

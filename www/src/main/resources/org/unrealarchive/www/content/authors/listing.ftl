@@ -27,13 +27,16 @@
 					<#if a.count lt 2>
 						<#continue />
 					</#if>
+					<#assign author=a.author/>
 
 					<#assign bgi=""/>
-					<#if a.leadImage??>
+					<#if author.coverImage??>
+						<#assign bgi=relPath(a.path + '/' + author.coverImage)/>
+					<#elseif a.leadImage??>
 						<#assign bgi=urlEncode(a.leadImage)/>
 					</#if>
 
-					<@bigitem link="${relPath(a.path + '.html')}" meta="${a.count}" bg="${bgi}">${a.author}</@bigitem>
+					<@bigitem link="${relPath(a.path + '/index.html')}" meta="${a.count}" bg="${bgi}">${author.name}</@bigitem>
 				</#list>
 			</ul>
 		</div>

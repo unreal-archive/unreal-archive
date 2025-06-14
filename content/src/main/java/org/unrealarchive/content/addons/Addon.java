@@ -17,8 +17,11 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import org.unrealarchive.common.Util;
-import org.unrealarchive.content.AuthorNames;
+import org.unrealarchive.content.Author;
+import org.unrealarchive.content.AuthorInfo;
+import org.unrealarchive.content.Authors;
 import org.unrealarchive.content.ContentEntity;
+import org.unrealarchive.content.Contributors;
 import org.unrealarchive.content.Download;
 import org.unrealarchive.content.Games;
 
@@ -84,6 +87,8 @@ public abstract class Addon implements ContentEntity<Addon> {
 	 */
 	public boolean deleted = false;
 
+	private transient AuthorInfo authorInfo;
+
 	@Override
 	public String id() {
 		return hash;
@@ -139,8 +144,9 @@ public abstract class Addon implements ContentEntity<Addon> {
 	}
 
 	@Override
-	public String authorName() {
-		return AuthorNames.nameFor(author);
+	public AuthorInfo authorInfo() {
+		if (authorInfo == null) authorInfo = new AuthorInfo(author);
+		return authorInfo;
 	}
 
 	@Override
@@ -166,8 +172,6 @@ public abstract class Addon implements ContentEntity<Addon> {
 
 	/**
 	 * Create a friendly name from the content type enum.
-	 * <p>
-	 * NOTE: This is _NOT_ unused; Freemarker templates make use of it in www output.
 	 *
 	 * @return "MAP_PACK" -> "Map Pack"
 	 */

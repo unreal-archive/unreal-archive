@@ -17,8 +17,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import org.unrealarchive.common.Platform;
 import org.unrealarchive.common.Util;
-import org.unrealarchive.content.AuthorNames;
+import org.unrealarchive.content.Author;
+import org.unrealarchive.content.AuthorInfo;
+import org.unrealarchive.content.Authors;
 import org.unrealarchive.content.ContentEntity;
+import org.unrealarchive.content.Contributors;
 import org.unrealarchive.content.Download;
 import org.unrealarchive.content.Games;
 import org.unrealarchive.content.NameDescription;
@@ -63,6 +66,8 @@ public class GameType implements ContentEntity<GameType> {
 	public boolean deleted = false;
 
 	public transient boolean variation = false;
+
+	private transient AuthorInfo authorInfo;
 
 	@Override
 	public String id() {
@@ -122,8 +127,9 @@ public class GameType implements ContentEntity<GameType> {
 	}
 
 	@Override
-	public String authorName() {
-		return AuthorNames.nameFor(author);
+	public AuthorInfo authorInfo() {
+		if (authorInfo == null) authorInfo = new AuthorInfo(author);
+		return authorInfo;
 	}
 
 	@Override

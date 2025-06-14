@@ -6,7 +6,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,7 +13,7 @@ import java.util.concurrent.ForkJoinPool;
 
 import org.unrealarchive.common.CLI;
 import org.unrealarchive.common.Version;
-import org.unrealarchive.content.AuthorNames;
+import org.unrealarchive.content.AuthorRepository;
 import org.unrealarchive.content.addons.GameTypeRepository;
 import org.unrealarchive.content.addons.SimpleAddonRepository;
 import org.unrealarchive.content.docs.DocumentRepository;
@@ -37,7 +36,6 @@ import org.unrealarchive.www.features.Submit;
 import org.unrealarchive.www.features.UmodRepack;
 
 import static org.unrealarchive.content.RepoFactory.*;
-import static org.unrealarchive.content.addons.Addon.UNKNOWN;
 
 public class Main {
 
@@ -57,9 +55,10 @@ public class Main {
 		}
 
 		switch (cli.commands()[0].toLowerCase()) {
-			case "www" -> www(contentRepo(cli), gameTypeRepo(cli), documentRepo(cli), managedRepo(cli), wikiRepo(cli), cli);
+			case "www" ->
+				www(authorRepo(cli), contentRepo(cli), gameTypeRepo(cli), documentRepo(cli), managedRepo(cli), wikiRepo(cli), cli);
 			case "search-submit" ->
-				searchSubmit(contentRepo(cli), gameTypeRepo(cli), documentRepo(cli), managedRepo(cli), wikiRepo(cli), cli);
+				searchSubmit(authorRepo(cli), contentRepo(cli), gameTypeRepo(cli), documentRepo(cli), managedRepo(cli), wikiRepo(cli), cli);
 			case "summary" -> System.out.println(contentRepo(cli).summary());
 			default -> {
 				System.out.printf("Command \"%s\" does not exist!%n%n", cli.commands()[0]);
@@ -70,8 +69,8 @@ public class Main {
 		System.exit(0);
 	}
 
-	private static void www(SimpleAddonRepository contentRepo, GameTypeRepository gameTypeRepo, DocumentRepository documentRepo,
-							ManagedContentRepository managedRepo, WikiRepository wikiRepo, CLI cli)
+	private static void www(AuthorRepository authorRepo, SimpleAddonRepository contentRepo, GameTypeRepository gameTypeRepo,
+							DocumentRepository documentRepo, ManagedContentRepository managedRepo, WikiRepository wikiRepo, CLI cli)
 		throws IOException {
 		if (cli.commands().length < 2) {
 			System.err.println("An output path must be specified!");
@@ -108,22 +107,14 @@ public class Main {
 		Templates.unpackResources("static.list", Files.createDirectories(staticOutput).getParent());
 
 		// prepare author names and aliases
-		Path authorPath = contentPathHelper(cli).resolve(AUTHORS_DIR);
-		AuthorNames names = new AuthorNames(authorPath);
-		contentRepo.all().parallelStream()
-				   .filter(c -> !UNKNOWN.equalsIgnoreCase(c.author()))
-				   .sorted(Comparator.comparingInt(a -> a.author().length()))
-				   .forEachOrdered(c -> names.maybeAutoAlias(c.author));
-		// TODO: add other content type authors including map pack contributors, gametype credits, maybe wiki editors, etc
-		AuthorNames.instance = names;
-		System.out.printf("Found %d author aliases and names%n", names.aliasCount());
+		org.unrealarchive.content.Authors.autoPopRepository(authorRepo, contentRepo, gameTypeRepo, managedRepo);
 
 		final Set<SiteMap.Page> allPages = ConcurrentHashMap.newKeySet();
 
 		final Set<PageGenerator> generators = new HashSet<>();
 		generators.add(new Index(contentRepo, gameTypeRepo, documentRepo, managedRepo, outputPath, staticOutput, features));
 
-		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("content"))) {
+		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[1].equalsIgnoreCase("content"))) {
 			// generate content pages
 			generators.addAll(
 				Arrays.asList(
@@ -138,27 +129,27 @@ public class Main {
 			if (withPackages) generators.add(new Packages(contentRepo, gameTypeRepo, managedRepo, outputPath, staticOutput, features));
 		}
 
-		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("authors"))) {
-			generators.add(new Authors(names, contentRepo, gameTypeRepo, managedRepo, outputPath, staticOutput, features));
+		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[1].equalsIgnoreCase("authors"))) {
+			generators.add(new Authors(authorRepo, contentRepo, gameTypeRepo, managedRepo, outputPath, staticOutput, features));
 		}
 
-		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("docs"))) {
+		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[1].equalsIgnoreCase("docs"))) {
 			generators.add(new Documents(documentRepo, outputPath, staticOutput, features));
 		}
 
-		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("managed"))) {
+		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[1].equalsIgnoreCase("managed"))) {
 			generators.add(new ManagedContent(managedRepo, outputPath, staticOutput, features));
 		}
 
-		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("gametypes"))) {
+		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[1].equalsIgnoreCase("gametypes"))) {
 			generators.add(new GameTypes(gameTypeRepo, contentRepo, outputPath, staticOutput, features));
 		}
 
-		if (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("packages")) {
+		if (cli.commands().length > 2 && cli.commands()[1].equalsIgnoreCase("packages")) {
 			generators.add(new Packages(contentRepo, gameTypeRepo, managedRepo, outputPath, staticOutput, features));
 		}
 
-		if (features.wikis || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("wiki"))) {
+		if (features.wikis || (cli.commands().length > 2 && cli.commands()[1].equalsIgnoreCase("wiki"))) {
 			generators.add(new Wiki(outputPath, staticOutput, features, wikiRepo));
 		}
 
@@ -181,19 +172,14 @@ public class Main {
 		System.out.printf("Output %d pages in %.2fs%n", allPages.size(), (System.currentTimeMillis() - start) / 1000f);
 	}
 
-	private static void searchSubmit(SimpleAddonRepository contentRepo, GameTypeRepository gameTypeRepo, DocumentRepository documentRepo,
-									 ManagedContentRepository managedContentManager, WikiRepository wikiManager, CLI cli)
+	private static void searchSubmit(AuthorRepository authorRepo, SimpleAddonRepository contentRepo, GameTypeRepository gameTypeRepo,
+									 DocumentRepository documentRepo, ManagedContentRepository managedRepo, WikiRepository wikiManager,
+									 CLI cli)
 		throws IOException {
 		// TODO documents, managed content
 
-		// meh
-		Path authorPath = contentPathHelper(cli).resolve(AUTHORS_DIR);
-		AuthorNames names = new AuthorNames(authorPath);
-		contentRepo.all().parallelStream()
-				   .filter(c -> !UNKNOWN.equalsIgnoreCase(c.author()))
-				   .sorted(Comparator.comparingInt(a -> a.author().length()))
-				   .forEachOrdered(c -> names.maybeAutoAlias(c.author));
-		AuthorNames.instance = names;
+		// prepare author names and aliases
+		org.unrealarchive.content.Authors.autoPopRepository(authorRepo, contentRepo, gameTypeRepo, managedRepo);
 
 		final long start = System.currentTimeMillis();
 
@@ -223,13 +209,13 @@ public class Main {
 												   (System.currentTimeMillis() - start) / 1000f));
 
 		submitter.submitPackages(contentRepo, gameTypeRepo,
-						 System.getenv().getOrDefault("SITE_URL", ""),
-						 System.getenv().getOrDefault("MES_PACKAGE_URL", ""),
-						 System.getenv().getOrDefault("MES_PACKAGE_TOKEN", ""),
-						 500, // submission batch size
-						 percent -> System.out.printf("\r%.1f%% complete packages", percent * 100d),
-						 done -> System.out.printf("%nPackage search submission complete in %.2fs%n",
-												   (System.currentTimeMillis() - start) / 1000f));
+								 System.getenv().getOrDefault("SITE_URL", ""),
+								 System.getenv().getOrDefault("MES_PACKAGE_URL", ""),
+								 System.getenv().getOrDefault("MES_PACKAGE_TOKEN", ""),
+								 500, // submission batch size
+								 percent -> System.out.printf("\r%.1f%% complete packages", percent * 100d),
+								 done -> System.out.printf("%nPackage search submission complete in %.2fs%n",
+														   (System.currentTimeMillis() - start) / 1000f));
 	}
 
 	private static void usage() {

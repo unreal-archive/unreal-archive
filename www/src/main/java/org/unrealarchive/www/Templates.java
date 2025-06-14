@@ -42,6 +42,8 @@ import freemarker.template.TemplateModelException;
 
 import org.unrealarchive.common.Util;
 import org.unrealarchive.common.Version;
+import org.unrealarchive.content.Author;
+import org.unrealarchive.content.Authors;
 import org.unrealarchive.content.FileType;
 
 public class Templates {
@@ -80,6 +82,7 @@ public class Templates {
 		TPL_VARS.put("trunc", new TruncateStringMethod());
 		TPL_VARS.put("slug", new SlugMethod());
 		TPL_VARS.put("authorSlug", new AuthorSlugMethod());
+		TPL_VARS.put("authorPath", new AuthorPathMethod());
 		TPL_VARS.put("version", Version.version());
 		TPL_VARS.put("siteName", SITE_NAME);
 		TPL_VARS.put("siteUrl", SITE_URL);
@@ -233,15 +236,18 @@ public class Templates {
 			return this;
 		}
 
-		public SiteMap.Page write(Path output) {
-			try (Writer writer = templateOut(output)) {
-				vars.put("pagePath", output.getParent().toAbsolutePath());
-				template.process(vars, writer);
-			} catch (TemplateException | IOException e) {
-				throw new RuntimeException("Template output failed", e);
+		public SiteMap.Page write(Path... output) {
+			for (Path o : output) {
+				if (o == null) continue;
+				try (Writer writer = templateOut(o)) {
+					vars.put("pagePath", o.getParent().toAbsolutePath());
+					template.process(vars, writer);
+				} catch (TemplateException | IOException e) {
+					throw new RuntimeException("Template output failed", e);
+				}
 			}
 
-			return page.withPath(output);
+			return page.withPath(output[0]);
 		}
 
 		private Writer templateOut(Path target) throws IOException {
@@ -271,7 +277,7 @@ public class Templates {
 			TemplateModel pagePath = Environment.getCurrentEnvironment().getVariable("pagePath");
 			if (pagePath == null) throw new TemplateModelException("A pagePath variable was not found");
 			TemplateModel siteRoot = Environment.getCurrentEnvironment().getVariable("siteRoot");
-			if (siteRoot == null) throw new TemplateModelException("A pagePath variable was not found");
+			if (siteRoot == null) throw new TemplateModelException("A siteRoot variable was not found");
 
 			return Paths.get(pagePath.toString()).relativize(Paths.get(siteRoot.toString()).resolve(Paths.get(args.getFirst().toString())));
 		}
@@ -357,6 +363,25 @@ public class Templates {
 
 			String string = args.getFirst().toString();
 			return Util.authorSlug(string);
+		}
+	}
+
+	private static class AuthorPathMethod implements TemplateMethodModelEx {
+
+		public Object exec(List args) throws TemplateModelException {
+			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a string");
+
+			String string = args.getFirst().toString();
+			Author author = Authors.byName(string);
+
+			TemplateModel pagePath = Environment.getCurrentEnvironment().getVariable("pagePath");
+			if (pagePath == null) throw new TemplateModelException("A pagePath variable was not found");
+			TemplateModel rootPath = Environment.getCurrentEnvironment().getVariable("siteRoot");
+			if (rootPath == null) throw new TemplateModelException("A siteRoot variable was not found");
+
+			if (author == null) author = new Author(string);
+
+			return Paths.get(pagePath.toString()).relativize(author.pagePath(Paths.get(rootPath.toString())));
 		}
 	}
 

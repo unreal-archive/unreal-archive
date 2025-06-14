@@ -11,16 +11,19 @@ import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
 import java.util.stream.Collectors;
 
-import org.unrealarchive.common.ArchiveUtil;
 import org.unrealarchive.common.Platform;
 import org.unrealarchive.common.YAML;
 import org.unrealarchive.content.Download;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ManagedContentTest {
+
+	@TempDir
+	Path tempDir;
 
 	@Test
 	public void managedYaml() throws IOException {
@@ -46,30 +49,24 @@ public class ManagedContentTest {
 	public void contentProcess() throws IOException {
 		final Managed man = mockContent();
 
-		// create a simple on-disk structure containing a test document and metadata
-		final Path tmpRoot = Files.createTempDirectory("test-managed");
-		try {
-			final Path outPath = Files.createDirectories(tmpRoot.resolve("test"));
-			Files.writeString(outPath.resolve("managed.yml"), YAML.toString(man), StandardOpenOption.CREATE);
+		// create a simple on-disk structure containing a test content and metadata
+		final Path outPath = Files.createDirectories(tempDir.resolve("test"));
+		Files.writeString(outPath.resolve("managed.yml"), YAML.toString(man), StandardOpenOption.CREATE);
 
-			// prepare a fake document
-			try (InputStream is = getClass().getResourceAsStream("readme.md")) {
-				assertNotNull(is);
-				Files.copy(is, outPath.resolve(man.document));
-			}
+		// prepare a fake document
+		try (InputStream is = getClass().getResourceAsStream("readme.md")) {
+			assertNotNull(is);
+			Files.copy(is, outPath.resolve(man.document));
+		}
 
-			final ManagedContentRepository cm = new ManagedContentRepository.FileRepository(tmpRoot);
-			assertTrue(cm.all().contains(man));
+		final ManagedContentRepository cm = new ManagedContentRepository.FileRepository(tempDir);
+		assertTrue(cm.all().contains(man));
 
-			try (BufferedReader reader = new BufferedReader(Channels.newReader(cm.document(man), StandardCharsets.UTF_8))) {
-				assertNotNull(reader);
+		try (BufferedReader reader = new BufferedReader(Channels.newReader(cm.document(man), StandardCharsets.UTF_8))) {
+			assertNotNull(reader);
 
-				String docContent = reader.lines().collect(Collectors.joining("\n"));
-				assertTrue(docContent.contains("Testing Document"));
-			}
-		} finally {
-			// cleanup temp files
-			ArchiveUtil.cleanPath(tmpRoot);
+			String docContent = reader.lines().collect(Collectors.joining("\n"));
+			assertTrue(docContent.contains("Testing Document"));
 		}
 	}
 

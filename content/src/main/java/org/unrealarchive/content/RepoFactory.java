@@ -74,6 +74,20 @@ public class RepoFactory {
 		return managedContentManager;
 	}
 
+
+	public static AuthorRepository authorRepo(CLI cli) throws IOException {
+		Path contentPath = contentPathHelper(cli);
+
+		final long start = System.currentTimeMillis();
+		AuthorRepository authorRepo = new AuthorRepository.FileRepository(contentPath.resolve(AUTHORS_DIR));
+		System.err.printf("Loaded authors repository with %d entries in %.2fs%n",
+						  authorRepo.size(), (System.currentTimeMillis() - start) / 1000f);
+
+		Authors.setRepository(authorRepo, contentPath.resolve(AUTHORS_DIR));
+
+		return authorRepo;
+	}
+
 	public static WikiRepository wikiRepo(CLI cli) throws IOException {
 		Path contentPath = contentPathHelper(cli);
 
