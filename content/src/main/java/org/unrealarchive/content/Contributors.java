@@ -236,8 +236,8 @@ public class Contributors {
 
 	private static String cleanup(String name) {
 		return name.strip()
-				   .replaceAll("(?i)^(conv(er(sion|ted))?|original(ly)?|made|done|port(ed)?|edit(ed)?|remix(ed)?|modified|and|by)(\\s+by)?:?", "")
-				   .replaceAll("(?i)(conv(er(sion|ted))?|original(ly)?|made|done|port(ed)?|edit(ed)?|remix(ed)?|modified|and|by)(\\s+by)?:?$", "")
+				   .replaceAll("(?i)^(conv(er(sion|ted))?|original(ly)?|made|map|done|port(ed)?|edit(ed)?|remix(ed)?|modified|and|by)(\\s+by)?:?", "")
+				   .replaceAll("(?i)(conv(er(sion|ted))?|original(ly)?|made|map|done|port(ed)?|edit(ed)?|remix(ed)?|modified|and|by)(\\s+by)?:?$", "")
 				   .strip();
 	}
 

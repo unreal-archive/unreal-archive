@@ -356,6 +356,18 @@ h1 svg.icon, h2 svg.icon, h3 svg.icon, h4 svg.icon {
 	--header-bg-glow: radial-gradient(70% 100% at 50% -20%, #FFF7 0%, #FFF0 90%);
 }
 
+[data-theme="darkgrey"] {
+	--p1: #BEBEBE;
+	--p2: #333333;
+	--p3: #EFFEEF;
+	--p4: #292929;
+	--p5: #74FF5777;
+	--p6: #00000077;
+	--icon: #FFAA00;
+	--header-bg-scrolled: #111111EE;
+	--header-bg-glow: radial-gradient(70% 100% at 50% -20%, #FFF7 0%, #FFF0 90%);
+}
+
 @media screen and (max-width: 1024px) {
 	* {
 		--radius: 0;

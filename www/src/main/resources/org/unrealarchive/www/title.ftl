@@ -34,7 +34,7 @@
 			}
 		});
 
-	  const themes = ['default', 'red', 'green', 'grey'];
+	  const themes = ['default', 'red', 'green', 'grey', 'darkgrey'];
 
 	  function setTheme(theme, save) {
 		  if (save) localStorage.setItem('theme', theme);
