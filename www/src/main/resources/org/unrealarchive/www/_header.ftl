@@ -5,7 +5,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
 	<title>${siteName} / ${title}</title>
-	<link rel="stylesheet" href="${staticPath()}/css/202506.css">
+	<link rel="stylesheet" href="${staticPath()}/css/202506.2.css">
 	<#if extraCss??>
 		<link rel="stylesheet" href="${staticPath()}/css/${extraCss}">
 	</#if>
@@ -55,7 +55,7 @@
 
 <script>
 	// theme loading. theme switcher is in title.
-	let theme = localStorage.getItem('theme') ? localStorage.getItem('theme') : null;
+	let theme = localStorage.getItem('theme') ? localStorage.getItem('theme') : 'default';
 	if (theme) document.documentElement.setAttribute('data-theme', theme);
 </script>
 

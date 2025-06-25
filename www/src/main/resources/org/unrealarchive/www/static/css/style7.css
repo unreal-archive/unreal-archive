@@ -27,7 +27,7 @@
 
 	--header-bg-glow: radial-gradient(70% 100% at 50% -20%, #FFF7 0%, #FFF0 90%);
 
-	--header-outline-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
+	--header-outline-shadow: 1px 1px 8px #000, -1px -1px 5px #000;
 
 	--footer-border-color: var(--p4);
 

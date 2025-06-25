@@ -27,7 +27,9 @@
 	<@content class="info">
 
 		<div class="side">
-			<@links links=pack.item.links/>
+        <@problems problems=pack.item.problemLinks/>
+
+        <@links links=pack.item.links/>
 
 			<@screenshots attachments=pack.item.attachments/>
 		</div>

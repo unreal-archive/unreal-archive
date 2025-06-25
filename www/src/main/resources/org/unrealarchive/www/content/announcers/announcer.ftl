@@ -24,6 +24,8 @@
 
 	<@content class="info">
 		<div class="side">
+        <@problems problems=announcer.item.problemLinks/>
+
         <@links links=announcer.item.links/>
 
         <@screenshots attachments=announcer.item.attachments/>

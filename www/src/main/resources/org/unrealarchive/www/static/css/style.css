@@ -740,6 +740,7 @@ article .docs .title-image img, article .content .title-image img {
 }
 
 .problem {
+	border-radius: var(--radius);
 	border: 1px solid var(--problem-border);
 	background-color: var(--problem-bg);
 }

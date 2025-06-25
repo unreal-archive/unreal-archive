@@ -24,6 +24,8 @@
 
 	<@content class="info">
 		<div class="side">
+        <@problems problems=mutator.item.problemLinks/>
+
         <@links links=mutator.item.links/>
 
         <@screenshots attachments=mutator.item.attachments/>

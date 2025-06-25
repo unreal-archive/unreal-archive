@@ -26,6 +26,8 @@
 
 	<@content class="info">
 		<div class="side">
+        <@problems problems=map.item.problemLinks/>
+
         <@links links=map.item.links/>
 
         <@screenshots attachments=map.item.attachments/>
