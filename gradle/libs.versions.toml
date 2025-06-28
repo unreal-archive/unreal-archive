@@ -1,6 +1,6 @@
 [versions]
-packageLib = "1.13.28"
-packageDependency = "1.6.26"
+packageLib = "1.13.29"
+packageDependency = "1.6.27"
 
 jackson = "2.19.0"
 minio = "8.5.17"
@@ -10,7 +10,7 @@ jsoup = "1.20.1"
 
 
 # testing
-junit = "5.11.4"
+junit = "5.13.2"
 
 # plugins
 javaModuleInfo = "1.12"
