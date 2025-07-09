@@ -10,29 +10,19 @@ import java.util.stream.Collectors;
 
 import org.unrealarchive.common.Util;
 import org.unrealarchive.content.Games;
+import org.unrealarchive.content.RepositoryManager;
 import org.unrealarchive.content.addons.GameType;
-import org.unrealarchive.content.addons.GameTypeRepository;
-import org.unrealarchive.content.addons.SimpleAddonRepository;
-import org.unrealarchive.content.docs.DocumentRepository;
 import org.unrealarchive.content.managed.Managed;
-import org.unrealarchive.content.managed.ManagedContentRepository;
 
 public class Index implements PageGenerator {
 
-	private final DocumentRepository documents;
-	private final ManagedContentRepository managed;
-	private final SimpleAddonRepository content;
-	private final GameTypeRepository gametypes;
+	private final RepositoryManager repos;
 	private final Path root;
 	private final Path staticRoot;
 	private final SiteFeatures features;
 
-	public Index(SimpleAddonRepository content, GameTypeRepository gametypes, DocumentRepository documents,
-				 ManagedContentRepository managed, Path output, Path staticRoot, SiteFeatures features) {
-		this.content = content;
-		this.gametypes = gametypes;
-		this.documents = documents;
-		this.managed = managed;
+	public Index(RepositoryManager repos, Path output, Path staticRoot, SiteFeatures features) {
+		this.repos = repos;
 
 		this.root = output;
 		this.staticRoot = staticRoot;
@@ -45,10 +35,10 @@ public class Index implements PageGenerator {
 
 		Map<Games, Long> games = new LinkedHashMap<>();
 
-		Map<String, Long> contentByGame = content.countByGame();
-		Map<String, Long> gametypesByGame = gametypes.all().stream().collect(Collectors.groupingBy(GameType::game, Collectors.counting()));
-		Map<String, Long> managedByGame = managed.all().stream().collect(Collectors.groupingBy(Managed::game, Collectors.counting()));
-		Map<String, Long> docsByGame = documents.all().stream().collect(Collectors.groupingBy(d -> d.game, Collectors.counting()));
+		Map<String, Long> contentByGame = repos.addons().countByGame();
+		Map<String, Long> gametypesByGame = repos.gameTypes().all().stream().collect(Collectors.groupingBy(GameType::game, Collectors.counting()));
+		Map<String, Long> managedByGame = repos.managed().all().stream().collect(Collectors.groupingBy(Managed::game, Collectors.counting()));
+		Map<String, Long> docsByGame = repos.docs().all().stream().collect(Collectors.groupingBy(d -> d.game, Collectors.counting()));
 
 		Arrays.stream(Games.values()).forEach(g -> {
 			long c = contentByGame.getOrDefault(g.name, 0L)
@@ -81,16 +71,16 @@ public class Index implements PageGenerator {
 	private void generateGame(Templates.PageSet pages, Games game) {
 		Map<String, Long> contentCount = new HashMap<>();
 
-		content.countByType(game.name).forEach((k, v) -> contentCount.put(k.getSimpleName(), v));
-		contentCount.put("Documents", documents.all().stream().filter(d -> d.published && d.game.equals(game.name)).count());
-		contentCount.put("GameTypes", gametypes.all().stream().filter(d -> !d.deleted && d.game.equals(game.name)).count());
+		repos.addons().countByType(game.name).forEach((k, v) -> contentCount.put(k.getSimpleName(), v));
+		contentCount.put("Documents", repos.docs().all().stream().filter(d -> d.published && d.game.equals(game.name)).count());
+		contentCount.put("GameTypes", repos.gameTypes().all().stream().filter(d -> !d.deleted && d.game.equals(game.name)).count());
 
-		Map<String, Long> managedCount = managed.all()
-												.stream()
-												.filter(d -> d.published && d.game.equals(game.name))
-												.collect(Collectors.groupingBy(m -> m.group, Collectors.counting()));
+		Map<String, Long> managedCount = repos.managed().all()
+											  .stream()
+											  .filter(d -> d.published && d.game.equals(game.name))
+											  .collect(Collectors.groupingBy(m -> m.group, Collectors.counting()));
 
-		contentCount.put("Updates", managed.all().stream().filter(d -> d.published && d.game.equals(game.name)).count());
+		contentCount.put("Updates", repos.managed().all().stream().filter(d -> d.published && d.game.equals(game.name)).count());
 
 		pages.add("index-game.ftl", SiteMap.Page.of(1f, SiteMap.ChangeFrequency.monthly), game.name)
 			 .put("game", game)

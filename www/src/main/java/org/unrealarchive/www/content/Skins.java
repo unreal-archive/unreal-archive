@@ -7,8 +7,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.unrealarchive.content.Games;
+import org.unrealarchive.content.RepositoryManager;
 import org.unrealarchive.content.addons.Addon;
-import org.unrealarchive.content.addons.SimpleAddonRepository;
 import org.unrealarchive.content.addons.Skin;
 import org.unrealarchive.www.SiteFeatures;
 import org.unrealarchive.www.SiteMap;
@@ -19,13 +19,13 @@ public class Skins extends GenericContentPage<Skin> {
 	private static final String SECTION = "Skins";
 	private static final String SUBGROUP = "all";
 
-	public Skins(SimpleAddonRepository content, Path root, Path staticRoot, SiteFeatures localImages) {
-		super(content, root, staticRoot, localImages);
+	public Skins(RepositoryManager repos, Path root, Path staticRoot, SiteFeatures localImages) {
+		super(repos, root, staticRoot, localImages);
 	}
 
 	@Override
 	public Set<SiteMap.Page> generate() {
-		GameList games = loadContent(Skin.class, content, "skins");
+		GameList games = loadContent(Skin.class, "skins");
 
 		Templates.PageSet pages = pageSet("content/skins");
 

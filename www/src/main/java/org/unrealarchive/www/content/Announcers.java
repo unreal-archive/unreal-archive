@@ -7,9 +7,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.unrealarchive.content.Games;
+import org.unrealarchive.content.RepositoryManager;
 import org.unrealarchive.content.addons.Addon;
 import org.unrealarchive.content.addons.Announcer;
-import org.unrealarchive.content.addons.SimpleAddonRepository;
 import org.unrealarchive.www.SiteFeatures;
 import org.unrealarchive.www.SiteMap;
 import org.unrealarchive.www.Templates;
@@ -19,13 +19,13 @@ public class Announcers extends GenericContentPage<Announcer> {
 	private static final String SECTION = "Announcers";
 	private static final String SUBGROUP = "all";
 
-	public Announcers(SimpleAddonRepository content, Path root, Path staticRoot, SiteFeatures localImages) {
-		super(content, root, staticRoot, localImages);
+	public Announcers(RepositoryManager repos, Path root, Path staticRoot, SiteFeatures localImages) {
+		super(repos, root, staticRoot, localImages);
 	}
 
 	@Override
 	public Set<SiteMap.Page> generate() {
-		GameList games = loadContent(Announcer.class, content, "announcers");
+		GameList games = loadContent(Announcer.class, "announcers");
 
 		Templates.PageSet pages = pageSet("content/announcers");
 
@@ -75,7 +75,7 @@ public class Announcers extends GenericContentPage<Announcer> {
 			// output first letter/page combo, with appropriate relative links
 			pages.add("listing.ftl", SiteMap.Page.weekly(0.65f), String.join(" / ", game.bigName, SECTION))
 				 .put("timeline", timeline)
-				 .put("page", g.getValue().groups.get(SUBGROUP).letters.firstEntry().getValue().pages.get(0))
+				 .put("page", g.getValue().groups.get(SUBGROUP).letters.firstEntry().getValue().pages.getFirst())
 				 .write(g.getValue().path.resolve("index.html"));
 
 			generateTimeline(pages, timeline, g.getValue(), SECTION);

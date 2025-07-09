@@ -11,9 +11,7 @@ import java.util.stream.Stream;
 import org.unrealarchive.common.Util;
 import org.unrealarchive.content.ContentEntity;
 import org.unrealarchive.content.Games;
-import org.unrealarchive.content.addons.GameTypeRepository;
-import org.unrealarchive.content.addons.SimpleAddonRepository;
-import org.unrealarchive.content.managed.ManagedContentRepository;
+import org.unrealarchive.content.RepositoryManager;
 import org.unrealarchive.www.SiteFeatures;
 import org.unrealarchive.www.SiteMap;
 import org.unrealarchive.www.Templates;
@@ -21,30 +19,25 @@ import org.unrealarchive.www.Templates;
 public class Latest extends ContentPageGenerator {
 
 	private final Path sectionRoot;
-	private final GameTypeRepository gameTypes;
-	private final ManagedContentRepository managed;
 
-	public Latest(SimpleAddonRepository content, GameTypeRepository gameTypes, ManagedContentRepository managed, Path root,
+	public Latest(RepositoryManager repos, Path root,
 				  Path staticRoot, SiteFeatures features) {
-		super(content, root, staticRoot, features);
+		super(repos, root, staticRoot, features);
 
 		this.sectionRoot = root.resolve("latest");
-		this.gameTypes = gameTypes;
-		this.managed = managed;
 	}
 
-	private Set<ContentEntity<?>> loadAllContent(SimpleAddonRepository content, GameTypeRepository gameTypes,
-												 ManagedContentRepository managed) {
+	private Set<ContentEntity<?>> loadAllContent() {
 		return Stream.concat(Stream.concat(
-								 content.all(false).stream(),
-								 gameTypes.all().stream()),
-							 managed.all().stream().filter(d -> d.published))
+								 repos.addons().all(false).stream(),
+								 repos.gameTypes().all().stream()),
+							 repos.managed().all().stream().filter(d -> d.published))
 					 .collect(Collectors.toSet());
 	}
 
 	@Override
 	public Set<SiteMap.Page> generate() {
-		final Set<ContentEntity<?>> allContent = loadAllContent(content, gameTypes, managed);
+		final Set<ContentEntity<?>> allContent = loadAllContent();
 
 		TreeMap<LocalDate, List<ContentEntity<?>>> contentFiles = new TreeMap<>(
 			allContent.stream()

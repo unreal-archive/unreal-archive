@@ -11,33 +11,33 @@ import java.util.Set;
 
 import org.unrealarchive.common.Util;
 import org.unrealarchive.content.FileType;
+import org.unrealarchive.content.RepositoryManager;
 import org.unrealarchive.content.addons.Addon;
-import org.unrealarchive.content.addons.SimpleAddonRepository;
 import org.unrealarchive.www.SiteFeatures;
 import org.unrealarchive.www.SiteMap;
 import org.unrealarchive.www.Templates;
 
 public class FileDetails extends ContentPageGenerator {
 
-	public FileDetails(SimpleAddonRepository content, Path root, Path staticRoot, SiteFeatures features) {
-		super(content, root, staticRoot, features);
+	public FileDetails(RepositoryManager repos, Path root, Path staticRoot, SiteFeatures features) {
+		super(repos, root, staticRoot, features);
 	}
 
-	private Map<Addon.ContentFile, List<Addon>> loadContentFiles(SimpleAddonRepository content) {
+	private Map<Addon.ContentFile, List<Addon>> loadContentFiles() {
 		final Map<Addon.ContentFile, List<Addon>> contentFiles = new HashMap<>();
-		content.all()
-			   .forEach(c -> {
-				   for (Addon.ContentFile f : c.files) {
-					   Collection<Addon> contents = contentFiles.computeIfAbsent(f, h -> new ArrayList<>());
-					   contents.add(c);
-				   }
-			   });
+		repos.addons().all()
+			 .forEach(c -> {
+				 for (Addon.ContentFile f : c.files) {
+					 Collection<Addon> contents = contentFiles.computeIfAbsent(f, h -> new ArrayList<>());
+					 contents.add(c);
+				 }
+			 });
 		return contentFiles;
 	}
 
 	@Override
 	public Set<SiteMap.Page> generate() {
-		final Map<Addon.ContentFile, List<Addon>> contentFiles = loadContentFiles(content);
+		final Map<Addon.ContentFile, List<Addon>> contentFiles = loadContentFiles();
 
 		Templates.PageSet pages = pageSet("content/files");
 		contentFiles.entrySet().parallelStream().forEach(e -> {

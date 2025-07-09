@@ -19,6 +19,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 
 import org.unrealarchive.common.Util;
+import org.unrealarchive.content.RepositoryManager;
 import org.unrealarchive.content.wiki.WikiPage;
 import org.unrealarchive.content.wiki.WikiRepository;
 
@@ -27,30 +28,29 @@ public class Wiki implements PageGenerator {
 	private static final Pattern FILE_LINK = Pattern.compile(".?/File:(.*)");
 	private static final String IMG_PATH = "w/images";
 
+	private final RepositoryManager repos;
 	private final Path wikiRoot;
 	private final Path root;
 	private final Path staticRoot;
 	private final SiteFeatures features;
 
-	private final WikiRepository wikiManager;
-
-	public Wiki(Path root, Path staticRoot, SiteFeatures features, WikiRepository wikiRepo) {
+	public Wiki(RepositoryManager repos, Path root, Path staticRoot, SiteFeatures features) {
+		this.repos = repos;
 		this.root = root;
 		this.wikiRoot = root.resolve("wikis");
 		this.staticRoot = staticRoot;
 		this.features = features;
-		this.wikiManager = wikiRepo;
 	}
 
 	@Override
 	public Set<SiteMap.Page> generate() {
 		Templates.PageSet pages = new Templates.PageSet("wikis", features, root, staticRoot);
 
-		wikiManager.all().forEach(wiki -> buildWiki(wiki, pages));
+		repos.wikis().all().forEach(wiki -> buildWiki(wiki, pages));
 
 		// generate wiki landing page
 		pages.add("wikis.ftl", SiteMap.Page.of(0.75f, SiteMap.ChangeFrequency.weekly), "Wikis")
-			 .put("wikis", wikiManager.all())
+			 .put("wikis", repos.wikis().all())
 			 .write(wikiRoot.resolve("index.html"));
 
 		return pages.pages;
@@ -148,7 +148,6 @@ public class Wiki implements PageGenerator {
 						 .write(pagePath);
 				} catch (Exception e) {
 					System.err.println("Failed generating page: " + page.name);
-					e.printStackTrace();
 				}
 			});
 	}

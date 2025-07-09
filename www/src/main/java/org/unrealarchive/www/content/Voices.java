@@ -7,8 +7,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.unrealarchive.content.Games;
+import org.unrealarchive.content.RepositoryManager;
 import org.unrealarchive.content.addons.Addon;
-import org.unrealarchive.content.addons.SimpleAddonRepository;
 import org.unrealarchive.content.addons.Voice;
 import org.unrealarchive.www.SiteFeatures;
 import org.unrealarchive.www.SiteMap;
@@ -19,13 +19,13 @@ public class Voices extends GenericContentPage<Voice> {
 	private static final String SECTION = "Voices";
 	private static final String SUBGROUP = "all";
 
-	public Voices(SimpleAddonRepository content, Path root, Path staticRoot, SiteFeatures localImages) {
-		super(content, root, staticRoot, localImages);
+	public Voices(RepositoryManager repos, Path root, Path staticRoot, SiteFeatures localImages) {
+		super(repos, root, staticRoot, localImages);
 	}
 
 	@Override
 	public Set<SiteMap.Page> generate() {
-		GameList games = loadContent(Voice.class, content, "voices");
+		GameList games = loadContent(Voice.class, "voices");
 
 		Templates.PageSet pages = pageSet("content/voices");
 

@@ -16,10 +16,8 @@ import org.unrealarchive.common.Util;
 import org.unrealarchive.content.ContentEntity;
 import org.unrealarchive.content.FileType;
 import org.unrealarchive.content.Games;
+import org.unrealarchive.content.RepositoryManager;
 import org.unrealarchive.content.addons.Addon;
-import org.unrealarchive.content.addons.GameTypeRepository;
-import org.unrealarchive.content.addons.SimpleAddonRepository;
-import org.unrealarchive.content.managed.ManagedContentRepository;
 import org.unrealarchive.www.SiteFeatures;
 import org.unrealarchive.www.SiteMap;
 import org.unrealarchive.www.Templates;
@@ -31,55 +29,47 @@ public class Packages extends ContentPageGenerator {
 													   .flatMap(p -> p.ext.stream())
 													   .collect(Collectors.toSet());
 
-	private final GameTypeRepository gameTypes;
-	private final ManagedContentRepository managed;
-
-	public Packages(SimpleAddonRepository content, GameTypeRepository gameTypes, ManagedContentRepository managed,
-					Path root, Path staticRoot, SiteFeatures features) {
-		super(content, root, staticRoot, features);
-
-		this.gameTypes = gameTypes;
-		this.managed = managed;
+	public Packages(RepositoryManager repos, Path root, Path staticRoot, SiteFeatures features) {
+		super(repos, root, staticRoot, features);
 	}
 
 	public static Map<Games, Map<String, Map<Addon.ContentFile, List<ContentEntity<?>>>>> loadContentFiles(
-		SimpleAddonRepository content,
-		GameTypeRepository gameTypes
+		RepositoryManager repos
 	) {
 		// TODO include ManagedContentRepository managed
 		final Map<Games, Map<String, Map<Addon.ContentFile, List<ContentEntity<?>>>>> contentFiles = new HashMap<>();
 
-		content.all()
-			   .forEach(c -> {
-				   for (Addon.ContentFile f : c.files) {
-					   if (PKG_TYPES.contains(Util.extension(f.name).toLowerCase())) {
-						   String pkgName = Util.plainName(f.name).toLowerCase();
-						   contentFiles.computeIfAbsent(Games.byName(c.game), g -> new HashMap<>())
-									   .computeIfAbsent(pkgName, p -> new HashMap<>())
-									   .computeIfAbsent(f, fc -> new ArrayList<>()).add(c);
-					   }
-				   }
-			   });
+		repos.addons().all()
+			 .forEach(c -> {
+				 for (Addon.ContentFile f : c.files) {
+					 if (PKG_TYPES.contains(f.extension().toLowerCase())) {
+						 String pkgName = f.baseName().toLowerCase();
+						 contentFiles.computeIfAbsent(Games.byName(c.game), g -> new HashMap<>())
+									 .computeIfAbsent(pkgName, p -> new HashMap<>())
+									 .computeIfAbsent(f, fc -> new ArrayList<>()).add(c);
+					 }
+				 }
+			 });
 
 		// hoooly shit
-		gameTypes.all()
-				 .forEach(g -> g.releases.forEach(r -> r.files.forEach(c -> {
-					 for (Addon.ContentFile f : c.files) {
-						 if (PKG_TYPES.contains(Util.extension(f.name).toLowerCase())) {
-							 String pkgName = Util.plainName(f.name).toLowerCase();
-							 contentFiles.computeIfAbsent(Games.byName(g.game), n -> new HashMap<>())
-										 .computeIfAbsent(pkgName, p -> new HashMap<>())
-										 .computeIfAbsent(f, fc -> new ArrayList<>()).add(g);
-						 }
+		repos.gameTypes().all()
+			 .forEach(g -> g.releases.forEach(r -> r.files.forEach(c -> {
+				 for (Addon.ContentFile f : c.files) {
+					 if (PKG_TYPES.contains(f.extension().toLowerCase())) {
+						 String pkgName = f.baseName().toLowerCase();
+						 contentFiles.computeIfAbsent(Games.byName(g.game), n -> new HashMap<>())
+									 .computeIfAbsent(pkgName, p -> new HashMap<>())
+									 .computeIfAbsent(f, fc -> new ArrayList<>()).add(g);
 					 }
-				 })));
+				 }
+			 })));
 
 		return contentFiles;
 	}
 
 	@Override
 	public Set<SiteMap.Page> generate() {
-		Map<Games, Map<String, Map<Addon.ContentFile, List<ContentEntity<?>>>>> contentFiles = loadContentFiles(content, gameTypes);
+		Map<Games, Map<String, Map<Addon.ContentFile, List<ContentEntity<?>>>>> contentFiles = loadContentFiles(repos);
 
 		Templates.PageSet pages = pageSet("content/packages");
 

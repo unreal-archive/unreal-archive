@@ -8,10 +8,12 @@ import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
 
 import org.unrealarchive.common.ArchiveUtil;
+import org.unrealarchive.common.CLI;
 import org.unrealarchive.common.Platform;
 import org.unrealarchive.common.YAML;
 import org.unrealarchive.content.AuthorRepository;
 import org.unrealarchive.content.Authors;
+import org.unrealarchive.content.RepositoryManager;
 import org.unrealarchive.content.managed.Managed;
 import org.unrealarchive.content.managed.ManagedContentRepository;
 
@@ -43,8 +45,14 @@ public class ManagedTest {
 
 			final ManagedContentRepository cm = new ManagedContentRepository.FileRepository(tmpRoot);
 			assertTrue(cm.all().contains(man));
+			RepositoryManager repos = new RepositoryManager(CLI.parse("")) {
+				@Override
+				public ManagedContentRepository managed() {
+					return cm;
+				}
+			};
 
-			ManagedContent content = new ManagedContent(cm, wwwRoot, wwwRoot, SiteFeatures.ALL);
+			ManagedContent content = new ManagedContent(repos, wwwRoot, wwwRoot, SiteFeatures.ALL);
 			assertEquals(3, content.generate().size());
 		} finally {
 			// cleanup temp files

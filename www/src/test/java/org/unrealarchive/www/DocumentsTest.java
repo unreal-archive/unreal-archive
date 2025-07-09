@@ -8,7 +8,9 @@ import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
 
 import org.unrealarchive.common.ArchiveUtil;
+import org.unrealarchive.common.CLI;
 import org.unrealarchive.common.YAML;
+import org.unrealarchive.content.RepositoryManager;
 import org.unrealarchive.content.docs.Document;
 import org.unrealarchive.content.docs.DocumentRepository;
 
@@ -43,10 +45,16 @@ public class DocumentsTest {
 				Files.copy(is, docPath.resolve(doc.name));
 			}
 
-			DocumentRepository dm = new DocumentRepository.FileRepository(tmpRoot);
+			final DocumentRepository dm = new DocumentRepository.FileRepository(tmpRoot);
 			assertTrue(dm.all().contains(doc));
+			RepositoryManager repos = new RepositoryManager(CLI.parse("")) {
+				@Override
+				public DocumentRepository docs() {
+					return dm;
+				}
+			};
 
-			Documents documents = new Documents(dm, wwwRoot, wwwRoot, SiteFeatures.ALL);
+			Documents documents = new Documents(repos, wwwRoot, wwwRoot, SiteFeatures.ALL);
 			assertEquals(4, documents.generate().size());
 		} finally {
 			// cleanup temp files

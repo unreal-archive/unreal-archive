@@ -2,6 +2,7 @@ package org.unrealarchive.www.content;
 
 import java.nio.file.Path;
 
+import org.unrealarchive.content.RepositoryManager;
 import org.unrealarchive.content.addons.SimpleAddonRepository;
 import org.unrealarchive.www.PageGenerator;
 import org.unrealarchive.www.SiteFeatures;
@@ -9,7 +10,7 @@ import org.unrealarchive.www.Templates;
 
 public abstract class ContentPageGenerator implements PageGenerator {
 
-	final SimpleAddonRepository content;
+	final RepositoryManager repos;
 	final Path root;
 	final Path staticRoot;
 
@@ -18,13 +19,13 @@ public abstract class ContentPageGenerator implements PageGenerator {
 	/**
 	 * Create a new Page Generator instance.
 	 *
-	 * @param content    content repository
+	 * @param repos      repository manager
 	 * @param root       root directory of the website output
 	 * @param staticRoot path to static content
 	 * @param features   if true, download and reference local copies of remote images
 	 */
-	public ContentPageGenerator(SimpleAddonRepository content, Path root, Path staticRoot, SiteFeatures features) {
-		this.content = content;
+	public ContentPageGenerator(RepositoryManager repos, Path root, Path staticRoot, SiteFeatures features) {
+		this.repos = repos;
 		this.root = root;
 		this.staticRoot = staticRoot;
 		this.features = features;

@@ -17,12 +17,10 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import org.unrealarchive.common.Util;
-import org.unrealarchive.content.Author;
 import org.unrealarchive.content.AuthorInfo;
-import org.unrealarchive.content.Authors;
 import org.unrealarchive.content.ContentEntity;
-import org.unrealarchive.content.Contributors;
 import org.unrealarchive.content.Download;
+import org.unrealarchive.content.FileType;
 import org.unrealarchive.content.Games;
 
 // there appears to be weird mapping issues when using @JsonTypeInfo with YAML
@@ -285,6 +283,9 @@ public abstract class Addon implements ContentEntity<Addon> {
 		public String name;
 		public int fileSize;
 		public String hash;
+		private transient String baseName;
+		private transient String extension;
+		private transient FileType fileType;
 
 		@ConstructorProperties({ "name", "fileSize", "hash" })
 		public ContentFile(String name, int fileSize, String hash) {
@@ -309,6 +310,21 @@ public abstract class Addon implements ContentEntity<Addon> {
 		@Override
 		public int hashCode() {
 			return Objects.hash(name.toLowerCase(), hash);
+		}
+
+		public String baseName() {
+			if (baseName == null) baseName = Util.plainName(name);
+			return baseName;
+		}
+
+		public String extension() {
+			if (extension == null) extension = Util.extension(name);
+			return extension;
+		}
+
+		public FileType fileType() {
+			if (fileType == null) fileType = FileType.forFile(name);
+			return fileType;
 		}
 	}
 
