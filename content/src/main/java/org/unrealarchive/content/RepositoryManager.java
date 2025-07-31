@@ -212,6 +212,8 @@ public class RepositoryManager {
 			Authors.setRepository(authorRepo, contentPath.resolve(AUTHORS_DIR));
 
 			Authors.autoPopRepository(authorRepo, addons(), gameTypes(), managed());
+			System.err.printf("Populated authors repository with %d entries in %.2fs%n",
+							  authorRepo.size(), (System.currentTimeMillis() - start) / 1000f);
 
 			return authorRepo;
 		} catch (IOException e) {

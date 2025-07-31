@@ -76,6 +76,9 @@ public class Main {
 
 		final RepositoryManager repos = new RepositoryManager(cli);
 
+		// initialise the authors repo
+		repos.authors();
+
 		switch (cli.commands()[0].toLowerCase()) {
 			case "helper" -> IndexHelper.main(Arrays.copyOfRange(cli.commands(), 1, cli.commands().length));
 			//case "cache" -> contentRepo(cli).createCache();

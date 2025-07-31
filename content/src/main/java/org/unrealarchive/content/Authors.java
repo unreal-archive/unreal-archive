@@ -90,8 +90,10 @@ public class Authors {
 		if (name.equalsIgnoreCase(AuthorRepository.VARIOUS.name)) return AuthorRepository.VARIOUS;
 
 		return LOOKUP_CACHE.computeIfAbsent(authorKey(name), n -> {
-			Author maybe = repository.byName(name);
-			if (maybe != null) return maybe;
+			if (repository != null) {
+				Author maybe = repository.byName(name);
+				if (maybe != null) return maybe;
+			}
 
 			String cleanName = cleanName(name);
 			return repository.byName(cleanName);
@@ -121,8 +123,8 @@ public class Authors {
 	public static boolean isSomeone(String name) {
 		return name != null
 			   && !name.isBlank()
-			   && !name.strip().equalsIgnoreCase(AuthorRepository.UNKNOWN.name)
-			   && !name.strip().equalsIgnoreCase(AuthorRepository.VARIOUS.name);
+			   && !name.equalsIgnoreCase(AuthorRepository.UNKNOWN.name)
+			   && !name.equalsIgnoreCase(AuthorRepository.VARIOUS.name);
 	}
 
 	public static boolean noAlias(String name) {
@@ -143,7 +145,8 @@ public class Authors {
 			  .distinct()
 			  .sorted()
 			  .sorted(Comparator.comparingInt(String::length).reversed())
-			  .flatMap(name -> Contributors.names(name).stream()).distinct()
+			  .flatMap(name -> Contributors.names(name).stream())
+			  .distinct()
 			  .forEach(a -> addToRepository(a, authorRepo));
 	}
 

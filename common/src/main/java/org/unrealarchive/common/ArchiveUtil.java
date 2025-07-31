@@ -198,12 +198,12 @@ public class ArchiveUtil {
 	private static String[] unrarCmd(Path source, Path destination) {
 		return new String[] {
 			unrarBin(),
-			"x",                   // extract
-			"-y",                  // yes to all
-			"-or",                 // rename files (overwrite mode?)
-			"-pPASSWORD",          // use password "password" by default - prevents sticking archives with passwords
-			source.toString(),     // file to extract
-			destination.toString() // destination directory
+			"x",                         // extract
+			"-y",                        // yes to all
+			"-or",                       // rename files (overwrite mode?)
+			"-pPASSWORD",                // use password "password" by default - prevents sticking archives with passwords
+			source.toString(),           // file to extract
+			destination.toString() + "/" // destination directory
 		};
 	}
 
