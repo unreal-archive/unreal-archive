@@ -109,8 +109,8 @@
 </@content>
 
 <script type="application/javascript">
-	let url = "../incoming/";
-	let maxUploadSizeGigabytes = 0.1;
+	let url = "${uploadUrl}";
+	let maxUploadSizeGigabytes = 1;
 
 	document.addEventListener("DOMContentLoaded", function() {
 
@@ -174,30 +174,6 @@
 
 	  fileSelector.addEventListener('change', e => {
 			addFiles(e.target.files);
-		  // let totalSize = 0;
-		  // resetFilesList();
-			//
-		  // for (let i = 0; i < e.target.files.length; i++) {
-			//   let f = e.target.files[i];
-			//   let name = document.createElement("div");
-			//   name.innerText = f.name;
-			//   name.classList.add("name");
-			//   let size = document.createElement("div");
-			//   size.innerText = (f.size / 1024 / 1024).toFixed(1) + " mb";
-			//   size.classList.add("size");
-			//   let row = document.createElement("div");
-			//   row.classList.add("file");
-			//   row.append(name, size);
-			//   filesList.append(row);
-			//   totalSize += f.size;
-		  // }
-			//
-		  // if (!filesList.classList.contains("display-block")) filesList.classList.add("display-block");
-			//
-		  // if (totalSize >= (maxUploadSizeGigabytes * 1024 * 1024 * 1024)) {
-			//   alert("Caution!\n\n" +
-			//         "The total max size per upload is " + maxUploadSizeGigabytes + " GB. Reduce the total size of the upload or it may fail.");
-		  // }
 	  });
 
 		if (location.hash) {
@@ -249,7 +225,7 @@
 			};
 
 			// Send POST request to the server side script
-			currentRequest.open('post', url + 'upload');
+			currentRequest.open('post', url + '/upload');
 
 			toggleProgress(true);
 			abortButton.innerText = "Cancel Upload";
@@ -280,7 +256,7 @@
 		function pollJob(jobId, catchup = false) {
 			if (jobId !== location.hash.substring(1)) return; // stop polling if we're not looking at this job
 
-			fetch(url + 'job/' + jobId.toString() + (catchup ? '?catchup=1' : ''))
+			fetch(url + '/job/' + jobId.toString() + (catchup ? '?catchup=1' : ''))
 				.then(result => {
 					if (result.ok) {
 						result.json().then(json => {

@@ -55,6 +55,7 @@ public class Templates {
 	private static final String STATIC_ROOT = System.getenv().getOrDefault("STATIC_ROOT", "");
 	private static final String DATA_PROJECT_URL = System.getenv().getOrDefault("DATA_PROJECT_URL",
 																				"https://github.com/unreal-archive/unreal-archive-data");
+	private static final String UPLOAD_URL = System.getenv().getOrDefault("UPLOAD_URL", "https://submit.unrealarchive.org");
 
 	private static final Map<String, String> HOST_REMAP = new HashMap<>();
 
@@ -86,6 +87,7 @@ public class Templates {
 		TPL_VARS.put("version", Version.version());
 		TPL_VARS.put("siteName", SITE_NAME);
 		TPL_VARS.put("siteUrl", SITE_URL);
+		TPL_VARS.put("uploadUrl", UPLOAD_URL);
 		TPL_VARS.put("dataProjectUrl", DATA_PROJECT_URL);
 		TPL_VARS.put("monthNames", MONTH_NAMES);
 
