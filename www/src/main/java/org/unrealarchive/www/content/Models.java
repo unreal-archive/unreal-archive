@@ -7,9 +7,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.unrealarchive.content.Games;
+import org.unrealarchive.content.RepositoryManager;
 import org.unrealarchive.content.addons.Addon;
 import org.unrealarchive.content.addons.Model;
-import org.unrealarchive.content.addons.SimpleAddonRepository;
 import org.unrealarchive.www.SiteFeatures;
 import org.unrealarchive.www.SiteMap;
 import org.unrealarchive.www.Templates;
@@ -19,13 +19,13 @@ public class Models extends GenericContentPage<Model> {
 	private static final String SECTION = "Models";
 	private static final String SUBGROUP = "all";
 
-	public Models(SimpleAddonRepository content, Path root, Path staticRoot, SiteFeatures localImages) {
-		super(content, root, staticRoot, localImages);
+	public Models(RepositoryManager repos, Path root, Path staticRoot, SiteFeatures localImages) {
+		super(repos, root, staticRoot, localImages);
 	}
 
 	@Override
 	public Set<SiteMap.Page> generate() {
-		GameList games = loadContent(Model.class, content, "models");
+		GameList games = loadContent(Model.class, "models");
 
 		Templates.PageSet pages = pageSet("content/models");
 

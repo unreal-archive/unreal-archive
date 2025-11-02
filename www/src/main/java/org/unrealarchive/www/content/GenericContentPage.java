@@ -19,6 +19,7 @@ import java.util.TreeMap;
 
 import org.unrealarchive.common.Util;
 import org.unrealarchive.content.Games;
+import org.unrealarchive.content.RepositoryManager;
 import org.unrealarchive.content.addons.Addon;
 import org.unrealarchive.content.addons.SimpleAddonRepository;
 import org.unrealarchive.www.SiteFeatures;
@@ -40,13 +41,13 @@ public abstract class GenericContentPage<T extends Addon> extends ContentPageGen
 	/**
 	 * Create a new Page Generator instance.
 	 *
-	 * @param content    content repository
+	 * @param repos      repository manager
 	 * @param root       root directory of the website output
 	 * @param staticRoot path to static content
 	 * @param features   if true, download and reference local copies of remote images
 	 */
-	public GenericContentPage(SimpleAddonRepository content, Path root, Path staticRoot, SiteFeatures features) {
-		super(content, root, staticRoot, features);
+	public GenericContentPage(RepositoryManager repos, Path root, Path staticRoot, SiteFeatures features) {
+		super(repos, root, staticRoot, features);
 	}
 
 	abstract String gameSubGroup(T item);
@@ -158,21 +159,21 @@ public abstract class GenericContentPage<T extends Addon> extends ContentPageGen
 		});
 	}
 
-	GameList loadContent(Class<T> type, SimpleAddonRepository content, String sectionName) {
+	GameList loadContent(Class<T> type, String sectionName) {
 		final GameList games = new GameList();
 
-		content.get(type, false, false).stream()
-			   .sorted()
-			   .forEach(m -> {
-				   Game g = games.games.computeIfAbsent(m.game, name -> new Game(name, sectionName));
-				   if (Games.byName(m.game) == Games.UNREAL_TOURNAMENT_2003) {
-					   games.games.computeIfAbsent(
-						Games.UNREAL_TOURNAMENT_2004.name, 
-						n -> new Game(Games.UNREAL_TOURNAMENT_2004.name, sectionName)
-					   ).add(m);
-				   }
-				   g.add(m);
-			   });
+		repos.addons().get(type, false, false).stream()
+			 .sorted()
+			 .forEach(m -> {
+				 Game g = games.games.computeIfAbsent(m.game, name -> new Game(name, sectionName));
+				 if (Games.byName(m.game) == Games.UNREAL_TOURNAMENT_2003) {
+					 games.games.computeIfAbsent(
+						 Games.UNREAL_TOURNAMENT_2004.name,
+						 n -> new Game(Games.UNREAL_TOURNAMENT_2004.name, sectionName)
+					 ).add(m);
+				 }
+				 g.add(m);
+			 });
 
 		return games;
 	}
@@ -310,6 +311,8 @@ public abstract class GenericContentPage<T extends Addon> extends ContentPageGen
 			this.itemName = item.name;
 			this.path = item.slugPath(root);
 
+			final SimpleAddonRepository content = repos.addons();
+
 			this.alsoIn = new HashMap<>();
 			for (Addon.ContentFile f : item.files) {
 				int alsoInCount = content.containingFileCount(f.hash);
@@ -330,7 +333,7 @@ public abstract class GenericContentPage<T extends Addon> extends ContentPageGen
 		}
 
 		public T item() {
-			final Addon item = content.forHash(itemHash);
+			final Addon item = repos.addons().forHash(itemHash);
 
 			return (T)item;
 		}

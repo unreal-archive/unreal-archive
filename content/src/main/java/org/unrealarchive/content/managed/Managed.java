@@ -16,11 +16,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import org.unrealarchive.common.Platform;
 import org.unrealarchive.common.Util;
-import org.unrealarchive.content.Author;
 import org.unrealarchive.content.AuthorInfo;
-import org.unrealarchive.content.Authors;
 import org.unrealarchive.content.ContentEntity;
-import org.unrealarchive.content.Contributors;
 import org.unrealarchive.content.Download;
 import org.unrealarchive.content.Games;
 

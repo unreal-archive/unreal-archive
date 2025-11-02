@@ -8,10 +8,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.unrealarchive.content.Games;
+import org.unrealarchive.content.RepositoryManager;
 import org.unrealarchive.content.addons.GameType;
-import org.unrealarchive.content.addons.GameTypeRepository;
 import org.unrealarchive.content.addons.MapPack;
-import org.unrealarchive.content.addons.SimpleAddonRepository;
 import org.unrealarchive.www.SiteFeatures;
 import org.unrealarchive.www.SiteMap;
 import org.unrealarchive.www.Templates;
@@ -22,17 +21,15 @@ public class MapPacks extends GenericContentPage<MapPack> {
 
 	private static final String LETTER_SUBGROUP = "all";
 
-	private final GameTypeRepository gametypes;
 	private final java.util.Map<Integer, GameType> gameTypeCache = new ConcurrentHashMap<>();
 
-	public MapPacks(SimpleAddonRepository content, Path root, Path staticRoot, SiteFeatures features, GameTypeRepository gametypes) {
-		super(content, root, staticRoot, features);
-		this.gametypes = gametypes;
+	public MapPacks(RepositoryManager repos, Path root, Path staticRoot, SiteFeatures features) {
+		super(repos, root, staticRoot, features);
 	}
 
 	@Override
 	public Set<SiteMap.Page> generate() {
-		GameList games = loadContent(MapPack.class, content, "mappacks");
+		GameList games = loadContent(MapPack.class, "mappacks");
 
 		Templates.PageSet pages = pageSet("content/mappacks");
 
@@ -49,10 +46,7 @@ public class MapPacks extends GenericContentPage<MapPack> {
 
 			g.getValue().groups.entrySet().parallelStream().forEach(gt -> {
 
-				final GameType gtInfo = gameTypeCache.computeIfAbsent(
-					Objects.hash(g.getValue().game.name.toLowerCase(), gt.getValue().name.toLowerCase()),
-					k -> gametypes.findGametype(g.getValue().game, gt.getValue().name)
-				);
+				final GameType gtInfo = getGameType(gt.getValue().game.name, gt.getValue().name);
 
 				// skip the letter breakdown
 				gt.getValue().letters.get(LETTER_SUBGROUP).pages.parallelStream().forEach(p -> {
@@ -89,10 +83,7 @@ public class MapPacks extends GenericContentPage<MapPack> {
 	private void packPage(Templates.PageSet pages, ContentInfo pack) {
 		final MapPack item = pack.item();
 
-		final GameType gt = gameTypeCache.computeIfAbsent(
-			Objects.hash(item.game.toLowerCase(), item.gametype.toLowerCase()),
-			k -> gametypes.findGametype(Games.byName(item.game), item.gametype)
-		);
+		final GameType gt = getGameType(item.game, item.gametype);
 
 		localImages(item, pack.path.getParent());
 
@@ -106,6 +97,13 @@ public class MapPacks extends GenericContentPage<MapPack> {
 		for (ContentInfo variation : pack.variations) {
 			packPage(pages, variation);
 		}
+	}
+
+	private GameType getGameType(String game, String gametype) {
+		return gameTypeCache.computeIfAbsent(
+			Objects.hash(game.toLowerCase(), gametype.toLowerCase()),
+			k -> repos.gameTypes().findGametype(Games.byName(game), gametype)
+		);
 	}
 
 	@Override

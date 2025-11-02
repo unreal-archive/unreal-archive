@@ -61,7 +61,7 @@
 
 <script type="application/javascript">
 	let url = "https://unrealarchive.org/umod-repack/";
-	let maxUploadSizeMegabytes = 500;
+	let maxUploadSizeMegabytes = 100;
 
 	document.addEventListener("DOMContentLoaded", function() {
 

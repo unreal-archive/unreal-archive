@@ -7,9 +7,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.unrealarchive.content.Games;
+import org.unrealarchive.content.RepositoryManager;
 import org.unrealarchive.content.addons.Addon;
 import org.unrealarchive.content.addons.Mutator;
-import org.unrealarchive.content.addons.SimpleAddonRepository;
 import org.unrealarchive.www.SiteFeatures;
 import org.unrealarchive.www.SiteMap;
 import org.unrealarchive.www.Templates;
@@ -19,13 +19,13 @@ public class Mutators extends GenericContentPage<Mutator> {
 	private static final String SECTION = "Mutators";
 	private static final String SUBGROUP = "all";
 
-	public Mutators(SimpleAddonRepository content, Path root, Path staticRoot, SiteFeatures localImages) {
-		super(content, root, staticRoot, localImages);
+	public Mutators(RepositoryManager repos, Path root, Path staticRoot, SiteFeatures localImages) {
+		super(repos, root, staticRoot, localImages);
 	}
 
 	@Override
 	public Set<SiteMap.Page> generate() {
-		GameList games = loadContent(Mutator.class, content, "mutators");
+		GameList games = loadContent(Mutator.class, "mutators");
 
 		Templates.PageSet pages = pageSet("content/mutators");
 

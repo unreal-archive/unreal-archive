@@ -12,36 +12,36 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.unrealarchive.content.RepositoryManager;
 import org.unrealarchive.content.managed.Managed;
-import org.unrealarchive.content.managed.ManagedContentRepository;
 
 import static org.unrealarchive.common.Util.slug;
 
 public class ManagedContent implements PageGenerator {
 
-	private final ManagedContentRepository managedRepo;
+	private final RepositoryManager repos;
 	private final Path root;
 	private final Path staticRoot;
 	private final SiteFeatures features;
 
-	public ManagedContent(ManagedContentRepository managedRepo, Path root, Path staticRoot, SiteFeatures features) {
-		this.managedRepo = managedRepo;
+	public ManagedContent(RepositoryManager repos, Path root, Path staticRoot, SiteFeatures features) {
+		this.repos = repos;
 		this.root = root;
 		this.staticRoot = staticRoot;
 		this.features = features;
 	}
 
-	private Map<String, Game> loadGames(ManagedContentRepository managedRepo) {
+	private Map<String, Game> loadGames() {
 		final Map<String, Game> games = new HashMap<>();
 
-		managedRepo.all().stream()
-				   .filter(d -> d.published)
-				   .sorted(Comparator.reverseOrder())
-				   .toList()
-				   .forEach(d -> {
-					   Game game = games.computeIfAbsent(d.game(), Game::new);
-					   game.add(d);
-				   });
+		repos.managed().all().stream()
+			 .filter(d -> d.published)
+			 .sorted(Comparator.reverseOrder())
+			 .toList()
+			 .forEach(d -> {
+				 Game game = games.computeIfAbsent(d.game(), Game::new);
+				 game.add(d);
+			 });
 
 		return games;
 	}
@@ -51,7 +51,7 @@ public class ManagedContent implements PageGenerator {
 	 */
 	@Override
 	public Set<SiteMap.Page> generate() {
-		final Map<String, Game> games = loadGames(managedRepo);
+		final Map<String, Game> games = loadGames();
 
 		Templates.PageSet pages = new Templates.PageSet("managed", features, root, staticRoot);
 		try {
@@ -84,11 +84,11 @@ public class ManagedContent implements PageGenerator {
 	}
 
 	private void generateDocument(Templates.PageSet pages, ContentInfo content) throws IOException {
-		try (ReadableByteChannel docChan = this.managedRepo.document(content.managed)) {
+		try (ReadableByteChannel docChan = repos.managed().document(content.managed)) {
 
 			// copy content of directory to www output
 			final Path path = Files.createDirectories(content.path);
-			this.managedRepo.writeContent(content.managed, path);
+			repos.managed().writeContent(content.managed, path);
 
 			final String page = Markdown.renderMarkdown(docChan);
 

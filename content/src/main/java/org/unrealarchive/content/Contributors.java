@@ -150,37 +150,32 @@ public class Contributors {
 		Set<String> names = new HashSet<>();
 
 		String[] s = MODIFIED_SPLIT.split(authorString);
-		Matcher m1 = MODIFIED_MATCH_1.matcher(authorString);
-		Matcher m2 = MODIFIED_MATCH_2.matcher(authorString);
-		Matcher m3 = MODIFIED_MATCH_3.matcher(authorString);
-		Matcher m4 = MODIFIED_MATCH_4.matcher(authorString);
-		Matcher m5 = MODIFIED_MATCH_5.matcher(authorString);
-		Matcher m6 = MODIFIED_MATCH_6.matcher(authorString);
-		Matcher m7 = MODIFIED_MATCH_7.matcher(authorString);
-
 		if (s.length > 1) {
 			names.addAll(Stream.of(s).filter(n -> !n.isBlank()).collect(Collectors.toSet()));
-		} else if (m1.find()) {
-			names.add(m1.group(1));
-			names.add(m1.group(2));
-		} else if (m2.find()) {
-			names.add(m2.group(6));
-			names.add(m2.group(1));
-		} else if (m3.find()) {
-			names.add(m3.group(5));
-			names.add(m3.group(1));
-		} else if (m7.find()) {
-			names.add(m7.group(1));
-			names.add(m7.group(9));
-		} else if (m4.find()) {
-			names.add(m4.group(1));
-			names.add(m4.group(2));
-		} else if (m5.find()) {
-			names.add(m5.group(1));
-			names.add(m5.group(2));
-		} else if (m6.find()) {
-			names.add(m6.group(1));
-			names.add(m6.group(4));
+		} else {
+			Matcher m;
+			if ((m = MODIFIED_MATCH_1.matcher(authorString)).find()) {
+				names.add(m.group(1));
+				names.add(m.group(2));
+			} else if ((m = MODIFIED_MATCH_2.matcher(authorString)).find()) {
+				names.add(m.group(6));
+				names.add(m.group(1));
+			} else if ((m = MODIFIED_MATCH_3.matcher(authorString)).find()) {
+				names.add(m.group(5));
+				names.add(m.group(1));
+			} else if ((m = MODIFIED_MATCH_7.matcher(authorString)).find()) {
+				names.add(m.group(1));
+				names.add(m.group(9));
+			} else if ((m = MODIFIED_MATCH_4.matcher(authorString)).find()) {
+				names.add(m.group(1));
+				names.add(m.group(2));
+			} else if ((m = MODIFIED_MATCH_5.matcher(authorString)).find()) {
+				names.add(m.group(1));
+				names.add(m.group(2));
+			} else if ((m = MODIFIED_MATCH_6.matcher(authorString)).find()) {
+				names.add(m.group(1));
+				names.add(m.group(4));
+			}
 		}
 
 		if (names.isEmpty()) names.add(authorString);
@@ -197,7 +192,11 @@ public class Contributors {
 				}
 			});
 
-		return finalNames.stream().map(String::strip).map(Contributors::cleanup).filter(n -> !n.isBlank()).collect(Collectors.toSet());
+		return finalNames.stream()
+						 .map(String::strip)
+						 .map(Contributors::cleanup)
+						 .filter(n -> !n.isBlank())
+						 .collect(Collectors.toSet());
 	}
 
 	private Set<Author> parseAuthors(String a) {

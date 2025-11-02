@@ -18,14 +18,11 @@ import java.util.stream.Stream;
 import org.unrealarchive.common.Util;
 import org.unrealarchive.content.Author;
 import org.unrealarchive.content.AuthorInfo;
-import org.unrealarchive.content.AuthorRepository;
 import org.unrealarchive.content.ContentEntity;
 import org.unrealarchive.content.Contributors;
+import org.unrealarchive.content.RepositoryManager;
 import org.unrealarchive.content.addons.GameType;
-import org.unrealarchive.content.addons.GameTypeRepository;
 import org.unrealarchive.content.addons.MapPack;
-import org.unrealarchive.content.addons.SimpleAddonRepository;
-import org.unrealarchive.content.managed.ManagedContentRepository;
 import org.unrealarchive.www.SiteFeatures;
 import org.unrealarchive.www.SiteMap;
 import org.unrealarchive.www.Templates;
@@ -35,26 +32,19 @@ import static org.unrealarchive.content.Authors.isSomeone;
 public class Authors extends ContentPageGenerator {
 
 	private static final String SECTION = "Authors";
-	private final AuthorRepository authors;
-	private final GameTypeRepository gameTypes;
-	private final ManagedContentRepository managed;
+
 	private final Path sectionPath;
 
-	public Authors(AuthorRepository authors, SimpleAddonRepository content, GameTypeRepository gameTypes, ManagedContentRepository managed,
-				   Path root, Path staticRoot, SiteFeatures features) {
-		super(content, root, staticRoot, features);
-
-		this.authors = authors;
-		this.gameTypes = gameTypes;
-		this.managed = managed;
+	public Authors(RepositoryManager repos, Path root, Path staticRoot, SiteFeatures features) {
+		super(repos, root, staticRoot, features);
 		this.sectionPath = root.resolve("authors");
 	}
 
 	private TreeMap<String, LetterGroup> loadLetters() {
 		final TreeMap<String, LetterGroup> letters = new TreeMap<>();
 
-		Stream.concat(Stream.concat(content.all(false).stream(),
-									gameTypes.all().stream()), managed.all().stream())
+		Stream.concat(Stream.concat(repos.addons().all(false).stream(),
+									repos.gameTypes().all().stream()), repos.managed().all().stream())
 			  .forEach(c -> {
 				  AuthorInfo a = c.authorInfo();
 				  Contributors contribs = a.contributors();
@@ -135,7 +125,7 @@ public class Authors extends ContentPageGenerator {
 		// skip names which are nothing but unprintable characters
 		if (normalised.replaceAll("([^A-Za-z0-9])", "").trim().isBlank()) return null;
 
-		// special handling hacks
+			// special handling hacks
 		else if (normalised.charAt(0) == 'Ð') first = 'D';
 		else if (normalised.charAt(0) == 'º') first = '§';
 
@@ -189,7 +179,7 @@ public class Authors extends ContentPageGenerator {
 	private void authorPage(Templates.PageSet pages, AuthorInfoHolder author) throws IOException {
 		final Path outPath = Files.isDirectory(author.path) ? author.path : Files.createDirectories(author.path);
 
-		this.authors.writeContent(author.author, outPath);
+		repos.authors().writeContent(author.author, outPath);
 
 		pages.add("author.ftl", SiteMap.Page.monthly(author.count() > 2 ? 0.92f : 0.67f),
 				  String.join(" / ", SECTION, author.author.name))

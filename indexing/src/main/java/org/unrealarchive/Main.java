@@ -33,9 +33,9 @@ import org.unrealarchive.common.Version;
 import org.unrealarchive.common.YAML;
 import org.unrealarchive.content.Author;
 import org.unrealarchive.content.AuthorRepository;
-import org.unrealarchive.content.Authors;
 import org.unrealarchive.content.FileType;
 import org.unrealarchive.content.Games;
+import org.unrealarchive.content.RepositoryManager;
 import org.unrealarchive.content.addons.Addon;
 import org.unrealarchive.content.addons.GameType;
 import org.unrealarchive.content.addons.GameTypeRepository;
@@ -57,8 +57,6 @@ import org.unrealarchive.mirror.LocalMirrorClient;
 import org.unrealarchive.mirror.Mirror;
 import org.unrealarchive.storage.DataStore;
 
-import static org.unrealarchive.content.RepoFactory.*;
-
 public class Main {
 
 	static {
@@ -76,44 +74,35 @@ public class Main {
 			System.exit(1);
 		}
 
+		final RepositoryManager repos = new RepositoryManager(cli);
+
+		// initialise the authors repo
+		repos.authors();
+
 		switch (cli.commands()[0].toLowerCase()) {
-			case "helper" -> {
-				IndexHelper.main(Arrays.copyOfRange(cli.commands(), 1, cli.commands().length));
-			}
+			case "helper" -> IndexHelper.main(Arrays.copyOfRange(cli.commands(), 1, cli.commands().length));
 			//case "cache" -> contentRepo(cli).createCache();
-			case "index" -> {
-				SimpleAddonRepository indexRepo = contentRepo(cli);
-				index(indexRepo, contentManager(cli, indexRepo), cli);
-			}
-			case "scan" -> scan(contentRepo(cli), cli);
-			case "edit" -> edit(contentManager(cli, contentRepo(cli)), cli);
-			case "set" -> set(contentManager(cli, contentRepo(cli)), cli);
-			case "gametype" -> {
-				GameTypeRepository gameTypeRepo = gameTypeRepo(cli);
-				gametype(gameTypeRepo, gameTypeManager(cli, gameTypeRepo), cli);
-			}
-			case "managed" -> {
-				ManagedContentRepository managedRepo = managedRepo(cli);
-				managed(managedRepo, managedContentManager(cli, managedRepo), cli);
-			}
-			case "authors" -> authors(authorRepo(cli), cli);
+			case "index" -> index(repos.addons(), contentManager(cli, repos.addons()), cli);
+			case "scan" -> scan(repos.addons(), cli);
+			case "edit" -> edit(contentManager(cli, repos.addons()), cli);
+			case "set" -> set(contentManager(cli, repos.addons()), cli);
+			case "gametype" -> gametype(repos.gameTypes(), gameTypeManager(cli, repos.gameTypes()), cli);
+			case "managed" -> managed(repos.managed(), managedContentManager(cli, repos.managed()), cli);
+			case "authors" -> authors(repos.authors(), cli);
 			case "mirror" -> {
-				SimpleAddonRepository mirrorRepo = contentRepo(cli);
-				GameTypeRepository gameTypeMirrorRepo = gameTypeRepo(cli);
-				ManagedContentRepository managedMirrorRepo = managedRepo(cli);
-				mirror(mirrorRepo, contentManager(cli, mirrorRepo),
-					   gameTypeMirrorRepo, gameTypeManager(cli, gameTypeMirrorRepo),
-					   managedMirrorRepo, managedContentManager(cli, managedMirrorRepo),
+				mirror(repos.addons(), contentManager(cli, repos.addons()),
+					   repos.gameTypes(), gameTypeManager(cli, repos.gameTypes()),
+					   repos.managed(), managedContentManager(cli, repos.managed()),
 					   cli);
 			}
-			case "local-mirror" -> localMirror(contentRepo(cli), cli);
-			case "summary" -> System.out.println(contentRepo(cli).summary());
-			case "ls" -> list(contentRepo(cli), cli);
-			case "filter" -> filter(contentRepo(cli), cli);
-			case "show" -> show(contentRepo(cli), cli);
+			case "local-mirror" -> localMirror(repos.addons(), cli);
+			case "summary" -> System.out.println(repos.addons().summary());
+			case "ls" -> list(repos.addons(), cli);
+			case "filter" -> filter(repos.addons(), cli);
+			case "show" -> show(repos.addons(), cli);
 			case "unpack" -> unpack(cli);
-			case "install" -> install(contentRepo(cli), cli);
-			case "wiki" -> wiki(wikiRepo(cli));
+			case "install" -> install(repos.addons(), cli);
+			case "wiki" -> wiki(repos.wikis());
 			default -> {
 				System.out.printf("Command \"%s\" does not exist!%n%n", cli.commands()[0]);
 				usage();
@@ -123,7 +112,7 @@ public class Main {
 		System.exit(0);
 	}
 
-	private static void wiki(WikiRepository cli) throws IOException {
+	private static void wiki(WikiRepository cli) {
 		// nothing to do yet
 	}
 
@@ -436,12 +425,7 @@ public class Main {
 					cli.commands()[3],
 					cli.commands()[4],
 					cli.commands()[5],
-					added -> {
-						System.out.println("Initialised content in directory:");
-						System.out.printf("  - %s%n", added.contentPath(Paths.get(MANAGED_DIR)));
-						System.out.println("\nPopulate the appropriate files, add images, etc.");
-						System.out.println("To upload managed files, execute the `sync` command.");
-					}
+					added -> System.out.printf("Created %s/%s for game %s%n", added.group, added.title, added.game())
 				);
 			}
 			case "sync" -> {
@@ -523,16 +507,8 @@ public class Main {
 				Author newAuthor = new Author(cli.commands()[2].strip(), Arrays.copyOfRange(cli.commands(), 2, cli.commands().length));
 				authorRepository.put(newAuthor, false);
 			}
-			case "summary" -> {
-				// prepare author names and aliases
-				Authors.autoPopRepository(authorRepository, contentRepo(cli), gameTypeRepo(cli), managedRepo(cli));
-
-				System.out.println(authorRepository.summary());
-			}
+			case "summary" -> System.out.println(authorRepository.summary());
 			case "print" -> {
-				// prepare author names and aliases
-				Authors.autoPopRepository(authorRepository, contentRepo(cli), gameTypeRepo(cli), managedRepo(cli));
-
 				authorRepository.all().stream().sorted().forEach(a -> {
 					try {
 						System.out.println(YAML.toString(a));

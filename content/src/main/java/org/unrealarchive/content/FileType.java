@@ -4,6 +4,8 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.unrealarchive.common.Util;
 
@@ -35,6 +37,8 @@ public enum FileType {
 	public final boolean important;
 	public final Collection<String> ext;
 
+	private static final Set<FileType> packages = new HashSet<>(Arrays.asList(PACKAGES));
+
 	FileType(boolean important, String... ext) {
 		this.important = important;
 		this.ext = Collections.unmodifiableCollection(Arrays.asList(ext));
@@ -42,6 +46,10 @@ public enum FileType {
 
 	public boolean matches(String path) {
 		return (ext.contains(Util.extension(path).toLowerCase()));
+	}
+
+	public boolean isPackage() {
+		return packages.contains(this);
 	}
 
 	public static boolean important(Path path) {

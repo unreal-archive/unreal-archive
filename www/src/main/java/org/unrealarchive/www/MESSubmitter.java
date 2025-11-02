@@ -28,10 +28,9 @@ import org.unrealarchive.common.Util;
 import org.unrealarchive.content.ContentEntity;
 import org.unrealarchive.content.FileType;
 import org.unrealarchive.content.Games;
+import org.unrealarchive.content.RepositoryManager;
 import org.unrealarchive.content.addons.Addon;
 import org.unrealarchive.content.addons.GameType;
-import org.unrealarchive.content.addons.GameTypeRepository;
-import org.unrealarchive.content.addons.SimpleAddonRepository;
 import org.unrealarchive.content.wiki.WikiPage;
 import org.unrealarchive.content.wiki.WikiRepository;
 import org.unrealarchive.www.content.Packages;
@@ -47,13 +46,12 @@ public class MESSubmitter {
 	private static final String ADD_BATCH_ENDPOINT = "/index/addBatch";
 
 	public void submit(
-		SimpleAddonRepository contentRepo, GameTypeRepository gametypeRepo,
-		String rootUrl, String mseUrl, String mseToken, int batchSize,
+		RepositoryManager repos, String rootUrl, String mseUrl, String mseToken, int batchSize,
 		Consumer<Double> progress, Consumer<Boolean> done
 	) throws IOException {
 		Collection<ContentEntity<?>> contents = new HashSet<>();
-		contents.addAll(contentRepo.all(false));
-		contents.addAll(gametypeRepo.all());
+		contents.addAll(repos.addons().all(false));
+		contents.addAll(repos.gameTypes().all());
 		Path root = Paths.get("");
 		final int count = contents.size();
 		int i = 0;
@@ -94,14 +92,12 @@ public class MESSubmitter {
 	}
 
 	public void submitPackages(
-		SimpleAddonRepository contentRepo, GameTypeRepository gametypeRepo,
-		String rootUrl, String mseUrl, String mseToken, int batchSize,
+		RepositoryManager repos, String rootUrl, String mseUrl, String mseToken, int batchSize,
 		Consumer<Double> progress, Consumer<Boolean> done
 	) {
-		Map<Games, Map<String, Map<Addon.ContentFile, List<ContentEntity<?>>>>> contents = Packages.loadContentFiles(contentRepo,
-																													 gametypeRepo);
+		Map<Games, Map<String, Map<Addon.ContentFile, List<ContentEntity<?>>>>> contents = Packages.loadContentFiles(repos);
 
-		final int count = contents.values().stream().mapToInt(p -> p.keySet().size()).sum();
+		final int count = contents.values().stream().mapToInt(Map::size).sum();
 		final int[] i = { 0 };
 
 		final List<Map<String, Object>> batchDocs = new ArrayList<>(batchSize);
@@ -123,7 +119,7 @@ public class MESSubmitter {
 								.collect(Collectors.joining(", ")),
 					"versions", file.size(),
 					"uses", file.values().stream().mapToInt(List::size).sum(),
-					"url", String.format("/%s/packages/%s/index.html", Util.slug(game.name), Util.slug(pkg)),
+					"url", String.format("%s/%s/packages/%s/index.html", rootUrl, Util.slug(game.name), Util.slug(pkg)),
 					"keywords", String.join(" ", game.tags)
 				)
 			);
@@ -146,11 +142,11 @@ public class MESSubmitter {
 		done.accept(true);
 	}
 
-	public void submit(WikiRepository wikiManager, String rootUrl, String mseUrl, String mseToken, int batchSize,
-					   Consumer<Double> progress, Consumer<Boolean> done) throws IOException {
+	public void submitWiki(RepositoryManager repos, String rootUrl, String mseUrl, String mseToken, int batchSize,
+						   Consumer<Double> progress, Consumer<Boolean> done) throws IOException {
 		Set<String> stopWords = stopWords();
 
-		for (WikiRepository.Wiki wiki : wikiManager.all()) {
+		for (WikiRepository.Wiki wiki : repos.wikis().all()) {
 			int i = 0;
 
 			Set<WikiPage> candidates = wiki.all().parallelStream()
@@ -204,6 +200,9 @@ public class MESSubmitter {
 				if (i % 100 == 0) progress.accept((double)i / (double)(candidates.size()));
 			}
 		}
+
+		progress.accept(1.0d);
+		done.accept(true);
 	}
 
 	private static Set<String> stopWords() throws IOException {

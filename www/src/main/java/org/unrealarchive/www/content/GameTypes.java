@@ -16,10 +16,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.unrealarchive.common.Util;
+import org.unrealarchive.content.RepositoryManager;
 import org.unrealarchive.content.addons.Addon;
 import org.unrealarchive.content.addons.GameType;
-import org.unrealarchive.content.addons.GameTypeRepository;
-import org.unrealarchive.content.addons.SimpleAddonRepository;
 import org.unrealarchive.www.Markdown;
 import org.unrealarchive.www.PageGenerator;
 import org.unrealarchive.www.SiteFeatures;
@@ -35,30 +34,28 @@ public class GameTypes implements PageGenerator {
 
 	private static final int THUMB_WIDTH = 350;
 
-	private final GameTypeRepository gametypes;
-	private final SimpleAddonRepository content;
+	private final RepositoryManager repos;
 	private final Path root;
 	private final Path staticRoot;
 	private final SiteFeatures features;
 
-	public GameTypes(GameTypeRepository gametypes, SimpleAddonRepository content, Path root, Path staticRoot, SiteFeatures features) {
-		this.gametypes = gametypes;
-		this.content = content;
+	public GameTypes(RepositoryManager repos, Path root, Path staticRoot, SiteFeatures features) {
+		this.repos = repos;
 		this.root = root;
 		this.staticRoot = staticRoot;
 		this.features = features;
 	}
 
-	private Map<String, Game> loadGames(GameTypeRepository gametypes) {
+	private Map<String, Game> loadGames() {
 		final Map<String, Game> games = new TreeMap<>();
 
-		gametypes.all().stream()
-				 .filter(g -> !g.isVariation())
-				 .sorted()
-				 .forEach(d -> {
-					 Game game = games.computeIfAbsent(d.game, Game::new);
-					 game.add(d, gametypes.variations(d).stream().sorted().toList());
-				 });
+		repos.gameTypes().all().stream()
+			 .filter(g -> !g.isVariation())
+			 .sorted()
+			 .forEach(d -> {
+				 Game game = games.computeIfAbsent(d.game, Game::new);
+				 game.add(d, repos.gameTypes().variations(d).stream().sorted().toList());
+			 });
 
 		return games;
 	}
@@ -68,7 +65,7 @@ public class GameTypes implements PageGenerator {
 	 */
 	@Override
 	public Set<SiteMap.Page> generate() {
-		final Map<String, Game> games = loadGames(gametypes);
+		final Map<String, Game> games = loadGames();
 
 		Templates.PageSet pages = new Templates.PageSet("content/gametypes", features, root, staticRoot);
 		try {
@@ -98,10 +95,10 @@ public class GameTypes implements PageGenerator {
 
 	private void generateGameType(Templates.PageSet pages, GameTypeInfo gametype) throws IOException {
 //		final Path sourcePath = gametypes.path(gametype.gametype).getParent();
-		try (ReadableByteChannel docChan = this.gametypes.document(gametype.gametype)) {
+		try (ReadableByteChannel docChan = repos.gameTypes().document(gametype.gametype)) {
 			final Path outPath = Files.isDirectory(gametype.path) ? gametype.path : Files.createDirectories(gametype.path);
-			// copy contents to output directory
-			gametypes.writeContent(gametype.gametype, outPath);
+			// copy contents to the output directory
+			repos.gameTypes().writeContent(gametype.gametype, outPath);
 
 			// create gallery thumbnails
 			gametype.buildGallery(outPath);
@@ -207,7 +204,7 @@ public class GameTypes implements PageGenerator {
 					if (file.deleted) continue;
 					Map<String, Integer> fileMap = filesAlsoIn.computeIfAbsent(slug(file.originalFilename), s -> new HashMap<>());
 					for (Addon.ContentFile cf : file.files) {
-						int alsoInCount = content.containingFileCount(cf.hash);
+						int alsoInCount = repos.addons().containingFileCount(cf.hash);
 						if (alsoInCount > 0) fileMap.put(cf.hash, alsoInCount);
 					}
 				}

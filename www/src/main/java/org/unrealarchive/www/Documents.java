@@ -12,8 +12,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.unrealarchive.content.RepositoryManager;
 import org.unrealarchive.content.docs.Document;
-import org.unrealarchive.content.docs.DocumentRepository;
 
 import static org.unrealarchive.common.Util.slug;
 
@@ -21,27 +21,27 @@ public class Documents implements PageGenerator {
 
 	private static final String SECTION = "Guides & Reference";
 
-	private final DocumentRepository documents;
+	private final RepositoryManager repos;
 	private final Path root;
 	private final Path staticRoot;
 	private final SiteFeatures features;
 
-	public Documents(DocumentRepository documents, Path root, Path staticRoot, SiteFeatures features) {
-		this.documents = documents;
+	public Documents(RepositoryManager repos, Path root, Path staticRoot, SiteFeatures features) {
+		this.repos = repos;
 		this.root = root;
 		this.staticRoot = staticRoot;
 		this.features = features;
 	}
 
-	private Map<String, Game> loadGames(DocumentRepository documents) {
+	private Map<String, Game> loadGames() {
 		final Map<String, Game> groups = new HashMap<>();
-		documents.all().stream()
-				 .filter(d -> d.published)
-				 .sorted(Comparator.reverseOrder())
-				 .forEach(d -> {
-					 Game game = groups.computeIfAbsent(d.game, Game::new);
-					 game.add(d);
-				 });
+		repos.docs().all().stream()
+			 .filter(d -> d.published)
+			 .sorted(Comparator.reverseOrder())
+			 .forEach(d -> {
+				 Game game = groups.computeIfAbsent(d.game, Game::new);
+				 game.add(d);
+			 });
 		return groups;
 	}
 
@@ -50,7 +50,7 @@ public class Documents implements PageGenerator {
 	 */
 	@Override
 	public Set<SiteMap.Page> generate() {
-		final Map<String, Game> games = loadGames(documents);
+		final Map<String, Game> games = loadGames();
 
 		Templates.PageSet pages = new Templates.PageSet("documents", features, root, staticRoot);
 		try {
@@ -88,11 +88,11 @@ public class Documents implements PageGenerator {
 	}
 
 	private void generateDocument(Templates.PageSet pages, DocumentInfo doc) throws IOException {
-		try (ReadableByteChannel docChan = this.documents.document(doc.document)) {
+		try (ReadableByteChannel docChan = repos.docs().document(doc.document)) {
 
 			// copy content of directory to www output
 			final Path path = Files.createDirectories(doc.path);
-			this.documents.writeContent(doc.document, path);
+			repos.docs().writeContent(doc.document, path);
 
 			final String page = Markdown.renderMarkdown(docChan);
 
@@ -132,6 +132,7 @@ public class Documents implements PageGenerator {
 	}
 
 	public class Group {
+
 		public final String name;
 		public final String slug;
 		public final Path path;

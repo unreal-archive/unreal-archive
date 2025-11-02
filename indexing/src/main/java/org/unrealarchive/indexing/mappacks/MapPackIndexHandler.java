@@ -23,6 +23,7 @@ import net.shrimpworks.unreal.packages.entities.properties.Property;
 import net.shrimpworks.unreal.packages.entities.properties.StringProperty;
 
 import org.unrealarchive.common.Util;
+import org.unrealarchive.content.Author;
 import org.unrealarchive.content.Authors;
 import org.unrealarchive.content.FileType;
 import org.unrealarchive.content.Games;
@@ -110,10 +111,15 @@ public class MapPackIndexHandler implements IndexHandler<MapPack> {
 		m.author = UNKNOWN;
 		for (MapPack.PackMap map : m.maps) {
 			if (m.author.equals(UNKNOWN)) {
-				m.author = Authors.byName(map.author).name;
-			} else if (!Authors.byName(m.author).name.equalsIgnoreCase(Authors.byName(map.author).name)) {
-				m.author = "Various";
-				break;
+				Author author = Authors.byName(map.author);
+				m.author = author != null ? author.name : UNKNOWN;
+			} else {
+				Author packAuthor = Authors.byName(m.author);
+				Author mapAuthor = Authors.byName(map.author);
+				if (packAuthor != mapAuthor) {
+					m.author = "Various";
+					break;
+				}
 			}
 		}
 
