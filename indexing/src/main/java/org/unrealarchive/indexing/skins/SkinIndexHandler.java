@@ -114,6 +114,10 @@ public class SkinIndexHandler implements IndexHandler<Skin> {
 						Object o = e.object();
 						if (o instanceof Texture) {
 							Texture.MipMap[] mipMaps = ((Texture)o).mipMaps();
+
+							if (mipMaps.length == 0) return;
+							if (mipMaps[0].size <= 0 || mipMaps[0].width == 0 || mipMaps[0].height == 0 || mipMaps[0].width > 1024 || mipMaps[0].height > 1024 ) return;
+
 							images.add(mipMaps[0].get());
 						}
 					} catch (Exception e) {
