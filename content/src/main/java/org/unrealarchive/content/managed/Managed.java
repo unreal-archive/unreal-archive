@@ -1,6 +1,7 @@
 package org.unrealarchive.content.managed;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -67,8 +68,8 @@ public class Managed implements ContentEntity<Managed> {
 	}
 
 	@Override
-	public String id() {
-		return String.format("%s_%s_%s", Util.slug(game), Util.slug(group), Util.slug(title));
+	public ContentId id() {
+		return new ContentId("MANAGED", String.format("%s_%s_%s", Util.slug(game), Util.slug(group), Util.slug(title)));
 	}
 
 	@Override
@@ -146,7 +147,8 @@ public class Managed implements ContentEntity<Managed> {
 
 	@Override
 	public String leadImage() {
-		return titleImage;
+		if (titleImage == null || titleImage.isBlank()) return "";
+		return slugPath(Paths.get("")).resolve(titleImage).toString();
 	}
 
 	@Override

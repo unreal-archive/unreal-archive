@@ -67,8 +67,8 @@ public class GameType implements ContentEntity<GameType> {
 	private transient AuthorInfo authorInfo;
 
 	@Override
-	public String id() {
-		return String.format("%s_%s", Util.slug(game), Util.slug(name));
+	public ContentId id() {
+		return new ContentId("GAMETYPE", String.format("%s_%s", Util.slug(game), Util.slug(name)));
 	}
 
 	@Override

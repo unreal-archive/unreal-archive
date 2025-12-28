@@ -37,6 +37,10 @@
 		<meta property="og:image" content="${staticPath()}/images/logo-96.png">
 	</#if>
 
+	<#if ogId??>
+		<meta property="og:id" content="${ogId}">
+	</#if>
+
 	<meta property="og:type" content="website">
 
   <#if (schemaItemName!"")?length gt 0 && (schemaItemAuthor!"")?length gt 0>

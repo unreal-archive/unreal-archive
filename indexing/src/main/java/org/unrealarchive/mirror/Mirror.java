@@ -16,6 +16,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.unrealarchive.common.Util;
+import org.unrealarchive.content.CollectionsRepository;
+import org.unrealarchive.content.ContentCollection;
 import org.unrealarchive.content.ContentEntity;
 import org.unrealarchive.content.Download;
 import org.unrealarchive.content.addons.Addon;
@@ -24,6 +26,7 @@ import org.unrealarchive.content.addons.GameTypeRepository;
 import org.unrealarchive.content.addons.SimpleAddonRepository;
 import org.unrealarchive.content.managed.Managed;
 import org.unrealarchive.content.managed.ManagedContentRepository;
+import org.unrealarchive.indexing.CollectionsManager;
 import org.unrealarchive.indexing.ContentManager;
 import org.unrealarchive.indexing.GameTypeManager;
 import org.unrealarchive.indexing.IndexResult;
@@ -37,6 +40,7 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 	private final ContentManager cm;
 	private final GameTypeManager gm;
 	private final ManagedContentManager mm;
+	private final CollectionsManager colm;
 	private final DataStore mirrorStore;
 
 	private Deque<ContentEntity<?>> content;
@@ -53,10 +57,12 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 
 	public Mirror(SimpleAddonRepository repo, ContentManager cm, GameTypeRepository gametypes, GameTypeManager gm,
 				  ManagedContentRepository managed, ManagedContentManager mm,
+				  CollectionsRepository collections, CollectionsManager colm,
 				  DataStore mirrorStore, int concurrency, LocalDate since, LocalDate until, Progress progress) {
 		this.cm = cm;
 		this.gm = gm;
 		this.mm = mm;
+		this.colm = colm;
 		this.mirrorStore = mirrorStore;
 
 		final LocalDate sinceFilter = since.minusDays(1);
@@ -66,7 +72,10 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 								 repo.all().stream(),
 								 Stream.concat(
 									 gametypes.all().stream(),
-									 managed.all().stream()
+									 Stream.concat(
+										 managed.all().stream(),
+										 collections.all().stream()
+									 )
 								 )
 							 )
 							 .filter(c -> c.addedDate().toLocalDate().isAfter(sinceFilter))
@@ -175,6 +184,7 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 					case Addon addon -> mirrorContent(addon);
 					case GameType gameType -> mirrorGameType(gameType);
 					case Managed managed -> mirrorManaged(managed);
+					case ContentCollection collection -> mirrorCollection(collection);
 					case null, default -> System.out.printf("%nContent mirroring not yet supported for type %s: %s%n",
 															content.getClass().getSimpleName(), content.name());
 				}
@@ -214,6 +224,36 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 				}
 			}
 			mm.checkin(clone);
+		}
+
+		private void mirrorCollection(ContentCollection collection) throws MirrorFailedException {
+			ContentCollection clone = colm.checkout(collection);
+			for (ContentCollection.CollectionArchive archive : clone.archives) {
+				try {
+					Path localFile = Paths.get(archive.localFile);
+					final boolean hasLocalFile = Files.exists(localFile);
+					if (!hasLocalFile) {
+						Download dl = archive.directDownload();
+						localFile = Util.downloadTo(
+							dl.url.replaceAll(" ", "%20"),
+							Files.createTempDirectory("ua-mirror").resolve(archive.originalFilename)
+						);
+					}
+
+					try {
+						boolean[] success = { false };
+						colm.storeArchiveFile(clone, archive, localFile, success);
+						if (!success[0]) {
+							throw new MirrorFailedException("Mirror of collection archive failed", null, archive.originalFilename, clone);
+						}
+					} finally {
+						if (!hasLocalFile) Files.deleteIfExists(localFile);
+					}
+				} catch (Exception ex) {
+					throw new MirrorFailedException(ex.getMessage(), ex, archive.originalFilename, clone);
+				}
+			}
+			colm.checkin(clone);
 		}
 
 		private void mirrorGameType(GameType gameType) throws MirrorFailedException {

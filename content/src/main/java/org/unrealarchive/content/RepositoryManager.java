@@ -32,6 +32,7 @@ public class RepositoryManager {
 	private static final String MANAGED_DIR = "managed";
 	private static final String AUTHORS_DIR = "authors";
 	private static final String WIKIS_DIR = "wikis";
+	private static final String COLLECTIONS_DIR = "collections";
 
 	private static final Path TMP = Paths.get(System.getProperty("java.io.tmpdir"));
 	private static final String CONTENT_URL = System.getenv().getOrDefault("UA_CONTENT_URL",
@@ -45,6 +46,7 @@ public class RepositoryManager {
 	private volatile AuthorRepository authorRepository;
 	private volatile WikiRepository wikiRepository;
 	private volatile GameTypeRepository gameTypeRepository;
+	private volatile CollectionsRepository collectionsRepository;
 
 	/**
 	 * Create a new RepositoryManager instance.
@@ -81,6 +83,20 @@ public class RepositoryManager {
 			}
 		}
 		return gameTypeRepository;
+	}
+
+	/**
+	 * Get the CollectionsRepository instance, creating it if necessary.
+	 *
+	 * @return CollectionsRepository instance
+	 */
+	public CollectionsRepository collections() {
+		if (collectionsRepository == null) {
+			synchronized (COLLECTIONS_DIR) {
+				if (collectionsRepository == null) collectionsRepository = createCollectionsRepo();
+			}
+		}
+		return collectionsRepository;
 	}
 
 	/**
@@ -137,6 +153,23 @@ public class RepositoryManager {
 			}
 		}
 		return wikiRepository;
+	}
+
+	/**
+	 * Get a ContentEntity by its ID.
+	 *
+	 * @param id Content ID
+	 * @return ContentEntity instance, or null if not found
+	 */
+	public ContentEntity<?> forId(String id) {
+		ContentEntity.ContentId contentId = ContentEntity.ContentId.of(id);
+		if (contentId.type().equalsIgnoreCase("GAMETYPE")) {
+			return gameTypes().forId(contentId.id());
+		} else if (contentId.type().equalsIgnoreCase("MANAGED")) {
+			return managed().forId(contentId.id());
+		} else {
+			return addons().forHash(contentId.id());
+		}
 	}
 
 	// Private methods moved from RepoFactory
@@ -197,6 +230,20 @@ public class RepositoryManager {
 			return managedContentManager;
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to initialize managed content repository", e);
+		}
+	}
+
+	private CollectionsRepository createCollectionsRepo() {
+		try {
+			Path contentPath = getContentPath();
+
+			final long start = System.currentTimeMillis();
+			final CollectionsRepository repo = new CollectionsRepository.FileRepository(contentPath.resolve(COLLECTIONS_DIR));
+			System.err.printf("Loaded collections index with %d items in %.2fs%n",
+							  repo.size(), (System.currentTimeMillis() - start) / 1000f);
+			return repo;
+		} catch (IOException e) {
+			throw new RuntimeException("Failed to initialize collections repository", e);
 		}
 	}
 

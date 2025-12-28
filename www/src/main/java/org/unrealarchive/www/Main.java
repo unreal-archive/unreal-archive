@@ -30,7 +30,6 @@ import org.unrealarchive.www.features.Search;
 import org.unrealarchive.www.features.Submit;
 import org.unrealarchive.www.features.UmodRepack;
 
-
 public class Main {
 
 	static {
@@ -86,11 +85,12 @@ public class Main {
 		final boolean withPackages = Boolean.parseBoolean(cli.option("with-packages", "false"));
 		final boolean withWikis = Boolean.parseBoolean(cli.option("with-wikis", "false"));
 		final boolean withUmod = Boolean.parseBoolean(cli.option("with-umod", "false"));
+		final boolean withCollections = Boolean.parseBoolean(cli.option("with-collections", "false"));
 
 		final boolean localImages = Boolean.parseBoolean(cli.option("local-images", "false"));
 		if (localImages) System.out.println("Will download a local copy of content images, this will take additional time.");
 
-		final SiteFeatures features = new SiteFeatures(localImages, withLatest, withSubmit, withSearch, withFiles, withWikis, withUmod);
+		final SiteFeatures features = new SiteFeatures(localImages, withLatest, withSubmit, withSearch, withFiles, withWikis, withUmod, withCollections);
 
 		final Path staticOutput = outputPath.resolve("static");
 
@@ -151,6 +151,7 @@ public class Main {
 		if (features.umod) generators.add(new UmodRepack(outputPath, staticOutput, features));
 		if (features.latest) generators.add(new Latest(repos, outputPath, staticOutput, features));
 		if (features.files) generators.add(new FileDetails(repos, outputPath, staticOutput, features));
+		if (features.collections) generators.add(new org.unrealarchive.www.Collections(repos, outputPath, staticOutput, features));
 
 		try (ForkJoinPool myPool = new ForkJoinPool(Integer.parseInt(cli.option("concurrency", "4")))) {
 			myPool.submit(() -> generators.parallelStream().forEach(g -> {

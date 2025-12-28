@@ -6,6 +6,7 @@
 
 <#assign group=managed.subGroup.parent>
 <#assign subgroup=managed.subGroup>
+<#assign ogId="${managed.managed.id}">
 
 <#assign ogDescription=managed.managed.description>
 <#assign ogImage=headerbg>

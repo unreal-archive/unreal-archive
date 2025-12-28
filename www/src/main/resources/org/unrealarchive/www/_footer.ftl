@@ -20,6 +20,9 @@
 </div>
 
 <script src="${staticPath()}/scripts/lb.js"></script>
+<#if features?? && features.collections>
+	<script src="${staticPath()}/scripts/collections.js"></script>
+</#if>
 
 </body>
 </html>

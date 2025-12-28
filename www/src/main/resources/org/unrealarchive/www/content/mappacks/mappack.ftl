@@ -8,6 +8,7 @@
 
 <#assign ogDescription="${pack.item.autoDescription}">
 <#assign ogImage=headerbg>
+<#assign ogId="${pack.item.id}">
 
 <#assign schemaItemName="${pack.item.name}">
 <#assign schemaItemAuthor="${pack.item.authorName}">

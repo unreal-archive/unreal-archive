@@ -7,6 +7,7 @@
 
 <#assign ogDescription="${skin.item.autoDescription}">
 <#assign ogImage=headerbg>
+<#assign ogId="${skin.item.id}">
 
 <#assign schemaItemName="${skin.item.name}">
 <#assign schemaItemAuthor="${skin.item.authorName}">

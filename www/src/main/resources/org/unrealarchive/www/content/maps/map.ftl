@@ -8,6 +8,7 @@
 
 <#assign ogDescription="${map.item.autoDescription}">
 <#assign ogImage=headerbg>
+<#assign ogId="${map.item.id}">
 
 <#assign schemaItemName="${map.item.name}">
 <#assign schemaItemAuthor="${map.item.authorName}">

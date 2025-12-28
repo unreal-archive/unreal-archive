@@ -28,11 +28,14 @@ import java.util.stream.Stream;
 import net.shrimpworks.unreal.packages.Umod;
 
 import org.unrealarchive.common.CLI;
+import org.unrealarchive.common.Platform;
 import org.unrealarchive.common.Util;
 import org.unrealarchive.common.Version;
 import org.unrealarchive.common.YAML;
 import org.unrealarchive.content.Author;
 import org.unrealarchive.content.AuthorRepository;
+import org.unrealarchive.content.CollectionsRepository;
+import org.unrealarchive.content.ContentCollection;
 import org.unrealarchive.content.FileType;
 import org.unrealarchive.content.Games;
 import org.unrealarchive.content.RepositoryManager;
@@ -43,6 +46,7 @@ import org.unrealarchive.content.addons.SimpleAddonRepository;
 import org.unrealarchive.content.addons.SimpleAddonType;
 import org.unrealarchive.content.managed.ManagedContentRepository;
 import org.unrealarchive.content.wiki.WikiRepository;
+import org.unrealarchive.indexing.CollectionsManager;
 import org.unrealarchive.indexing.ContentEditor;
 import org.unrealarchive.indexing.ContentManager;
 import org.unrealarchive.indexing.GameTypeManager;
@@ -89,10 +93,12 @@ public class Main {
 			case "gametype" -> gametype(repos.gameTypes(), gameTypeManager(cli, repos.gameTypes()), cli);
 			case "managed" -> managed(repos.managed(), managedContentManager(cli, repos.managed()), cli);
 			case "authors" -> authors(repos.authors(), cli);
+			case "collection" -> collection(repos, collectionsManager(cli, repos, repos.collections()), cli);
 			case "mirror" -> {
 				mirror(repos.addons(), contentManager(cli, repos.addons()),
 					   repos.gameTypes(), gameTypeManager(cli, repos.gameTypes()),
 					   repos.managed(), managedContentManager(cli, repos.managed()),
+					   repos.collections(), collectionsManager(cli, repos, repos.collections()),
 					   cli);
 			}
 			case "local-mirror" -> localMirror(repos.addons(), cli);
@@ -161,6 +167,70 @@ public class Main {
 			}
 		}));
 		return new GameTypeManager(repo, contentStore, imageStore);
+	}
+
+	private static CollectionsManager collectionsManager(CLI cli, RepositoryManager repos, CollectionsRepository repo) {
+		final DataStore contentStore = store(DataStore.StoreContent.CONTENT, cli);
+
+		// prepare cleanup
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+			try {
+				contentStore.close();
+			} catch (IOException e) {
+				//
+			}
+		}));
+		return new CollectionsManager(repos, repo, contentStore);
+	}
+
+	private static void collection(RepositoryManager repos, CollectionsManager collections, CLI cli) throws IOException {
+		if (cli.commands().length < 2) {
+			usage();
+			System.exit(1);
+		}
+
+		switch (cli.commands()[1].toLowerCase()) {
+			case "archive" -> {
+				if (cli.commands().length < 3) {
+					usage();
+					System.exit(1);
+				}
+
+				String collectionName = cli.commands()[2];
+				Platform platform = cli.commands().length > 3 ? Platform.valueOf(cli.commands()[3].toUpperCase()) : Platform.ANY;
+
+				ContentCollection collection = collections.repo().find(collectionName);
+				if (collection == null) {
+					System.err.printf("Collection \"%s\" not found!%n", collectionName);
+					System.exit(1);
+				}
+
+				ContentCollection checkout = collections.checkout(collection);
+				Path archive = collections.createArchive(checkout, platform);
+				collections.checkin(checkout);
+
+				System.out.println(archive.toString());
+			}
+			case "sync" -> {
+				if (cli.commands().length < 3) {
+					for (ContentCollection collection : collections.repo().all()) {
+						collections.sync(collection);
+					}
+				} else {
+					String collectionName = cli.commands()[2];
+					ContentCollection collection = collections.repo().find(collectionName);
+					if (collection == null) {
+						System.err.printf("Collection \"%s\" not found!%n", collectionName);
+						System.exit(1);
+					}
+					collections.sync(collection);
+				}
+			}
+			default -> {
+				usage();
+				System.exit(1);
+			}
+		}
 	}
 
 	public static DataStore store(DataStore.StoreContent contentType, CLI cli) {
@@ -525,6 +595,7 @@ public class Main {
 	private static void mirror(SimpleAddonRepository contentRepo, ContentManager contentManager,
 							   GameTypeRepository gameTypeRepo, GameTypeManager gameTypeManager,
 							   ManagedContentRepository managedRepo, ManagedContentManager managedManaged,
+							   CollectionsRepository collectionsRepo, CollectionsManager collectionsManager,
 							   CLI cli) {
 		final DataStore mirrorStore = store(DataStore.StoreContent.CONTENT, cli);
 
@@ -550,6 +621,7 @@ public class Main {
 
 		Mirror mirror = new Mirror(
 			contentRepo, contentManager, gameTypeRepo, gameTypeManager, managedRepo, managedManaged,
+			collectionsRepo, collectionsManager,
 			mirrorStore,
 			Integer.parseInt(cli.option("concurrency", "3")),
 			since, until,
@@ -847,6 +919,10 @@ public class Main {
 		System.out.println("    Set <attribute> to value <new-value> within the metadata of the <hash> provided.");
 		System.out.println("  gametype <...>");
 		System.out.println("    Utilities for managing gametype content. Run `gametype` with no arguments for help.");
+		System.out.println("  collection archive <collection> [platform]");
+		System.out.println("    Create an archive of a collection's items.");
+		System.out.println("  collection sync [collection]");
+		System.out.println("    Sync collection archives to remote storage.");
 		System.out.println("  local-mirror <output-path> [--content-path=<path> | --content-download] [--concurrency=<count>]");
 		System.out.println("    Create a local mirror of the content in <content-path> in local directory <output-path>.");
 		System.out.println("    Optionally specify the number of concurrent downloads via <count>, defaults to 3.");

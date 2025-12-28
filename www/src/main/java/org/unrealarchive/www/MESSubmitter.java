@@ -38,7 +38,7 @@ import org.unrealarchive.www.content.Packages;
 /**
  * Submits contents to Minimum Effort Search instance.
  * <p>
- * See https://github.com/shrimpza/minimum-effort-search
+ * See <a href="https://github.com/shrimpza/minimum-effort-search">Minimum Effort Search</a>
  */
 public class MESSubmitter {
 
@@ -60,7 +60,7 @@ public class MESSubmitter {
 
 		for (ContentEntity<?> content : contents) {
 			Map<String, Object> doc = Map.of(
-				"id", content.id(),
+				"id", content.id().toString(),
 				"score", content instanceof GameType ? 2.0d : 1.0d,
 				"fields", Map.of(
 					"name", content.name().replaceAll("-", "\\\\-"),

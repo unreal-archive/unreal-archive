@@ -8,6 +8,7 @@
 
 <#assign ogDescription=gametype.gametype.description>
 <#assign ogImage=headerbg>
+<#assign ogId="${gametype.gametype.id}">
 
 <#assign schemaItemName="${gametype.gametype.name}">
 <#assign schemaItemAuthor="${gametype.gametype.authorName}">

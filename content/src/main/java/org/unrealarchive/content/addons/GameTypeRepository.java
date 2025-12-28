@@ -29,6 +29,14 @@ public interface GameTypeRepository {
 
 	public Set<GameType> variations(GameType gameType);
 
+	/**
+	 * Lookup a GameType by its content ID string.
+	 * <p>
+	 * The provided ID may be either the full string form (e.g. "GAMETYPE:ut99_bunny-hunt")
+	 * or just the ID portion (e.g. "ut99_bunny-hunt").
+	 */
+	public GameType forId(String id);
+
 	public void create(Games game, String gameType, Consumer<GameType> completed);
 
 	public void put(GameType gameType) throws IOException;
@@ -109,6 +117,29 @@ public interface GameTypeRepository {
 							.filter(g -> g.variationOf != null && g.variationOf.gametype.equals(gameType))
 							.map(g -> g.gametype)
 							.collect(Collectors.toSet());
+		}
+
+		@Override
+		public GameType forId(String id) {
+			if (id == null || id.isBlank()) return null;
+			final String needle;
+			// allow either TYPE:id or just id
+			final int colon = id.indexOf(':');
+			if (colon > 0) {
+				final String type = id.substring(0, colon);
+				if (!"GAMETYPE".equalsIgnoreCase(type)) return null;
+				needle = id.substring(colon + 1);
+			} else {
+				needle = id;
+			}
+
+			final String match = needle.trim();
+			return gameTypes.stream()
+							.filter(g -> !g.gametype.deleted())
+							.map(g -> g.gametype)
+							.filter(gt -> gt.id().id().equalsIgnoreCase(match))
+							.findFirst()
+							.orElse(null);
 		}
 
 		@Override

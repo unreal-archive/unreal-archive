@@ -9,7 +9,7 @@ import org.unrealarchive.content.addons.HasAuthors;
 
 public interface ContentEntity<T extends ContentEntity<T>> extends Comparable<ContentEntity<?>>, HasAuthors {
 
-	public String id();
+	public ContentId id();
 
 	public Path contentPath(Path root);
 
@@ -58,4 +58,15 @@ public interface ContentEntity<T extends ContentEntity<T>> extends Comparable<Co
 		return name().compareToIgnoreCase(o.name());
 	}
 
+	record ContentId(String type, String id) {
+
+		public static ContentId of(String id) {
+			return new ContentId(id.substring(0, id.indexOf(':')), id.substring(id.indexOf(':') + 1));
+		}
+
+		@Override
+		public String toString() {
+			return String.format("%s:%s", type, id);
+		}
+	}
 }

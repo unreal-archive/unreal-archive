@@ -70,6 +70,29 @@ public class ManagedContentTest {
 		}
 	}
 
+	@Test
+	public void forIdLookup() throws IOException {
+		final Managed man = mockContent();
+
+		// create a simple on-disk structure containing a test content and metadata
+		final Path outPath = Files.createDirectories(tempDir.resolve("testId"));
+		Files.writeString(outPath.resolve("managed.yml"), YAML.toString(man), StandardOpenOption.CREATE);
+
+		final ManagedContentRepository repo = new ManagedContentRepository.FileRepository(tempDir);
+
+		// lookup by raw id
+		final String rawId = man.id().id();
+		Managed byRaw = repo.forId(rawId);
+		assertNotNull(byRaw);
+		assertEquals(man, byRaw);
+
+		// lookup by full typed id
+		final String fullId = man.id().toString();
+		Managed byFull = repo.forId(fullId);
+		assertNotNull(byFull);
+		assertEquals(man, byFull);
+	}
+
 	private Managed mockContent() {
 		final Managed man = new Managed();
 		man.createdDate = LocalDate.now().minusDays(3);

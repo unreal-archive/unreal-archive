@@ -2,9 +2,9 @@
 	<#compress>
 	<#t/><#assign bgimg>
 		<#t/><#if bg?? && bg?size gt 0>
-			<#t/><#list bg as b>
+			<#t/><#list bg as b><#if b?has_content>
 			<#t/>url("${b}")
-			<#t/><#if b?has_next>,</#if>
+			<#t/><#if b?has_next>,</#if></#if>
 			<#t/></#list>
 		<#t/></#if>
 	<#t/></#assign>

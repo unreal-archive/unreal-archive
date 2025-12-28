@@ -88,8 +88,8 @@ public abstract class Addon implements ContentEntity<Addon> {
 	private transient AuthorInfo authorInfo;
 
 	@Override
-	public String id() {
-		return hash;
+	public ContentId id() {
+		return new ContentId(contentType, hash);
 	}
 
 	/**
@@ -240,7 +240,7 @@ public abstract class Addon implements ContentEntity<Addon> {
 	}
 
 	public Download directDownload() {
-		return downloads.stream().filter(d -> d.direct).findAny()
+		return downloads.stream().filter(d -> d.direct).filter(d -> !d.url.contains("vohzd")).findAny()
 						.orElseThrow(() -> new IllegalStateException(
 							String.format("Could not find a direct download for content %s!", name())
 						));

@@ -372,6 +372,11 @@ section.header .crumbs:not(:first-child) {
 	display: inline;
 }
 
+.biglist .crumbs {
+	font-size: 0.6em;
+	display: block;
+}
+
 /** authors collection */
 .authors {}
 /** solo original author */

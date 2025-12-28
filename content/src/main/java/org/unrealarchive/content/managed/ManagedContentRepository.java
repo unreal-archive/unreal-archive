@@ -37,6 +37,14 @@ public interface ManagedContentRepository {
 	 */
 	public Collection<Managed> all();
 
+	/**
+	 * Lookup a Managed content entry by its content ID string.
+	 * <p>
+	 * The provided ID may be either the full string form (e.g. "MANAGED:ut99_patches_brush-importer")
+	 * or just the ID portion (e.g. "ut99_patches_brush-importer").
+	 */
+	public Managed forId(String id);
+
 	void put(Managed managed) throws IOException;
 
 	void create(Games game, String group, String path, String title, Consumer<Managed> initialised)
@@ -92,6 +100,27 @@ public interface ManagedContentRepository {
 		@Override
 		public Collection<Managed> all() {
 			return Collections.unmodifiableCollection(content.keySet());
+		}
+
+		@Override
+		public Managed forId(String id) {
+			if (id == null || id.isBlank()) return null;
+			final String needle;
+			final int colon = id.indexOf(':');
+			if (colon > 0) {
+				final String type = id.substring(0, colon);
+				if (!"MANAGED".equalsIgnoreCase(type)) return null;
+				needle = id.substring(colon + 1);
+			} else {
+				needle = id;
+			}
+
+			final String match = needle.trim();
+			return content.keySet().stream()
+						  .filter(m -> !m.deleted())
+						  .filter(m -> m.id().id().equalsIgnoreCase(match))
+						  .findFirst()
+						  .orElse(null);
 		}
 
 		@Override

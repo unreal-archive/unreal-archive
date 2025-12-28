@@ -7,6 +7,7 @@
 
 <#assign ogDescription="${mutator.item.autoDescription}">
 <#assign ogImage=headerbg>
+<#assign ogId="${mutator.item.id}">
 
 <#assign schemaItemName="${mutator.item.name}">
 <#assign schemaItemAuthor="${mutator.item.authorName}">

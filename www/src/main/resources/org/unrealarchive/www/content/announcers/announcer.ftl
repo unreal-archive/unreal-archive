@@ -7,6 +7,7 @@
 
 <#assign ogDescription="${announcer.item.autoDescription}">
 <#assign ogImage=headerbg>
+<#assign ogId="${announcer.item.id}">
 
 <#assign schemaItemName="${announcer.item.name}">
 <#assign schemaItemAuthor="${announcer.item.authorName}">
