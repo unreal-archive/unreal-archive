@@ -42,7 +42,7 @@
 				<p>
 					${gameTypeInfo.description}
 					<br/>
-					<a href="${relPath(gameTypeInfoPath + "/index.html")}" class="infoButton">${gameTypeInfo.name}</a>
+					<a href="${relPath(gameTypeInfoPath + "/index.html")}" class="infoButton">More about ${gameTypeInfo.name}...</a>
 				</p>
 				<#if gtBg?has_content>
 					<img src="${gtBg}" alt="${gameTypeInfo.name}"/>

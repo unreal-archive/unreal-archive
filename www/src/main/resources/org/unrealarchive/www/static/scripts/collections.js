@@ -29,13 +29,10 @@
 		const root = document.getElementById('local-collections-root');
 		if (!root) return;
 
-		const render = () => {
-			const data = load();
-			root.innerHTML = '';
+		function setupNewButton() {
+			const btn = document.getElementById('new-collection-btn');
+			if (!btn) return;
 
-			const btn = document.createElement('button');
-			btn.type = 'button';
-			btn.textContent = 'New Collection';
 			btn.addEventListener('click', () => {
 				const list = load();
 				list.unshift(ensureCreatedDate({
@@ -49,47 +46,47 @@
 				save(list);
 				render();
 			});
+		}
+
+		const render = () => {
+			const data = load();
+			root.innerHTML = '';
 
 			if (data.length === 0) {
 				const p = document.createElement('p');
-				p.textContent = 'This browser has no local collections yet.';
+				p.textContent = 'Nothing here yet.';
 				root.appendChild(p);
-				const p2 = document.createElement('p');
-				p2.appendChild(btn);
-				root.appendChild(p2);
 				return;
 			}
 
-			const ul = document.createElement('ul');
+			const outer = document.createElement('div');
 			data.forEach((c, idx) => {
-				const li = document.createElement('li');
-				const h = document.createElement('div');
+				const inner = document.createElement('div');
+				inner.className = 'collection';
+
+				const h = document.createElement('h3');
 				h.className = 'title';
 				h.textContent = c.title || 'Untitled Collection';
-				li.appendChild(h);
-
-				const meta = document.createElement('div');
-				meta.className = 'meta';
-				meta.innerHTML = `${c.author || 'Unknown'} • ${c.createdDate || ''}`;
-				li.appendChild(meta);
+				inner.appendChild(h);
 
 				const form = document.createElement('div');
 				form.className = 'editor';
 				form.innerHTML = `
-          <div class="label-value"><label>Title</label><span><input type="text" value="${(c.title || '').replace(/"/g, '&quot;')}"></span></div>
-          <div class="label-value"><label>Author</label><span><input type="text" value="${(c.author || '').replace(/"/g, '&quot;')}"></span></div>
-          <div class="label-value"><label>Description</label><span><textarea rows="4">${(c.description || '').replace(/</g, '&lt;')}</textarea></span></div>
-
-          <div class="label-value">
-            <label>Items</label>
-            <span>
-              <div class="ua-items-meta"><span class="ua-items-count"></span></div>
-              <ul class="ua-items-list"></ul>
-            </span>
-          </div>
-
-          <div class="label-value"><button type="button" class="ua-del">Delete</button></div>
-        `;
+				  <div class="label-input"><label>Title</label><span><input type="text" value="${(c.title || '').replace(/"/g, '&quot;')}"></span></div>
+				  <div class="label-input"><label>Author</label><span><input type="text" value="${(c.author || '').replace(/"/g, '&quot;')}"></span></div>
+				  <div class="label-input"><label>Description</label><span><textarea rows="4">${(c.description || '').replace(/</g, '&lt;')}</textarea></span></div>
+				  <div class="label-input"><label>Cover Image</label><span><button type="button" class="col-img">Set Image</button></span></div>
+		
+				  <div class="label-input">
+					<label>Items in collection (${c.items.length})</label>
+					<span><ul class="ua-items-list"></ul></span>
+				  </div>
+		
+				  <div class="label-input"><span>
+					<button type="button" class="col-del">Delete Collection</button>
+					<button type="button" class="col-save">Finalise and Submit</button>
+				  </span></div>
+				`;
 
 				const [titleI, authorI, descI] = form.querySelectorAll('input,textarea');
 
@@ -103,7 +100,6 @@
 					const list = load();
 					list[idx].author = authorI.value;
 					save(list);
-					meta.innerHTML = `${authorI.value || 'Unknown'} • ${c.createdDate || ''}`;
 				});
 				descI.addEventListener('input', () => {
 					const list = load();
@@ -111,7 +107,6 @@
 					save(list);
 				});
 
-				const itemsCountEl = form.querySelector('.ua-items-count');
 				const itemsListEl = form.querySelector('.ua-items-list');
 
 				const renderItems = () => {
@@ -119,7 +114,6 @@
 					const coll = list[idx];
 					const items = (coll && Array.isArray(coll.items)) ? coll.items : [];
 
-					itemsCountEl.textContent = `${items.length} item(s)`;
 					itemsListEl.innerHTML = '';
 
 					if (items.length === 0) {
@@ -161,41 +155,38 @@
 
 				renderItems();
 
-				form.querySelector('.ua-del').addEventListener('click', () => {
-					const list = load();
-					list.splice(idx, 1);
-					save(list);
-					render();
+				form.querySelector('.col-del').addEventListener('click', () => {
+					if (confirm('Are you sure you want to delete this collection? This cannot be undone.')) {
+						const list = load();
+						list.splice(idx, 1);
+						save(list);
+						render();
+					}
+				});
+				form.querySelector('.col-save').addEventListener('click', () => {
+					if (confirm('Are you sure you want to submit this collection? Once submitted, it cannot be edited.')) {
+						console.log(JSON.stringify(c, null, 2));
+					}
 				});
 
-				li.appendChild(form);
-
-				// --- Image handling UI ---
-				const imageSection = document.createElement('div');
-				imageSection.className = 'collection-image';
+				const imgButton = form.querySelector('.col-img');
 				if (c.image) {
 					const img = document.createElement('img');
 					img.src = c.image;
 					img.style.maxWidth = '100px';
 					img.style.maxHeight = '100px';
-					imageSection.appendChild(img);
+					imgButton.parentNode.insertBefore(img, imgButton);
 
-					const removeBtn = document.createElement('button');
-					removeBtn.type = 'button';
-					removeBtn.textContent = 'Remove Image';
-					removeBtn.style.marginLeft = '8px';
-					removeBtn.addEventListener('click', () => {
+					imgButton.textContent = 'Remove Image';
+					imgButton.addEventListener('click', () => {
 						const list = load();
 						list[idx].image = null;
 						save(list);
 						render();
 					});
-					imageSection.appendChild(removeBtn);
 				} else {
-					const setBtn = document.createElement('button');
-					setBtn.type = 'button';
-					setBtn.textContent = 'Set Image';
-					setBtn.addEventListener('click', () => {
+					imgButton.textContent = 'Set Image';
+					imgButton.addEventListener('click', () => {
 						const input = document.createElement('input');
 						input.type = 'file';
 						input.accept = 'image/*';
@@ -217,25 +208,16 @@
 						};
 						input.click();
 					});
-					imageSection.appendChild(setBtn);
 				}
-				li.appendChild(imageSection);
 
-				const saveBtn = document.createElement('button');
-				saveBtn.type = 'button';
-				saveBtn.textContent = 'Save to console';
-				saveBtn.addEventListener('click', () => {
-					console.log(JSON.stringify(c, null, 2));
-				});
-				li.appendChild(saveBtn);
-
-				ul.appendChild(li);
+				inner.appendChild(form);
+				outer.appendChild(inner);
 			});
 
-			root.appendChild(btn);
-			root.appendChild(ul);
+			root.appendChild(outer);
 		};
 
+		setupNewButton();
 		render();
 	}
 
@@ -262,18 +244,10 @@
 		if (data.length === 0) return;
 
 		const wrap = document.createElement('div');
-		wrap.style.position = 'fixed';
-		wrap.style.right = '10px';
-		wrap.style.bottom = '10px';
-		wrap.style.zIndex = '9999';
-		wrap.style.background = 'var(--bg)';
-		wrap.style.border = '1px solid var(--border)';
-		wrap.style.padding = '6px 8px';
-		wrap.style.borderRadius = '4px';
+		wrap.className = 'collections-add';
 
 		const label = document.createElement('span');
 		label.textContent = 'Add to collection:';
-		label.style.marginRight = '6px';
 		wrap.appendChild(label);
 		const sel = document.createElement('select');
 		data.forEach((c, i) => {
@@ -287,7 +261,6 @@
 		const btn = document.createElement('button');
 		btn.type = 'button';
 		btn.textContent = 'Add';
-		btn.style.marginLeft = '6px';
 		btn.addEventListener('click', () => {
 			const list = load();
 			const chosen = list[parseInt(sel.value, 10)];
@@ -305,7 +278,8 @@
 		});
 		wrap.appendChild(btn);
 
-		document.body.appendChild(wrap);
+		const content = document.querySelector('.contentpage .content-body');
+		content.insertBefore(wrap, content.firstChild);
 	}
 
 	document.addEventListener('DOMContentLoaded', function() {

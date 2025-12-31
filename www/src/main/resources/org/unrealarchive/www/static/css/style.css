@@ -526,9 +526,10 @@ nav.letters a.active, nav.pages a.active {
 	box-shadow: var(--paginate-shadow-active);
 }
 
-.list .sectionInfo {
+.sectionInfo {
 	font-size: 1.1em;
 	padding: 0;
+	border-bottom: 1px solid var(--p4);
 
 	display: grid;
 	grid-template-columns: auto min-content;
@@ -536,28 +537,31 @@ nav.letters a.active, nav.pages a.active {
 		'top top'
     'desc pic';
 }
+.sectionInfo.box {
+	display: block;
+}
 
-.list .sectionInfo h3 {
+.sectionInfo h3 {
 	grid-area: top;
 }
 
-.list .sectionInfo p {
-	padding: 20px;
+.sectionInfo p {
+	padding: 10px;
 	margin: 0;
 	grid-area: desc;
 }
 
-.list .sectionInfo img {
+.sectionInfo img {
 	max-height: 120px;
 	grid-area: pic;
 	margin: 10px;
 }
 
-.list .sectionInfo .infoButton {
+.sectionInfo .infoButton {
 	background-color: var(--download-button-bg);
 	display: inline-block;
 	padding: 10px;
-	margin: 5px 0;
+	margin: 20px 0;
 	text-decoration: none;
 	border-radius: var(--radius);
 }
@@ -1062,6 +1066,61 @@ span.themes img {
 	border-radius: var(--radius);
 	margin: 10px;
 }
+
+/*
+  collections
+*/
+.collections-add {
+	font-size: 1.2em;
+	padding: 20px;
+	margin: 10px 0;
+	text-align: center;
+	background-color: var(--body-bg);
+	border: 1px solid var(--p4);
+	border-radius: var(--radius);
+}
+.collections-add select, .collections-add button {
+	font-size: 0.8em;
+	margin-left: 8px;
+	height: 35px;
+	vertical-align: middle;
+}
+.collections-add select {
+	min-width: 250px;
+	padding: 3px;
+}
+.collections-add button {
+	padding: 3px 15px;
+}
+
+.collections-editor {}
+.collections-editor .editor{
+	margin: 0 20px;
+}
+.collections-editor #new-collection-btn {
+	padding: 0 15px;
+}
+.collections-editor select, .collections-editor input, .collections-editor button {
+	height: 35px;
+	vertical-align: middle;
+}
+.collections-editor .label-input {
+	margin-bottom: 10px;
+}
+.collections-editor .label-input label {
+	display: block;
+}
+.collections-editor .label-input span {
+	display: block;
+	margin-left: 20px;
+}
+.collections-editor .label-input input, .collections-editor .label-input select, .collections-editor .label-input textarea {
+	min-width: 300px;
+}
+.collections-editor .label-input textarea {
+	min-height: 100px;
+}
+
 
 /*
    responsive adjustments for smaller displays
