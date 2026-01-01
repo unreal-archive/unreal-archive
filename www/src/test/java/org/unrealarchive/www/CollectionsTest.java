@@ -57,6 +57,7 @@ public class CollectionsTest {
 					@Override public ContentCollection find(String title) { return collection.title.equalsIgnoreCase(title) ? collection : null; }
 					@Override public void put(ContentCollection collection) {}
 					@Override public void writeContent(ContentCollection collection, Path outPath) {}
+					@Override public void putFile(ContentCollection collection, Path sourceFile) {}
 				};
 			}
 
