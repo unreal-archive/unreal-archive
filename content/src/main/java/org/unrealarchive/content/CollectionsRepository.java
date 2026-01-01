@@ -14,8 +14,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.unrealarchive.common.Util;
 import org.unrealarchive.common.YAML;
-import org.unrealarchive.content.managed.Managed;
-import org.unrealarchive.content.managed.ManagedContentRepository;
 
 /**
  * Repository for persisted content collections.
@@ -31,6 +29,8 @@ public interface CollectionsRepository {
 	void writeContent(ContentCollection collection, Path outPath) throws IOException;
 
 	void put(ContentCollection collection) throws IOException;
+
+	void putFile(ContentCollection collection, Path sourceFile) throws IOException;
 
 	/**
 	 * Basic file-backed implementation that loads all collections from a directory tree.
@@ -89,6 +89,12 @@ public interface CollectionsRepository {
 			Path yml = Files.createDirectories(root.resolve(Util.slug(collection.name()))).resolve("collection.yml");
 			Files.writeString(yml, YAML.toString(collection), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 			collections.put(collection, yml);
+		}
+
+		@Override
+		public void putFile(ContentCollection collection, Path sourceFile) throws IOException {
+			Path target = root.resolve(Util.slug(collection.name())).resolve(sourceFile.getFileName());
+			Files.copy(sourceFile, target);
 		}
 	}
 }
