@@ -54,6 +54,10 @@ public class CollectionsManager {
 		}
 	}
 
+	public void putFile(ContentCollection collection, Path sourceFile) throws IOException {
+		repo.putFile(collection, sourceFile);
+	}
+
 	public Path createArchive(ContentCollection collection, Platform platform) throws IOException {
 		Path tmpDir = Files.createTempDirectory("ua-collection-" + Util.slug(collection.title));
 		try {
