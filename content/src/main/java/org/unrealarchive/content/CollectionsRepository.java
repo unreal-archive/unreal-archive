@@ -93,7 +93,7 @@ public interface CollectionsRepository {
 
 		@Override
 		public void putFile(ContentCollection collection, Path sourceFile) throws IOException {
-			Path target = root.resolve(Util.slug(collection.name())).resolve(sourceFile.getFileName());
+			Path target = Files.createDirectories(root.resolve(Util.slug(collection.name()))).resolve(sourceFile.getFileName());
 			Files.copy(sourceFile, target);
 		}
 	}
