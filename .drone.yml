@@ -26,18 +26,3 @@ steps:
     when:
       ref:
         - refs/heads/master
-
-  - name: www
-    image: gradle:8.14.2-jdk21-jammy
-    environment:
-      DRONE_TOKEN:
-        from_secret: DRONE_TOKEN
-    commands:
-      - echo "Triggering content rebuild"
-      - |
-        curl -s -X POST \
-        -H "Authorization: Bearer ${DRONE_TOKEN}" \
-        https://build.shrimp.works/api/repos/unreal-archive/unreal-archive-data/builds
-    when:
-      ref:
-        - refs/heads/master

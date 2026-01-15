@@ -1,6 +1,6 @@
 subprojects {
 	group = 'org.unrealarchive'
-	version = "1.22"
+	version = "1.23"
 	if (System.getenv().containsKey("BUILD_NUMBER")) {
 		version += ".${System.env.BUILD_NUMBER}"
 	} else version += ".DEV"
@@ -16,7 +16,14 @@ subprojects {
 	repositories {
 		mavenCentral()
 		maven {
-			url = "https://code.shrimpworks.za.net/artefacts"
+			url "https://git.pookaroo.au/api/packages/shrimp/maven"
+			credentials(HttpHeaderCredentials) {
+				name = "Authorization"
+				value = "token ${providers.gradleProperty("packagesReadToken").get()}"
+			}
+			authentication {
+				header(HttpHeaderAuthentication)
+			}
 		}
 	}
 
@@ -24,17 +31,17 @@ subprojects {
 		repositories {
 			maven {
 				name = "ShrimpWorks"
-				url = 'https://code.shrimpworks.za.net/artefacts/'
-				authentication {
-					basic(BasicAuthentication)
+				url = 'https://git.pookaroo.au/api/packages/shrimp/maven'
+				credentials(HttpHeaderCredentials) {
+					name = "Authorization"
+					value = "token ${System.env.PACKAGES_TOKEN}"
 				}
-				credentials(PasswordCredentials) {
-					username = "${System.env.ARTEFACTS_USER}"
-					password = "${System.env.ARTEFACTS_PASSWORD}"
+
+				authentication {
+					header(HttpHeaderAuthentication)
 				}
 			}
 		}
-
 		publications {
 			maven(MavenPublication) {
 				from components.java

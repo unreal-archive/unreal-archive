@@ -1,6 +1,6 @@
 [versions]
-packageLib = "1.14.30"
-packageDependency = "1.7.28"
+packageLib = "1.15.7"
+packageDependency = "1.8.1"
 
 jackson = "2.20.1"
 minio = "8.5.17"

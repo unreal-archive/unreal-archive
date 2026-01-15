@@ -143,13 +143,17 @@ public final class Util {
 	}
 
 	public static String hash(Path path) throws IOException {
+		return hash(path, "SHA-1");
+	}
+
+	public static String hash(Path path, String digest) throws IOException {
 		Path hashPath = path.resolveSibling(path.getFileName().toString() + ".sha1");
 		if (Files.exists(hashPath)) {
 			return Files.readString(hashPath).trim();
 		}
 
 		try (FileChannel channel = FileChannel.open(path, StandardOpenOption.READ)) {
-			MessageDigest md = MessageDigest.getInstance("SHA-1");
+			MessageDigest md = MessageDigest.getInstance(digest);
 
 			ByteBuffer buffer = ByteBuffer.allocate(HASH_BUFFER_SIZE);
 
