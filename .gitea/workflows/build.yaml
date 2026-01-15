@@ -12,10 +12,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Restore modification time
+        uses: chetan/git-restore-mtime-action@v2
+
       - name: Set up dependencies
         run: |
-          apt-get update && apt-get install -y p7zip-full unrar git-restore-mtime
-          git restore-mtime ./www/src/main/resources/
+          apt-get update && apt-get install -y p7zip-full unrar
 
       - name: Set up JDK
         uses: actions/setup-java@v5
