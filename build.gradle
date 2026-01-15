@@ -49,6 +49,19 @@ subprojects {
 		}
 	}
 
+	/**
+	 * Conditionally publish jlink'd binary if present in subproject
+	 */
+	afterEvaluate {
+		def tarTask = tasks.findByName('jlinkTar')
+		if (tarTask) {
+			publishing.publications.maven.artifact(tarTask) {
+				classifier = 'bin'
+				extension = 'tgz'
+			}
+		}
+	}
+
 	dependencies {
 		testRuntimeOnly('org.junit.platform:junit-platform-launcher')
 	}

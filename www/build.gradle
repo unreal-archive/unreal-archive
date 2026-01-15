@@ -46,23 +46,12 @@ def tarBinary = artifacts.add('archives', layout.buildDirectory.file("unreal-arc
 
 tasks.register('jlinkTar', Tar) {
 	dependsOn jlinkZip
-	archiveFileName = "${jlink.imageName.get()}.tgz"
+	archiveFileName = "${jlink.imageName.get()}-bin.tgz"
 	destinationDirectory = layout.buildDirectory
 	compression = Compression.GZIP
 
 	into("${jlink.imageName.get()}") {
 		from jlink.imageDir
-	}
-}
-
-publishing {
-	publications {
-		mavenLatest(MavenPublication) {
-			pom {
-				version = "latest"
-			}
-			artifact tarBinary
-		}
 	}
 }
 
