@@ -5,6 +5,7 @@ import java.nio.file.StandardOpenOption
 plugins {
 	id 'java'
 	id 'application'
+	id 'java-library'
 	id 'maven-publish'
 	id 'jacoco'
 
@@ -12,8 +13,18 @@ plugins {
 }
 
 application {
-	mainClassName = 'org.unrealarchive.Main'
+	mainClass = 'org.unrealarchive.Main'
 	mainModule = 'unreal.archive.indexing'
+}
+
+jar {
+	manifest {
+		attributes(
+				'Implementation-Title': project.name,
+				'Implementation-Version': project.version,
+				'Main-Class': application.mainClass,
+		)
+	}
 }
 
 jlink {
@@ -28,13 +39,15 @@ jlink {
 	}
 }
 
-def tarBinary = artifacts.add('archives', layout.buildDirectory.file("unreal-archive-${project.name}.tgz").get().asFile) {
-	type = 'tgz'
-	builtBy 'jlinkTar'
+artifacts {
+	archives(layout.buildDirectory.file("unreal-archive-${project.name}-bin.tgz")) {
+		type = 'tgz'
+		builtBy 'jlinkTar'
+	}
 }
 
 /**
- * note - creating a tar bundle because the zip one appears to have issues with execution permissions once unpacked.
+ * creating a tar bundle because the zip has issues with execution permissions once unpacked.
  */
 tasks.register('jlinkTar', Tar) {
 	dependsOn jlinkZip
@@ -75,18 +88,12 @@ dependencies {
 processResources.doLast {
 	// write version resource file
 	Files.write(
-			Files.createDirectories(buildDir.toPath().resolve('resources/main/org/unrealarchive')).resolve('VERSION'),
+			Files.createDirectories(
+					layout.buildDirectory.dir('resources/main/org/unrealarchive').get().asFile.toPath()
+			).resolve('VERSION'),
 			"${project.version}".getBytes(StandardCharsets.UTF_8),
 			StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING
 	)
 }
 
-jar {
-	manifest {
-		attributes(
-				'Implementation-Title': project.name,
-				'Implementation-Version': project.version,
-				'Main-Class': mainClassName,
-		)
-	}
-}
+processResources.inputs.property("version", project.version)

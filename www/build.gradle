@@ -13,7 +13,7 @@ plugins {
 }
 
 application {
-	mainClassName = 'org.unrealarchive.www.Main'
+	mainClass = 'org.unrealarchive.www.Main'
 	mainModule = 'unreal.archive.www'
 }
 
@@ -22,7 +22,7 @@ jar {
 		attributes(
 				'Implementation-Title': project.name,
 				'Implementation-Version': project.version,
-				'Main-Class': mainClassName,
+				'Main-Class': application.mainClass,
 		)
 	}
 }
@@ -39,11 +39,16 @@ jlink {
 	}
 }
 
-def tarBinary = artifacts.add('archives', layout.buildDirectory.file("unreal-archive-${project.name}.tgz").get().asFile) {
-	type = 'tgz'
-	builtBy 'jlinkTar'
+artifacts {
+	archives(layout.buildDirectory.file("unreal-archive-${project.name}-bin.tgz")) {
+		type = 'tgz'
+		builtBy 'jlinkTar'
+	}
 }
 
+/**
+ * creating a tar bundle because the zip has issues with execution permissions once unpacked.
+ */
 tasks.register('jlinkTar', Tar) {
 	dependsOn jlinkZip
 	archiveFileName = "${jlink.imageName.get()}-bin.tgz"
@@ -98,8 +103,12 @@ processResources.doLast {
 
 	// write version resource file
 	Files.write(
-			Files.createDirectories(file(layout.buildDirectory).toPath().resolve('resources/main/org/unrealarchive/www')).resolve('VERSION'),
+			Files.createDirectories(
+					layout.buildDirectory.dir('resources/main/org/unrealarchive/www').get().asFile.toPath()
+			).resolve('VERSION'),
 			"${project.version}".getBytes(StandardCharsets.UTF_8),
 			StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING
 	)
 }
+
+processResources.inputs.property("version", project.version)

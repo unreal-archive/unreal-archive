@@ -16,7 +16,7 @@ subprojects {
 	repositories {
 		mavenCentral()
 		maven {
-			url "https://git.pookaroo.au/api/packages/shrimp/maven"
+			url = "https://git.pookaroo.au/api/packages/shrimp/maven"
 			credentials(HttpHeaderCredentials) {
 				name = "Authorization"
 				value = "token ${providers.gradleProperty("packagesReadToken").get()}"
