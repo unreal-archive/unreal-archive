@@ -3,12 +3,11 @@ package org.unrealarchive.www.content;
 import java.nio.file.Path;
 
 import org.unrealarchive.content.RepositoryManager;
-import org.unrealarchive.content.addons.SimpleAddonRepository;
 import org.unrealarchive.www.PageGenerator;
 import org.unrealarchive.www.SiteFeatures;
 import org.unrealarchive.www.Templates;
 
-public abstract class ContentPageGenerator implements PageGenerator {
+public abstract class ContentPageGenerator implements PageGenerator, AttachmentHelper {
 
 	final RepositoryManager repos;
 	final Path root;
@@ -33,6 +32,11 @@ public abstract class ContentPageGenerator implements PageGenerator {
 
 	Templates.PageSet pageSet(String resourceRoot) {
 		return new Templates.PageSet(resourceRoot, features, root, staticRoot);
+	}
+
+	@Override
+	public SiteFeatures features() {
+		return features;
 	}
 
 }

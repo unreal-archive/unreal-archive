@@ -86,7 +86,6 @@ public class Mutators extends GenericContentPage<Mutator> {
 
 	private void mutatorPage(Templates.PageSet pages, ContentInfo mutator) {
 		final Addon item = mutator.item();
-		localImages(item, root.resolve(mutator.path).getParent());
 
 		pages.add("mutator.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex),
 				  String.join(" / ", mutator.page.letter.group.game.game.bigName, SECTION, item.name))

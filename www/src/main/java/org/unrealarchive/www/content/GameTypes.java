@@ -28,7 +28,7 @@ import org.unrealarchive.www.Thumbnails;
 
 import static org.unrealarchive.common.Util.slug;
 
-public class GameTypes implements PageGenerator {
+public class GameTypes implements PageGenerator, AttachmentHelper {
 
 	private static final String SECTION = "Game Types & Mods";
 
@@ -44,6 +44,11 @@ public class GameTypes implements PageGenerator {
 		this.root = root;
 		this.staticRoot = staticRoot;
 		this.features = features;
+	}
+
+	@Override
+	public SiteFeatures features() {
+		return features;
 	}
 
 	private Map<String, Game> loadGames() {
@@ -94,7 +99,6 @@ public class GameTypes implements PageGenerator {
 	}
 
 	private void generateGameType(Templates.PageSet pages, GameTypeInfo gametype) throws IOException {
-//		final Path sourcePath = gametypes.path(gametype.gametype).getParent();
 		try (ReadableByteChannel docChan = repos.gameTypes().document(gametype.gametype)) {
 			final Path outPath = Files.isDirectory(gametype.path) ? gametype.path : Files.createDirectories(gametype.path);
 			// copy contents to the output directory
@@ -108,6 +112,8 @@ public class GameTypes implements PageGenerator {
 			Path indexPath = gametype.variationOf == null
 				? gametype.indexPath
 				: gametype.path.resolve("index.html");
+
+			// TODO - support attachment operations on maps
 
 			pages.add("gametype.ftl", SiteMap.Page.weekly(0.97f),
 					  String.join(" / ", gametype.gametype.game, SECTION, gametype.gametype.name))

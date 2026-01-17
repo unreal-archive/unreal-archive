@@ -86,7 +86,6 @@ public class Announcers extends GenericContentPage<Announcer> {
 
 	private void announcerPage(Templates.PageSet pages, ContentInfo announcer) {
 		final Addon item = announcer.item();
-		localImages(item, root.resolve(announcer.path).getParent());
 
 		pages.add("announcer.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex),
 				  String.join(" / ", announcer.page.letter.group.game.game.bigName, SECTION, item.name))

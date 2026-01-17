@@ -307,7 +307,7 @@ public interface SimpleAddonRepository {
 							  match = match && (name == null || c.name.equalsIgnoreCase(name));
 							  return match;
 						  })
-						  .collect(Collectors.toSet());
+						  .toList();
 		}
 
 		@Override
@@ -322,7 +322,7 @@ public interface SimpleAddonRepository {
 						  .filter(c -> withVariations || !c.isVariation)
 						  .map(ContentHolder::content)
 						  .filter(Objects::nonNull)
-						  .collect(Collectors.toSet());
+						  .toList();
 		}
 
 		@Override
@@ -331,7 +331,7 @@ public interface SimpleAddonRepository {
 						  .map(ContentHolder::content)
 						  .filter(Objects::nonNull)
 						  .filter(c -> c.name.equalsIgnoreCase(name))
-						  .collect(Collectors.toSet());
+						  .toList();
 		}
 
 		@Override
@@ -365,7 +365,7 @@ public interface SimpleAddonRepository {
 						  .map(ContentHolder::content)
 						  .filter(Objects::nonNull)
 						  .map(c -> (T)c)
-						  .collect(Collectors.toSet());
+						  .toList();
 		}
 
 		@Override
@@ -378,7 +378,7 @@ public interface SimpleAddonRepository {
 			return contentFileMap.getOrDefault(hash, Collections.emptySet())
 								 .parallelStream().map(ContentHolder::content)
 								 .filter(Objects::nonNull)
-								 .collect(Collectors.toSet());
+								 .toList();
 		}
 
 		@Override
@@ -386,7 +386,7 @@ public interface SimpleAddonRepository {
 			return variationsMap.getOrDefault(hash, Collections.emptySet())
 								.parallelStream().map(ContentHolder::content)
 								.filter(Objects::nonNull)
-								.collect(Collectors.toSet());
+								.toList();
 		}
 
 		@Override

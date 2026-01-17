@@ -103,8 +103,6 @@ public class Maps extends GenericContentPage<Map> {
 
 		final GameType gtInfo = getGameType(item.game, item.gametype);
 
-		localImages(item, root.resolve(map.path).getParent());
-
 		pages.add("map.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex),
 				  String.join(" / ", map.page.letter.group.game.game.bigName, SECTION, map.page.letter.group.name, item.title))
 			 .put("map", map)

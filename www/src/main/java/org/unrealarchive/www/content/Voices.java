@@ -86,7 +86,6 @@ public class Voices extends GenericContentPage<Voice> {
 
 	private void voicePage(Templates.PageSet pages, ContentInfo voice) {
 		final Addon item = voice.item();
-		localImages(item, root.resolve(voice.path).getParent());
 
 		pages.add("voice.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex),
 				  String.join(" / ", voice.page.letter.group.game.game.bigName, SECTION, item.name))

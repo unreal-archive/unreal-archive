@@ -86,7 +86,6 @@ public class Models extends GenericContentPage<Model> {
 
 	private void modelPage(Templates.PageSet pages, ContentInfo model) {
 		final Addon item = model.item();
-		localImages(item, root.resolve(model.path).getParent());
 
 		pages.add("model.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex),
 				  String.join(" / ", model.page.letter.group.game.game.bigName, SECTION, item.name))

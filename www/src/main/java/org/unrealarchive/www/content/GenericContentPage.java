@@ -1,7 +1,6 @@
 package org.unrealarchive.www.content;
 
-import java.io.IOException;
-import java.nio.file.Files;
+import java.lang.ref.WeakReference;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.Period;
@@ -17,7 +16,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 
-import org.unrealarchive.common.Util;
 import org.unrealarchive.content.Games;
 import org.unrealarchive.content.RepositoryManager;
 import org.unrealarchive.content.addons.Addon;
@@ -54,53 +52,6 @@ public abstract class GenericContentPage<T extends Addon> extends ContentPageGen
 
 	String letterSubGroup(T item) {
 		return item.subGrouping();
-	}
-
-	/**
-	 * Download and store image files locally.
-	 * <p>
-	 * This works by replacing in-memory image attachment URLs
-	 * with local paths for the purposes of outputting HTML pages
-	 * linking to local copies, rather than the original remotes.
-	 *
-	 * @param content   content item to download images for
-	 * @param localPath local output path
-	 */
-	void localImages(Addon content, Path localPath) {
-		if (!features.localImages) return;
-
-		// find all the images
-		List<Addon.Attachment> images = content.attachments.stream()
-														   .filter(a -> a.type == Addon.AttachmentType.IMAGE)
-														   .toList();
-
-		// we're creating a sub-directory here, to create a nicer looking on-disk structure
-		Path imgPath = localPath.resolve("images");
-		try {
-			if (!Files.exists(imgPath)) Files.createDirectories(imgPath);
-		} catch (IOException e) {
-			System.err.printf("\rFailed to download create output directory %s: %s%n", imgPath, e);
-			return;
-		}
-
-		for (Addon.Attachment img : images) {
-			try {
-				System.out.printf("\rDownloading image %-60s", img.name);
-
-				// prepend filenames with the content hash, to prevent conflicts
-				String hashName = String.join("_", content.hash.substring(0, 8), img.name);
-				Path outPath = imgPath.resolve(Util.safeFileName(hashName));
-
-				// only download if it doesn't already exist locally
-				if (!Files.exists(outPath)) Util.downloadTo(img.url, outPath);
-
-				// replace the actual attachment with the local copy
-				content.attachments.remove(img);
-				content.attachments.add(new Addon.Attachment(img.type, img.name, localPath.relativize(outPath).toString()));
-			} catch (Throwable t) {
-				System.err.printf("\rFailed to download image %s: %s%n", img.name, t);
-			}
-		}
 	}
 
 	public Map<Integer, Map<Integer, Integer>> timeline(Game game) {
@@ -162,18 +113,22 @@ public abstract class GenericContentPage<T extends Addon> extends ContentPageGen
 	GameList loadContent(Class<T> type, String sectionName) {
 		final GameList games = new GameList();
 
-		repos.addons().get(type, false, false).stream()
-			 .sorted()
-			 .forEach(m -> {
-				 Game g = games.games.computeIfAbsent(m.game, name -> new Game(name, sectionName));
-				 if (Games.byName(m.game) == Games.UNREAL_TOURNAMENT_2003) {
-					 games.games.computeIfAbsent(
-						 Games.UNREAL_TOURNAMENT_2004.name,
-						 n -> new Game(Games.UNREAL_TOURNAMENT_2004.name, sectionName)
-					 ).add(m);
-				 }
-				 g.add(m);
-			 });
+		List<ContentInfo> all = repos.addons().get(type, false, false)
+									 .stream()
+									 .sorted()
+									 .map(a -> {
+										 Game g = games.games.computeIfAbsent(a.game, name -> new Game(name, sectionName));
+										 if (Games.byName(a.game) == Games.UNREAL_TOURNAMENT_2003) {
+											 games.games.computeIfAbsent(
+												 Games.UNREAL_TOURNAMENT_2004.name,
+												 n -> new Game(Games.UNREAL_TOURNAMENT_2004.name, sectionName)
+											 ).add(a);
+										 }
+										 return g.add(a);
+									 })
+									 .toList();
+
+		all.parallelStream().forEach(ContentInfo::postProcess);
 
 		return games;
 	}
@@ -305,7 +260,10 @@ public abstract class GenericContentPage<T extends Addon> extends ContentPageGen
 
 		public final Optional<LocalDate> releaseDate;
 
+		public WeakReference<T> itemRef;
+
 		public ContentInfo(Page page, T item) {
+			this.itemRef = new WeakReference<>(item);
 			this.page = page;
 			this.itemHash = item.hash;
 			this.itemName = item.name;
@@ -332,10 +290,25 @@ public abstract class GenericContentPage<T extends Addon> extends ContentPageGen
 			}
 		}
 
-		public T item() {
-			final Addon item = repos.addons().forHash(itemHash);
+		private void postProcess() {
+			// rewrite attachment paths per configuration
+			if (!features.localImages) {
+				rewriteAttachmentsUrls(item().attachments);
+			} else {
+				localImages(item().attachments, root.resolve(path).getParent(), itemHash.substring(0, 8));
+			}
+		}
 
-			return (T)item;
+		public T item() {
+			T item = itemRef.get();
+			if (item == null) {
+				item = (T)repos.addons().forHash(itemHash);
+				// we'll have to process this again to mutate attachments, if loaded from disk
+				itemRef = new WeakReference<>(item);
+				postProcess();
+			}
+
+			return item;
 		}
 
 		@Override

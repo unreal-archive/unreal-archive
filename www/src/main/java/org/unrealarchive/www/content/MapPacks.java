@@ -85,8 +85,6 @@ public class MapPacks extends GenericContentPage<MapPack> {
 
 		final GameType gt = getGameType(item.game, item.gametype);
 
-		localImages(item, pack.path.getParent());
-
 		pages.add("mappack.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex),
 				  String.join(" / ", pack.page.letter.group.game.game.bigName, SECTION, pack.page.letter.group.name, item.name))
 			 .put("pack", pack)

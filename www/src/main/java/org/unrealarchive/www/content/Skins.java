@@ -86,7 +86,6 @@ public class Skins extends GenericContentPage<Skin> {
 
 	private void skinPage(Templates.PageSet pages, ContentInfo skin) {
 		final Addon item = skin.item();
-		localImages(item, root.resolve(skin.path).getParent());
 
 		pages.add("skin.ftl", SiteMap.Page.monthly(0.9f, item.firstIndex),
 				  String.join(" / ", skin.page.letter.group.game.game.bigName, SECTION, item.name))

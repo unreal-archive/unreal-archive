@@ -7,9 +7,11 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ForkJoinPool;
+import java.util.stream.Collectors;
 
 import org.unrealarchive.common.CLI;
 import org.unrealarchive.common.Version;
@@ -86,11 +88,19 @@ public class Main {
 		final boolean withWikis = Boolean.parseBoolean(cli.option("with-wikis", "false"));
 		final boolean withUmod = Boolean.parseBoolean(cli.option("with-umod", "false"));
 		final boolean withCollections = Boolean.parseBoolean(cli.option("with-collections", "false"));
+		final Map<String, String> attachmentRewrites = cli.option("attachment-rewrites", "").isEmpty()
+			? Map.of()
+			: Arrays.stream(cli.option("attachment-rewrites", "").split(","))
+					.collect(Collectors.toMap(
+						line -> line.split("=", 2)[0].trim(),
+						line -> line.split("=", 2)[1].trim()
+					));
 
 		final boolean localImages = Boolean.parseBoolean(cli.option("local-images", "false"));
-		if (localImages) System.out.println("Will download a local copy of content images, this will take additional time.");
+		if (localImages) System.out.printf("%n***%nWill download a local copy of content images, this will take a very long time.%n***%n%n");
 
-		final SiteFeatures features = new SiteFeatures(localImages, withLatest, withSubmit, withSearch, withFiles, withWikis, withUmod, withCollections);
+		final SiteFeatures features = new SiteFeatures(localImages, withLatest, withSubmit, withSearch, withFiles, withWikis, withUmod,
+													   withCollections, attachmentRewrites);
 
 		final Path staticOutput = outputPath.resolve("static");
 
