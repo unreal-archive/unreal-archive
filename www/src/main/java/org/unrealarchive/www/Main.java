@@ -188,7 +188,7 @@ public class Main {
 		MESSubmitter submitter = new MESSubmitter();
 
 		System.out.printf("Submitting content to search instance at %s%n",
-						  System.getenv().getOrDefault("MSE_CONTENT_URL", System.getenv().getOrDefault("MSE_URL", ""))
+						  System.getenv().getOrDefault("MES_CONTENT_URL", System.getenv().getOrDefault("MES_URL", ""))
 		);
 
 		submitter.submit(repos,
