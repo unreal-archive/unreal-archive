@@ -1,7 +1,7 @@
 # Unreal Archive
 
 Scans, categorises and produces metadata for Unreal, Unreal Tournament, Unreal
-Tournament 2003/4, and Unreal Tournament 3 content, and builds a static 
+Tournament 2003/2004, and Unreal Tournament 3 content, and builds a static 
 browsable website of the content, currently published at 
 [https://unrealarchive.org/](https://unrealarchive.org/).
 
@@ -42,13 +42,10 @@ These are:
 - `storage`: the remote storage/mirror implementations, for S3 and Azure and
   associated interfaces.
 - `indexing`: implements the primary "archiving" functionality, including 
-  repositories for content, mods, gametypes, documents, wikis, etc. It's also
-  used for data ingest, categorisation, storage, replication, and management 
+  data ingest, categorisation, storage, replication, and management 
   of repository content and files.
 - `www`: the code and templates responsible for generating the static website
   output.
-- root project: the content indexing and mirroring implementation and
-  management. This will likely move into its own module(s) later.
 
 
 ## Building
@@ -92,14 +89,12 @@ www\build\unreal-archive-www\bin\www.bat
 
 ## Usage and Functionality
 
-> TODO: complete this section 
-
 Run executables with no arguments to see input arguments and additional help for each command.
 
 ### Indexing Commands 
 
 **Browsing and Information:**
-- `ls`: List indexed content filtered by game, type or author.
+- `ls`: List indexed content filtered by game, type, author or name.
 - `filter`: List indexed content filtered by `attribute=value` pairs.
 - `show`: Show data for the content items specified.
 - `summary`: Show stats and counters for the content index.
@@ -109,13 +104,27 @@ Run executables with no arguments to see input arguments and additional help for
 - `index`: Index the contents of files or paths, writing the results to the content path.
 - `edit`: Edit the metadata for the <hash> provided.
 - `set`: Convenience, set an attribute for the <hash> provided. Eg: `set <hash> author Bob`.
-- `sync`: Sync managed files' local files to remote storage.
-- `authors`: Manage authors and aliases.
+- `authors`: Manage authors and aliases. Run `authors` with no arguments for help.
+- `wiki`: Utilities for managing wiki content.
+
+**Managed Content Management**
+- All commands prefixed by `managed`:
+- `init <game> <group> <path> <title>`: Create a skeleton managed content file structure.
+- `add <game> <group> <path> <title> <file>`: Convenience, adds a new managed content 
+      if it does not yet exist and adds a file. A `sync` command afterwards is still 
+      required to sync download files to mirrors.
+- `sync`: Synchronises files for unsynced items.
+
+**Collection Management**
+- All commands prefixed by `collection`:
+- `archive <collection> [platform]`: Create an archive of a collection's items.
+- `sync [collection]`: Sync collection archives to remote storage.
 
 **Gametype Management**
 - All commands prefixed by `gametype`:
 - `init <game> <gametype name>`: Create a skeleton gametype file structure.
 - `locate <game> <gametype name>`: Show the local file path to the provided gametype.
+- `sync`: Synchronises downloads, files, and dependencies for unsynced items.
 - `index <game> <game type name> <release name>`: Indexes the content of the release specified.
 - `add <game> <game type name> <release name> <file>`:
       Convenience, which adds a gametype if it does not yet exist, adds a release, and indexes 
@@ -136,7 +145,24 @@ Run executables with no arguments to see input arguments and additional help for
 ### WWW Commands
 
 **Website Build:**
-- `www`: Generate the HTML website for browsing content.
+- `www <output-path> [section] [options]`: Generate the HTML website for browsing content.
+      Optional section (content, authors, docs, managed, gametypes, packages, wiki) can be 
+      used to generate only specific sections.
+      Options:
+      - `--with-search=<true|false>`: include search features (default: false)
+      - `--with-submit=<true|false>`: include content submission features (default: false)
+      - `--with-latest=<true|false>`: include latest arrivals (default: false)
+      - `--with-files=<true|false>`: include individual file details (default: true)
+      - `--with-packages=<true|false>`: include package dependency info (default: false)
+      - `--with-wikis=<true|false>`: include wiki content (default: false)
+      - `--with-umod=<true|false>`: include umod repack features (default: false)
+      - `--with-collections=<true|false>`: include collections (default: false)
+      - `--local-images=<true|false>`: download and use local copies of images (default: false)
+      - `--concurrency=<count>`: number of concurrent page generation threads (default: 4)
+
+**Other WWW Commands:**
+- `search-submit`: Sync search metadata with a search service.
+- `summary`: Show stats and counters for the content index.
 
 
 ## Author Management
@@ -213,6 +239,8 @@ as a public mirror for archive content, the following steps should be taken.
    - `--concurrency=3` with an appropriate concurrency value for your bandwidth
      and processing power (3 is default)
    - `--since=yyyy-mm-dd` _[optional]_ - only mirror content added after the
+     date specified
+   - `--until=yyyy-mm-dd` _[optional]_ - only mirror content added before the
      date specified
 4. Wait while the mirror process completes. If you want to abort, just `Ctrl+C`
    the process and whatever content has been mirrored so far can be used as-is

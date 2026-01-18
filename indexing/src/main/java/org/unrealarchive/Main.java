@@ -185,7 +185,11 @@ public class Main {
 
 	private static void collection(RepositoryManager repos, CollectionsManager collections, CLI cli) throws IOException {
 		if (cli.commands().length < 2) {
-			usage();
+			System.err.println("A collection operation is required:");
+			System.err.println("  archive <collection> [platform]");
+			System.err.println("    Create an archive of a collection's items.");
+			System.err.println("  sync [collection]");
+			System.err.println("    Sync collection archives to remote storage.");
 			System.exit(1);
 		}
 
@@ -906,11 +910,9 @@ public class Main {
 		System.out.println("Usage: unreal-archive.jar <command> [options]");
 		System.out.println();
 		System.out.println("Commands:");
-		System.out.println("  index <file, url ...> [--content-path=<path> | --content-download] [--force=<true|false>]");
+		System.out.println("  index <file, url ...> [--content-path=<path> | --content-download] [--force=<true|false>] [--new-only=<true|false>] [--concurrency=<count>] [--type=<type>] [--game=<game>] [--verbose=<true|false>]");
 		System.out.println("    Index the contents of files or paths, writing the results to <content-path>.");
 		System.out.println("    Optionally force re-indexing of existing content, rather than skipping it.");
-		System.out.println("  sync <kind> [--content-path=<path> | --content-download]");
-		System.out.println("    Sync managed files' local files to remote storage.");
 		System.out.println("  scan <file, url ...> [--content-path=<path> | --content-download]");
 		System.out.println("    Dry-run scan the contents of files or paths, comparing to known content where possible.");
 		System.out.println("  edit <hash> [--content-path=<path> | --content-download]");
@@ -919,17 +921,21 @@ public class Main {
 		System.out.println("    Set <attribute> to value <new-value> within the metadata of the <hash> provided.");
 		System.out.println("  gametype <...>");
 		System.out.println("    Utilities for managing gametype content. Run `gametype` with no arguments for help.");
-		System.out.println("  collection archive <collection> [platform]");
-		System.out.println("    Create an archive of a collection's items.");
-		System.out.println("  collection sync [collection]");
-		System.out.println("    Sync collection archives to remote storage.");
+		System.out.println("  managed <...>");
+		System.out.println("    Utilities for managing managed content. Run `managed` with no arguments for help.");
+		System.out.println("  authors <...>");
+		System.out.println("    Utilities for managing author metadata. Run `authors` with no arguments for help.");
+		System.out.println("  collection <...>");
+		System.out.println("    Utilities for managing collections. Run `collection` with no arguments for help.");
+		System.out.println("  mirror [--since=<date>] [--until=<date>] [--concurrency=<count>]");
+		System.out.println("    Mirror all content to a remote storage. Optionally specify a date range.");
 		System.out.println("  local-mirror <output-path> [--content-path=<path> | --content-download] [--concurrency=<count>]");
 		System.out.println("    Create a local mirror of the content in <content-path> in local directory <output-path>.");
 		System.out.println("    Optionally specify the number of concurrent downloads via <count>, defaults to 3.");
 		System.out.println("  summary [--content-path=<path> | --content-download]");
 		System.out.println("    Show stats and counters for the content index in <content-path>");
-		System.out.println("  ls [--game=<game>] [--type=<type>] [--author=<author>] [--content-path=<path> | --content-download]");
-		System.out.println("    List indexed content in <content-path>, filtered by game, type or author");
+		System.out.println("  ls [--game=<game>] [--type=<type>] [--author=<author>] [--name=<name>] [--content-path=<path> | --content-download]");
+		System.out.println("    List indexed content in <content-path>, filtered by game, type, author or name");
 		System.out.println("  filter <attribute=value, ...> [--content-path=<path> | --content-download]");
 		System.out.println("    Filter all indexed content in <content-path>, using the attributes and matched values provided");
 		System.out.println("  show [name ...] [hash ...] [--content-path=<path> | --content-download]");
@@ -941,5 +947,7 @@ public class Main {
 		System.out.println("    provided. Files will be placed into appropriate sub-directories by file type,");
 		System.out.println("    eg. Maps, System, Textures, etc. If <hash> is provided, content will be downloaded");
 		System.out.println("    first and then installed. Supports unpacking of UMOD files");
+		System.out.println("  wiki");
+		System.out.println("    Utilities for managing wiki content.");
 	}
 }

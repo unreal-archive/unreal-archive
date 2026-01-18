@@ -117,7 +117,7 @@ public class Main {
 		final Set<PageGenerator> generators = new HashSet<>();
 		generators.add(new Index(repos, outputPath, staticOutput, features));
 
-		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[1].equalsIgnoreCase("content"))) {
+		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("content"))) {
 			// generate content pages
 			generators.addAll(
 				Arrays.asList(
@@ -132,27 +132,27 @@ public class Main {
 			if (withPackages) generators.add(new Packages(repos, outputPath, staticOutput, features));
 		}
 
-		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[1].equalsIgnoreCase("authors"))) {
+		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("authors"))) {
 			generators.add(new Authors(repos, outputPath, staticOutput, features));
 		}
 
-		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[1].equalsIgnoreCase("docs"))) {
+		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("docs"))) {
 			generators.add(new Documents(repos, outputPath, staticOutput, features));
 		}
 
-		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[1].equalsIgnoreCase("managed"))) {
+		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("managed"))) {
 			generators.add(new ManagedContent(repos, outputPath, staticOutput, features));
 		}
 
-		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[1].equalsIgnoreCase("gametypes"))) {
+		if (cli.commands().length == 2 || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("gametypes"))) {
 			generators.add(new GameTypes(repos, outputPath, staticOutput, features));
 		}
 
-		if (cli.commands().length > 2 && cli.commands()[1].equalsIgnoreCase("packages")) {
+		if (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("packages")) {
 			generators.add(new Packages(repos, outputPath, staticOutput, features));
 		}
 
-		if (features.wikis || (cli.commands().length > 2 && cli.commands()[1].equalsIgnoreCase("wiki"))) {
+		if (features.wikis || (cli.commands().length > 2 && cli.commands()[2].equalsIgnoreCase("wiki"))) {
 			generators.add(new Wiki(repos, outputPath, staticOutput, features));
 		}
 
@@ -225,8 +225,21 @@ public class Main {
 		System.out.println("Usage: www <command> [options]");
 		System.out.println();
 		System.out.println("Commands:");
-		System.out.println("  www <output-path> [--content-path=<path> | --content-download]");
+		System.out.println("  www <output-path> [content|authors|docs|managed|gametypes|packages|wiki] [options]");
 		System.out.println("    Generate the HTML website for browsing content.");
+		System.out.println("    Optional sub-command can be used to generate only specific sections.");
+		System.out.println("    Options:");
+		System.out.println("      --with-search=<true|false>      - include search features (default: false)");
+		System.out.println("      --with-submit=<true|false>      - include content submission features (default: false)");
+		System.out.println("      --with-latest=<true|false>      - include latest arrivals (default: false)");
+		System.out.println("      --with-files=<true|false>       - include individual file details (default: true)");
+		System.out.println("      --with-packages=<true|false>    - include package dependency info (default: false)");
+		System.out.println("      --with-wikis=<true|false>       - include wiki content (default: false)");
+		System.out.println("      --with-umod=<true|false>        - include umod repack features (default: false)");
+		System.out.println("      --with-collections=<true|false> - include collections (default: false)");
+		System.out.println("      --local-images=<true|false>     - download and use local copies of images (default: false)");
+		System.out.println("      --concurrency=<count>           - number of concurrent page generation threads (default: 4)");
+		System.out.println("      --attachment-rewrites=old=new,... - rewrite attachment URLs");
 		System.out.println("  search-submit [--content-path=<path> | --content-download]");
 		System.out.println("    Sync search metadata with a search service.");
 		System.out.println("  summary [--content-path=<path> | --content-download]");
