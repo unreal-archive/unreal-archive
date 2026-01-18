@@ -111,7 +111,7 @@
 		});
 
 		const navClick = function(e) {
-			search(currentKind, currentQuery, e.target.dataset.offset, pageSize);
+			search(currentKind, currentQuery, e.currentTarget.dataset.offset, pageSize);
 		};
 
 		navBack.addEventListener('click', navClick);
