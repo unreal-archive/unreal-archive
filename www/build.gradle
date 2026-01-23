@@ -87,12 +87,12 @@ processResources.doLast {
 
 	// create single all.css file - cssOut filename must be used in _header.html
 	def cssSource = files(
-			wwwStaticDir.resolve("fonts/fonts2.css"),
+			wwwStaticDir.resolve("fonts/fonts3.css"),
 			wwwStaticDir.resolve("css/style.css"),
 			wwwStaticDir.resolve("css/style7.css")
 	)
 	def cssDate = cssSource.max {f -> f.lastModified()}
-	def cssOut = destFile.parent.resolve("static/css/202506.2.css")
+	def cssOut = destFile.parent.resolve("static/css/202601.1.css")
 	cssOut.write('') // truncate output if needed
 	// clean up comments and whitespace in combined CSS
 	cssSource.each { f -> cssOut << f.text.replaceAll("[\n\\t]", "").replaceAll("/\\*.+?\\*/", "").replaceAll("\\s{2,}", " ") }

@@ -112,11 +112,16 @@ h1 {
 }
 
 h2 {
-	font-size: 1.75em;
+	font-size: 1.5em;
+}
+
+h3 {
+	font-size: 1.25em;
 }
 
 h4 {
 	font-variant: normal;
+	font-size: 1.1em;
 }
 
 h2 img, h3 img, h4 img {
@@ -174,7 +179,7 @@ header .heading {
 header .heading .header {
 	grid-area: header;
 	font-family: var(--header-font-family);
-	font-size: 4em;
+	font-size: 3.5em;
 	font-weight: normal;
 }
 
@@ -314,6 +319,7 @@ section.submenu .inner .menu {
 
 .readable p {
 	margin: 0.8em 0.5em;
+	line-height: 1.3em;
 }
 
 section.intro h1 {
@@ -342,7 +348,7 @@ section.header .page {
 }
 
 section.header h1 {
-	font-size: 4em;
+	font-size: 3.5em;
 	word-break: keep-all;
 	color: var(--section-header-title-color);
 	text-shadow: var(--header-outline-shadow);
@@ -658,7 +664,7 @@ article section {
 }
 
 article section h2 {
-	font-size: 1.6em;
+	font-size: 1.5em;
 	background-color: var(--section-subheader-bg);
 	color: var(--section-subheader-color);
 	margin: 0;
@@ -666,14 +672,14 @@ article section h2 {
 }
 
 article section h3 {
-	font-size: 1.4em;
+	font-size: 1.25em;
 	background-color: var(--table-header-bg);
 	margin: 10px 0;
 	padding: 5px 10px;
 }
 
 article section h4 {
-	font-size: 1.2em;
+	font-size: 1.1em;
 	background-color: var(--table-header-bg);
 	margin: 10px 0;
 	padding: 5px 10px;
@@ -690,12 +696,13 @@ article section h4 {
 	text-align: right;
 	vertical-align: top;
 	font-variant: small-caps;
+	font-weight: 300;
 }
 
 .label-value > span {
 	display: inline-block;
 	width: 70%;
-	font-weight: bold;
+	font-weight: 450;
 }
 
 .mini-detail {
@@ -807,15 +814,10 @@ article.managed section.downloads .download .title {
 }
 
 article.managed section.downloads .download .info {
-	vertical-align: top;
-	display: inline-block;
-	width: 50%;
+  margin: 10px 0;
 }
 
 article.managed section.downloads .download .links {
-	vertical-align: top;
-	display: inline-block;
-	width: 45%;
 }
 
 article.managed section.downloads .download .links a {

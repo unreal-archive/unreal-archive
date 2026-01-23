@@ -10,13 +10,13 @@
 
 	--body-bg: var(--p2);
 	--body-color: var(--p3);
-	--body-font-family: 'Encode Sans Semi Condensed', sans-serif;
-	--article-font-family: 'Encode Sans Expanded', sans-serif;
+	--body-font-family: 'Commissioner', sans-serif;
+	--article-font-family: 'Commissioner', sans-serif;
 
 	--link-color: white;
 	--link-color-visited: lightgrey;
 
-	--header-font-family: 'Squada One', sans-serif;
+	--header-font-family: 'Belanosima', sans-serif;
 	--header-bg-color: var(--p6);
 	--header-bg-scrolled: #222235EE;
 	--header-text-color: white;
@@ -234,19 +234,16 @@ section.header h1 {
 
 article section h2 {
 	border-radius: var(--radius);
-	font-size: 1.75em;
 }
 
 article section h3 {
 	background-color: var(--p6);
 	color: var(--section-header-title-color);
-	font-size: 1.6em;
 	border-radius: var(--radius);
 }
 
 article section h4 {
 	background-color: var(--document-meta-bg);
-	font-size: 1.3em;
 	border-radius: var(--radius);
 }
 

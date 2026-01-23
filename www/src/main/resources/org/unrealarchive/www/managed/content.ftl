@@ -25,7 +25,7 @@
 	<@content class="managed document split split7030">
 		<div class="left">
 			<section class="content readable">
-					${page?no_esc}
+				${page?no_esc}
 			</section>
 		</div>
 
@@ -67,9 +67,9 @@
 								</div>
 								<div class="links">
 									<#list d.downloads as l>
-											<#if l.state == 'OK'>
-												<a href="${urlEncode(l.url)}">${urlHost(l.url)}</a>
-											</#if>
+										<#if l.state == 'OK'>
+											<a href="${urlEncode(l.url)}">${urlHost(l.url)}</a>
+										</#if>
 									</#list>
 								</div>
 							</div>

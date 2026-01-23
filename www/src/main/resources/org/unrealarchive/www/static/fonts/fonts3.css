@@ -1,0 +1,15 @@
+@font-face {
+	font-family: 'Commissioner';
+	src: url('../fonts/commissioner-var.woff2') format('woff2');
+	font-weight: 100 1000;
+	font-style: normal;
+	font-display: auto;
+}
+
+@font-face {
+	font-family: 'Belanosima';
+	src: url('../fonts/belanosima-regular.woff2') format('woff2');
+	font-weight: normal;
+	font-style: normal;
+	font-display: auto;
+}
