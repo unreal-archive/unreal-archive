@@ -67,7 +67,7 @@
 					'${map.item.playerCount}',
 					'${map.item.bots?string("Yes", "No")}',
 					'${dateFmtShort(map.item.releaseDate)}',
-					'${map.item.description?replace("|", "<br/>")?no_esc}',
+					'${map.item.description?replace("|", "<br/>")?replace("\n", "<br/>")?no_esc}',
       		'${themes}',
       		'${fileSize(map.item.fileSize)}',
 					'${map.item.originalFilename}',
