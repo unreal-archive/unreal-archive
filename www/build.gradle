@@ -50,7 +50,7 @@ artifacts {
  * creating a tar bundle because the zip has issues with execution permissions once unpacked.
  */
 tasks.register('jlinkTar', Tar) {
-	dependsOn jlinkZip
+	dependsOn tasks.named('jlink')
 	archiveFileName = "${jlink.imageName.get()}-bin.tgz"
 	destinationDirectory = layout.buildDirectory
 	compression = Compression.GZIP
