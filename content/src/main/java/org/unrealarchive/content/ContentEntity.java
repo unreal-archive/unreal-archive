@@ -53,6 +53,10 @@ public interface ContentEntity<T extends ContentEntity<T>> extends Comparable<Co
 
 	public boolean isVariation();
 
+	public default String shortGame() {
+		return Games.byName(game()).shortName;
+	}
+
 	@Override
 	default int compareTo(ContentEntity<?> o) {
 		return name().compareToIgnoreCase(o.name());
