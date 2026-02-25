@@ -1,0 +1,5 @@
+rootProject.name = 'editor'
+
+include '../common'
+include '../content'
+include '../storage'

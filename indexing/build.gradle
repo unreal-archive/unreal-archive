@@ -29,7 +29,7 @@ jar {
 
 jlink {
 	mergedModuleName = "unreal.archive.merged"
-	options = ['--compress', 'zip-6', '--no-header-files', '--no-man-pages']
+	options = ['--strip-debug', '--compress', 'zip-6', '--no-header-files', '--no-man-pages']
 
 	imageName = "unreal-archive-${project.name}"
 	imageDir = layout.buildDirectory.dir("unreal-archive-${project.name}")
@@ -73,7 +73,6 @@ tasks.register("indexHelper", JavaExec) {
 
 dependencies {
 	implementation project(':common')
-	implementation project(':storage')
 	implementation project(':content')
 	implementation project(':storage')
 

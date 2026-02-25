@@ -8,6 +8,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,6 +24,11 @@ public interface AuthorRepository {
 	int size();
 
 	Collection<Author> all();
+
+	/**
+	 * Returns all defined authors, which excludes ephemeral entries.
+	 */
+	Collection<Author> allDefined();
 
 	Author byName(String name);
 
@@ -130,6 +136,14 @@ public interface AuthorRepository {
 		public Collection<Author> all() {
 			return authors.keySet().stream()
 						  .filter(author -> !author.deleted)
+						  .toList();
+		}
+
+		@Override
+		public Collection<Author> allDefined() {
+			return authors.values().stream()
+						  .filter(holder -> !holder.ephemeral && !holder.author.deleted)
+						  .map(holder -> holder.author)
 						  .toList();
 		}
 

@@ -41,7 +41,8 @@ public class Collections implements PageGenerator {
 														: LocalDate.MIN).reversed())
 													.map(c -> {
 														List<ResolvedContent> items = c.items.stream()
-																							 .map(i -> new ResolvedContent(i, repos.forId(
+																							 .map(
+																								 i -> new ResolvedContent(i, repos.forId(
 																								 i.id)))
 																							 .toList();
 														return new CollectionPage(c, pathFor(c), items);

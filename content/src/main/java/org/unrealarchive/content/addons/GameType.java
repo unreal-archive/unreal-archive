@@ -325,10 +325,10 @@ public class GameType implements ContentEntity<GameType> {
 
 	public static class GameTypeMap {
 
-		public final String name;
-		public final String title;
-		public final String author;
-		public final Addon.Attachment screenshot;
+		public String name;
+		public String title;
+		public String author;
+		public Addon.Attachment screenshot;
 
 		@ConstructorProperties({ "name", "title", "author", "screenshot" })
 		public GameTypeMap(String name, String title, String author, Addon.Attachment screenshot) {

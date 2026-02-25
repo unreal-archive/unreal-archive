@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.unrealarchive.editor.AuthorsController" spacing="10">
+    <SplitPane dividerPositions="0.25" VBox.vgrow="ALWAYS">
+        <items>
+            <ListView fx:id="authorsList" />
+            <VBox spacing="10">
+                <padding>
+                    <Insets top="10" right="10" bottom="10" left="10"/>
+                </padding>
+                <VBox fx:id="editorContainer" VBox.vgrow="ALWAYS"/>
+                <HBox fx:id="buttonContainer" spacing="10" alignment="CENTER_RIGHT"/>
+                <Label fx:id="statusLabel"/>
+            </VBox>
+        </items>
+    </SplitPane>
+</VBox>

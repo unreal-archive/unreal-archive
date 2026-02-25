@@ -1,0 +1,85 @@
+import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+import java.nio.file.StandardOpenOption
+
+plugins {
+    id 'java'
+    id 'application'
+
+    id("org.openjfx.javafxplugin") version "0.1.0"
+
+    alias(libs.plugins.jlink)
+}
+
+application {
+    mainClass = 'org.unrealarchive.editor.Launcher'
+    mainModule = 'org.unrealarchive.editor'
+}
+
+jar {
+    manifest {
+        attributes(
+            'Implementation-Title': project.name,
+            'Implementation-Version': project.version,
+            'Main-Class': application.mainClass,
+        )
+    }
+}
+
+jlink {
+    mergedModuleName = "unreal.archive.editor.merged"
+    options = ['--strip-debug', '--compress', 'zip-6', '--no-header-files', '--no-man-pages']
+
+    imageName = "unreal-archive-${project.name}"
+    imageDir = layout.buildDirectory.dir("unreal-archive-${project.name}")
+
+    jpackage {
+        installerType = project.findProperty('installerType')
+    }
+}
+
+artifacts {
+    archives(layout.buildDirectory.file("unreal-archive-${project.name}-bin.tgz")) {
+        type = 'tgz'
+        builtBy 'jlinkTar'
+    }
+}
+
+/**
+ * creating a tar bundle because the zip has issues with execution permissions once unpacked.
+ */
+tasks.register('jlinkTar', Tar) {
+    dependsOn tasks.named('jlink')
+    archiveFileName = "${jlink.imageName.get()}-bin.tgz"
+    destinationDirectory = layout.buildDirectory
+    compression = Compression.GZIP
+
+    into("${jlink.imageName.get()}") {
+        from jlink.imageDir
+    }
+}
+
+javafx {
+    version = "21.0.10"
+    modules = ["javafx.controls", "javafx.fxml"]
+}
+
+dependencies {
+    implementation project(':common')
+    implementation project(':content')
+
+    testImplementation(libs.junit.jupiter)
+}
+
+processResources.doLast {
+    // write version resource file
+    Files.write(
+        Files.createDirectories(
+            layout.buildDirectory.dir('resources/main/org/unrealarchive').get().asFile.toPath()
+        ).resolve('VERSION'),
+        "${project.version}".getBytes(StandardCharsets.UTF_8),
+        StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING
+    )
+}
+
+processResources.inputs.property("version", project.version)

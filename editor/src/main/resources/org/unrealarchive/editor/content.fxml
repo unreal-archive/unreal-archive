@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.unrealarchive.editor.ContentController" spacing="10">
+    <SplitPane dividerPositions="0.25" VBox.vgrow="ALWAYS">
+        <items>
+            <VBox spacing="10">
+                <padding>
+                    <Insets top="10" right="10" bottom="10" left="10"/>
+                </padding>
+                <Label text="Filters" style="-fx-font-weight: bold;"/>
+                <GridPane hgap="5" vgap="5">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="60.0" />
+                        <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0" />
+                    </columnConstraints>
+                    <Label text="Field:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                    <ComboBox fx:id="filterKey" editable="true" GridPane.rowIndex="0" GridPane.columnIndex="1" maxWidth="Infinity"/>
+                    <Label text="Value:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                    <TextField fx:id="filterValue" GridPane.rowIndex="1" GridPane.columnIndex="1" onAction="#onAddFilter"/>
+                </GridPane>
+                <Button text="Add Filter" onAction="#onAddFilter" maxWidth="Infinity"/>
+                <ListView fx:id="activeFiltersList" prefHeight="120"/>
+                <Button text="Remove Filter" onAction="#onRemoveFilter" maxWidth="Infinity"/>
+                <Separator/>
+                <Label text="Results" style="-fx-font-weight: bold;"/>
+                <ListView fx:id="resultsList" VBox.vgrow="ALWAYS"/>
+                <Label fx:id="resultsCountLabel" wrapText="true"/>
+            </VBox>
+            <VBox spacing="10">
+                <padding>
+                    <Insets top="10" right="10" bottom="10" left="10"/>
+                </padding>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="Edit Hash:"/>
+                    <TextField fx:id="hashSearchField" HBox.hgrow="ALWAYS" onAction="#onSearch"/>
+                    <Button text="Edit" onAction="#onSearch"/>
+                </HBox>
+                <Separator/>
+                <VBox fx:id="editorContainer" VBox.vgrow="ALWAYS"/>
+                <HBox fx:id="buttonContainer" spacing="10" alignment="CENTER_RIGHT"/>
+                <Label fx:id="statusLabel"/>
+            </VBox>
+        </items>
+    </SplitPane>
+</VBox>

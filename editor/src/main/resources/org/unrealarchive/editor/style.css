@@ -1,0 +1,29 @@
+.null-value .text {
+	-fx-strikethrough: true;
+}
+
+.root {
+	-fx-accent: #1e74c6;
+	-fx-focus-color: -fx-accent;
+	-fx-base: #272e33;
+	-fx-control-inner-background: derive(-fx-base, 30%);
+	-fx-control-inner-background-alt: derive(-fx-base, 33%);
+}
+
+.label {
+	-fx-text-fill: white;
+}
+
+.text-field {
+	-fx-prompt-text-fill: #373e43;
+}
+
+.button:hover {
+	-fx-text-fill: white;
+}
+
+.separator *.line {
+	-fx-background-color: #2C2C2C;
+	-fx-border-style: solid;
+	-fx-border-width: 1px;
+}

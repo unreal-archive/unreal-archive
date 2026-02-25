@@ -5,3 +5,4 @@ include 'storage'
 include 'content'
 include 'www'
 include 'indexing'
+include "editor"

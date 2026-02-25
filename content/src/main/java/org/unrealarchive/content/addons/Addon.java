@@ -336,9 +336,9 @@ public abstract class Addon implements ContentEntity<Addon> {
 
 	public static class Dependency {
 
-		public final DependencyStatus status;
-		public final String name;
-		public final String providedBy;
+		public DependencyStatus status;
+		public String name;
+		public String providedBy;
 
 		@ConstructorProperties({ "status", "name", "providedBy" })
 		public Dependency(DependencyStatus status, String name, String providedBy) {
@@ -376,9 +376,9 @@ public abstract class Addon implements ContentEntity<Addon> {
 
 	public static class Attachment {
 
-		public final AttachmentType type;
-		public final String name;
-		public final String url;
+		public AttachmentType type;
+		public String name;
+		public String url;
 
 		@ConstructorProperties({ "type", "name", "url" })
 		public Attachment(AttachmentType type, String name, String url) {

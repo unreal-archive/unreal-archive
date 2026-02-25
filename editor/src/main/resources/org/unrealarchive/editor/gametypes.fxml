@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.unrealarchive.editor.GameTypesController" spacing="10">
+    <SplitPane dividerPositions="0.25" VBox.vgrow="ALWAYS">
+        <items>
+            <VBox spacing="10">
+                <padding>
+                    <Insets top="10" right="10" bottom="10" left="10"/>
+                </padding>
+                <Label text="Game:"/>
+                <ComboBox fx:id="gameFilter" maxWidth="Infinity"/>
+                <Label text="GameTypes:"/>
+                <ListView fx:id="gameTypesList" VBox.vgrow="ALWAYS"/>
+            </VBox>
+            <VBox spacing="10">
+                <padding>
+                    <Insets top="10" right="10" bottom="10" left="10"/>
+                </padding>
+                <VBox fx:id="editorContainer" VBox.vgrow="ALWAYS"/>
+                <HBox fx:id="buttonContainer" spacing="10" alignment="CENTER_RIGHT"/>
+                <Label fx:id="statusLabel"/>
+            </VBox>
+        </items>
+    </SplitPane>
+</VBox>

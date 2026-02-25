@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.unrealarchive.editor.EditorController" spacing="10">
+    <padding>
+        <Insets top="10" right="10" bottom="10" left="10"/>
+    </padding>
+    <TabPane fx:id="tabPane" VBox.vgrow="ALWAYS">
+        <Tab fx:id="homeTab" text="Home" closable="false">
+            <fx:include fx:id="homePane" source="home.fxml" />
+        </Tab>
+        <Tab fx:id="authorsTab" text="Authors" closable="false">
+            <fx:include fx:id="authorsPane" source="authors.fxml" />
+        </Tab>
+        <Tab fx:id="contentTab" text="Content" closable="false">
+            <fx:include fx:id="contentPane" source="content.fxml" />
+        </Tab>
+        <Tab fx:id="managedTab" text="Managed" closable="false">
+            <fx:include fx:id="managedPane" source="managed.fxml" />
+        </Tab>
+        <Tab fx:id="gameTypesTab" text="GameTypes" closable="false">
+            <fx:include fx:id="gameTypesPane" source="gametypes.fxml" />
+        </Tab>
+        <Tab fx:id="collectionsTab" text="Collections" closable="false">
+            <fx:include fx:id="collectionsPane" source="collections.fxml" />
+        </Tab>
+    </TabPane>
+</VBox>

@@ -8,8 +8,8 @@ import java.util.Objects;
  */
 public class NameDescription {
 
-	public final String name;
-	public final String description;
+	public String name;
+	public String description;
 
 	@ConstructorProperties({ "name", "description" })
 	public NameDescription(String name, String description) {
