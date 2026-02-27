@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import org.unrealarchive.common.EditorRO;
 import org.unrealarchive.common.Platform;
 import org.unrealarchive.common.Util;
 
@@ -194,6 +195,7 @@ public class ContentCollection implements ContentEntity<ContentCollection> {
 		public List<Download> downloads = new ArrayList<>(); // list of download mirrors for this file, sync process will add to this
 
 		public String originalFilename;             // dm-mymap.zip
+		@EditorRO
 		public String hash;
 		public long fileSize = 0;                   // filesize, we'll determine when synced
 		public boolean synced = false;              // if false, localFile will be uploaded and turned into a download upon sync

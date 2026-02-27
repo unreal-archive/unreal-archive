@@ -19,6 +19,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.unrealarchive.common.EditorRO;
 
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -76,7 +77,7 @@ public class GenericEditor<T> extends VBox {
 			int modifiers = field.getModifiers();
 			if (Modifier.isTransient(modifiers)) continue;
 			if (Modifier.isStatic(modifiers)) continue;
-			boolean isFinal = Modifier.isFinal(modifiers);
+			boolean isReadOnly = Modifier.isFinal(modifiers) || field.isAnnotationPresent(EditorRO.class);
 
 			Label label = new Label(field.getName());
 			CheckBox nullCheck = new CheckBox();
@@ -95,14 +96,14 @@ public class GenericEditor<T> extends VBox {
 			inputs.put(field, input);
 
 			nullCheck.setSelected(value == null);
-			input.getNode().setDisable(value == null || isFinal);
-			if (isFinal) nullCheck.setDisable(true);
+			input.getNode().setDisable(value == null || isReadOnly);
+			if (isReadOnly) nullCheck.setDisable(true);
 
 			nullCheck.selectedProperty().addListener(
 				(obs, oldVal, newVal) -> {
 					if (newVal) input.getNode().getStyleClass().add("null-value");
 					else input.getNode().getStyleClass().remove("null-value");
-					input.getNode().setDisable(newVal || isFinal);
+					input.getNode().setDisable(newVal || isReadOnly);
 				}
 			);
 
@@ -191,7 +192,7 @@ public class GenericEditor<T> extends VBox {
 				Field field = entry.getKey();
 				InputControl control = entry.getValue();
 
-				if (Modifier.isFinal(field.getModifiers())) continue;
+				if (Modifier.isFinal(field.getModifiers()) || field.isAnnotationPresent(EditorRO.class)) continue;
 
 				if (control.getNode().isDisable()) {
 					if (!field.getType().isPrimitive()) field.set(instance, null);

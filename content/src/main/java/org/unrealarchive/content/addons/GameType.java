@@ -16,6 +16,7 @@ import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import org.unrealarchive.common.Platform;
+import org.unrealarchive.common.EditorRO;
 import org.unrealarchive.common.Util;
 import org.unrealarchive.content.AuthorInfo;
 import org.unrealarchive.content.ContentEntity;
@@ -35,6 +36,7 @@ public class GameType implements ContentEntity<GameType> {
 	// Game/Type/GameType/A/[hash]
 	private static final String PATH_STRING = "%s/%s/%s/%s/";
 
+	@EditorRO
 	public String contentType = "GameType";
 
 	public LocalDate addedDate;
@@ -276,6 +278,7 @@ public class GameType implements ContentEntity<GameType> {
 		public List<Download> downloads = new ArrayList<>();
 
 		public String originalFilename;             // dm-mymap.zip
+		@EditorRO
 		public String hash;
 		public long fileSize = 0;                   // filesize, we'll determine when synced
 		public boolean synced = false;              // if false, localFile will be uploaded and turned into a download upon sync

@@ -16,6 +16,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import org.unrealarchive.common.EditorRO;
 import org.unrealarchive.common.Util;
 import org.unrealarchive.content.AuthorInfo;
 import org.unrealarchive.content.ContentEntity;
@@ -41,8 +42,10 @@ public abstract class Addon implements ContentEntity<Addon> {
 
 	public static final DateTimeFormatter RELEASE_DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM").withZone(ZoneId.systemDefault());
 
+	@EditorRO
 	public String contentType;
 
+	@EditorRO
 	public LocalDateTime firstIndex;
 
 	/**
@@ -69,6 +72,7 @@ public abstract class Addon implements ContentEntity<Addon> {
 	public List<Attachment> attachments = new ArrayList<>();// screenshots, videos, documents, etc
 
 	public String originalFilename;                         // dm-mymap.zip
+	@EditorRO
 	public String hash;
 	public int fileSize;
 	public List<ContentFile> files = new ArrayList<>();     // [DM-MyMap.unr, MyTex.utx]
@@ -282,6 +286,7 @@ public abstract class Addon implements ContentEntity<Addon> {
 
 		public String name;
 		public int fileSize;
+		@EditorRO
 		public String hash;
 		private transient String baseName;
 		private transient String extension;
