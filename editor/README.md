@@ -5,6 +5,7 @@ A simple JavaFX-based GUI editor for browsing and editing Unreal Archive content
 ## Prerequisites
 
 - Java 21 or higher.
+- Clone this repository.
 - A local clone of the [unreal-archive-data](https://github.com/unreal-archive/unreal-archive-data) repository.
 
 ## Getting Started
