@@ -1,78 +1,121 @@
-(function() {
+(function () {
+	let img, overlay, btnClose, btnPrev, btnNext;
+	let images = [];
+	let currentIndex = -1;
+
 	document.addEventListener('DOMContentLoaded', () => {
-		this.init();
+		init();
 	});
 
-	/**
-	 * Create the lightbox and image elements, and add them to the body
-	 * of the document.
-	 */
-	this.init = function() {
-		this.lightbox = document.createElement('a');
-		this.img = document.createElement('img');
+	function init() {
+		// Overlay
+		overlay = document.createElement('div');
+		overlay.classList.add('lightbox');
 
-		// this.lightbox.setAttribute('href', '#_');
-		this.lightbox.addEventListener('click', e => {
-			e.preventDefault();
-			document.location.replace('#');
+		// Close button
+		btnClose = document.createElement('button');
+		btnClose.classList.add('lightbox-close');
+		btnClose.textContent = '×';
+		btnClose.addEventListener('click', close);
+
+		// Previous button
+		btnPrev = document.createElement('button');
+		btnPrev.classList.add('lightbox-prev');
+		btnPrev.textContent = '‹';
+		btnPrev.addEventListener('click', (e) => {
+			e.stopPropagation();
+			navigate(-1);
 		});
 
-		this.lightbox.setAttribute('id', 'lb');
-		this.lightbox.classList.add('lightbox');
-		this.lightbox.appendChild(this.img);
+		// Next button
+		btnNext = document.createElement('button');
+		btnNext.classList.add('lightbox-next');
+		btnNext.textContent = '›';
+		btnNext.addEventListener('click', (e) => {
+			e.stopPropagation();
+			navigate(1);
+		});
 
-		document.getElementsByTagName('body')[0].appendChild(this.lightbox);
-
-		// special case, for small native images, let's just make them bigger
-		this.img.addEventListener('load', () => {
-			let w = this.img.width;
-			let h = this.img.height;
-			if (this.img.width <= 512 && !this.img.getAttribute('sized')) {
+		// Image
+		img = document.createElement('img');
+		img.addEventListener('click', (e) => e.stopPropagation());
+		img.addEventListener('load', () => {
+			let w = img.naturalWidth;
+			let h = img.naturalHeight;
+			if (w <= 256) {
+				w *= 3;
+				h *= 3;
+			} else if (w <= 512) {
 				w *= 2;
 				h *= 2;
 			}
-			this.img.setAttribute('width', w);
-			this.img.setAttribute('height', h);
-			this.img.setAttribute('sized', 1);
-			this.img.style.left = `calc(50% - ${w / 2}px)`;
-			this.img.style.top = `calc(50% - ${h / 2}px)`;
+			img.setAttribute('width', w);
+			img.setAttribute('height', h);
+			img.style.left = `calc(50% - ${w / 2}px)`;
+			img.style.top = `calc(50% - ${h / 2}px)`;
 		});
 
-		/* now we can look for image links on the page */
-		this.scanImages();
+		overlay.appendChild(btnClose);
+		overlay.appendChild(btnPrev);
+		overlay.appendChild(img);
+		overlay.appendChild(btnNext);
+		overlay.addEventListener('click', close);
+
+		document.body.appendChild(overlay);
+
+		// Keyboard navigation
+		document.addEventListener('keydown', (e) => {
+			if (!overlay.classList.contains('lightbox-visible')) return;
+			if (e.key === 'Escape') close();
+			else if (e.key === 'ArrowLeft') navigate(-1);
+			else if (e.key === 'ArrowRight') navigate(1);
+		});
+
+		scanImages();
 	}
 
-	/**
-	 * Search through all links to images on the page. Any image link will
-	 * have its target appear in the lightbox, if Javascript is available,
-	 * otherwise it will function as a normal link, still supporting middle-
-	 * clicking et al.
-	 */
-	this.scanImages = function() {
-		/* find links to png, jpg and gif images */
-		const imgs = document.querySelectorAll('img.lb, a[href$=".png"], a[href$=".jpg"], a[href$=".jpeg"], a[href$=".gif"]');
+	function scanImages() {
+		const els = document.querySelectorAll('img.lb, a[href$=".png"], a[href$=".jpg"], a[href$=".jpeg"], a[href$=".gif"]');
 
-		/* for each link attach a click handler to set the image location and
-		   show the lightbox */
-		imgs.forEach(l => {
-			l.addEventListener('click', e => {
+		images = [];
+		els.forEach((el, i) => {
+			const src = el.hasAttribute('href') ? el.href : el.src;
+			images.push(src);
+			el.style.cursor = 'pointer';
+			el.addEventListener('click', (e) => {
 				e.preventDefault();
-				if (l.hasAttribute('href')) this.setImage(l.href);
-				else this.setImage(l.src);
-				document.location.replace('#lb');
+				open(i);
 			});
-			l.style.cursor = 'pointer';
 		});
 	}
 
-	/**
-	 * Set the image element source to the provided URL.
-	 */
-	this.setImage = function(img) {
-		this.img.removeAttribute('width');
-		this.img.removeAttribute('height');
-		this.img.removeAttribute('sized');
+	function open(index) {
+		currentIndex = index;
+		setImage(images[currentIndex]);
+		overlay.classList.add('lightbox-visible');
+		updateNav();
+	}
 
-		this.img.setAttribute('src', img);
+	function close() {
+		overlay.classList.remove('lightbox-visible');
+	}
+
+	function navigate(direction) {
+		currentIndex += direction;
+		if (currentIndex < 0) currentIndex = images.length - 1;
+		if (currentIndex >= images.length) currentIndex = 0;
+		setImage(images[currentIndex]);
+		updateNav();
+	}
+
+	function updateNav() {
+		btnPrev.style.display = images.length > 1 ? '' : 'none';
+		btnNext.style.display = images.length > 1 ? '' : 'none';
+	}
+
+	function setImage(src) {
+		img.removeAttribute('width');
+		img.removeAttribute('height');
+		img.setAttribute('src', src);
 	}
 })();

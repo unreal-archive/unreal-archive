@@ -1002,8 +1002,7 @@ span.themes img {
 	background: rgba(0, 0, 0, 0.8);
 }
 
-.lightbox:target {
-	outline: none;
+.lightbox.lightbox-visible {
 	display: block;
 }
 
@@ -1011,6 +1010,50 @@ span.themes img {
 	max-width: 90%;
 	max-height: 90%;
 	position: absolute;
+}
+
+/* Close button */
+.lightbox-close {
+	position: absolute;
+	top: 15px;
+	right: 20px;
+	z-index: 1001;
+	background: none;
+	border: none;
+	color: #fff;
+	font-size: 40px;
+	cursor: pointer;
+	line-height: 1;
+}
+
+/* Prev / Next buttons */
+.lightbox-prev,
+.lightbox-next {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	z-index: 1001;
+	background: none;
+	border: none;
+	color: #fff;
+	font-size: 60px;
+	cursor: pointer;
+	padding: 0 15px;
+	line-height: 1;
+}
+
+.lightbox-prev {
+	left: 10px;
+}
+
+.lightbox-next {
+	right: 10px;
+}
+
+.lightbox-close:hover,
+.lightbox-prev:hover,
+.lightbox-next:hover {
+	color: #ccc;
 }
 
 /*
