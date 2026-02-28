@@ -75,7 +75,7 @@
 	}
 
 	function scanImages() {
-		const els = document.querySelectorAll('img.lb, a[href$=".png"], a[href$=".jpg"], a[href$=".jpeg"], a[href$=".gif"]');
+		const els = document.querySelectorAll('img.lb, a[href$=".png" i], a[href$=".jpg" i], a[href$=".jpeg" i], a[href$=".gif" i]');
 
 		images = [];
 		els.forEach((el, i) => {
