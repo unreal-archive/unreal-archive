@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -244,10 +245,14 @@ public abstract class Addon implements ContentEntity<Addon> {
 	}
 
 	public Download directDownload() {
-		return downloads.stream().filter(d -> d.direct).filter(d -> !d.url.contains("vohzd")).findAny()
-						.orElseThrow(() -> new IllegalStateException(
-							String.format("Could not find a direct download for content %s!", name())
-						));
+		List<Download> filtered = downloads.stream()
+										   .filter(d -> d.direct)
+										   .filter(d -> !d.url.contains("vohzd"))
+										   .toList();
+
+		if (filtered.isEmpty()) throw new IllegalStateException(String.format("Could not find a direct download for content %s!", name()));
+
+		return filtered.get(ThreadLocalRandom.current().nextInt(filtered.size()));
 	}
 
 	@Override

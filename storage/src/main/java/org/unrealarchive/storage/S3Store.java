@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -85,6 +86,7 @@ public class S3Store implements DataStore {
 									 .bucket(bucket)
 									 .object(nom)
 									 .stream(stream, dataSize, -1)
+									 .headers(Map.of("x-amz-acl", "public-read"))
 									 .contentType(Util.mimeType(Util.extension(name)))
 									 .build()
 					);
