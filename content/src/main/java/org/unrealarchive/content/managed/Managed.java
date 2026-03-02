@@ -75,7 +75,7 @@ public class Managed implements ContentEntity<Managed> {
 
 	@Override
 	public Path contentPath(Path root) {
-		return slugPath(root.resolve("managed"));
+		return slugPath(root);
 	}
 
 	@Override
