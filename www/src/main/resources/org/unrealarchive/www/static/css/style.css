@@ -547,9 +547,11 @@ nav.letters a.active, nav.pages a.active {
 	margin: 0;
 }
 
-.section-info img {
-	max-height: 120px;
-	margin: 10px;
+.section-info blockquote {
+	margin-left: 20px;
+	font-size: 0.9em;
+	font-style: italic;
+	border-left: 5px solid var(--p4);
 }
 
 .section-info .info-button {
