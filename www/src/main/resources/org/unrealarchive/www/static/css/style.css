@@ -532,44 +532,38 @@ nav.letters a.active, nav.pages a.active {
 	box-shadow: var(--paginate-shadow-active);
 }
 
-.sectionInfo {
+.section-info {
 	font-size: 1.1em;
 	padding: 0;
+	margin: 0;
+}
+
+.section-info h3 {
 	border-bottom: 1px solid var(--p4);
-
-	display: grid;
-	grid-template-columns: auto min-content;
-	grid-template-areas:
-		'top top'
-    'desc pic';
-}
-.sectionInfo.box {
-	display: block;
 }
 
-.sectionInfo h3 {
-	grid-area: top;
-}
-
-.sectionInfo p {
+.section-info p {
 	padding: 10px;
 	margin: 0;
-	grid-area: desc;
 }
 
-.sectionInfo img {
+.section-info img {
 	max-height: 120px;
-	grid-area: pic;
 	margin: 10px;
 }
 
-.sectionInfo .infoButton {
+.section-info .info-button {
 	background-color: var(--download-button-bg);
 	display: inline-block;
 	padding: 10px;
-	margin: 20px 0;
+	margin: 0 10px;
 	text-decoration: none;
 	border-radius: var(--radius);
+}
+
+.section-info .option {
+	text-align: right;
+	font-size: 0.75em;
 }
 
 article.split {

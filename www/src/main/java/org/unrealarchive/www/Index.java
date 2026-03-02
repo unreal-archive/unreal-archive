@@ -1,5 +1,6 @@
 package org.unrealarchive.www;
 
+import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -36,8 +37,10 @@ public class Index implements PageGenerator {
 		Map<Games, Long> games = new LinkedHashMap<>();
 
 		Map<String, Long> contentByGame = repos.addons().countByGame();
-		Map<String, Long> gametypesByGame = repos.gameTypes().all().stream().collect(Collectors.groupingBy(GameType::game, Collectors.counting()));
-		Map<String, Long> managedByGame = repos.managed().all().stream().collect(Collectors.groupingBy(Managed::game, Collectors.counting()));
+		Map<String, Long> gametypesByGame = repos.gameTypes().all().stream().collect(
+			Collectors.groupingBy(GameType::game, Collectors.counting()));
+		Map<String, Long> managedByGame = repos.managed().all().stream().collect(
+			Collectors.groupingBy(Managed::game, Collectors.counting()));
 		Map<String, Long> docsByGame = repos.docs().all().stream().collect(Collectors.groupingBy(d -> d.game, Collectors.counting()));
 
 		Arrays.stream(Games.values()).forEach(g -> {
@@ -86,6 +89,25 @@ public class Index implements PageGenerator {
 			 .put("game", game)
 			 .put("managed", managedCount)
 			 .put("count", contentCount)
+			 .put("gameIndex", indexDocument(game))
 			 .write(root.resolve(Util.slug(game.name)).resolve("index.html"));
+	}
+
+	/**
+	 * Generate an introductory/index content document for a game, if available.
+	 * <p>
+	 * These are special documents defined in the Documents repository for each game where applicable.
+	 */
+	private String indexDocument(Games game) {
+		return repos.docs().all().stream().filter(d -> d.group.equalsIgnoreCase("Index") && d.game.equals(game.name)).findFirst()
+					.map(doc -> {
+						try (ReadableByteChannel docChan = repos.docs().document(doc)) {
+							return Markdown.renderMarkdown(docChan);
+						} catch (Exception e) {
+							System.err.println("Failed to render index document for " + game + ":" + e.getMessage());
+							return "";
+						}
+					})
+					.orElse("");
 	}
 }

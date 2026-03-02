@@ -22,33 +22,26 @@
 		</span>
 	</@heading>
 
+	<#if gameTypeInfo?? && gameTypeInfoPath??>
+		<div class="page contentpage">
+			<section class="section-info">
+				<h3>${gameTypeInfo.name}</h3>
+				<p>
+					These maps can be played with the <b>${gameTypeInfo.name}</b> game type. You will need to download and install the
+					mod before you're able to play them.
+				</p>
+				<p>
+					<a href="${relPath(gameTypeInfoPath + "/index.html")}" class="info-button">More about ${gameTypeInfo.name}</a>
+				</p>
+			</section>
+		</div>
+	</#if>
+
 	<@content class="list">
 
     <#if page??>
       <@letterPages letters=gametype.letters currentLetter=page.letter.letter pages=page.letter.pages currentPage=page />
     </#if>
-
-		<#if gameTypeInfo?? && gameTypeInfoPath??>
-			<#assign gtBg="">
-			<#if gameTypeInfo.leadImage?has_content>
-				<#if gameTypeInfo.leadImage?contains("://")>
-					<#assign gtBg=urlEncode(gameTypeInfo.leadImage)>
-				<#else>
-					<#assign gtBg=rootPath(gameTypeInfo.leadImage)?no_esc>
-				</#if>
-			</#if>
-			<section class="sectionInfo">
-				<h3>${gameTypeInfo.name}</h3>
-				<p>
-					${gameTypeInfo.description}
-					<br/>
-					<a href="${relPath(gameTypeInfoPath + "/index.html")}" class="infoButton">More about ${gameTypeInfo.name}...</a>
-				</p>
-				<#if gtBg?has_content>
-					<img src="${gtBg}" alt="${gameTypeInfo.name}"/>
-				</#if>
-			</section>
-		</#if>
 
 		<section>
 			<table>

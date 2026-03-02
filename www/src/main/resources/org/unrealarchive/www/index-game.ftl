@@ -6,6 +6,17 @@
 
 <@heading bg=[ogImage]>${game.name}</@heading>
 
+<#if gameIndex?? && gameIndex?has_content>
+	<div class="page contentpage" id="game-info-${game.name?replace(" ", "_")}">
+		<section class="section-info">
+			${gameIndex?no_esc}
+			<div class="option">
+				<a href="#" data-dismiss="game-info-${game.name?replace(" ", "_")}">Dismiss</a>
+			</div>
+		</section>
+	</div>
+</#if>
+
 <@content class="biglist bigger">
 	<ul>
 		<#if managed?size gt 0>

@@ -96,7 +96,7 @@ header.scrolled {
 }
 
 section.header {
-	height: 150px;
+	height: 140px;
 	border-bottom: none;
 	background-image: none !important;
 }
@@ -105,7 +105,6 @@ section.header .cover {
 }
 section.header h1 {
 	background-color: revert;
-	border-bottom: 1px solid var(--p4);
 }
 
 /* for pages where there's no big header present, push content down */
@@ -117,7 +116,7 @@ section.header h1 {
 	padding: 20px 0;
 }
 
-.contentpage .content-body {
+.contentpage .content-body, .section-info {
 	background-color: var(--p6);
 	border-radius: var(--radius);
 	padding: 10px;

@@ -47,14 +47,15 @@
 		<script type="application/ld+json">{
 				"@context": "https://schema.org",
 				"@type": "DigitalDocument",
-				"abstract": "${(schemaItemDesc!ogDescription)?replace("\"", "\\\"")?replace("\\", "\\\\")}",
-				"author": "${schemaItemAuthor?replace("\"", "\\\"")?replace("\\", "\\\\")}",
+				"abstract": "${(schemaItemDesc!ogDescription)?json_string?no_esc}",
+				"author": "${schemaItemAuthor?json_string?no_esc}",
 				"image": "${headerbg}",
-				"name": "${schemaItemName?replace("\"", "\\\"")?replace("\\", "\\\\")}",
+				"name": "${schemaItemName?json_string?no_esc}",
 				"datePublished": "${schemaItemDate}"
 		}</script>
 	</#if>
 
+	<script src="${staticPath()}/scripts/common.js"></script>
 </head>
 
 <script>
