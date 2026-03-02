@@ -549,6 +549,7 @@ nav.letters a.active, nav.pages a.active {
 
 .section-info blockquote {
 	margin-left: 20px;
+	padding-left: 20px;
 	font-size: 0.9em;
 	font-style: italic;
 	border-left: 5px solid var(--p4);

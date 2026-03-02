@@ -20,6 +20,11 @@
 		<div class="page contentpage">
 			<section class="section-info">
 				<h3>${gameTypeInfo.name}</h3>
+				<#if gameTypeInfo.description?has_content>
+					<blockquote>
+							${gameTypeInfo.description}
+					</blockquote>
+				</#if>
 				<p>
 					These maps can be played with the <b>${gameTypeInfo.name}</b> game type. You will need to download and install the
 					mod before you're able to play them.
