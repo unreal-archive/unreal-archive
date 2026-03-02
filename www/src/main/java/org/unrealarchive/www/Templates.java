@@ -137,6 +137,7 @@ public class Templates {
 		HOST_REMAP.put("moddb.com", "ModDB");
 		HOST_REMAP.put("utzone.de", "UTzone.de");
 		HOST_REMAP.put("gamebanana.com", "GameBanana");
+		HOST_REMAP.put("unreal-archive-files-eu.s3.de.io.cloud.ovh.net", "Unreal Archive EU 2");
 	}
 
 	public static class PageSet {
