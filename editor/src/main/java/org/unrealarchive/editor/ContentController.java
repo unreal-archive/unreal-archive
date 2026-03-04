@@ -22,6 +22,8 @@ import org.unrealarchive.content.addons.Addon;
 
 public class ContentController {
 
+	private static final int MAX_RESULTS = 500;
+
 	private RepositoryManager repositoryManager;
 
 	@FXML private ComboBox<String> filterKey;
@@ -95,9 +97,9 @@ public class ContentController {
 
 		Collection<Addon> filtered = repositoryManager.addons().filter(keysValues);
 
-		if (filtered.size() > 100) {
+		if (filtered.size() > MAX_RESULTS) {
 			resultsList.setItems(FXCollections.emptyObservableList());
-			resultsCountLabel.setText("Found " + filtered.size() + " results. Too many results, please refine your search.");
+			resultsCountLabel.setText("Found over " + filtered.size() + " results. Too many results, please refine your search.");
 			resultsCountLabel.setStyle("-fx-text-fill: orange;");
 		} else if (filtered.isEmpty()) {
 			resultsList.setItems(FXCollections.emptyObservableList());

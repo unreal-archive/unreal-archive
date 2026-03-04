@@ -1,13 +1,17 @@
 package org.unrealarchive.editor;
 
 import java.util.Collection;
+import java.util.List;
 
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
@@ -18,6 +22,7 @@ public class AuthorsController {
 
 	private RepositoryManager repositoryManager;
 
+	@FXML private TextField filterText;
 	@FXML private ListView<String> authorsList;
 	@FXML private VBox editorContainer;
 	@FXML private Label statusLabel;
@@ -25,12 +30,28 @@ public class AuthorsController {
 
 	private GenericEditor<Author> currentEditor;
 
+	private final ObservableList<String> authorsNames = FXCollections.observableArrayList();
+	private FilteredList<String> filteredAuthors;
+
 	public void setRepositoryManager(RepositoryManager repositoryManager) {
 		this.repositoryManager = repositoryManager;
 	}
 
 	@FXML
 	public void initialize() {
+		filteredAuthors = new FilteredList<>(authorsNames, p -> true);
+		authorsList.setItems(filteredAuthors);
+
+		filterText.textProperty().addListener((observable, oldValue, newValue) -> {
+			filteredAuthors.setPredicate(author -> {
+				if (newValue == null || newValue.isEmpty()) {
+					return true;
+				}
+				String lowerCaseFilter = newValue.toLowerCase();
+				return author.toLowerCase().contains(lowerCaseFilter);
+			});
+		});
+
 		authorsList.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
 			if (newVal != null) {
 				loadAuthor(newVal);
@@ -41,7 +62,8 @@ public class AuthorsController {
 	public void refresh() {
 		if (repositoryManager == null) return;
 		Collection<Author> authors = repositoryManager.authors().allDefined();
-		authorsList.setItems(FXCollections.observableArrayList(authors.stream().sorted().map(a -> a.name).toList()));
+		List<String> names = authors.stream().sorted().map(a -> a.name).toList();
+		authorsNames.setAll(names);
 	}
 
 	private void loadAuthor(String name) {

@@ -7,7 +7,10 @@
 <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.unrealarchive.editor.AuthorsController" spacing="10">
     <SplitPane dividerPositions="0.25" VBox.vgrow="ALWAYS">
         <items>
-            <ListView fx:id="authorsList" />
+            <VBox spacing="5">
+                <TextField fx:id="filterText" promptText="Filter authors..." />
+                <ListView fx:id="authorsList" VBox.vgrow="ALWAYS" />
+            </VBox>
             <VBox spacing="10">
                 <padding>
                     <Insets top="10" right="10" bottom="10" left="10"/>

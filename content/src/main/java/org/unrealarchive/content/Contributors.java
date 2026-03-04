@@ -23,9 +23,10 @@ public class Contributors {
 	 * Inputs:
 	 * - Bob and Joe
 	 * - Bob & Joe
+	 * - Bob -&- Joe
 	 * - Bob, Joe
 	 */
-	private static final Pattern AUTHOR_SPLIT = Pattern.compile("((\\s+(and|&))\\s+|\\s+\\+\\s+|,\\s?|\\s?/\\s?)",
+	private static final Pattern AUTHOR_SPLIT = Pattern.compile("((\\s+(and|-?&-?))\\s+|\\s+\\+\\s+|,\\s?|\\s?/\\s?)",
 																Pattern.CASE_INSENSITIVE);
 
 	/**
