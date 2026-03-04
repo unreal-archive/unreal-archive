@@ -247,10 +247,10 @@ public abstract class Addon implements ContentEntity<Addon> {
 	public Download directDownload() {
 		List<Download> filtered = downloads.stream()
 										   .filter(d -> d.direct)
-										   .filter(d -> !d.url.contains("vohzd"))
+										   .filter(d -> d.state == Download.DownloadState.OK)
 										   .toList();
 
-		if (filtered.isEmpty()) throw new IllegalStateException(String.format("Could not find a direct download for content %s!", name()));
+		if (filtered.isEmpty()) return null;
 
 		return filtered.get(ThreadLocalRandom.current().nextInt(filtered.size()));
 	}

@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.unrealarchive.common.EditorRO;
 import org.unrealarchive.common.Platform;
@@ -202,7 +203,14 @@ public class ContentCollection implements ContentEntity<ContentCollection> {
 		public boolean deleted = false;             // if deleted, prevents from syncing and will not publish
 
 		public Download directDownload() {
-			return downloads.stream().filter(d -> d.direct).findAny().orElse(null);
+			List<Download> filtered = downloads.stream()
+											   .filter(d -> d.direct)
+											   .filter(d -> d.state == Download.DownloadState.OK)
+											   .toList();
+
+			if (filtered.isEmpty()) return null;
+
+			return filtered.get(ThreadLocalRandom.current().nextInt(filtered.size()));
 		}
 
 		@Override

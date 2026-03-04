@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -290,7 +291,14 @@ public class GameType implements ContentEntity<GameType> {
 		public Map<String, List<Addon.Dependency>> dependencies = new HashMap<>();// packages this content depends on
 
 		public Download directDownload() {
-			return downloads.stream().filter(d -> d.direct).findAny().orElse(null);
+			List<Download> filtered = downloads.stream()
+											   .filter(d -> d.direct)
+											   .filter(d -> d.state == Download.DownloadState.OK)
+											   .toList();
+
+			if (filtered.isEmpty()) return null;
+
+			return filtered.get(ThreadLocalRandom.current().nextInt(filtered.size()));
 		}
 
 		@Override
