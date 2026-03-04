@@ -80,7 +80,7 @@ public class IndexHelper {
 //		attachmentMove();
 //		attachmentGametypeMove();
 //		removeB2Attachments();
-//		removeB2Links();
+		removeLinodeLinks();
 //		fixDirectDownloads();
 //		fixDownloadEncoding();
 //		findUnrealPlayground();
@@ -99,7 +99,7 @@ public class IndexHelper {
 //		fixDuplicateMapPics(args[0], args[1]);
 //		fixMapGametypes(args[0]);
 //		fixMissingMapPics(args[0]);
-		fixMonsterHuntSnipersParadise();
+//		fixMonsterHuntSnipersParadise();
 //		fixGreedMaps();
 //		setMapPackGametypes();
 //		findAutoIndexLinks(args[0], args[1], Integer.parseInt(args[2]));
@@ -365,15 +365,15 @@ public class IndexHelper {
 		});
 	}
 
-	public static void removeB2Links() throws IOException {
+	public static void removeLinodeLinks() throws IOException {
 		ContentManager cm = manager();
 		Collection<Addon> search = cm.repo().all();
 		for (Addon c : search) {
 			Addon co = cm.checkout(c.hash);
-			boolean keep = co.downloads.stream().noneMatch(d -> d.url.contains("unreal-archive-files-s3.s3.us-west-002.backblazeb2.com"));
+			boolean keep = co.downloads.stream().noneMatch(d -> d.url.contains("unreal-archive-files-eu.s3.de.io.cloud.ovh.net"));
 			if (keep) continue;
 
-			maybeCheckin(cm, co, co.downloads.removeIf(d -> d.url.contains("f002.backblazeb2.com")));
+			maybeCheckin(cm, co, co.downloads.removeIf(d -> d.url.contains("unreal-archive-files.eu-central-1.linodeobjects.com")));
 		}
 
 		GameTypeManager gm = gametypes();
@@ -386,12 +386,12 @@ public class IndexHelper {
 				if (r.deleted) continue;
 				for (GameType.ReleaseFile f : r.files) {
 					if (f.deleted) continue;
-					keep = f.downloads.stream().noneMatch(d -> d.url.contains("unreal-archive-files-s3.s3.us-west-002.backblazeb2.com"));
+					keep = f.downloads.stream().noneMatch(d -> d.url.contains("unreal-archive-files-eu.s3.de.io.cloud.ovh.net"));
 					if (keep) {
 						System.out.println("Gametype has not been mirrored: " + co.name);
 						break;
 					}
-					changed = f.downloads.removeIf(d -> d.url.contains("f002.backblazeb2.com"));
+					changed = f.downloads.removeIf(d -> d.url.contains("unreal-archive-files.eu-central-1.linodeobjects.com"));
 				}
 				if (keep) break;
 			}
@@ -408,12 +408,12 @@ public class IndexHelper {
 
 			for (Managed.ManagedFile d : co.downloads) {
 				if (d.deleted) continue;
-				keep = d.downloads.stream().noneMatch(f -> f.url.contains("unreal-archive-files-s3.s3.us-west-002.backblazeb2.com"));
+				keep = d.downloads.stream().noneMatch(f -> f.url.contains("unreal-archive-files-eu.s3.de.io.cloud.ovh.net"));
 				if (keep) {
 					System.out.println("Managed has not been mirrored: " + co.title);
 					break;
 				}
-				changed = d.downloads.removeIf(f -> f.url.contains("f002.backblazeb2.com"));
+				changed = d.downloads.removeIf(f -> f.url.contains("unreal-archive-files.eu-central-1.linodeobjects.com"));
 			}
 
 			if (!keep && changed) mm.checkin(co);

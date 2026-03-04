@@ -125,19 +125,24 @@ public class Templates {
 		TPL_CONFIG.setTagSyntax(Configuration.ANGLE_BRACKET_TAG_SYNTAX); // force - don't bother with auto-detection
 		TPL_CONFIG.setTemplateUpdateDelayMilliseconds(Long.MAX_VALUE); // do not bother looking for updated templates
 
-		HOST_REMAP.put("f002.backblazeb2.com", "Unreal Archive US [B2]");
+		HOST_REMAP.put("f002.backblazeb2.com", "Unreal Archive US [B2]"); // deprecated
 		HOST_REMAP.put("unreal-archive-files-s3.s3.us-west-002.backblazeb2.com", "Unreal Archive US");
-		HOST_REMAP.put("unreal-archive-files.eu-central-1.linodeobjects.com", "Unreal Archive EU");
+		HOST_REMAP.put("unreal-archive-files.eu-central-1.linodeobjects.com", "Unreal Archive EU [Linode]"); // deprecated
+		HOST_REMAP.put("unreal-archive-files-eu.s3.de.io.cloud.ovh.net", "Unreal Archive EU");
+		HOST_REMAP.put("unreal-archive-files-na.s3.ca-east-tor.io.cloud.ovh.net", "Unreal Archive NA");
+
 		HOST_REMAP.put("files.vohzd.com", "vohzd");
+		HOST_REMAP.put("unrealarchiveusa.blob.core.windows.net", "Azure US");
+		HOST_REMAP.put("unrealarchivesgp.blob.core.windows.net", "Azure Singapore");
+
 		HOST_REMAP.put("medor.no-ip.org", "medor");
 		HOST_REMAP.put("ut-files.com", "UT-Files");
 		HOST_REMAP.put("ut2004.ut-files.com", "UT-Files");
-		HOST_REMAP.put("unrealarchiveusa.blob.core.windows.net", "Azure US");
-		HOST_REMAP.put("unrealarchivesgp.blob.core.windows.net", "Azure Singapore");
+		HOST_REMAP.put("oldunreal.com", "OldUnreal");
+
 		HOST_REMAP.put("moddb.com", "ModDB");
 		HOST_REMAP.put("utzone.de", "UTzone.de");
 		HOST_REMAP.put("gamebanana.com", "GameBanana");
-		HOST_REMAP.put("unreal-archive-files-eu.s3.de.io.cloud.ovh.net", "Unreal Archive EU 2");
 	}
 
 	public static class PageSet {
