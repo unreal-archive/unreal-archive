@@ -41,7 +41,7 @@ public class Contributors {
 	 * - Bob - Rad Edit by Joe
 	 */
 	private static final Pattern MODIFIED_SPLIT = Pattern.compile(
-		"(,?\\s+|/)((-+|[^A-Za-z\\s])\\s+)?((\\S+\\s+)?(edit(ed)?|mod(ified|ifications|ded|s))|((\\S+\\s+)?((conv(er(sion|ted))?)|(version)|(remix(ed)?)))|(rema([kd])e)|(revamp(ed)?))[\\s->:]?\\s+(by:?\\s+)?",
+		"(,\\s+|/)((-+|[^A-Za-z\\s])\\s+)?((\\S+\\s+)?(edit(ed)?|mod(ified|ifications|ded|s))|((\\S+\\s+)?((conv(er(sion|ted))?)|(version)|(remix(ed)?)))|(rema([kd])e)|(revamp(ed)?))[\\s->:]?\\s+(by:?\\s+)?",
 		Pattern.CASE_INSENSITIVE
 	);
 
@@ -124,10 +124,26 @@ public class Contributors {
 	private static final Pattern MODIFIED_MATCH_6 = Pattern.compile("([^,]+)(,?\\s+)(-+\\s+)?[(|\\[]?.+by:?\\s+([^)]+)[)|\\]]?",
 																	Pattern.CASE_INSENSITIVE);
 
+	private static final Pattern DONE_EDITED = Pattern.compile(
+		"^(?:done|made)\\s+by\\s+(.+?),\\s+(?:edit(?:ed)?|mod(?:ified)?|remix(?:ed)?|conversion|converted|version)\\s+by\\s+(.+)$",
+		Pattern.CASE_INSENSITIVE);
+
+	private static final Pattern STAR_EDITED = Pattern.compile(
+		"^(.+?)\\s+\\*\\s+(?:edit(?:ed)?|mod(?:ified)?|remix(?:ed)?|conversion|converted|version)\\s+by\\s+(.+)$",
+		Pattern.CASE_INSENSITIVE);
+
+	private static final Pattern PAREN_BY = Pattern.compile(
+		"^(.+?)\\s*\\((.+?)\\s+by\\s+(.+)\\)$",
+		Pattern.CASE_INSENSITIVE);
+
+	private static final Pattern MODIFIER_HINT = Pattern.compile(
+		".*\\b(edit(?:ed)?|mod(?:ified|ifications|ded|s)?|conv(?:ersion|erted)?|version|remix(?:ed)?|rema[kd]e|revamp(?:ed)?|import(?:ed)?|port(?:ed)?)\\b.*",
+		Pattern.CASE_INSENSITIVE);
+
 	public Contributors(String authorString) {
 		this.authorString = authorString;
 
-		String cleaned = DATE.matcher(authorString).replaceAll("");
+		String cleaned = normalise(DATE.matcher(authorString).replaceAll(""));
 
 		ModBy modBy = parseEditors(cleaned);
 		if (modBy != null) {
@@ -148,50 +164,27 @@ public class Contributors {
 	public static Set<String> names(String authorString) {
 		if (Authors.noAlias(authorString)) return Set.of(authorString);
 
+		String normalised = normalise(authorString);
 		Set<String> names = new HashSet<>();
 
-		String[] s = MODIFIED_SPLIT.split(authorString);
-		if (s.length > 1) {
-			names.addAll(Stream.of(s).filter(n -> !n.isBlank()).collect(Collectors.toSet()));
-		} else {
-			Matcher m;
-			if ((m = MODIFIED_MATCH_1.matcher(authorString)).find()) {
-				names.add(m.group(1));
-				names.add(m.group(2));
-			} else if ((m = MODIFIED_MATCH_2.matcher(authorString)).find()) {
-				names.add(m.group(6));
-				names.add(m.group(1));
-			} else if ((m = MODIFIED_MATCH_3.matcher(authorString)).find()) {
-				names.add(m.group(5));
-				names.add(m.group(1));
-			} else if ((m = MODIFIED_MATCH_7.matcher(authorString)).find()) {
-				names.add(m.group(1));
-				names.add(m.group(9));
-			} else if ((m = MODIFIED_MATCH_4.matcher(authorString)).find()) {
-				names.add(m.group(1));
-				names.add(m.group(2));
-			} else if ((m = MODIFIED_MATCH_5.matcher(authorString)).find()) {
-				names.add(m.group(1));
-				names.add(m.group(2));
-			} else if ((m = MODIFIED_MATCH_6.matcher(authorString)).find()) {
-				names.add(m.group(1));
-				names.add(m.group(4));
-			}
+		ModBy modBy = parseNamesEditors(normalised);
+		if (modBy != null) {
+			names.add(modBy.original());
+			names.add(modBy.editor());
 		}
 
-		if (names.isEmpty()) names.add(authorString);
+		if (names.isEmpty()) names.add(normalised);
 
 		final Set<String> finalNames = new HashSet<>();
 
-		names
-			.forEach(a -> {
-				String[] b = AUTHOR_SPLIT.split(a);
-				if (b.length == 1) {
-					finalNames.add(a);
-				} else {
-					finalNames.addAll(Stream.of(b).filter(n -> !n.isBlank()).collect(Collectors.toSet()));
-				}
-			});
+		names.forEach(a -> {
+			String[] b = AUTHOR_SPLIT.split(a);
+			if (b.length == 1) {
+				finalNames.add(a);
+			} else {
+				finalNames.addAll(Stream.of(b).filter(n -> !n.isBlank()).collect(Collectors.toSet()));
+			}
+		});
 
 		return finalNames.stream()
 						 .map(String::strip)
@@ -213,25 +206,57 @@ public class Contributors {
 	}
 
 	private ModBy parseEditors(String a) {
+		ModBy parsed = parseNamesEditors(a);
+		if (parsed != null) return parsed;
+
 		String[] s = MODIFIED_SPLIT.split(a);
 		if (s.length > 1) return new ModBy(s[0], s[1]);
 
+		return null;
+	}
+
+	private static ModBy parseNamesEditors(String a) {
+		Matcher doneEdited = DONE_EDITED.matcher(a);
+		if (doneEdited.find()) return new ModBy(doneEdited.group(1), doneEdited.group(2));
+
+		Matcher starEdited = STAR_EDITED.matcher(a);
+		if (starEdited.find()) return new ModBy(starEdited.group(1), starEdited.group(2));
+
 		Matcher m = MODIFIED_MATCH_1.matcher(a);
 		if (m.find()) return new ModBy(m.group(1), m.group(2));
+
 		Matcher m2 = MODIFIED_MATCH_2.matcher(a);
 		if (m2.find()) return new ModBy(m2.group(6), m2.group(1));
+
 		Matcher m3 = MODIFIED_MATCH_3.matcher(a);
 		if (m3.find()) return new ModBy(m3.group(5), m3.group(1));
+
 		Matcher m7 = MODIFIED_MATCH_7.matcher(a);
 		if (m7.find()) return new ModBy(m7.group(1), m7.group(9));
+
+		Matcher parenBy = PAREN_BY.matcher(a);
+		if (parenBy.find() && MODIFIER_HINT.matcher(parenBy.group(2)).matches()) {
+			return new ModBy(parenBy.group(1), parenBy.group(3));
+		}
+
 		Matcher m4 = MODIFIED_MATCH_4.matcher(a);
 		if (m4.find()) return new ModBy(m4.group(1), m4.group(2));
+
 		Matcher m5 = MODIFIED_MATCH_5.matcher(a);
 		if (m5.find()) return new ModBy(m5.group(1), m5.group(2));
+
 		Matcher m6 = MODIFIED_MATCH_6.matcher(a);
 		if (m6.find()) return new ModBy(m6.group(1), m6.group(4));
 
 		return null;
+	}
+
+	private static String normalise(String input) {
+		return input
+			.replace('·', ',')
+			.replaceAll("\\s+\\*\\s+(?=(edit(?:ed)?|mod(?:ified)?|remix(?:ed)?|conversion|converted|version)\\b)", ", ")
+			.replaceAll("\\s+", " ")
+			.strip();
 	}
 
 	private static String cleanup(String name) {

@@ -48,7 +48,7 @@ public class ContributorsTest {
 		names = Contributors.names("Cliff Bleszinski (Unreal Conversion By UKBikenut)");
 		System.out.println(names);
 		assertTrue(names.contains("Cliff Bleszinski"));
-		assertTrue(names.contains("UKBikenut)"));
+		assertTrue(names.contains("UKBikenut"));
 
 		names = Contributors.names("Cliff Bleszinski / Alan Willard");
 		System.out.println(names);
@@ -60,6 +60,11 @@ public class ContributorsTest {
 		assertTrue(names.contains("Turret 49"));
 		assertTrue(names.contains("Konin"));
 		assertTrue(names.contains("EvilGrins"));
+
+		names = Contributors.names("Cédric Fiorentino, edit by Neon_Knight");
+		System.out.println(names);
+		assertTrue(names.contains("Cédric Fiorentino"));
+		assertTrue(names.contains("Neon_Knight"));
 	}
 
 	@Test
