@@ -51,7 +51,6 @@ import org.unrealarchive.indexing.ContentEditor;
 import org.unrealarchive.indexing.ContentManager;
 import org.unrealarchive.indexing.GameTypeManager;
 import org.unrealarchive.indexing.Incoming;
-import org.unrealarchive.indexing.IndexHelper;
 import org.unrealarchive.indexing.IndexLog;
 import org.unrealarchive.indexing.Indexer;
 import org.unrealarchive.indexing.ManagedContentManager;
@@ -60,6 +59,8 @@ import org.unrealarchive.indexing.Submission;
 import org.unrealarchive.mirror.LocalMirrorClient;
 import org.unrealarchive.mirror.Mirror;
 import org.unrealarchive.storage.DataStore;
+
+import static org.unrealarchive.storage.DataStore.store;
 
 public class Main {
 
@@ -84,7 +85,6 @@ public class Main {
 		repos.authors();
 
 		switch (cli.commands()[0].toLowerCase()) {
-			case "helper" -> IndexHelper.main(Arrays.copyOfRange(cli.commands(), 1, cli.commands().length));
 			//case "cache" -> contentRepo(cli).createCache();
 			case "index" -> index(repos.addons(), contentManager(cli, repos.addons()), cli);
 			case "scan" -> scan(repos.addons(), cli);
@@ -235,23 +235,6 @@ public class Main {
 				System.exit(1);
 			}
 		}
-	}
-
-	public static DataStore store(DataStore.StoreContent contentType, CLI cli) {
-		String stringType = cli.option(contentType.name().toLowerCase() + "-store", cli.option("store", null));
-		if (stringType == null) {
-			System.err.printf("No %s store specified, this will be necessary for indexing new content. Falling back to no-op store.%n",
-							  contentType.name().toLowerCase());
-			stringType = "NOP";
-		}
-
-		DataStore.StoreType storeType = DataStore.StoreType.valueOf(stringType.toUpperCase());
-
-		DataStore dataStore = storeType.newStore(contentType, cli);
-
-		System.err.printf("Store for %s is: %s%n", contentType, dataStore);
-
-		return dataStore;
 	}
 
 	private static void index(SimpleAddonRepository repo, ContentManager contentManager, CLI cli) throws IOException {

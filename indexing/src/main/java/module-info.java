@@ -17,4 +17,5 @@ open module unreal.archive.indexing {
 	requires com.fasterxml.jackson.datatype.jsr310;
 
 	exports org.unrealarchive.indexing;
+	exports org.unrealarchive.mirror;
 }

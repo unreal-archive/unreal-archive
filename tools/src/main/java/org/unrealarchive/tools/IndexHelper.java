@@ -1,4 +1,4 @@
-package org.unrealarchive.indexing;
+package org.unrealarchive.tools;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -32,7 +32,6 @@ import net.shrimpworks.unreal.packages.entities.Import;
 import net.shrimpworks.unreal.packages.entities.Named;
 import net.shrimpworks.unreal.packages.entities.objects.Polys;
 
-import org.unrealarchive.Main;
 import org.unrealarchive.common.ArchiveUtil;
 import org.unrealarchive.common.CLI;
 import org.unrealarchive.common.Util;
@@ -53,11 +52,20 @@ import org.unrealarchive.content.addons.Skin;
 import org.unrealarchive.content.addons.Voice;
 import org.unrealarchive.content.managed.Managed;
 import org.unrealarchive.content.managed.ManagedContentRepository;
-import org.unrealarchive.indexing.maps.MapIndexHandler;
+import org.unrealarchive.indexing.ContentManager;
+import org.unrealarchive.indexing.GameTypeManager;
+import org.unrealarchive.indexing.Incoming;
+import org.unrealarchive.indexing.IndexLog;
+import org.unrealarchive.indexing.IndexResult;
+import org.unrealarchive.indexing.IndexUtils;
+import org.unrealarchive.indexing.Indexer;
+import org.unrealarchive.indexing.ManagedContentManager;
+import org.unrealarchive.indexing.Submission;
 import org.unrealarchive.mirror.LocalMirrorClient;
 import org.unrealarchive.storage.DataStore;
 
 import static org.unrealarchive.content.addons.Addon.UNKNOWN;
+import static org.unrealarchive.storage.DataStore.store;
 
 /**
  * Implements various quick and dirty helper/cleanup processes
@@ -78,9 +86,10 @@ public class IndexHelper {
 //		removeVohzdUnrealLinks();
 //		removeDeadLinks();
 //		attachmentMove();
-//		attachmentGametypeMove();
+		attachmentGametypeMove();
 //		removeB2Attachments();
-		removeLinodeLinks();
+//		removeB2Links();
+//		dedupeAttachments();
 //		fixDirectDownloads();
 //		fixDownloadEncoding();
 //		findUnrealPlayground();
@@ -119,27 +128,27 @@ public class IndexHelper {
 		System.out.println(repo().gc());
 	}
 
-	private static SimpleAddonRepository repo() throws IOException {
+	public static SimpleAddonRepository repo() throws IOException {
 		return new SimpleAddonRepository.FileRepository(Paths.get(ROOT).resolve("content"));
 	}
 
-	private static GameTypeRepository gametypeRepo() throws IOException {
+	public static GameTypeRepository gametypeRepo() throws IOException {
 		return new GameTypeRepository.FileRepository(Paths.get(ROOT).resolve("gametypes"));
 	}
 
-	private static ManagedContentRepository managedRepo() throws IOException {
+	public static ManagedContentRepository managedRepo() throws IOException {
 		return new ManagedContentRepository.FileRepository(Paths.get(ROOT).resolve("managed"));
 	}
 
-	private static ContentManager manager() throws IOException {
+	public static ContentManager manager() throws IOException {
 		return new ContentManager(repo(), DataStore.NOP, DataStore.NOP);
 	}
 
-	private static GameTypeManager gametypes() throws IOException {
+	public static GameTypeManager gametypes() throws IOException {
 		return new GameTypeManager(gametypeRepo(), DataStore.NOP, DataStore.NOP);
 	}
 
-	private static ManagedContentManager managed() throws IOException {
+	public static ManagedContentManager managed() throws IOException {
 		return new ManagedContentManager(managedRepo(), DataStore.NOP);
 	}
 
@@ -217,27 +226,28 @@ public class IndexHelper {
 
 	public static void attachmentGametypeMove() throws IOException {
 		final CLI cli = CLI.parse();
-		try (DataStore imageStore = Main.store(DataStore.StoreContent.IMAGES, cli)) {
+		try (DataStore imageStore = store(DataStore.StoreContent.IMAGES, cli)) {
 			GameTypeManager gm = gametypes();
 			Collection<GameType> search = gm.repo().all().stream()
 											.filter(g -> !g.maps.isEmpty())
 											.filter(g -> g.maps.stream().anyMatch(m -> m.screenshot != null &&
-																					   m.screenshot.url.contains("f002.backblazeb2.com")))
+																					   m.screenshot.url.contains(
+																						   "ua-img.s3.us-west-002.backblazeb2.com")))
 											.collect(Collectors.toSet());
 
 			System.out.println("Found " + search.size());
 
 			AtomicInteger counter = new AtomicInteger(0);
 			search.parallelStream().forEach(orig -> {
-				if (counter.incrementAndGet() % 100 == 0) System.out.printf("%d/%d%n", counter.get(), search.size());
+				if (counter.incrementAndGet() % 10 == 0) System.out.printf("%d/%d%n", counter.get(), search.size());
 
 				GameType co = gm.checkout(orig);
 
 				final boolean[] changed = { false };
 
-				co.maps.parallelStream()
+				co.maps.stream()
 					   .filter(m -> m.screenshot != null)
-					   .filter(m -> m.screenshot.url.contains("f002.backblazeb2.com"))
+					   .filter(m -> m.screenshot.url.contains("ua-img.s3.us-west-002.backblazeb2.com"))
 //					   .filter(
 //						   m -> orig.maps.stream()
 //										 .filter(o -> o.screenshot != null)
@@ -258,7 +268,7 @@ public class IndexHelper {
 									   imageStore.store(imgCon.getInputStream(), length, uploadName, (newUrl, ex) -> {
 										   if (ex != null) System.err.printf("Failed[3]: %s - %s: %s%n", m.name, uploadName, ex);
 										   if (newUrl != null) {
-//											   m.screenshot = new Addon.Attachment(Addon.AttachmentType.IMAGE, m.screenshot.name, newUrl);
+											   m.screenshot = new Addon.Attachment(Addon.AttachmentType.IMAGE, m.screenshot.name, newUrl);
 											   changed[0] = true;
 										   }
 									   });
@@ -283,11 +293,14 @@ public class IndexHelper {
 
 	public static void attachmentMove() throws IOException {
 		final CLI cli = CLI.parse();
-		try (DataStore imageStore = Main.store(DataStore.StoreContent.IMAGES, cli)) {
+		try (DataStore imageStore = store(DataStore.StoreContent.IMAGES, cli)) {
 			ContentManager cm = manager();
 			Collection<Addon> search = cm.repo().all().stream()
 										 .filter(c -> !c.attachments.isEmpty())
-										 .filter(c -> c.attachments.stream().anyMatch(a -> a.url.contains("f002.backblazeb2.com")))
+										 .filter(c -> c.attachments.stream().anyMatch(
+											 a -> a.url.contains("ua-img.s3.us-west-002.backblazeb2.com")))
+										 .filter(c -> c.attachments.stream().noneMatch(
+											 a -> a.url.contains("unreal-archive-img.s3.sgp.io.cloud.ovh.net")))
 										 .collect(Collectors.toSet());
 
 			System.out.println("Found " + search.size());
@@ -300,8 +313,8 @@ public class IndexHelper {
 
 				final boolean[] changed = { false };
 
-				orig.attachments.parallelStream()
-								.filter(a -> a.url.contains("f002.backblazeb2.com"))
+				orig.attachments.stream()
+								.filter(a -> a.url.contains("ua-img.s3.us-west-002.backblazeb2.com"))
 								.filter(a -> orig.attachments.stream().noneMatch(o -> a.name.equals(o.name) && !o.url.equals(a.url)))
 								.forEach(a -> {
 									try {
@@ -309,8 +322,12 @@ public class IndexHelper {
 											try {
 												Path base = Paths.get("");
 												Path uploadPath = co.contentPath(base);
-												String uploadName = base.relativize(uploadPath.resolve(a.name)).toString();
-//												System.out.println(uploadName);
+
+												String shotName = String.format(IndexUtils.SHOT_NAME,
+																				Util.slug(orig.name), orig.hash.substring(0, 8),
+																				co.attachments.size() + 1);
+
+												String uploadName = base.relativize(uploadPath.resolve(shotName)).toString();
 
 												long length = imgCon.getContentLength();
 												if (length <= 0) throw new RuntimeException("Dunno size");
@@ -320,7 +337,8 @@ public class IndexHelper {
 													if (newUrl != null
 														&& orig.attachments.stream().noneMatch(o -> o.url.equalsIgnoreCase(newUrl))) {
 														co.attachments.add(
-															new Addon.Attachment(Addon.AttachmentType.IMAGE, a.name, newUrl));
+															new Addon.Attachment(Addon.AttachmentType.IMAGE, shotName, newUrl)
+														);
 														changed[0] = true;
 													}
 												});
@@ -341,12 +359,33 @@ public class IndexHelper {
 		}
 	}
 
+	public static void dedupeAttachments() throws IOException {
+		ContentManager cm = manager();
+		Collection<Addon> search = cm.repo().all().stream()
+									 .filter(c -> !c.attachments.isEmpty())
+									 .filter(c -> c.attachments.size() > 1)
+									 .collect(Collectors.toSet());
+		search.parallelStream().forEach(orig -> {
+			int wasCount = orig.attachments.size();
+			Addon co = cm.checkout(orig.hash);
+			Set<Addon.Attachment> attachments = new HashSet<>(co.attachments);
+			co.attachments = new ArrayList<>(attachments);
+			try {
+				maybeCheckin(cm, co, wasCount != co.attachments.size());
+			} catch (Exception e) {
+				System.out.println("Checkin failed " + orig.name + ": " + e.getMessage());
+			}
+		});
+	}
+
 	public static void removeB2Attachments() throws IOException {
 		ContentManager cm = manager();
 		Collection<Addon> search = cm.repo().all().stream()
 									 .filter(c -> !c.attachments.isEmpty())
-									 .filter(c -> c.attachments.stream().anyMatch(a -> a.url.contains("f002.backblazeb2.com")))
-									 .filter(c -> c.attachments.stream().anyMatch(a -> a.url.contains("s3.us-west-002.backblazeb2.com")))
+									 .filter(
+										 c -> c.attachments.stream().anyMatch(a -> a.url.contains("ua-img.s3.us-west-002.backblazeb2.com")))
+									 .filter(c -> c.attachments.stream().anyMatch(
+										 a -> a.url.contains("unreal-archive-img.s3.sgp.io.cloud.ovh.net")))
 									 .collect(Collectors.toSet());
 
 		System.out.println("Found " + search.size());
@@ -358,22 +397,22 @@ public class IndexHelper {
 			Addon co = cm.checkout(orig.hash);
 
 			try {
-				maybeCheckin(cm, co, co.attachments.removeIf(a -> a.url.contains("f002.backblazeb2.com")));
+				maybeCheckin(cm, co, co.attachments.removeIf(a -> a.url.contains("ua-img.s3.us-west-002.backblazeb2.com")));
 			} catch (Exception e) {
 				System.out.println("Checkin failed " + orig.name + ": " + e.getMessage());
 			}
 		});
 	}
 
-	public static void removeLinodeLinks() throws IOException {
+	public static void removeB2Links() throws IOException {
 		ContentManager cm = manager();
 		Collection<Addon> search = cm.repo().all();
 		for (Addon c : search) {
 			Addon co = cm.checkout(c.hash);
-			boolean keep = co.downloads.stream().noneMatch(d -> d.url.contains("unreal-archive-files-eu.s3.de.io.cloud.ovh.net"));
+			boolean keep = co.downloads.stream().noneMatch(d -> d.url.contains("unreal-archive-files-na.s3.ca-east-tor.io.cloud.ovh.net"));
 			if (keep) continue;
 
-			maybeCheckin(cm, co, co.downloads.removeIf(d -> d.url.contains("unreal-archive-files.eu-central-1.linodeobjects.com")));
+			maybeCheckin(cm, co, co.downloads.removeIf(d -> d.url.contains("unreal-archive-files-s3.s3.us-west-002.backblazeb2.com")));
 		}
 
 		GameTypeManager gm = gametypes();
@@ -386,12 +425,12 @@ public class IndexHelper {
 				if (r.deleted) continue;
 				for (GameType.ReleaseFile f : r.files) {
 					if (f.deleted) continue;
-					keep = f.downloads.stream().noneMatch(d -> d.url.contains("unreal-archive-files-eu.s3.de.io.cloud.ovh.net"));
+					keep = f.downloads.stream().noneMatch(d -> d.url.contains("unreal-archive-files-na.s3.ca-east-tor.io.cloud.ovh.net"));
 					if (keep) {
 						System.out.println("Gametype has not been mirrored: " + co.name);
 						break;
 					}
-					changed = f.downloads.removeIf(d -> d.url.contains("unreal-archive-files.eu-central-1.linodeobjects.com"));
+					changed = f.downloads.removeIf(d -> d.url.contains("unreal-archive-files-s3.s3.us-west-002.backblazeb2.com"));
 				}
 				if (keep) break;
 			}
@@ -408,12 +447,12 @@ public class IndexHelper {
 
 			for (Managed.ManagedFile d : co.downloads) {
 				if (d.deleted) continue;
-				keep = d.downloads.stream().noneMatch(f -> f.url.contains("unreal-archive-files-eu.s3.de.io.cloud.ovh.net"));
+				keep = d.downloads.stream().noneMatch(f -> f.url.contains("unreal-archive-files-na.s3.ca-east-tor.io.cloud.ovh.net"));
 				if (keep) {
 					System.out.println("Managed has not been mirrored: " + co.title);
 					break;
 				}
-				changed = d.downloads.removeIf(f -> f.url.contains("unreal-archive-files.eu-central-1.linodeobjects.com"));
+				changed = d.downloads.removeIf(f -> f.url.contains("unreal-archive-files-s3.s3.us-west-002.backblazeb2.com"));
 			}
 
 			if (!keep && changed) mm.checkin(co);
@@ -1166,8 +1205,8 @@ public class IndexHelper {
 
 	private static void fixDuplicateMapPics(String game, String type) throws IOException {
 		final CLI cli = CLI.parse();
-		final DataStore imageStore = Main.store(DataStore.StoreContent.IMAGES, cli);
-		final DataStore contentStore = Main.store(DataStore.StoreContent.CONTENT, cli);
+		final DataStore imageStore = store(DataStore.StoreContent.IMAGES, cli);
+		final DataStore contentStore = store(DataStore.StoreContent.CONTENT, cli);
 //		final DataStore imageStore = DataStore.NOP;
 //		final DataStore attachmentStore = DataStore.NOP;
 //		final DataStore contentStore = DataStore.NOP;
@@ -1248,91 +1287,92 @@ public class IndexHelper {
 		}
 	}
 
-	private static void checkPathing(String game, String localFiles) throws IOException {
-		final Path root = Paths.get(localFiles);
-
-		ContentManager cm = manager();
-
-		final java.util.Map<String, Path> fileHashes = new HashMap<>();
-		Files.walkFileTree(root, new SimpleFileVisitor<>() {
-			@Override
-			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-				if (ArchiveUtil.isArchive(file)) {
-					fileHashes.put(Util.hash(file), file);
-				}
-				return super.visitFile(file, attrs);
-			}
-		});
-
-		System.out.printf("Cached %d file hashes%n", fileHashes.size());
-
-		Collection<Addon> search = cm.repo().search(game, "MAP", null, null);
-		final Path tmpDir = Files.createTempDirectory("ua-bots");
-
-		List<Map> maps = search.stream()
-							   .filter(c -> !c.deleted && c instanceof Map)
-							   .map(c -> (Map)c)
-							   .filter(c -> !c.bots)
-//							   .filter(c -> c.hash.equalsIgnoreCase("9a236ea0398b1111f831959629b0420ac1a1de2c"))
-							   .toList();
-
-		System.out.printf("Processing %d maps%n", maps.size());
-
-		AtomicInteger counter = new AtomicInteger(0);
-		maps.parallelStream().forEach(c -> {
-			if (counter.incrementAndGet() % 100 == 0) System.out.printf("%d/%d%n", counter.get(), maps.size());
-
-			Path[] downloaded = { null };
-
-			try {
-				Addon co = cm.checkout(c.hash);
-				boolean was = ((Map)co).bots;
-
-				Path existing = fileHashes.get(c.hash);
-				if (existing == null) {
-					new LocalMirrorClient.Downloader(c, tmpDir, d -> {
-						System.out.printf("Downloaded %s%n", d.destination);
-						downloaded[0] = d.destination;
-					}).run();
-				}
-
-				Path file = downloaded[0] != null ? downloaded[0] : existing;
-
-				Submission sub = new Submission(file);
-				IndexLog log = new IndexLog();
-				try (Incoming incoming = new Incoming(sub, log).prepare()) {
-					if (!incoming.files(FileType.MAP).isEmpty()) {
-						try (Package pkg = new Package(
-							new PackageReader(incoming.files(FileType.MAP).stream().findFirst().get().asChannel()))) {
-							((Map)co).bots = MapIndexHandler.botSupport(pkg);
-						} catch (Exception e) {
-							//
-						}
-					}
-				} catch (Exception e) {
-					//
-				}
-
-				if (((Map)co).bots != was) {
-					checkinChange(cm, co);
-				} else {
-					System.out.println("No change for " + String.join(" / ", co.game, co.name));
-				}
-			} catch (Throwable e) {
-				//
-			} finally {
-				if (downloaded[0] != null) {
-					try {
-						Files.deleteIfExists(downloaded[0]);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		});
-
-	}
-
+	/**
+	 * Commented 2026-03 to remove dependency on Indexings MapIndexHandler.
+	 */
+//	private static void checkPathing(String game, String localFiles) throws IOException {
+//		final Path root = Paths.get(localFiles);
+//
+//		ContentManager cm = manager();
+//
+//		final java.util.Map<String, Path> fileHashes = new HashMap<>();
+//		Files.walkFileTree(root, new SimpleFileVisitor<>() {
+//			@Override
+//			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+//				if (ArchiveUtil.isArchive(file)) {
+//					fileHashes.put(Util.hash(file), file);
+//				}
+//				return super.visitFile(file, attrs);
+//			}
+//		});
+//
+//		System.out.printf("Cached %d file hashes%n", fileHashes.size());
+//
+//		Collection<Addon> search = cm.repo().search(game, "MAP", null, null);
+//		final Path tmpDir = Files.createTempDirectory("ua-bots");
+//
+//		List<Map> maps = search.stream()
+//							   .filter(c -> !c.deleted && c instanceof Map)
+//							   .map(c -> (Map)c)
+//							   .filter(c -> !c.bots)
+////							   .filter(c -> c.hash.equalsIgnoreCase("9a236ea0398b1111f831959629b0420ac1a1de2c"))
+//							   .toList();
+//
+//		System.out.printf("Processing %d maps%n", maps.size());
+//
+//		AtomicInteger counter = new AtomicInteger(0);
+//		maps.parallelStream().forEach(c -> {
+//			if (counter.incrementAndGet() % 100 == 0) System.out.printf("%d/%d%n", counter.get(), maps.size());
+//
+//			Path[] downloaded = { null };
+//
+//			try {
+//				Addon co = cm.checkout(c.hash);
+//				boolean was = ((Map)co).bots;
+//
+//				Path existing = fileHashes.get(c.hash);
+//				if (existing == null) {
+//					new LocalMirrorClient.Downloader(c, tmpDir, d -> {
+//						System.out.printf("Downloaded %s%n", d.destination);
+//						downloaded[0] = d.destination;
+//					}).run();
+//				}
+//
+//				Path file = downloaded[0] != null ? downloaded[0] : existing;
+//
+//				Submission sub = new Submission(file);
+//				IndexLog log = new IndexLog();
+//				try (Incoming incoming = new Incoming(sub, log).prepare()) {
+//					if (!incoming.files(FileType.MAP).isEmpty()) {
+//						try (Package pkg = new Package(
+//							new PackageReader(incoming.files(FileType.MAP).stream().findFirst().get().asChannel()))) {
+//							((Map)co).bots = MapIndexHandler.botSupport(pkg);
+//						} catch (Exception e) {
+//							//
+//						}
+//					}
+//				} catch (Exception e) {
+//					//
+//				}
+//
+//				if (((Map)co).bots != was) {
+//					checkinChange(cm, co);
+//				} else {
+//					System.out.println("No change for " + String.join(" / ", co.game, co.name));
+//				}
+//			} catch (Throwable e) {
+//				//
+//			} finally {
+//				if (downloaded[0] != null) {
+//					try {
+//						Files.deleteIfExists(downloaded[0]);
+//					} catch (IOException e) {
+//						e.printStackTrace();
+//					}
+//				}
+//			}
+//		});
+//	}
 	public static void findGametypes(String searchPath) throws IOException {
 		Path root = Paths.get(searchPath);
 		Files.walkFileTree(root, new SimpleFileVisitor<>() {
@@ -1708,8 +1748,8 @@ public class IndexHelper {
 		final LocalDate dateTo = LocalDate.parse("2025-03-15");
 
 		final CLI cli = CLI.parse();
-		final DataStore imageStore = Main.store(DataStore.StoreContent.IMAGES, cli);
-		final DataStore contentStore = Main.store(DataStore.StoreContent.CONTENT, cli);
+		final DataStore imageStore = store(DataStore.StoreContent.IMAGES, cli);
+		final DataStore contentStore = store(DataStore.StoreContent.CONTENT, cli);
 
 		final ContentManager cm = new ContentManager(repo(), contentStore, imageStore);
 

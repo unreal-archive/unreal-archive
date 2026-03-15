@@ -1,0 +1,6 @@
+rootProject.name = 'tools'
+
+include '../common'
+include '../content'
+include '../storage'
+include '../indexing'

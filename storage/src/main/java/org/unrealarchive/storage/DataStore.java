@@ -37,6 +37,26 @@ public interface DataStore extends Closeable {
 
 	public static final DataStore NOP = new NopStore();
 
+	/**
+	 * Helper to create a store for the given content type and CLI options.
+	 */
+	public static DataStore store(DataStore.StoreContent contentType, CLI cli) {
+		String stringType = cli.option(contentType.name().toLowerCase() + "-store", cli.option("store", null));
+		if (stringType == null) {
+			System.err.printf("No %s store specified, this will be necessary for indexing new content. Falling back to no-op store.%n",
+							  contentType.name().toLowerCase());
+			stringType = "NOP";
+		}
+
+		DataStore.StoreType storeType = DataStore.StoreType.valueOf(stringType.toUpperCase());
+
+		DataStore dataStore = storeType.newStore(contentType, cli);
+
+		System.err.printf("Store for %s is: %s%n", contentType, dataStore);
+
+		return dataStore;
+	}
+
 	public interface DataStoreFactory {
 
 		public DataStore newStore(StoreContent type, CLI cli);
