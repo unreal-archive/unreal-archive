@@ -19,6 +19,14 @@ public class Contributors {
 	 */
 	private static final Pattern DATE = Pattern.compile("\\d{1,4}[/-]\\d{1,2}[/-]\\d{1,4}");
 
+	private static final Pattern PAREN_URL_LIKE = Pattern.compile(
+		"\\s*\\((?:(?:https?://)?(?:www\\.)?[^\\s)]+)\\)\\s*|\\s*\\[(?:(?:https?://)?(?:www\\.)?[^\\s\\]]+)\\]\\s*",
+		Pattern.CASE_INSENSITIVE);
+
+	private static final Pattern URL_LIKE = Pattern.compile(
+		"(?i)(?:https?://|www\\.)\\S+|\\b[a-z0-9-]+\\.[a-z]{2,}(?:/\\S*)?"
+	);
+
 	/**
 	 * Inputs:
 	 * - Bob and Joe
@@ -143,7 +151,7 @@ public class Contributors {
 	public Contributors(String authorString) {
 		this.authorString = authorString;
 
-		String cleaned = normalise(DATE.matcher(authorString).replaceAll(""));
+		String cleaned = preprocess(authorString);
 
 		ModBy modBy = parseEditors(cleaned);
 		if (modBy != null) {
@@ -164,7 +172,7 @@ public class Contributors {
 	public static Set<String> names(String authorString) {
 		if (Authors.noAlias(authorString)) return Set.of(authorString);
 
-		String normalised = normalise(authorString);
+		String normalised = preprocess(authorString);
 		Set<String> names = new HashSet<>();
 
 		ModBy modBy = parseNamesEditors(normalised);
@@ -249,6 +257,31 @@ public class Contributors {
 		if (m6.find()) return new ModBy(m6.group(1), m6.group(4));
 
 		return null;
+	}
+
+	private static String preprocess(String input) {
+		String cleaned = normalise(input);
+		cleaned = stripUrlLike(cleaned);
+		cleaned = DATE.matcher(cleaned).replaceAll("");
+		return cleaned;
+	}
+
+	private static String stripUrlLike(String input) {
+		if (input == null || input.isBlank()) return input;
+
+		String s = input;
+
+		// Remove parenthesized / bracketed URL-ish fragments completely.
+		s = PAREN_URL_LIKE.matcher(s).replaceAll(" ");
+
+		// Remove bare URL-ish tokens.
+		s = URL_LIKE.matcher(s).replaceAll(" ");
+
+		// Remove empty wrapper leftovers like "( )" or "[ ]".
+		s = s.replaceAll("\\s*\\(\\s*\\)\\s*", " ")
+			 .replaceAll("\\s*\\[\\s*\\]\\s*", " ");
+
+		return s.replaceAll("\\s+", " ").strip();
 	}
 
 	private static String normalise(String input) {

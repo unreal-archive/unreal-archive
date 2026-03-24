@@ -65,6 +65,10 @@ public class ContributorsTest {
 		System.out.println(names);
 		assertTrue(names.contains("Cédric Fiorentino"));
 		assertTrue(names.contains("Neon_Knight"));
+
+		names = Contributors.names("Paul Catalano (www.xgxlan.com/vp)");
+		System.out.println(names);
+		assertTrue(names.contains("Paul Catalano"));
 	}
 
 	@Test
