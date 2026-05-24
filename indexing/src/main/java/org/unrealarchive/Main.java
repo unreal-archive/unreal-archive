@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -27,7 +28,9 @@ import java.util.stream.Stream;
 
 import net.shrimpworks.unreal.packages.Umod;
 
+import org.unrealarchive.common.ArchiveUtil;
 import org.unrealarchive.common.CLI;
+import org.unrealarchive.common.JSON;
 import org.unrealarchive.common.Platform;
 import org.unrealarchive.common.Util;
 import org.unrealarchive.common.Version;
@@ -42,6 +45,7 @@ import org.unrealarchive.content.RepositoryManager;
 import org.unrealarchive.content.addons.Addon;
 import org.unrealarchive.content.addons.GameType;
 import org.unrealarchive.content.addons.GameTypeRepository;
+import org.unrealarchive.content.addons.MapPack;
 import org.unrealarchive.content.addons.SimpleAddonRepository;
 import org.unrealarchive.content.addons.SimpleAddonType;
 import org.unrealarchive.content.managed.ManagedContentRepository;
@@ -96,17 +100,19 @@ public class Main {
 			case "collection" -> collection(repos, collectionsManager(cli, repos, repos.collections()), cli);
 			case "mirror" -> {
 				mirror(repos.addons(), contentManager(cli, repos.addons()),
-					   repos.gameTypes(), gameTypeManager(cli, repos.gameTypes()),
-					   repos.managed(), managedContentManager(cli, repos.managed()),
-					   repos.collections(), collectionsManager(cli, repos, repos.collections()),
-					   cli);
+				       repos.gameTypes(), gameTypeManager(cli, repos.gameTypes()),
+				       repos.managed(), managedContentManager(cli, repos.managed()),
+				       repos.collections(), collectionsManager(cli, repos, repos.collections()),
+				       cli);
 			}
 			case "local-mirror" -> localMirror(repos.addons(), cli);
 			case "summary" -> System.out.println(repos.addons().summary());
 			case "ls" -> list(repos.addons(), cli);
 			case "filter" -> filter(repos.addons(), cli);
 			case "show" -> show(repos.addons(), cli);
+			case "meta" -> meta(repos.addons(), cli);
 			case "unpack" -> unpack(cli);
+			case "extract" -> extract(repos.addons(), cli);
 			case "install" -> install(repos.addons(), cli);
 			case "wiki" -> wiki(repos.wikis());
 			default -> {
@@ -382,9 +388,9 @@ public class Main {
 				gameType.releases.forEach(r -> {
 					if (releaseFile[0] != null) return;
 					releaseFile[0] = r.files.stream()
-											.filter(f -> f.localFile.equalsIgnoreCase(localFileName) ||
-														 f.originalFilename.equalsIgnoreCase(Util.fileName(localFileName)))
-											.findFirst().orElse(null);
+					                        .filter(f -> f.localFile.equalsIgnoreCase(localFileName) ||
+					                                     f.originalFilename.equalsIgnoreCase(Util.fileName(localFileName)))
+					                        .findFirst().orElse(null);
 					if (releaseFile[0] != null) release[0] = r;
 				});
 
@@ -436,7 +442,7 @@ public class Main {
 					if (Boolean.parseBoolean(cli.option("index", "false"))) {
 						System.out.printf("Indexing release%n");
 						gametypes.index(gameType, release,
-										release.files.stream().filter(f -> f.localFile.equals(localFile.toString())).findFirst().get()
+						                release.files.stream().filter(f -> f.localFile.equals(localFile.toString())).findFirst().get()
 						);
 					}
 				}));
@@ -580,10 +586,10 @@ public class Main {
 	}
 
 	private static void mirror(SimpleAddonRepository contentRepo, ContentManager contentManager,
-							   GameTypeRepository gameTypeRepo, GameTypeManager gameTypeManager,
-							   ManagedContentRepository managedRepo, ManagedContentManager managedManaged,
-							   CollectionsRepository collectionsRepo, CollectionsManager collectionsManager,
-							   CLI cli) {
+	                           GameTypeRepository gameTypeRepo, GameTypeManager gameTypeManager,
+	                           ManagedContentRepository managedRepo, ManagedContentManager managedManaged,
+	                           CollectionsRepository collectionsRepo, CollectionsManager collectionsManager,
+	                           CLI cli) {
 		final DataStore mirrorStore = store(DataStore.StoreContent.CONTENT, cli);
 
 		// default to mirror last 7 days of changes
@@ -604,7 +610,7 @@ public class Main {
 		}
 
 		System.out.printf("Mirroring files added since %s until %s to %s with concurrency of %s%n",
-						  since, until, mirrorStore, cli.option("concurrency", "3"));
+		                  since, until, mirrorStore, cli.option("concurrency", "3"));
 
 		Mirror mirror = new Mirror(
 			contentRepo, contentManager, gameTypeRepo, gameTypeManager, managedRepo, managedManaged,
@@ -635,7 +641,7 @@ public class Main {
 		LocalMirrorClient mirror = new LocalMirrorClient(
 			Integer.parseInt(cli.option("concurrency", "3")),
 			((total, remaining, last) -> System.out.printf("\r[ %-6s / %-6s ] Processed %-40s",
-														   total - remaining, total, last.name()))
+			                                               total - remaining, total, last.name()))
 		);
 
 		mirror.mirror(filterRepo(contentRepo, cli), output);
@@ -646,7 +652,7 @@ public class Main {
 		mirror.cancel();
 	}
 
-	private static void list(SimpleAddonRepository repository, CLI cli) {
+	private static void list(SimpleAddonRepository repository, CLI cli) throws IOException {
 		String game = cli.option("game", null);
 		String type = cli.option("type", null);
 		String author = cli.option("author", null);
@@ -657,11 +663,11 @@ public class Main {
 			System.exit(255);
 		}
 
-		printSearch(repository.search(game, type, name, author));
+		printSearch(repository.search(game, type, name, author), cli.option("format", "fixed"));
 	}
 
-	private static void filter(SimpleAddonRepository repository, CLI cli) {
-		printSearch(filterRepo(repository, cli));
+	private static void filter(SimpleAddonRepository repository, CLI cli) throws IOException {
+		printSearch(filterRepo(repository, cli), cli.option("format", "fixed"));
 	}
 
 	private static Collection<Addon> filterRepo(SimpleAddonRepository repository, CLI cli) {
@@ -675,17 +681,49 @@ public class Main {
 		return repository.filter(args);
 	}
 
-	private static void printSearch(Collection<Addon> results) {
+	private static void printSearch(Collection<Addon> results, String format) throws IOException {
 		if (results.isEmpty()) {
 			System.out.println("No results found");
 		} else {
-			System.out.printf("%-22s | %-10s | %-30s | %-20s | %s%n", "Game", "Type", "Name", "Author", "Hash");
-			for (Addon result : results) {
-				System.out.printf("%-22s | %-10s | %-30s | %-20s | %s%n",
-								  result.game, result.contentType,
-								  result.name.substring(0, Math.min(20, result.name.length())),
-								  result.author.substring(0, Math.min(20, result.author.length())),
-								  result.hash);
+			switch (format) {
+				case "fixed" -> {
+					System.out.printf("%-22s | %-10s | %-30s | %-20s | %s%n", "Game", "Type", "Name", "Author", "Hash");
+					for (Addon result : results) {
+						System.out.printf("%-22s | %-10s | %-30s | %-20s | %s%n",
+						                  result.game, result.contentType,
+						                  result.name.substring(0, Math.min(20, result.name.length())),
+						                  result.author.substring(0, Math.min(20, result.author.length())),
+						                  result.hash);
+					}
+				}
+				case "csv" -> {
+					System.out.printf("%s,%s,%s,%s,%s%n", "Game", "Type", "Name", "Author", "Hash");
+					for (Addon result : results) {
+						System.out.printf("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"%n",
+						                  result.game, result.contentType, result.name, result.author, result.hash);
+					}
+				}
+				case "tab" -> {
+					System.out.printf("%s\t%s\t%s\t%s\t%s%n", "Game", "Type", "Name", "Author", "Hash");
+					for (Addon result : results) {
+						System.out.printf("%s\t%s\t%s\t%s\t%s%n",
+						                  result.game, result.contentType, result.name, result.author, result.hash);
+					}
+				}
+				case "json" -> {
+					System.out.println(JSON.toString(
+						results.stream().map(
+								   a -> Map.of("game", a.game, "type", a.contentType, "name", a.name, "author", a.author, "hash", a.hash))
+						       .collect(Collectors.toSet()))
+					);
+				}
+				case "yaml" -> {
+					System.out.println(YAML.toString(
+						results.stream().map(
+								   a -> Map.of("game", a.game, "type", a.contentType, "name", a.name, "author", a.author, "hash", a.hash))
+						       .collect(Collectors.toSet()))
+					);
+				}
 			}
 		}
 	}
@@ -713,6 +751,39 @@ public class Main {
 		} else {
 			for (Addon result : results) {
 				System.out.println(YAML.toString(result));
+			}
+		}
+	}
+
+	private static void meta(SimpleAddonRepository repository, CLI cli) throws IOException {
+		if (cli.commands().length < 2) {
+			System.err.println("A type is required to list");
+			System.exit(255);
+		}
+
+		switch (cli.commands()[1]) {
+			case "games" -> {
+				for (Games game : Games.values()) {
+					System.out.println(game.name);
+				}
+			}
+			case "gametypes" -> {
+				Stream.concat(repository.all()
+				                        .stream()
+				                        .filter(a -> a instanceof org.unrealarchive.content.addons.Map)
+				                        .map(a -> String.format("%s: %s", a.game, ((org.unrealarchive.content.addons.Map)a).gametype)),
+				              repository.all()
+				                        .stream()
+				                        .filter(a -> a instanceof MapPack)
+				                        .map(a -> String.format("%s: %s", a.game, ((MapPack)a).gametype))
+					  )
+				      .distinct()
+				      .sorted()
+				      .forEach(System.out::println);
+			}
+			default -> {
+				System.err.println("Unknown meta operation" + cli.commands()[1]);
+				System.exit(3);
 			}
 		}
 	}
@@ -750,8 +821,8 @@ public class Main {
 				System.out.printf("to %s%n", out);
 
 				try (FileChannel fileChannel = FileChannel.open(out, StandardOpenOption.WRITE, StandardOpenOption.CREATE,
-																StandardOpenOption.TRUNCATE_EXISTING);
-					 SeekableByteChannel fileData = f.read()) {
+				                                                StandardOpenOption.TRUNCATE_EXISTING);
+				     SeekableByteChannel fileData = f.read()) {
 
 					while (fileData.read(buffer) > 0) {
 						fileData.read(buffer);
@@ -761,6 +832,26 @@ public class Main {
 					}
 				}
 			}
+		}
+	}
+
+	private static void extract(SimpleAddonRepository repository, CLI cli) throws IOException {
+		if (cli.commands().length < 3) {
+			System.err.println("A file path or content hash and destination directory are required!");
+			System.exit(2);
+		}
+
+		Path dest = Paths.get(cli.commands()[2]).toAbsolutePath();
+
+		Path path = localOrRemoteOrHashToPaths(new String[] { cli.commands()[1] }, repository)
+			.stream()
+			.findFirst()
+			.orElseThrow();
+
+		try {
+			ArchiveUtil.extract(path, dest, Duration.ofMinutes(1), true);
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to extract " + path, e);
 		}
 	}
 
@@ -857,13 +948,13 @@ public class Main {
 
 		// get whatever else looks like a URL from the input collection
 		String[] urls = Arrays.stream(paths)
-							  .filter(s -> s.matches("^https?://.*"))
-							  .toArray(String[]::new);
+		                      .filter(s -> s.matches("^https?://.*"))
+		                      .toArray(String[]::new);
 
 		// convert URLs to local files
 		Path dlTemp = Files.createTempDirectory("ua-download");
 		Set<Path> dls = Stream.concat(Arrays.stream(contentUrls), Arrays.stream(urls))
-							  .map(url -> {
+		                      .map(url -> {
 								  System.out.printf("Fetching %s ... ", url);
 								  try {
 									  return Util.downloadTo(url, dlTemp);
@@ -876,15 +967,15 @@ public class Main {
 
 		// find local paths
 		Set<Path> diskPaths = Arrays.stream(paths)
-									.filter(s -> !s.matches("^https?://.*"))
-									.filter(s -> !s.matches("^[a-f0-9]{40}$"))
-									.map(s -> Paths.get(s).toAbsolutePath())
-									.peek(p -> {
+		                            .filter(s -> !s.matches("^https?://.*"))
+		                            .filter(s -> !s.matches("^[a-f0-9]{40}$"))
+		                            .map(s -> Paths.get(s).toAbsolutePath())
+		                            .peek(p -> {
 										if (!Files.exists(p)) {
 											throw new IllegalArgumentException(String.format("Path not found %s!", p));
 										}
 									})
-									.collect(Collectors.toSet());
+		                            .collect(Collectors.toSet());
 
 		return Stream.concat(dls.stream(), diskPaths.stream()).collect(Collectors.toSet());
 	}
@@ -919,12 +1010,18 @@ public class Main {
 		System.out.println("    Show stats and counters for the content index in <content-path>");
 		System.out.println("  ls [--game=<game>] [--type=<type>] [--author=<author>] [--name=<name>] [--content-path=<path> | --content-download]");
 		System.out.println("    List indexed content in <content-path>, filtered by game, type, author or name");
-		System.out.println("  filter <attribute=value, ...> [--content-path=<path> | --content-download]");
-		System.out.println("    Filter all indexed content in <content-path>, using the attributes and matched values provided");
+		System.out.println("  filter <attribute=value attr=val ...> [--format=<fixed|csv|tab|json|yaml>] [--content-path=<path> | --content-download]");
+		System.out.println("    Filter all indexed content in <content-path>, using the attributes and matched values");
+		System.out.println("     provided, and output in the format specified - defaults to 'fixed'.");
 		System.out.println("  show [name ...] [hash ...] [--content-path=<path> | --content-download]");
-		System.out.println("    Show data for the content items specified");
+		System.out.println("    Show YAML metadata for the content items specified");
+		System.out.println("  meta <type> [--content-path=<path> | --content-download]");
+		System.out.println("    List meta information, for attribute <type>. Where <type> may be one of: 'game', 'gametype'");
 		System.out.println("  unpack <umod-file> <destination>");
 		System.out.println("    Unpack the contents of <umod-file> to directory <destination>");
+		System.out.println("  extract <file|hash> <destination> [--content-path=<path> | --content-download]");
+		System.out.println("    Extract the contents of `file` (or download/extract content identified by `hash`)");
+		System.out.println("    to directory <destination>");
 		System.out.println("  install <file|hash> <destination> [--content-path=<path> | --content-download]");
 		System.out.println("    Extract and place the contents of <file> into the <destination> directory");
 		System.out.println("    provided. Files will be placed into appropriate sub-directories by file type,");

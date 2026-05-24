@@ -77,16 +77,17 @@ public class IndexHelper {
 	private static final String ROOT = "./unreal-archive-data";
 
 	public static void main(String[] args) throws IOException, InterruptedException {
+		System.out.println("Running index helper");
 //		fixMissingScreenshots();
 //		fixDDOMMaps();
 //		reassignUT2003();
-//		fixCCMaps();
+		fixCtf4Maps();
 //		reindexMapsWithThemes(args[0], args[1], args[2]);
 //		removeGamefrontOnlineLinks();
 //		removeVohzdUnrealLinks();
 //		removeDeadLinks();
 //		attachmentMove();
-		attachmentGametypeMove();
+//		attachmentGametypeMove();
 //		removeB2Attachments();
 //		removeB2Links();
 //		dedupeAttachments();
@@ -709,16 +710,16 @@ public class IndexHelper {
 		}
 	}
 
-	private static void fixCCMaps() throws IOException {
+	private static void fixCtf4Maps() throws IOException {
 		ContentManager cm = manager();
 
-		Collection<Addon> search = cm.repo().search("Unreal", "MAP", "CC-", null);
+		Collection<Addon> search = cm.repo().search("Unreal Tournament", "MAP", "CTF-[4]", null);
 		for (Addon c : search) {
 			if (c instanceof Map
-				&& c.name.startsWith("CC")
-				&& !(((Map)c).gametype.equalsIgnoreCase("Crystal Castles"))) {
+				&& c.name.startsWith("CTF-[4]")
+				&& !(((Map)c).gametype.equalsIgnoreCase("Multi-Team CTF"))) {
 				Map map = (Map)cm.checkout(c.hash);
-				map.gametype = "Crystal Castles";
+				map.gametype = "Multi-Team CTF";
 				if (cm.checkin(new IndexResult<>(map, Collections.emptySet()), null)) {
 					System.out.println("Stored changes for " + String.join(" / ", map.game, map.gametype, map.name));
 				} else {

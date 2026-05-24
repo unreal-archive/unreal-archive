@@ -75,7 +75,7 @@ public class S3Store implements DataStore {
 
 	@Override
 	public void store(InputStream stream, long dataSize, String name, BiConsumer<String, IOException> stored) throws IOException {
-		final String nom = name.replaceAll("\\$", "s"); // $ seems to not play well with S3 objects
+		final String nom = name.replaceAll("[$+]", "s"); // $ seems to not play well with S3 objects, and + confuses url encoding
 		exists(nom, (exits) -> {
 			if (exits instanceof StatObjectResponse obj) {
 				stored.accept(Util.toUriString(makePublicUrl(obj.bucket(), obj.object())), null);
@@ -83,12 +83,12 @@ public class S3Store implements DataStore {
 				try {
 					client.putObject(
 						PutObjectArgs.builder()
-									 .bucket(bucket)
-									 .object(nom)
-									 .stream(stream, dataSize, -1)
-									 .headers(Map.of("x-amz-acl", "public-read"))
-									 .contentType(Util.mimeType(Util.extension(name)))
-									 .build()
+						             .bucket(bucket)
+						             .object(nom)
+						             .stream(stream, dataSize, -1)
+						             .headers(Map.of("x-amz-acl", "public-read"))
+						             .contentType(Util.mimeType(Util.extension(name)))
+						             .build()
 					);
 					stored.accept(Util.toUriString(makePublicUrl(bucket, nom)), null);
 				} catch (Exception e) {
