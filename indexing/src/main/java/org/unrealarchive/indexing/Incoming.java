@@ -33,7 +33,7 @@ public class Incoming implements Closeable {
 
 	public final Submission submission;
 	public final String hash;
-	public final int fileSize;
+	public final long fileSize;
 	public final IndexLog log;
 
 	private final Set<Umod> umods;
@@ -50,7 +50,7 @@ public class Incoming implements Closeable {
 	public Incoming(Submission submission, IndexLog log) throws IOException, UnsupportedOperationException {
 		this.submission = submission;
 		this.hash = Util.hash(submission.filePath);
-		this.fileSize = (int)Files.size(submission.filePath);
+		this.fileSize = Files.size(submission.filePath);
 		this.umods = new HashSet<>();
 		this.log = log;
 	}
@@ -204,10 +204,10 @@ public class Incoming implements Closeable {
 			return Util.fileName(file);
 		}
 
-		public int fileSize() {
+		public long fileSize() {
 			try {
 				if (files.get(file) instanceof Path) {
-					return (int)Files.size((Path)files.get(file));
+					return Files.size((Path)files.get(file));
 				} else if (files.get(file) instanceof Umod.UmodFile) {
 					return ((Umod.UmodFile)files.get(file)).size;
 				}

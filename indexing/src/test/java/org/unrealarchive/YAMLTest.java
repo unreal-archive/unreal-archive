@@ -53,6 +53,8 @@ public class YAMLTest {
 
 		assertEquals(m.title, copy.title);
 		assertEquals(m.attachments.get(1), copy.attachments.get(1));
+		assertEquals(m.fileSize, copy.fileSize);
+		assertEquals(m.files.get(2).fileSize, copy.files.get(2).fileSize);
 
 		Path wrote = Files.write(Files.createTempFile("test-map", ".yaml"),
 								 YAML.toString(copy).getBytes(StandardCharsets.UTF_8),
@@ -62,6 +64,8 @@ public class YAMLTest {
 		assertNotNull(another);
 		assertEquals(m.title, another.title);
 		assertEquals(m.attachments.get(1), another.attachments.get(1));
+		assertEquals(m.fileSize, another.fileSize);
+		assertEquals(m.files.get(2).fileSize, another.files.get(2).fileSize);
 	}
 
 	private Map makeMap() {
@@ -78,8 +82,9 @@ public class YAMLTest {
 		m.releaseDate = "2001-05";
 		m.attachments = Arrays.asList(attachment("localhost/Screenshot1.png"), attachment("lolhosting.com/path/shot2.jpg"));
 		m.hash = "123456789";
-		m.fileSize = 564231;
-		m.files = Arrays.asList(file("DM-MyMap.unr"), file("MyTex.utx"));
+		m.fileSize = 5_850_805_444L;    // over 2GB; this used to silently wrap around
+		m.files = Arrays.asList(file("DM-MyMap.unr"), file("MyTex.utx"),
+								new Addon.ContentFile("Huge.utx", 3_000_000_000L, "abc123"));
 		m.downloads = Arrays.asList(download("mysite.com/map.zip"), download("http://maps.com/map.rar"));
 
 		m.deleted = false;

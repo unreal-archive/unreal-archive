@@ -299,7 +299,8 @@ public class Mirror implements Consumer<Mirror.Transfer> {
 						Path base = Paths.get("");
 						Path uploadPath = content.contentPath(base);
 						String uploadName = base.relativize(uploadPath.resolve(Util.fileName(content.originalFilename))).toString();
-						long length = httpConn.getContentLength() > -1 ? httpConn.getContentLength() : content.fileSize;
+						// note: getContentLength() is an int, and returns -1 rather than truncating
+						long length = httpConn.getContentLengthLong() > -1 ? httpConn.getContentLengthLong() : content.fileSize;
 						mirrorStore.store(httpConn.getInputStream(), length, uploadName, (newUrl, ex) -> {
 							if (ex != null) {
 								System.err.printf("%nFailed to transfer content %s: %s (queued for retry)%n",

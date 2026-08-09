@@ -449,7 +449,7 @@ public interface SimpleAddonRepository {
 			private final Path path;
 			private final boolean deleted;
 			private final boolean isVariation;
-			private final int fileSize;
+			private final long fileSize;
 			private final Class<?> type;
 			private SoftReference<Addon> content;
 

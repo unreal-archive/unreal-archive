@@ -88,7 +88,8 @@ public class IndexHelper {
 //		fixMissingScreenshots();
 //		fixDDOMMaps();
 //		reassignUT2003();
-		fixCorruptStrings();
+		fixFileSize(args[0], args[1]);
+//		fixCorruptStrings();
 //		fixCtf4Maps();
 //		reindexMapsWithThemes(args[0], args[1], args[2]);
 //		removeGamefrontOnlineLinks();
@@ -851,7 +852,7 @@ public class IndexHelper {
 									 .filter(c -> !c.deleted)
 									 .filter(c -> c.author.equalsIgnoreCase("unknown"))
 									 .filter(c -> c.otherFiles > 0)
-									 .sorted(Comparator.comparingInt(a -> a.fileSize))
+									 .sorted(Comparator.comparingLong(a -> a.fileSize))
 									 .toList();
 
 		System.out.printf("Processing %d contents%n", contents.size());
@@ -926,7 +927,7 @@ public class IndexHelper {
 																							.anyMatch(d -> d.status ==
 																										   Addon.DependencyStatus.MISSING)
 									 )
-									 .sorted(Comparator.comparingInt(a -> a.fileSize))
+									 .sorted(Comparator.comparingLong(a -> a.fileSize))
 									 .toList();
 
 		System.out.printf("Processing %d contents%n", contents.size());
@@ -990,7 +991,7 @@ public class IndexHelper {
 		List<Addon> contents = search.stream()
 									 .filter(c -> !c.deleted)
 									 .filter(c -> c.files.stream().anyMatch(d -> umods.contains(Util.extension(d.name).toLowerCase())))
-									 .sorted(Comparator.comparingInt(a -> a.fileSize))
+									 .sorted(Comparator.comparingLong(a -> a.fileSize))
 									 .toList();
 
 		System.out.printf("Processing %d contents%n", contents.size());
@@ -1040,7 +1041,7 @@ public class IndexHelper {
 		List<Addon> contents = search.stream()
 									 .filter(c -> !c.deleted)
 									 .filter(c -> c.files.stream().anyMatch(d -> Util.extension(d.name).equalsIgnoreCase("ukx")))
-									 .sorted(Comparator.comparingInt(a -> a.fileSize))
+									 .sorted(Comparator.comparingLong(a -> a.fileSize))
 									 .toList();
 
 		System.out.printf("Processing %d contents%n", contents.size());
@@ -1125,7 +1126,7 @@ public class IndexHelper {
 		List<Addon> contents = search.stream()
 									 .filter(c -> !c.deleted)
 //									   .filter(c -> c instanceof Model && ((Model)c).models.isEmpty())
-									 .sorted(Comparator.comparingInt(a -> a.fileSize))
+									 .sorted(Comparator.comparingLong(a -> a.fileSize))
 									 .toList();
 
 		for (Addon c : contents) {
@@ -1196,7 +1197,7 @@ public class IndexHelper {
 		List<Addon> contents = search.stream()
 									 .filter(c -> !c.deleted)
 									 .filter(c -> c instanceof Model && ((Model)c).models.isEmpty())
-									 .sorted(Comparator.comparingInt(a -> a.fileSize))
+									 .sorted(Comparator.comparingLong(a -> a.fileSize))
 									 .toList();
 
 		for (Addon c : contents) {
@@ -1281,7 +1282,7 @@ public class IndexHelper {
 
 		for (Addon c : contents.values().stream()
 							   .flatMap(Collection::stream)
-							   .sorted(Comparator.comparingInt(c -> c.fileSize))
+							   .sorted(Comparator.comparingLong(c -> c.fileSize))
 							   .toList()
 		) {
 			try {
@@ -1581,6 +1582,35 @@ public class IndexHelper {
 	);
 
 	/**
+	 * Corrects file sizes recorded while {@link Addon#fileSize} was an int, which silently wrapped
+	 * for content over 2GB.
+	 *
+	 * @param hash    content to correct
+	 * @param theFile a known-good local copy of the content
+	 */
+	private static void fixFileSize(String hash, String theFile) throws IOException {
+		final Path file = Paths.get(theFile);
+
+		ContentManager cm = manager();
+		Addon co = cm.checkout(hash);
+		if (co == null) throw new IllegalArgumentException("No content found for hash " + hash);
+
+		if (!Util.hash(file).equals(co.hash)) {
+			throw new IllegalArgumentException(String.format("%s is not the content of %s", file, co.name));
+		}
+
+		final long size = Files.size(file);
+		if (co.fileSize == size) {
+			System.out.printf("%s fileSize is already correct%n", co.name);
+			return;
+		}
+
+		System.out.printf("%s fileSize: %d -> %d%n", co.name, co.fileSize, size);
+		co.fileSize = size;
+		checkinChange(cm, co);
+	}
+
+	/**
 	 * Repairs metadata indexed before unreal-package-lib 1.15.8, which baked UT colour markup and
 	 * mis-decoded wide strings into stored strings.
 	 * <p>
@@ -1598,7 +1628,7 @@ public class IndexHelper {
 
 		List<Addon> affected = cm.repo().all().stream()
 								 .filter(c -> !c.deleted && corrupt(c))
-								 .sorted(Comparator.comparingInt(a -> a.fileSize))
+								 .sorted(Comparator.comparingLong(a -> a.fileSize))
 								 .toList();
 
 		System.out.printf("Found %d entries with corrupt strings%n", affected.size());
@@ -1633,28 +1663,27 @@ public class IndexHelper {
 	private static Addon reindexInMemory(Addon content, Path tmpDir) {
 		final Addon[] result = { null };
 
+		// a download already sitting in tmpDir is reused, as long as it's complete
 		new LocalMirrorClient.Downloader(content, tmpDir, d -> {
-			try {
-				if (!Files.exists(d.destination)) return;
+			if (!Files.exists(d.destination)) return;
 
-				try (Incoming incoming = new Incoming(new Submission(d.destination), new IndexLog()).prepare()) {
-					AddonClassifier.AddonIdentifier ident = AddonClassifier.identifierForType(
-						SimpleAddonType.valueOf(content.contentType));
-					ident.indexer().get().index(incoming, AddonClassifier.newContent(ident, incoming), r -> {
-						// the same normalisation a real re-index would apply after the handler runs
-						IndexUtils.cleanStrings(r.content);
-						result[0] = r.content;
+			try (Incoming incoming = new Incoming(new Submission(d.destination), new IndexLog()).prepare()) {
+				AddonClassifier.AddonIdentifier ident = AddonClassifier.identifierForType(
+					SimpleAddonType.valueOf(content.contentType));
+				ident.indexer().get().index(incoming, AddonClassifier.newContent(ident, incoming), r -> {
+					// the same normalisation a real re-index would apply after the handler runs
+					IndexUtils.cleanStrings(r.content);
+					result[0] = r.content;
 
-						// we're only after the strings, so throw away any images which were generated
-						for (IndexResult.NewAttachment f : r.files) {
-							try {
-								Files.deleteIfExists(f.path());
-							} catch (IOException e) {
-								e.printStackTrace();
-							}
+					// we're only after the strings, so throw away any images which were generated
+					for (IndexResult.NewAttachment f : r.files) {
+						try {
+							Files.deleteIfExists(f.path());
+						} catch (IOException e) {
+							e.printStackTrace();
 						}
-					});
-				}
+					}
+				});
 			} catch (Throwable t) {
 				System.out.printf("  ! failed to index %s: %s%n", d.destination.getFileName(), t);
 			} finally {
@@ -1981,7 +2010,7 @@ public class IndexHelper {
 													   (c.firstIndex.toLocalDate().isAfter(dateFrom) &&
 														c.firstIndex.toLocalDate().isBefore(dateTo))
 										   )
-										   .sorted(Comparator.comparingInt(c -> c.fileSize))
+										   .sorted(Comparator.comparingLong(c -> c.fileSize))
 										   .toList();
 
 		System.out.println(contents.size());

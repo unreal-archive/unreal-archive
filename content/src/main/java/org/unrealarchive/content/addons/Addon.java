@@ -75,7 +75,7 @@ public abstract class Addon implements ContentEntity<Addon> {
 	public String originalFilename;                         // dm-mymap.zip
 	@EditorRO
 	public String hash;
-	public int fileSize;
+	public long fileSize;
 	public List<ContentFile> files = new ArrayList<>();     // [DM-MyMap.unr, MyTex.utx]
 	public int otherFiles = 0;                              // count of non-content files (readme, html, etc)
 	public java.util.Map<String, List<Dependency>> dependencies = new HashMap<>();// packages this content depends on
@@ -290,7 +290,7 @@ public abstract class Addon implements ContentEntity<Addon> {
 	public static class ContentFile implements Comparable<ContentFile> {
 
 		public String name;
-		public int fileSize;
+		public long fileSize;
 		@EditorRO
 		public String hash;
 		private transient String baseName;
@@ -298,7 +298,7 @@ public abstract class Addon implements ContentEntity<Addon> {
 		private transient FileType fileType;
 
 		@ConstructorProperties({ "name", "fileSize", "hash" })
-		public ContentFile(String name, int fileSize, String hash) {
+		public ContentFile(String name, long fileSize, String hash) {
 			this.name = name;
 			this.fileSize = fileSize;
 			this.hash = hash;
