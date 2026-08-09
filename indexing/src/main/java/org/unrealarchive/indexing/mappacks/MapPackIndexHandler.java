@@ -177,8 +177,8 @@ public class MapPackIndexHandler implements IndexHandler<MapPack> {
 				Property author = level.property("Author");
 				Property title = level.property("Title");
 
-				if (author != null) p.author = ((StringProperty)author).value.trim();
-				if (title != null) p.title = ((StringProperty)title).value.trim();
+				if (author != null) p.author = IndexUtils.cleanString(((StringProperty)author).value);
+				if (title != null) p.title = IndexUtils.cleanString(((StringProperty)title).value);
 
 				Property screenshot = level.property("Screenshot");
 				images.addAll(IndexUtils.screenshots(incoming, pkg, screenshot));

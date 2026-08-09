@@ -156,9 +156,9 @@ public class MapIndexHandler implements IndexHandler<Map> {
 			? level.property("Description")
 			: level.property("LevelEnterText"); // fallback for Unreal, some maps have fun text here
 
-		if (author != null) m.author = ((StringProperty)author).value.trim();
-		if (title != null) m.title = ((StringProperty)title).value.trim();
-		if (description != null) m.description = ((StringProperty)description).value.trim();
+		if (author != null) m.author = IndexUtils.cleanString(((StringProperty)author).value);
+		if (title != null) m.title = IndexUtils.cleanString(((StringProperty)title).value);
+		if (description != null) m.description = IndexUtils.cleanString(((StringProperty)description).value);
 
 		// just in case, some maps seem to have blank values occasionally
 		if (m.author.isBlank()) m.author = "Unknown";
@@ -166,7 +166,7 @@ public class MapIndexHandler implements IndexHandler<Map> {
 
 		if (map.version < 117) {
 			Property idealPlayerCount = level.property("IdealPlayerCount");
-			if (idealPlayerCount != null) m.playerCount = ((StringProperty)idealPlayerCount).value.trim();
+			if (idealPlayerCount != null) m.playerCount = IndexUtils.cleanString(((StringProperty)idealPlayerCount).value);
 		} else {
 			Property idealPlayerCountMin = level.property("IdealPlayerCountMin");
 			Property idealPlayerCountMax = level.property("IdealPlayerCountMax");

@@ -482,6 +482,25 @@ public class IndexUtils {
 		throw new IOException("Failed to load int file");
 	}
 
+	/**
+	 * Clean up a string read out of a package property for storage and display.
+	 * <p>
+	 * UT2003/2004 levels embed colour markup in strings as an ESC character followed by an RGB
+	 * triplet; other control characters occasionally show up as well. Neither is useful to us.
+	 *
+	 * @param s string as read from a package
+	 * @return the string without markup or control characters
+	 */
+	public static String cleanString(String s) {
+		StringBuilder out = new StringBuilder(s.length());
+		for (int i = 0; i < s.length(); i++) {
+			char c = s.charAt(i);
+			if (c == 0x1B) i += 3; // ESC, followed by R, G and B
+			else if (c >= 0x20 || c == '\n' || c == '\t') out.append(c);
+		}
+		return out.toString().strip();
+	}
+
 	public static String friendlyName(String name) {
 		// Cool_name_bro -> Cool Name Bro
 		// cool-name-bro -> Cool Name Bro

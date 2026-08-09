@@ -1,5 +1,5 @@
 [versions]
-packageLib = "1.15.7"
+packageLib = "1.15.8"
 packageDependency = "1.8.1"
 
 jackson = "2.20.1"

@@ -410,8 +410,8 @@ public class GameTypeManager {
 							   Property titleProp = level.property("Title");
 							   Property screenshot = level.property("Screenshot");
 
-							   if (authorProp != null) author = ((StringProperty)authorProp).value.trim();
-							   if (titleProp != null) title = ((StringProperty)titleProp).value.trim();
+							   if (authorProp != null) author = IndexUtils.cleanString(((StringProperty)authorProp).value);
+							   if (titleProp != null) title = IndexUtils.cleanString(((StringProperty)titleProp).value);
 
 							   try {
 								   List<BufferedImage> screenshots = IndexUtils.screenshots(incoming, fp.p, screenshot);
