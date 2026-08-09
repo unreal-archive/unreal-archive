@@ -501,6 +501,18 @@ public class IndexUtils {
 		return out.toString().strip();
 	}
 
+	/**
+	 * Clean the strings every content type carries, whichever handler and source they came from -
+	 * package properties, .int/.ucl files and readme scraping all produce the same markup.
+	 *
+	 * @param content freshly indexed content
+	 */
+	public static void cleanStrings(Addon content) {
+		content.name = cleanString(content.name);
+		content.author = cleanString(content.author);
+		content.description = cleanString(content.description);
+	}
+
 	public static String friendlyName(String name) {
 		// Cool_name_bro -> Cool Name Bro
 		// cool-name-bro -> Cool Name Bro

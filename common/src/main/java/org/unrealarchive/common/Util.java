@@ -304,8 +304,15 @@ public final class Util {
 			// entire URL not just path elements.
 			// as such, to avoid the `new URL()` deprecation which didn't care,
 			// we're doing manual hacks.
+			// '+' is a literal character in a path, but means "space" in a query string, so it can
+			// only be encoded ahead of the query - without it, S3 hosts 404 on files containing '+'
+			int query = uri.indexOf('?');
+			String encoded = query < 0
+				? uri.replace("+", "%2B")
+				: uri.substring(0, query).replace("+", "%2B") + uri.substring(query);
+
 			return new URI(
-				uri
+				encoded
 					.replaceAll(" ", "%20")
 					.replaceAll("#", "%23")
 					.replaceAll(",", "%2C")

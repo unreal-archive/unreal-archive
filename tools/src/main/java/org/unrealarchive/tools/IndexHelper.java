@@ -21,6 +21,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -35,6 +38,8 @@ import net.shrimpworks.unreal.packages.entities.objects.Polys;
 import org.unrealarchive.common.ArchiveUtil;
 import org.unrealarchive.common.CLI;
 import org.unrealarchive.common.Util;
+import org.unrealarchive.content.AuthorRepository;
+import org.unrealarchive.content.Authors;
 import org.unrealarchive.content.Download;
 import org.unrealarchive.content.FileType;
 import org.unrealarchive.content.Games;
@@ -48,10 +53,12 @@ import org.unrealarchive.content.addons.MapThemes;
 import org.unrealarchive.content.addons.Model;
 import org.unrealarchive.content.addons.Mutator;
 import org.unrealarchive.content.addons.SimpleAddonRepository;
+import org.unrealarchive.content.addons.SimpleAddonType;
 import org.unrealarchive.content.addons.Skin;
 import org.unrealarchive.content.addons.Voice;
 import org.unrealarchive.content.managed.Managed;
 import org.unrealarchive.content.managed.ManagedContentRepository;
+import org.unrealarchive.indexing.AddonClassifier;
 import org.unrealarchive.indexing.ContentManager;
 import org.unrealarchive.indexing.GameTypeManager;
 import org.unrealarchive.indexing.Incoming;
@@ -81,7 +88,8 @@ public class IndexHelper {
 //		fixMissingScreenshots();
 //		fixDDOMMaps();
 //		reassignUT2003();
-		fixCtf4Maps();
+		fixCorruptStrings();
+//		fixCtf4Maps();
 //		reindexMapsWithThemes(args[0], args[1], args[2]);
 //		removeGamefrontOnlineLinks();
 //		removeVohzdUnrealLinks();
@@ -139,6 +147,15 @@ public class IndexHelper {
 
 	public static ManagedContentRepository managedRepo() throws IOException {
 		return new ManagedContentRepository.FileRepository(Paths.get(ROOT).resolve("managed"));
+	}
+
+	/**
+	 * Indexing content which carries authors (map packs, gametypes) needs the static author
+	 * repository in place, otherwise author lookups blow up.
+	 */
+	public static void initAuthors() throws IOException {
+		Path authors = Paths.get(ROOT).resolve("authors");
+		Authors.setRepository(new AuthorRepository.FileRepository(authors), authors);
 	}
 
 	public static ContentManager manager() throws IOException {
@@ -1542,6 +1559,177 @@ public class IndexHelper {
 			Addon co = cm.checkout(c.hash);
 			checkinChange(cm2, co);
 		}
+	}
+
+	private record StringField(String name, Function<Addon, String> getter, BiConsumer<Addon, String> setter) {
+
+		String get(Addon content) {
+			return getter.apply(content);
+		}
+
+		void set(Addon content, String value) {
+			setter.accept(content, value);
+		}
+	}
+
+	private static final List<StringField> STRING_FIELDS = List.of(
+		new StringField("name", a -> a.name, (a, v) -> a.name = v),
+		new StringField("author", a -> a.author, (a, v) -> a.author = v),
+		new StringField("description", a -> a.description, (a, v) -> a.description = v),
+		new StringField("title", a -> a instanceof Map m ? m.title : null, (a, v) -> ((Map)a).title = v),
+		new StringField("playerCount", a -> a instanceof Map m ? m.playerCount : null, (a, v) -> ((Map)a).playerCount = v)
+	);
+
+	/**
+	 * Repairs metadata indexed before unreal-package-lib 1.15.8, which baked UT colour markup and
+	 * mis-decoded wide strings into stored strings.
+	 * <p>
+	 * Rather than force a re-index of everything, this only fetches content which currently holds
+	 * broken strings, and copies back only the fields which are actually broken. Attachments,
+	 * files, downloads, themes, gametypes and index dates are left exactly as they are.
+	 */
+	private static void fixCorruptStrings() throws IOException {
+		initAuthors();
+
+		ContentManager cm = manager();
+		// a stable location, so a download which has already been fetched by hand or by a previous
+		// run can be reused - some of this content is over a gigabyte
+		final Path tmpDir = Files.createDirectories(Paths.get(System.getProperty("java.io.tmpdir"), "ua-strings"));
+
+		List<Addon> affected = cm.repo().all().stream()
+								 .filter(c -> !c.deleted && corrupt(c))
+								 .sorted(Comparator.comparingInt(a -> a.fileSize))
+								 .toList();
+
+		System.out.printf("Found %d entries with corrupt strings%n", affected.size());
+
+		int fixed = 0, skipped = 0;
+		for (Addon c : affected) {
+			System.out.printf("%s [%s]%n", String.join(" / ", c.game, c.contentType(), c.name), c.hash.substring(0, 8));
+
+			Addon indexed = reindexInMemory(c, tmpDir);
+			if (indexed == null) {
+				System.out.println("  ! could not re-index");
+				skipped++;
+			} else {
+				Addon co = cm.checkout(c.hash);
+				if (applyStrings(co, indexed)) {
+					checkinChange(cm, co);
+					fixed++;
+				} else {
+					System.out.println("  - nothing changed");
+					skipped++;
+				}
+			}
+		}
+
+		System.out.printf("Fixed %d entries, skipped %d%n", fixed, skipped);
+	}
+
+	/**
+	 * Download and index content, without checking anything in - we only want to read the strings
+	 * the current indexer produces for it.
+	 */
+	private static Addon reindexInMemory(Addon content, Path tmpDir) {
+		final Addon[] result = { null };
+
+		new LocalMirrorClient.Downloader(content, tmpDir, d -> {
+			try {
+				if (!Files.exists(d.destination)) return;
+
+				try (Incoming incoming = new Incoming(new Submission(d.destination), new IndexLog()).prepare()) {
+					AddonClassifier.AddonIdentifier ident = AddonClassifier.identifierForType(
+						SimpleAddonType.valueOf(content.contentType));
+					ident.indexer().get().index(incoming, AddonClassifier.newContent(ident, incoming), r -> {
+						// the same normalisation a real re-index would apply after the handler runs
+						IndexUtils.cleanStrings(r.content);
+						result[0] = r.content;
+
+						// we're only after the strings, so throw away any images which were generated
+						for (IndexResult.NewAttachment f : r.files) {
+							try {
+								Files.deleteIfExists(f.path());
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+						}
+					});
+				}
+			} catch (Throwable t) {
+				System.out.printf("  ! failed to index %s: %s%n", d.destination.getFileName(), t);
+			} finally {
+				try {
+					// keep the download when indexing failed, so it can be inspected or retried
+					// without fetching it all over again
+					if (result[0] != null) Files.deleteIfExists(d.destination);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}).run();
+
+		return result[0];
+	}
+
+	private static boolean applyStrings(Addon existing, Addon indexed) {
+		boolean changed = false;
+
+		for (StringField f : STRING_FIELDS) {
+			if (corrupt(f.get(existing))) {
+				changed |= replaceString(f.name(), f.get(existing), f.get(indexed), v -> f.set(existing, v));
+			}
+		}
+
+		// map packs carry their own per-map strings
+		if (existing instanceof MapPack was && indexed instanceof MapPack now) {
+			for (MapPack.PackMap m : was.maps) {
+				MapPack.PackMap fresh = now.maps.stream()
+												.filter(n -> n.name.equalsIgnoreCase(m.name))
+												.findFirst().orElse(null);
+				if (fresh == null) continue;
+				if (corrupt(m.title)) changed |= replaceString(m.name + ".title", m.title, fresh.title, v -> m.title = v);
+				if (corrupt(m.author)) changed |= replaceString(m.name + ".author", m.author, fresh.author, v -> m.author = v);
+			}
+		}
+
+		return changed;
+	}
+
+	private static boolean replaceString(String field, String was, String now, Consumer<String> setter) {
+		if (now == null || now.isBlank() || corrupt(now)) {
+			System.out.printf("  ! %s is still unusable after re-index, leaving alone: [%s]%n", field, escaped(now));
+			return false;
+		}
+		setter.accept(now);
+		System.out.printf("  %s: [%s] -> [%s]%n", field, escaped(was), now);
+		return true;
+	}
+
+	private static boolean corrupt(Addon content) {
+		if (STRING_FIELDS.stream().anyMatch(f -> corrupt(f.get(content)))) return true;
+		return content instanceof MapPack p
+			   && p.maps.stream().anyMatch(m -> corrupt(m.name) || corrupt(m.title) || corrupt(m.author));
+	}
+
+	/** Control characters are never legitimate content; they're markup or decoding damage. */
+	private static boolean corrupt(String s) {
+		if (s == null) return false;
+		for (int i = 0; i < s.length(); i++) {
+			char c = s.charAt(i);
+			if (c < 0x20 && c != '\n' && c != '\t') return true;
+		}
+		return false;
+	}
+
+	private static String escaped(String s) {
+		if (s == null) return "null";
+		StringBuilder out = new StringBuilder(s.length());
+		for (int i = 0; i < s.length(); i++) {
+			char c = s.charAt(i);
+			if (c < 0x20) out.append(String.format("\\x%02x", (int)c));
+			else out.append(c);
+		}
+		return out.toString();
 	}
 
 	public static void reindexMapsWithThemes(String game, String type, String localFiles) throws IOException {

@@ -5,3 +5,9 @@ out
 *.iml
 /.unreal-archive.conf
 .*.swp
+
+# LSP things
+**/bin
+**/.project
+**/.settings
+**/.classpath
