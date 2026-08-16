@@ -236,6 +236,7 @@ public class GameTypes implements PageGenerator, AttachmentHelper {
 				try (Stream<Path> files = Files.list(gametypePath.resolve("gallery"))) {
 					this.gallery.putAll(
 						files
+							.parallel()
 							.filter(f -> Files.isRegularFile(f) && Util.image(f))
 							.filter(f -> !f.getFileName().toString().startsWith("t_"))
 							.sorted()

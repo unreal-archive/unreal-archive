@@ -68,6 +68,10 @@ public final class Util {
 
 	private static final Pattern NONLATIN = Pattern.compile("[^\\w-]");
 	private static final Pattern WHITESPACE = Pattern.compile("[\\s]");
+	private static final Pattern COMBINING_MARKS = Pattern.compile("\\p{M}");
+	private static final Pattern SLUG_CHARS = Pattern.compile("([-_])\\1+");
+	private static final Pattern SLUG_AUTHOR_EXTRAS = Pattern.compile("^[-_]+|[-_]+$");
+
 
 	private static final Pattern UC_WORDS = Pattern.compile("\\b(.)(.*?)\\b");
 
@@ -109,7 +113,7 @@ public final class Util {
 
 	public static String plainName(String path) {
 		String tmp = fileName(path);
-		return tmp.substring(0, tmp.lastIndexOf(".")).replaceAll("/", "").trim().replaceAll("[^\\x20-\\x7E]", "").trim();
+		return tmp.substring(0, tmp.lastIndexOf(".")).replace("/", "").trim().replaceAll("[^\\x20-\\x7E]", "").trim();
 	}
 
 	public static String safeFileName(String name) {
@@ -121,21 +125,21 @@ public final class Util {
 	}
 
 	public static String normalised(String input) {
-		return Normalizer.normalize(input, Normalizer.Form.NFD).replaceAll("\\p{M}", "");
+		return COMBINING_MARKS.matcher(Normalizer.normalize(input, Normalizer.Form.NFD)).replaceAll("");
 	}
 
 	public static String slug(String input) {
 		String nowhitespace = WHITESPACE.matcher(input.strip()).replaceAll("-");
 		String normalized = normalised(nowhitespace);
 		String slug = NONLATIN.matcher(normalized).replaceAll("");
-		return slug.toLowerCase(Locale.ENGLISH).replaceAll("([-_])\\1+", "-");
+		return SLUG_CHARS.matcher(slug.toLowerCase(Locale.ENGLISH)).replaceAll("-");
 	}
 
 	public static String authorSlug(String input) {
 		String nowhitespace = WHITESPACE.matcher(input.strip()).replaceAll("-");
 		String normalized = normalised(nowhitespace);
 		String slug = NONLATIN.matcher(normalized).replaceAll("_");
-		return slug.toLowerCase(Locale.ENGLISH).replaceAll("([-_])\\1+", "$1").replaceAll("^[-_]+|[-_]+$", "");
+		return SLUG_AUTHOR_EXTRAS.matcher(SLUG_CHARS.matcher(slug.toLowerCase(Locale.ENGLISH)).replaceAll("$1")).replaceAll("");
 	}
 
 	public static String capitalWords(String input) {
@@ -306,8 +310,7 @@ public final class Util {
 			int query = uri.indexOf('?');
 			return new URI(query < 0
 							   ? escape(uri, PATH_ESCAPE)
-							   : escape(uri.substring(0, query), PATH_ESCAPE) + "?" + escape(uri.substring(query + 1),
-																							 QUERY_ESCAPE));
+							   : escape(uri.substring(0, query), PATH_ESCAPE) + "?" + escape(uri.substring(query + 1), QUERY_ESCAPE));
 		} catch (Throwable e) {
 			System.err.println(uri + " " + e.getMessage());
 			throw new MalformedURLException(e.getMessage());

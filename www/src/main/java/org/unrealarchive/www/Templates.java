@@ -211,7 +211,9 @@ public class Templates {
 		for (Thumbnails.ThumbConfig conf : thumbConfig) {
 			try (Stream<Path> files = Files.walk(conf.path, conf.noSubDirectories ? 1 : 5)) {
 				files
+					.parallel()
 					.filter(Util::image)
+					.filter(p -> !p.getFileName().toString().startsWith(conf.name + "_"))
 					.forEach(f -> {
 						try {
 							Thumbnails.thumbnail(f, f.getParent(), conf);
@@ -423,6 +425,8 @@ public class Templates {
 		private static final DateTimeFormatter IN_FMT_SHORT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 		private static final DateTimeFormatter OUT_FMT_SHORT = DateTimeFormatter.ofPattern("MMMM yyyy");
 
+		private static final Pattern DATE_MATCH = Pattern.compile("\\d{4}-\\d{2}-\\d{2}");
+
 		private FormatLocalDateMethod(boolean shortDate) {
 			this.shortDate = shortDate;
 		}
@@ -435,7 +439,7 @@ public class Templates {
 			if (arg.equalsIgnoreCase("Unknown")) return arg;
 
 			TemporalAccessor date;
-			if (arg.matches("\\d{4}-\\d{2}-\\d{2}")) date = IN_FMT.parse(arg);
+			if (DATE_MATCH.matcher(arg).matches()) date = IN_FMT.parse(arg);
 			else date = IN_FMT_SHORT.parse(arg + "-01");
 
 			if (shortDate) return OUT_FMT_SHORT.format(date);

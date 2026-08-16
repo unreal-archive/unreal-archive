@@ -242,7 +242,7 @@ public abstract class GenericContentPage<T extends Addon> extends ContentPageGen
 		public ContentInfo add(T item) {
 			ContentInfo added = new ContentInfo(this, item);
 			this.items.add(added);
-			Collections.sort(items);
+//			Collections.sort(items);
 			return added;
 		}
 	}

@@ -268,6 +268,8 @@ public class Authors extends ContentPageGenerator {
 
 		private String leadImage = null;
 
+		private transient long count = 0;
+
 		public AuthorInfoHolder(Author author) {
 			this.author = author;
 			this.slug = author.slug();
@@ -288,9 +290,11 @@ public class Authors extends ContentPageGenerator {
 		}
 
 		public long count() {
-			return created.values().stream().mapToLong(Set::size).sum()
-				   + contributed.values().stream().mapToLong(Set::size).sum()
-				   + modified.values().stream().mapToLong(Set::size).sum();
+			if (count == 0) count = created.values().stream().mapToLong(Set::size).sum()
+									+ contributed.values().stream().mapToLong(Set::size).sum()
+									+ modified.values().stream().mapToLong(Set::size).sum();
+
+			return count;
 		}
 
 		public String leadImage() {

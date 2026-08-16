@@ -163,7 +163,7 @@ public class Main {
 		if (features.files) generators.add(new FileDetails(repos, outputPath, staticOutput, features));
 		if (features.collections) generators.add(new org.unrealarchive.www.Collections(repos, outputPath, staticOutput, features));
 
-		try (ForkJoinPool myPool = new ForkJoinPool(Integer.parseInt(cli.option("concurrency", "4")))) {
+		try (ForkJoinPool myPool = new ForkJoinPool(Integer.parseInt(cli.option("concurrency", Integer.toString(Runtime.getRuntime().availableProcessors()))))) {
 			myPool.submit(() -> generators.parallelStream().forEach(g -> {
 				System.out.printf("Generating %s pages%n", g.getClass().getSimpleName());
 				allPages.addAll(g.generate());
