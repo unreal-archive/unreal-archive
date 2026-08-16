@@ -28,6 +28,17 @@ jlink {
     mergedModuleName = "unreal.archive.tools.merged"
     options = ['--strip-debug', '--compress', 'zip-6', '--no-header-files', '--no-man-pages']
 
+    mergedModule {
+        additive = true
+
+        excludeRequires 'java.desktop', 'java.logging', 'java.sql', 'java.xml', 'jdk.unsupported'
+        requires 'java.desktop'
+        requires 'java.logging'
+        requires 'java.sql'
+        requires 'java.xml'
+        requires 'jdk.unsupported'
+    }
+
     imageName = "unreal-archive-${project.name}"
     imageDir = layout.buildDirectory.dir("unreal-archive-${project.name}")
 

@@ -62,6 +62,70 @@ subprojects {
 		}
 	}
 
+	/**
+	 * Verifies the merged module (holding a jlink'd project's non-modular dependencies) declares every
+	 * module its classes actually use.
+	 *
+	 * The plugin infers those `requires` by scanning `$JAVA_HOME/jmods` for a package to module map, and
+	 * silently declares nothing it cannot resolve - so JDKs built with JEP 493 linkable runtimes, which
+	 * ship no `jmods` directory, produce a merged module reading only java.base, and an image which is
+	 * missing modules entirely. The scan also misses some references jdeps finds.
+	 *
+	 * jdeps reads the merged classes before their module-info is attached, so it reports what they really
+	 * need, independently of the build JDK's packaging. Declare anything reported here in the project's
+	 * `jlink { mergedModule { ... } }` block.
+	 */
+	plugins.withId('org.beryx.jlink') {
+		def checkMergedModuleInfo = tasks.register('checkMergedModuleInfo') {
+			group = 'verification'
+			description = 'Checks that the merged module declares every module its classes use'
+			dependsOn tasks.named('createMergedModule')
+
+			def jlinkBase = layout.buildDirectory.dir('jlinkbase')
+			def buildFileName = rootDir.toPath().relativize(buildFile.toPath()).toString()
+			def release = JavaVersion.current().majorVersion
+
+			doLast {
+				def base = jlinkBase.get().asFile
+				def mergedClasses = new File(base, 'tmpmerged').listFiles()?.find { it.name.endsWith('.jar') }
+				def mergedModule = new File(base, 'jlinkjars').listFiles()?.find {
+					it.name.contains('merged') && it.name.endsWith('.jar')
+				}
+				if (!mergedClasses || !mergedModule) throw new GradleException(
+						"No merged module found under $base - expected tmpmerged/ and jlinkjars/ jars")
+
+				def jdeps = java.util.spi.ToolProvider.findFirst('jdeps')
+						.orElseThrow { new GradleException('jdeps is unavailable in the Gradle JVM') }
+				def report = new StringWriter()
+				def errors = new StringWriter()
+				if (jdeps.run(new PrintWriter(report), new PrintWriter(errors), '-s', '--multi-release', release,
+							  '--module-path', new File(base, 'jlinkjars').path, mergedClasses.path) != 0) {
+					throw new GradleException("jdeps failed on ${mergedClasses.name}: $errors")
+				}
+
+				// "jar -> module" per used module, plus unresolvable pseudo-entries ("not found") to ignore
+				def used = report.toString().readLines()
+						.findAll { it.contains(' -> ') }
+						.collect { (it =~ / -> (\S+)$/).with { m -> m ? m[0][1] : null } }
+						.findAll { it ==~ /(?!java\.base$)[a-z][a-zA-Z0-9.]*/ } as Set
+
+				def declared = java.lang.module.ModuleFinder.of(mergedModule.toPath())
+						.findAll().first().descriptor().requires()*.name() as Set
+
+				def missing = (used - declared).sort()
+				if (missing) throw new GradleException(
+						"${mergedModule.name} uses ${missing.size()} module(s) it does not read: ${missing.join(', ')}\n" +
+						"Declare them in the jlink { mergedModule { ... } } block of $buildFileName:\n" +
+						missing.collect { "\t\trequires '$it'" }.join('\n') + "\n" +
+						"In an `additive = true` block, also exclude them from the scan to avoid declaring them twice:\n" +
+						"\t\texcludeRequires ${missing.collect { "'$it'" }.join(', ')}")
+			}
+		}
+
+		tasks.named('check') { dependsOn checkMergedModuleInfo }
+		tasks.named('jlink') { dependsOn checkMergedModuleInfo }
+	}
+
 	dependencies {
 		testRuntimeOnly('org.junit.platform:junit-platform-launcher')
 	}

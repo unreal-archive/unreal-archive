@@ -31,6 +31,14 @@ jlink {
 	mergedModuleName = "unreal.archive.www.merged"
 	options = ['--strip-debug', '--compress', 'zip-6', '--no-header-files', '--no-man-pages']
 
+	mergedModule {
+		requires 'java.desktop'
+		requires 'java.logging'
+		requires 'java.rmi'
+		requires 'java.sql'
+		requires 'java.xml'
+	}
+
 	imageName = "unreal-archive-${project.name}"
 	imageDir = layout.buildDirectory.dir("unreal-archive-${project.name}")
 
