@@ -68,6 +68,10 @@ public class Authors {
 
 		repository = repo;
 
+		// both caches below are derived from the repository being replaced, so cannot be retained
+		LOOKUP_CACHE.clear();
+		NON_AUTO_ALIASES.clear();
+
 		/*
 		 Also populate the auto-alias blocklist
 		 */
@@ -90,13 +94,10 @@ public class Authors {
 		if (name.equalsIgnoreCase(AuthorRepository.VARIOUS.name)) return AuthorRepository.VARIOUS;
 
 		return LOOKUP_CACHE.computeIfAbsent(authorKey(name), n -> {
-			if (repository != null) {
-				Author maybe = repository.byName(name);
-				if (maybe != null) return maybe;
-			}
+			if (repository == null) return null;
 
-			String cleanName = cleanName(name);
-			return repository.byName(cleanName);
+			Author maybe = repository.byName(name);
+			return maybe != null ? maybe : repository.byName(cleanName(name));
 		});
 	}
 

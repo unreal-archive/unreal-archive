@@ -17,6 +17,9 @@ public class AuthorsTest {
 	@TempDir
 	Path repoPath;
 
+	@TempDir
+	Path otherRepoPath;
+
 	@Test
 	void testHandleAfter() {
 		String name1 = "Mike Bananas (Mr. Banan)";
@@ -51,7 +54,9 @@ public class AuthorsTest {
 		Authors.setRepository(repo, repoPath);
 
 		Authors.addToRepository("Mike Bananas A.K.A. Mr. Banan", repo);
-		assertEquals(Authors.byName("Mr Banan"), Authors.byName("Mike Bananas"));
+
+		assertNotNull(Authors.byName("Mike Bananas"));
+		assertEquals(Authors.byName("Mr. Banan"), Authors.byName("Mike Bananas"));
 	}
 
 	@Test
@@ -60,6 +65,8 @@ public class AuthorsTest {
 		Authors.setRepository(repo, repoPath);
 		Authors.addToRepository("VoiceGuy 22/04/2024", repo);
 		Authors.addToRepository("VoiceGuy 2024-04-22", repo);
+
+		assertNotNull(Authors.byName("VoiceGuy"));
 		assertEquals(Authors.byName("VoiceGuy"), Authors.byName("VoiceGuy 22/04/2024"));
 	}
 
@@ -69,16 +76,32 @@ public class AuthorsTest {
 		Authors.setRepository(repo, repoPath);
 
 		Authors.addToRepository("Mike \"Mr. Banan\" Bananas", repo);
+		assertNotNull(Authors.byName("Mike Bananas"));
 		assertEquals(Authors.byName("Mr. Banan"), Authors.byName("Mike Bananas"));
 		assertEquals(Authors.byName("Mike \"Mr. Banan\" Bananas"), Authors.byName("Mike Bananas"));
 
 		Authors.addToRepository("M. \"Banan\" Bananas", repo);
+		assertNotNull(Authors.byName("M. Bananas"));
 		assertEquals(Authors.byName("Banan"), Authors.byName("M. Bananas"));
 		assertEquals(Authors.byName("M. \"Banan\" Bananas"), Authors.byName("M. Bananas"));
 
 		Authors.addToRepository("Mark `MB` Ban", repo);
+		assertNotNull(Authors.byName("Mark Ban"));
 		assertEquals(Authors.byName("MB"), Authors.byName("Mark Ban"));
 		assertEquals(Authors.byName("Mark `MB` Ban"), Authors.byName("Mark Ban"));
+	}
+
+	@Test
+	public void repositorySwapTest() throws IOException {
+		// authors resolved against one repository must not leak into the next
+		AuthorRepository repo = new AuthorRepository.FileRepository(repoPath);
+		Authors.setRepository(repo, repoPath);
+		Authors.addToRepository("Mike Bananas A.K.A. Mr. Banan", repo);
+		assertNotNull(Authors.byName("Mr. Banan"));
+
+		Authors.setRepository(new AuthorRepository.FileRepository(otherRepoPath), otherRepoPath);
+		assertNull(Authors.byName("Mr. Banan"));
+		assertNull(Authors.byName("Mike Bananas"));
 	}
 
 	@Test
