@@ -75,6 +75,10 @@ public final class Util {
 
 	private static final String USER_AGENT = "UnrealArchive/" + Version.version();
 
+	// manual URL encoding for use with `URI`, where `URLEncoder` would encode the entire URL rather than individual components
+	private static final String PATH_ESCAPE = " #+,&[]{}`^";
+	private static final String QUERY_ESCAPE = " #[]{}`^";
+
 	private Util() {}
 
 	public static String extension(Path path) {
@@ -299,35 +303,32 @@ public final class Util {
 
 	public static URI uri(String uri) throws MalformedURLException {
 		try {
-			// manual encoding hack, since URI expects it to already be encoded.
-			// however if using `URLEncoder` on the whole URL, that encodes the
-			// entire URL not just path elements.
-			// as such, to avoid the `new URL()` deprecation which didn't care,
-			// we're doing manual hacks.
-			// '+' is a literal character in a path, but means "space" in a query string, so it can
-			// only be encoded ahead of the query - without it, S3 hosts 404 on files containing '+'
 			int query = uri.indexOf('?');
-			String encoded = query < 0
-				? uri.replace("+", "%2B")
-				: uri.substring(0, query).replace("+", "%2B") + uri.substring(query);
-
-			return new URI(
-				encoded
-					.replaceAll(" ", "%20")
-					.replaceAll("#", "%23")
-					.replaceAll(",", "%2C")
-					.replaceAll("&", "%26")
-					.replaceAll("\\[", "%5B")
-					.replaceAll("]", "%5D")
-					.replaceAll("\\{", "%7B")
-					.replaceAll("}", "%7D")
-					.replaceAll("`", "%60")
-					.replaceAll("\\^", "%5E")
-			);
+			return new URI(query < 0
+							   ? escape(uri, PATH_ESCAPE)
+							   : escape(uri.substring(0, query), PATH_ESCAPE) + "?" + escape(uri.substring(query + 1),
+																							 QUERY_ESCAPE));
 		} catch (Throwable e) {
 			System.err.println(uri + " " + e.getMessage());
 			throw new MalformedURLException(e.getMessage());
 		}
+	}
+
+	/**
+	 * Percent-escape any character of `escape` found in `s`, allocating nothing if there's nothing to escape.
+	 */
+	private static String escape(String s, String escape) {
+		StringBuilder sb = null;
+		for (int i = 0; i < s.length(); i++) {
+			char c = s.charAt(i);
+			if (escape.indexOf(c) < 0) {
+				if (sb != null) sb.append(c);
+				continue;
+			}
+			if (sb == null) sb = new StringBuilder(s.length() + 16).append(s, 0, i);
+			sb.append('%').append(HEX_ARRAY[c >>> 4]).append(HEX_ARRAY[c & 0x0F]);
+		}
+		return sb == null ? s : sb.toString();
 	}
 
 	/**
@@ -336,11 +337,6 @@ public final class Util {
 	 */
 	public static URL url(String url) throws MalformedURLException {
 		try {
-			// manual encoding hack, since URI expects it to already be encoded.
-			// however if using `URLEncoder` on the whole URL, that encodes the
-			// entire URL not just path elements.
-			// as such, to avoid the `new URL()` deprecation which didn't care,
-			// we're doing manual hacks.
 			return uri(url).toURL();
 		} catch (Throwable e) {
 			System.err.println(url + " " + e.getMessage());

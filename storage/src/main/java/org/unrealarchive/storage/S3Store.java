@@ -64,8 +64,16 @@ public class S3Store implements DataStore {
 		this.publicUrl = publicUrl;
 	}
 
-	private String makePublicUrl(String bucket, String name) {
-		return publicUrl.replaceAll("__BUCKET__", bucket).replaceAll("__NAME__", name);
+	/**
+	 * '$' seems to not play well with S3 objects, so it's substituted. '+' is left alone - URLs
+	 * pointing at the object encode it as %2B, without which S3 hosts read it as a space and 404.
+	 */
+	static String objectName(String name) {
+		return name.replace("$", "s");
+	}
+
+	static String objectUrl(String publicUrl, String bucket, String name) {
+		return Util.toUriString(publicUrl.replace("__BUCKET__", bucket).replace("__NAME__", name));
 	}
 
 	@Override
@@ -75,10 +83,10 @@ public class S3Store implements DataStore {
 
 	@Override
 	public void store(InputStream stream, long dataSize, String name, BiConsumer<String, IOException> stored) throws IOException {
-		final String nom = name.replaceAll("[$+]", "s"); // $ seems to not play well with S3 objects, and + confuses url encoding
+		final String nom = objectName(name);
 		exists(nom, (exits) -> {
 			if (exits instanceof StatObjectResponse obj) {
-				stored.accept(Util.toUriString(makePublicUrl(obj.bucket(), obj.object())), null);
+				stored.accept(objectUrl(publicUrl, obj.bucket(), obj.object()), null);
 			} else {
 				try {
 					client.putObject(
@@ -90,7 +98,7 @@ public class S3Store implements DataStore {
 						             .contentType(Util.mimeType(Util.extension(name)))
 						             .build()
 					);
-					stored.accept(Util.toUriString(makePublicUrl(bucket, nom)), null);
+					stored.accept(objectUrl(publicUrl, bucket, nom), null);
 				} catch (Exception e) {
 					stored.accept(null, new IOException("[S3] Upload failed [" + nom + "]: " + e.getMessage(), e));
 				}

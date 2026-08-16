@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Writer;
 import java.net.MalformedURLException;
+import java.net.URLEncoder;
 import java.nio.channels.Channels;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -72,6 +73,7 @@ public class Templates {
 		TPL_VARS.put("rootPath", new RootPathMethod());
 		TPL_VARS.put("relUrl", new RelUrlMethod());
 		TPL_VARS.put("urlEncode", new UrlEncodeMethod());
+		TPL_VARS.put("queryEncode", new QueryEncodeMethod());
 		TPL_VARS.put("urlHost", new UrlHostMethod());
 		TPL_VARS.put("fileType", new FileTypeMethod());
 		TPL_VARS.put("fileSize", new FileSizeMethod());
@@ -314,7 +316,25 @@ public class Templates {
 		public Object exec(List args) throws TemplateModelException {
 			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a URL to encode");
 
-			return args.getFirst().toString().replaceAll("\n", "%0A");
+			String url = args.getFirst().toString();
+			try {
+				return Util.toUriString(url);
+			} catch (IllegalArgumentException e) {
+				throw new TemplateModelException("Invalid URL: " + url, e);
+			}
+		}
+	}
+
+	/**
+	 * Encode a value for inclusion within a URL's query string, where `urlEncode` would leave
+	 * query separators intact.
+	 */
+	private static class QueryEncodeMethod implements TemplateMethodModelEx {
+
+		public Object exec(List args) throws TemplateModelException {
+			if (args.size() != 1) throw new TemplateModelException("Wrong arguments, expecting a value to encode");
+
+			return URLEncoder.encode(args.getFirst().toString(), StandardCharsets.UTF_8);
 		}
 	}
 

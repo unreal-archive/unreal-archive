@@ -12,10 +12,24 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@Disabled
 public class S3StoreTest {
 
 	@Test
+	public void objectNaming() {
+		// a '+' in an object's name is retained, and encoded within the URL pointing at it
+		assertEquals("MH-GiranTown+SBFix2.7z", S3Store.objectName("MH-GiranTown+SBFix2.7z"));
+		assertEquals("https://files.example.com/Maps/MH-GiranTown%2BSBFix2.7z",
+					 S3Store.objectUrl("https://__BUCKET__.example.com/__NAME__", "files", "Maps/MH-GiranTown+SBFix2.7z"));
+
+		// '$' however is substituted, and so never reaches a URL
+		assertEquals("CTF-AssHall.zip", S3Store.objectName("CTF-A$$Hall.zip"));
+		assertEquals("https://files.example.com/Maps/CTF-AssHall.zip",
+					 S3Store.objectUrl("https://__BUCKET__.example.com/__NAME__", "files",
+									   "Maps/" + S3Store.objectName("CTF-A$$Hall.zip")));
+	}
+
+	@Test
+	@Disabled("requires S3 bucket properties set as environment variables")
 	public void uploadDownload() throws IOException {
 		String endpoint = System.getenv("S3_ENDPOINT");
 		String key = System.getenv("S3_KEY");

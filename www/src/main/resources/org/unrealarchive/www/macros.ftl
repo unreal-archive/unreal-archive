@@ -241,9 +241,9 @@
 		Hash: ${hash}
 		Current name: ${name}
 	</#assign></#outputformat>
-	<#assign stitle><#if title??>${title}</#if></#assign>
-	<#assign slabels><#if labels?? && labels?size gt 0>${labels?join(",")}</#if></#assign>
-	<#assign url="${repoUrl}/issues/new?title=${stitle}&labels=${slabels}&body=${urlEncode(sbody)}">
+	<#outputformat "plainText"><#assign stitle><#if title??>${title}</#if></#assign></#outputformat>
+	<#outputformat "plainText"><#assign slabels><#if labels?? && labels?size gt 0>${labels?join(",")}</#if></#assign></#outputformat>
+	<#assign url="${repoUrl}/issues/new?title=${queryEncode(stitle)}&labels=${queryEncode(slabels)}&body=${queryEncode(sbody)}">
 
 	<section class="report">
 		<a href="${url}" id="r_${hash}"><@icon "alert"/>${text}</a>
