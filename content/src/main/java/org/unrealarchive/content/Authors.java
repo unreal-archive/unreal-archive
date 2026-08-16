@@ -25,6 +25,7 @@ public class Authors {
 	// -- begin repository and lookup caches
 
 	private static final Map<String, Author> LOOKUP_CACHE = new ConcurrentHashMap<>();
+	private static final Map<String, Contributors> CONTRIBS_CACHE = new ConcurrentHashMap<>();
 	private static final Set<String> NON_AUTO_ALIASES = ConcurrentHashMap.newKeySet();
 
 	private static AuthorRepository repository = null;
@@ -61,6 +62,8 @@ public class Authors {
 	static final Pattern HANDLE = Pattern.compile("(.*)\\s+([`'(\"]([^`^'^)^\"]+)[`')\"])\\s+?(.*)", Pattern.CASE_INSENSITIVE);
 	static final Pattern HANDLE_AFTER = Pattern.compile("^(.*)\\s+([`'(\"]([^`^'^)^\"]+)[`')\"])$", Pattern.CASE_INSENSITIVE);
 
+	private static final Pattern WHITESPACE = Pattern.compile("\\s+");
+
 	private Authors() {}
 
 	public static void setRepository(AuthorRepository repo, Path authorsPath) {
@@ -70,6 +73,7 @@ public class Authors {
 
 		// both caches below are derived from the repository being replaced, so cannot be retained
 		LOOKUP_CACHE.clear();
+		CONTRIBS_CACHE.clear();
 		NON_AUTO_ALIASES.clear();
 
 		/*
@@ -106,10 +110,11 @@ public class Authors {
 		if (name.equalsIgnoreCase(AuthorRepository.VARIOUS.name)) return null;
 		if (noAlias(name)) return null;
 
-		Contributors contributors = new Contributors(name);
-		if (contributors.modifiedBy.isEmpty() && contributors.contributors.isEmpty()) return null;
-
-		return contributors;
+		return CONTRIBS_CACHE.computeIfAbsent(name, _ -> {
+			Contributors contributors = new Contributors(name);
+			if (contributors.modifiedBy.isEmpty() && contributors.contributors.isEmpty()) return null;
+			return contributors;
+		});
 	}
 
 	/**
@@ -159,7 +164,7 @@ public class Authors {
 		// already known, nothing to do
 		if (byName(name) != null) return;
 
-		String normalised = Util.normalised(name).replaceAll("\\s+?", " ").strip();
+		String normalised = WHITESPACE.matcher(Util.normalised(name)).replaceAll(" ").strip();
 
 		if (MODIFIED.matcher(normalised).find()) return;
 		if (EDITED.matcher(normalised).find()) return;

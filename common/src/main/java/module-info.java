@@ -3,7 +3,7 @@ module unreal.archive.common {
 	requires java.net.http;
 
 	// required for TLS 1.3
-	requires jdk.crypto.ec;
+//	requires jdk.crypto.ec;
 
 	requires com.fasterxml.jackson.annotation;
 	requires com.fasterxml.jackson.core;

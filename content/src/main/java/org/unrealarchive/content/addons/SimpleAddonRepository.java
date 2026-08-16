@@ -9,9 +9,11 @@ import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -234,7 +236,7 @@ public interface SimpleAddonRepository {
 	public static class FileRepository implements SimpleAddonRepository {
 
 		private static final int CONTENT_INITIAL_SIZE = 60000;
-		private static final int FILES_INITIAL_SIZE = CONTENT_INITIAL_SIZE * 3;
+		private static final int FILES_INITIAL_SIZE = CONTENT_INITIAL_SIZE * 2;
 		private static final int VARIATION_INITIAL_SIZE = CONTENT_INITIAL_SIZE / 10;
 
 		private final Path path;
@@ -257,22 +259,29 @@ public interface SimpleAddonRepository {
 						content.put(c.hash, holder);
 
 						// while reading this content, also index its individual files for later quick lookup
+						Set<String> seenHashes = c.files.size() > 1 ? new HashSet<>(c.files.size()) : null;
 						for (Addon.ContentFile contentFile : c.files) {
-							Collection<ContentHolder> fileSet = contentFileMap.computeIfAbsent(contentFile.hash,
-																							   h -> ConcurrentHashMap.newKeySet());
-							fileSet.add(holder);
+							// some content lists the same file hash twice; the old key-set collapsed those, a list would not
+							if (seenHashes != null && !seenHashes.add(contentFile.hash)) continue;
+							contentFileMap.merge(contentFile.hash, List.of(holder), FileRepository::append);
 						}
 
 						if (c.variationOf != null) {
-							Collection<ContentHolder> variations = variationsMap.computeIfAbsent(c.variationOf,
-																								 h -> ConcurrentHashMap.newKeySet());
-							variations.add(holder);
+							variationsMap.merge(c.variationOf, List.of(holder), FileRepository::append);
 						}
 					} catch (Exception e) {
 						throw new RuntimeException(e);
 					}
 				});
 			}
+		}
+
+		private static Collection<ContentHolder> append(Collection<ContentHolder> existing, Collection<ContentHolder> added) {
+			ContentHolder[] merged = new ContentHolder[existing.size() + added.size()];
+			int i = 0;
+			for (ContentHolder h : existing) merged[i++] = h;
+			for (ContentHolder h : added) merged[i++] = h;
+			return List.of(merged);
 		}
 
 		@Override
@@ -376,7 +385,7 @@ public interface SimpleAddonRepository {
 		@Override
 		public Collection<Addon> containingFile(String hash) {
 			return contentFileMap.getOrDefault(hash, Collections.emptySet())
-								 .parallelStream().map(ContentHolder::content)
+								 .stream().map(ContentHolder::content)
 								 .filter(Objects::nonNull)
 								 .toList();
 		}
@@ -384,7 +393,7 @@ public interface SimpleAddonRepository {
 		@Override
 		public Collection<Addon> variationsOf(String hash) {
 			return variationsMap.getOrDefault(hash, Collections.emptySet())
-								.parallelStream().map(ContentHolder::content)
+								.stream().map(ContentHolder::content)
 								.filter(Objects::nonNull)
 								.toList();
 		}
@@ -459,7 +468,7 @@ public interface SimpleAddonRepository {
 				this.isVariation = content.isVariation();
 				this.fileSize = content.fileSize;
 				this.type = content.getClass();
-				this.content = !deleted && !isVariation ? new SoftReference<>(content) : null;
+				this.content = !deleted ? new SoftReference<>(content) : null;
 			}
 
 			public Addon content() {

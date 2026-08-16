@@ -33,6 +33,10 @@ jlink {
     imageName = "unreal-archive-${project.name}"
     imageDir = layout.buildDirectory.dir("unreal-archive-${project.name}")
 
+    launcher {
+        jvmArgs = ["-XX:+UseStringDeduplication", "-XX:+UseCompactObjectHeaders"]
+    }
+
     jpackage {
         installerType = project.findProperty('installerType')
     }
