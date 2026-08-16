@@ -197,8 +197,6 @@ public class Authors {
 			} else {
 				putAuthor = new Author(cleanName(name), aliased, realname, name.strip());
 			}
-
-			return;
 		} else if (handle.matches()) {
 			String aliased = handle.group(3).strip();
 			String realname = handle.group(1).strip() + " " + handle.group(4).strip();

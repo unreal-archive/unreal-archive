@@ -112,7 +112,7 @@ public class MapPackIndexHandler implements IndexHandler<MapPack> {
 		for (MapPack.PackMap map : m.maps) {
 			if (m.author.equals(UNKNOWN)) {
 				Author author = Authors.byName(map.author);
-				m.author = author != null ? author.name : UNKNOWN;
+				m.author = author != null ? author.name : map.author;
 			} else {
 				Author packAuthor = Authors.byName(m.author);
 				Author mapAuthor = Authors.byName(map.author);
