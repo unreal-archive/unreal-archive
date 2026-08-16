@@ -1,5 +1,4 @@
 <#macro heading bg=[]>
-	<#compress>
 	<#t/><#assign bgimg>
 		<#t/><#if bg?? && bg?size gt 0>
 			<#t/><#list bg as b><#if b?has_content>
@@ -20,7 +19,6 @@
 	<#if bgimg??>
 	<div class="page-bg" style='background-image:${bgimg}'><div class="inner"></div><div class="extra"></div></div>
 	</#if>
-  </#compress>
 </#macro>
 
 <#macro content class="" id="content">
@@ -42,7 +40,6 @@
 </#macro>
 
 <#macro letterPages letters currentLetter pages currentPage>
-	<#compress>
 	<#if letters?? && letters?size gt 1 && currentLetter??>
 		<nav class="letters">
 			<#list letters as k, letter><#if letter.count??><#if letter.count gt 0><a href="${relPath(letter.path + "/index.html")}"<#if letter.letter == currentLetter>class="active"</#if>>${letter.letter}</a></#if>
@@ -51,21 +48,17 @@
 	</#if>
 
 	<@paginator pages=pages currentPage=currentPage />
-  </#compress>
 </#macro>
 
 <#macro paginator pages currentPage>
-	<#compress>
 	<#if pages?? && pages?size gt 1 && currentPage??>
 		<nav class="pages">
 			<#list pages as pg><a href="${relPath(pg.path + "/index.html")}" <#if pg.number == currentPage.number>class="active"</#if>>${pg.number}</a></#list>
 		</nav>
 	</#if>
-  </#compress>
 </#macro>
 
 <#macro screenshots attachments>
-	<#compress>
 	<div class="screenshots">
 		<#if attachments?size == 0>
 			<img src="${staticPath()}/images/none.png" class="thumb nomobile" alt="no image"/>
@@ -77,7 +70,6 @@
 			</#list>
 		</#if>
 	</div>
-  </#compress>
 </#macro>
 
 <#macro problems problems>
@@ -86,7 +78,6 @@
 </#macro>
 
 <#macro links links title="Links" h="h2" ico="link" class="links" info="">
-	<#compress>
 	<#if links?? && links?size gt 0>
 		<section class="${class}">
 			<${h}><@icon name="${ico}" small=true/>${title}</${h}>
@@ -98,54 +89,44 @@
 			</ul>
 		</section>
 	</#if>
-  </#compress>
 </#macro>
 
 <#macro labellist labels values styles={}>
-    <#compress>
-        <#list labels as l>
-            <#if values[l?index]?? && values[l?index]?has_content>
-                <#if values[l?index]?is_markup_output && values[l?index]?markup_string?trim == "None">
-                    <#continue/>
-                <#elseif values[l?index]?is_string && values[l?index]?trim == "None">
-                    <#continue/>
-                </#if>
-							<div class="label-value <#if styles[l?index?string]??>${styles[l?index?string]}</#if>">
-								<label>${l}</label><span>${values[l?index]}</span>
-							</div>
-            </#if>
-        </#list>
-    </#compress>
+	<#list labels as l>
+		<#if values[l?index]?? && values[l?index]?has_content>
+			<#if values[l?index]?is_markup_output && values[l?index]?markup_string?trim == "None">
+				<#continue/>
+			<#elseif values[l?index]?is_string && values[l?index]?trim == "None">
+				<#continue/>
+			</#if>
+			<div class="label-value <#if styles[l?index?string]??>${styles[l?index?string]}</#if>">
+				<label>${l}</label><span>${values[l?index]}</span>
+			</div>
+		</#if>
+	</#list>
 </#macro>
 
 <#macro icon name title="" class="icon" small=false>
-	<#compress>
-		<#t/><#if title != ""><span title="${title}"></#if>
-		<#t/><svg class="${class}${small?string(" small","")}" viewbox="0 0 24 24"><use href="${staticPath()}/images/icons/${name}.svg#icon"></use></svg>
-		<#t/><#if title != ""></span></#if>
-	</#compress>
+	<#t/><#if title != ""><span title="${title}"></#if>
+	<#t/><svg class="${class}${small?string(" small","")}" viewbox="0 0 24 24"><use href="${staticPath()}/images/icons/${name}.svg#icon"></use></svg>
+	<#t/><#if title != ""></span></#if>
 </#macro>
 
 <#macro meta title labels values styles={} h="h2">
-	<#compress>
 	<section class="meta">
 		<${h}><@icon "info"/>${title}</${h}>
 		<@labellist labels=labels values=values styles=styles/>
 	</section>
-  </#compress>
 </#macro>
 
 <#macro contents title h="h2">
-	<#compress>
 	<section class="contents">
 		<${h}><@icon "list"/>${title}</${h}>
 		<#nested>
 	</section>
-	</#compress>
 </#macro>
 
 <#macro files game files alsoIn otherFiles h="h2">
-	<#compress>
 	<#if files?size gt 0>
 		<section class="files">
 			<${h}><@icon "package"/>Packaged Files</${h}>
@@ -184,11 +165,9 @@
 			</#if>
 		</section>
 	</#if>
-  </#compress>
 </#macro>
 
 <#macro downloads downloads h="h2">
-	<#compress>
 	<section class="downloads">
 		<${h}><@icon "download"/>Download Mirrors</${h}>
 		<div class="links">
@@ -199,11 +178,9 @@
 			</#list>
 		</div>
 	</section>
-  </#compress>
 </#macro>
 
 <#macro variations variations h="h2">
-	<#compress>
 	<#if variations?size gt 0>
 		<section class="variations">
 			<${h}><@icon "variant"/>Variations</${h}>
@@ -229,17 +206,16 @@
 			</table>
 		</section>
 	</#if>
-  </#compress>
 </#macro>
 
 <#macro ghIssue text repoUrl title name hash labels=[]>
 	<#outputformat "plainText"><#assign sbody>
-		Your description here
+Your description here
 
 
-		---
-		Hash: ${hash}
-		Current name: ${name}
+---
+Hash: ${hash}
+Current name: ${name}
 	</#assign></#outputformat>
 	<#outputformat "plainText"><#assign stitle><#if title??>${title}</#if></#assign></#outputformat>
 	<#outputformat "plainText"><#assign slabels><#if labels?? && labels?size gt 0>${labels?join(",")}</#if></#assign></#outputformat>
@@ -254,7 +230,6 @@
 </#macro>
 
 <#macro dependencies deps game h="h2">
-	<#compress>
 	<#if deps?size gt 0>
 		<section class="dependencies">
 			<${h}><@icon "file-check"/>Required Files</${h}>
@@ -307,11 +282,9 @@
 			</table>
 		</section>
 	</#if>
-  </#compress>
 </#macro>
 
 <#macro dependencyIcon deps>
-	<#compress>
 	<#assign status=true/>
 	<#list deps as name, value>
 		<#list value as dep>
@@ -326,7 +299,6 @@
 	<#else>
     <@icon name="file-x" title="Missing dependencies"/>
 	</#if>
-  </#compress>
 </#macro>
 
 <#macro renderAuthor author alt=author.name small=false>
@@ -344,7 +316,6 @@
 </#macro>
 
 <#macro authorLink content author=content.authorInfo display=content.name small=false>
-	<#compress>
 	<span class="authors">
 		<#if author.contributors??>
 			<#if author.contributors.contributors?size gt 0 && author.contributors.modifiedBy?size == 0>
@@ -379,11 +350,9 @@
 			</span>
 		</#if>
   </span>
-  </#compress>
 </#macro>
 
 <#macro themes themes>
-	<#compress>
 	<#if themes?size gt 0>
 		<#list themes as theme, weight>
 			<span class="themes">
@@ -420,11 +389,9 @@
 			</span>
 		</#list>
 	</#if>
-  </#compress>
 </#macro>
 
 <#macro tline timeline game activeYear=0 activeMonth=0>
-	<#compress>
 	<div id="timeline" class="page nomobile">
 		<#assign tlMax=0 />
 		<#list timeline as year, months>
@@ -445,5 +412,4 @@
 			</a>
 		</#list>
 	</div>
-  </#compress>
 </#macro>

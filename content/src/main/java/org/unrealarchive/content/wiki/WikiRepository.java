@@ -83,7 +83,7 @@ public interface WikiRepository {
 			if (!Files.exists(wikiRoot)) return;
 
 			try (Stream<Path> list = Files.list(wikiRoot)) {
-				list.forEach(d -> {
+				list.parallel().forEach(d -> {
 					try {
 						if (Files.exists(d.resolve("wiki.yml"))) {
 							// cool it's a wiki, lets load it and its pages
@@ -158,13 +158,13 @@ public interface WikiRepository {
 		private transient final Map<String, WikiPageHolder> pages = new ConcurrentHashMap<>();
 
 		public void addPage(Path path, WikiPage page) {
-			WikiPageHolder pageHolder = new WikiPageHolder(path);
+			WikiPageHolder pageHolder = new WikiPageHolder(path, page);
 			pages.put(page.name, pageHolder);
 
 			Matcher matcher = REDIRECT.matcher(page.parse.wikitext.text);
 			if (matcher.matches()) {
 				redirects.put(page.name, matcher.group(1));
-				redirects.put(page.name.replaceAll(" ", "_"), matcher.group(1));
+				redirects.put(page.name.replace(" ", "_"), matcher.group(1));
 				page.isRedirect = true;
 				pageHolder.isRedirect = true;
 			}
@@ -193,9 +193,9 @@ public interface WikiRepository {
 			private SoftReference<WikiPage> page;
 			private boolean isRedirect;
 
-			public WikiPageHolder(Path path) {
+			public WikiPageHolder(Path path, WikiPage page) {
 				this.path = path;
-				this.page = null;
+				this.page = new SoftReference<>(page);
 			}
 
 			public WikiPage get() {
