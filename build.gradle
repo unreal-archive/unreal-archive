@@ -63,23 +63,26 @@ subprojects {
 	}
 
 	/**
-	 * Verifies the merged module (holding a jlink'd project's non-modular dependencies) declares every
-	 * module its classes actually use.
+	 * Verifies every module this build *generates* reads all the modules its classes use: the merged module
+	 * holding the non-modular dependencies, and any module-info synthesised into a third-party jar.
 	 *
-	 * The plugin infers those `requires` by scanning `$JAVA_HOME/jmods` for a package to module map, and
-	 * silently declares nothing it cannot resolve - so JDKs built with JEP 493 linkable runtimes, which
-	 * ship no `jmods` directory, produce a merged module reading only java.base, and an image which is
-	 * missing modules entirely. The scan also misses some references jdeps finds.
+	 * The jlink plugin infers the merged module's `requires` by scanning `$JAVA_HOME/jmods` for a package to
+	 * module map, and silently declares nothing it cannot resolve - so JDKs built with JEP 493 linkable
+	 * runtimes, which ship no `jmods` directory, produce a merged module reading only java.base and an image
+	 * missing modules entirely. The scan also misses some references jdeps finds. Synthesised module-infos
+	 * are only as complete as their hand-written `requires` list.
 	 *
-	 * jdeps reads the merged classes before their module-info is attached, so it reports what they really
-	 * need, independently of the build JDK's packaging. Declare anything reported here in the project's
-	 * `jlink { mergedModule { ... } }` block.
+	 * Either way the result is an IllegalAccessError the first time the undeclared code path runs, so it is
+	 * worth failing the build instead. jdeps reports what the classes really need, independently of the
+	 * build JDK's packaging.
 	 */
 	plugins.withId('org.beryx.jlink') {
-		def checkMergedModuleInfo = tasks.register('checkMergedModuleInfo') {
+		def checkModuleReads = tasks.register('checkModuleReads') {
 			group = 'verification'
-			description = 'Checks that the merged module declares every module its classes use'
-			dependsOn tasks.named('createMergedModule')
+			description = 'Checks that generated modules read every module their classes use'
+			// jlinkjars is only complete after prepareModulesDir: it adds the delegating modules, the
+			// remaining modular jars, and rewrites descriptors of jars whose dependencies were merged away
+			dependsOn tasks.named('prepareModulesDir')
 
 			def jlinkBase = layout.buildDirectory.dir('jlinkbase')
 			def buildFileName = rootDir.toPath().relativize(buildFile.toPath()).toString()
@@ -87,43 +90,84 @@ subprojects {
 
 			doLast {
 				def base = jlinkBase.get().asFile
+				def jlinkJars = new File(base, 'jlinkjars')
+				def finder = java.lang.module.ModuleFinder.compose(
+						java.lang.module.ModuleFinder.of(jlinkJars.toPath()),
+						java.lang.module.ModuleFinder.ofSystem())
+				def descriptorOf = { File jar ->
+					java.lang.module.ModuleFinder.of(jar.toPath()).findAll().first().descriptor()
+				}
+
+				// modules readable from the given one: its own requires, plus `requires transitive` chains
+				def readableFrom = { java.lang.module.ModuleDescriptor descriptor ->
+					Set<String> readable = []
+					def queue = new ArrayDeque<String>(descriptor.requires()*.name())
+					while (!queue.isEmpty()) {
+						def name = queue.poll()
+						if (!readable.add(name)) continue
+						finder.find(name).ifPresent { ref ->
+							ref.descriptor().requires().each { req ->
+								if (req.modifiers().contains(
+										java.lang.module.ModuleDescriptor.Requires.Modifier.TRANSITIVE)) {
+									queue.add(req.name())
+								}
+							}
+						}
+					}
+					readable
+				}
+
+				// the merged module is checked against its classes as they were before module-info was
+				// attached, since jdeps reports only declared requires for an already modular jar
 				def mergedClasses = new File(base, 'tmpmerged').listFiles()?.find { it.name.endsWith('.jar') }
-				def mergedModule = new File(base, 'jlinkjars').listFiles()?.find {
+				def mergedModule = jlinkJars.listFiles()?.find {
 					it.name.contains('merged') && it.name.endsWith('.jar')
 				}
 				if (!mergedClasses || !mergedModule) throw new GradleException(
 						"No merged module found under $base - expected tmpmerged/ and jlinkjars/ jars")
 
-				def jdeps = java.util.spi.ToolProvider.findFirst('jdeps')
-						.orElseThrow { new GradleException('jdeps is unavailable in the Gradle JVM') }
-				def report = new StringWriter()
-				def errors = new StringWriter()
-				if (jdeps.run(new PrintWriter(report), new PrintWriter(errors), '-s', '--multi-release', release,
-							  '--module-path', new File(base, 'jlinkjars').path, mergedClasses.path) != 0) {
-					throw new GradleException("jdeps failed on ${mergedClasses.name}: $errors")
+				def targets = [[mergedClasses, mergedModule, 'jlink { mergedModule { ... } }']]
+				jlinkJars.listFiles()?.findAll { it.name.endsWith('-module.jar') }?.each {
+					targets << [it, it, "extraJavaModuleInfo { module('...', '${descriptorOf(it).name()}') { ... } }"]
 				}
 
-				// "jar -> module" per used module, plus unresolvable pseudo-entries ("not found") to ignore
-				def used = report.toString().readLines()
-						.findAll { it.contains(' -> ') }
-						.collect { (it =~ / -> (\S+)$/).with { m -> m ? m[0][1] : null } }
-						.findAll { it ==~ /(?!java\.base$)[a-z][a-zA-Z0-9.]*/ } as Set
+				logger.info("Auditing generated modules: {}", targets.collect { it[0].name })
+				def jdeps = java.util.spi.ToolProvider.findFirst('jdeps')
+						.orElseThrow { new GradleException('jdeps is unavailable in the Gradle JVM') }
+				def problems = []
+				targets.each { classesJar, moduleJar, where ->
+					def descriptor = descriptorOf(moduleJar)
+					def args = ['-s', '--multi-release', release, '--module-path', jlinkJars.path]
+					if (classesJar == moduleJar) args += ['--add-modules', descriptor.name()]
+					def report = new StringWriter()
+					def errors = new StringWriter()
+					if (jdeps.run(new PrintWriter(report), new PrintWriter(errors),
+								  (args + classesJar.path) as String[]) != 0) {
+						throw new GradleException("jdeps failed on ${classesJar.name}: $errors")
+					}
 
-				def declared = java.lang.module.ModuleFinder.of(mergedModule.toPath())
-						.findAll().first().descriptor().requires()*.name() as Set
+					// "jar -> module" per used module, plus pseudo-entries ("not found") to ignore
+					def used = report.toString().readLines()
+							.findAll { it.contains(' -> ') }
+							.collect { (it =~ / -> (\S+)$/).with { m -> m ? m[0][1] : null } }
+							.findAll { it ==~ /(?!java\.base$)[a-z][a-zA-Z0-9.]*/ } as Set
 
-				def missing = (used - declared).sort()
-				if (missing) throw new GradleException(
-						"${mergedModule.name} uses ${missing.size()} module(s) it does not read: ${missing.join(', ')}\n" +
-						"Declare them in the jlink { mergedModule { ... } } block of $buildFileName:\n" +
-						missing.collect { "\t\trequires '$it'" }.join('\n') + "\n" +
-						"In an `additive = true` block, also exclude them from the scan to avoid declaring them twice:\n" +
-						"\t\texcludeRequires ${missing.collect { "'$it'" }.join(', ')}")
+					def missing = (used - readableFrom(descriptor)).sort()
+					if (missing) problems << "${descriptor.name()} does not read ${missing.join(', ')}\n" +
+							"\tdeclare in $buildFileName, $where:\n" +
+							missing.collect { "\t\trequires '$it'" }.join('\n')
+				}
+
+				if (problems) throw new GradleException(
+						"Generated modules are missing readability edges, which fail at runtime as an " +
+						"IllegalAccessError:\n" + problems.join('\n') +
+						"\nIn an `additive = true` mergedModule block, also `excludeRequires` those modules, " +
+						"so they are not declared twice.")
 			}
 		}
 
-		tasks.named('check') { dependsOn checkMergedModuleInfo }
-		tasks.named('jlink') { dependsOn checkMergedModuleInfo }
+		tasks.named('check') { dependsOn checkModuleReads }
+		tasks.named('jlink') { dependsOn checkModuleReads }
 	}
 
 	dependencies {
