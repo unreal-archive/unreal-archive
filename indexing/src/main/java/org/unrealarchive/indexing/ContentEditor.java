@@ -55,7 +55,7 @@ public class ContentEditor {
 		Path yaml = Files.writeString(Files.createTempFile(content.hash, ".yml"), YAML.toString(content),
 									  StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 
-		String editor = System.getenv().getOrDefault("UA_EDITOR", "sensible-editor");
+		String editor = System.getenv().getOrDefault("UA_EDITOR", System.getenv().getOrDefault("EDITOR", "sensible-editor"));
 
 		FileTime fileTime = Files.getLastModifiedTime(yaml);
 		Process editorProcess = new ProcessBuilder(editor, yaml.toString()).inheritIO().start();
