@@ -35,6 +35,65 @@ public class IndexUtilsTest {
 	}
 
 	@Test
+	public void findAuthorKeywordIsAWord() {
+		// "by" inside another word is not an attribution - this is a column heading
+		assertEquals(null, IndexUtils.findAuthor(List.of("  POSSIBLE      STANDBY      DEFINATE                NOt")));
+		assertEquals(null, IndexUtils.findAuthor(List.of("There is a health pack nearby the lift, go grab it")));
+
+		// but the plural and the "(s)" form still are
+		assertEquals("Bob", IndexUtils.findAuthor(List.of("Authors: Bob")));
+		assertEquals("Bob", IndexUtils.findAuthor(List.of("Author(s): Bob")));
+	}
+
+	@Test
+	public void findAuthorEndsAtColumnPadding() {
+		// readme metadata is laid out in columns, so padding ends the name
+		assertEquals("Adapt", IndexUtils.findAuthor(List.of("adaptadapt        Adapt Skin, by Adapt            adaptadapt")));
+		assertEquals("MATTIAS EKH", IndexUtils.findAuthor(List.of("Author: MATTIAS EKH   Asmdminigun")));
+
+		// an ellipsis run between words does the same, and must survive the URL cleanup which
+		// used to read "Luger...........great" as a hostname and drop it
+		assertEquals("Luger", IndexUtils.findAuthor(List.of("skins for Katana and Mudfish created by Luger...........great stuff!!")));
+
+		// a single space is not a separator
+		assertEquals("Thåt Guy", IndexUtils.findAuthor(List.of("Author: Thåt Guy")));
+	}
+
+	@Test
+	public void findAuthorTrimsDecoration() {
+		// one-sided decoration is trimmed, and a bracket it closes is kept
+		assertEquals("Holy Embrace[UNW]", IndexUtils.findAuthor(List.of(" (:---By Holy Embrace[UNW]---:)")));
+
+		// decoration at both ends belongs to the handle
+		assertEquals("-=Musc@t=-", IndexUtils.findAuthor(List.of("Author: -=Musc@t=-")));
+		assertEquals("...AndRelax aka baddavie", IndexUtils.findAuthor(List.of("Author: ...AndRelax aka baddavie")));
+
+		// a copyright marker is not part of the name
+		assertEquals("J. Martin", IndexUtils.findAuthor(List.of("Male2TheMoon skin For Ureal by J. Martin (c)2005")));
+	}
+
+	@Test
+	public void findAuthorRejectsProse() {
+		// the keyword appears in prose far into a line of instructions, and what follows is no name
+		assertEquals(null, IndexUtils.findAuthor(
+			List.of("F1 on your keyboard will bring up your score, map name, author, etc.")));
+
+		// a labelled line is preferred over an earlier mention buried in prose
+		assertEquals("Bob", IndexUtils.findAuthor(List.of(
+			"This skin was originally created by somebody else entirely, adapted here for Unreal",
+			"Author: Bob"
+		)));
+	}
+
+	@Test
+	public void findAuthorKeepsClanTags() {
+		// tags are stripped upstream, per file, only from HTML readmes - so an angle bracketed
+		// clan tag in a plain text readme is a name, and must survive
+		assertEquals("<NDP>BOZO", IndexUtils.findAuthor(List.of("Author: <NDP>BOZO")));
+		assertEquals("Palsied <twat>", IndexUtils.findAuthor(List.of("Skin by Palsied <twat>")));
+	}
+
+	@Test
 	public void cleanString() {
 		// plain strings are left alone, other than whitespace trimming
 		assertEquals("Thåt Guy", IndexUtils.cleanString("  Thåt Guy\n"));

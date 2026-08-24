@@ -54,10 +54,37 @@ public class IndexUtils {
 
 	public static final String RELEASE_UT99 = "1999-11";
 
-	public static final Pattern AUTHOR_MATCH = Pattern.compile("(.+)?(author|by)(\\(s\\))?([\\s:]+)?(.{4,35})(\\s+)?",
+	// the keyword must be a word of its own - "STANDBY", "nearby" and "Derby" are not attributions
+	public static final Pattern AUTHOR_MATCH = Pattern.compile("(.+)?\\b(authors?|by)\\b(\\(s\\))?([\\s:]+)?(.{4,35})(\\s+)?",
 															   Pattern.CASE_INSENSITIVE);
 	public static final Pattern PLAYER_MATCH = Pattern.compile("(.+)?(player)(s| count)?([\\s:]+)?([A-Za-z0-9 \\-]{1,16})(\\s+)?",
 															   Pattern.CASE_INSENSITIVE);
+
+	/**
+	 * A readme lays its metadata out in columns, so padding or an ellipsis run ends the name
+	 * ("Adapt            adaptadapt", "Luger...........great stuff!!").
+	 */
+	private static final Pattern COLUMN_SEPARATOR = Pattern.compile("(?<=\\S)\\s{2,}|\\t|(?<=\\w)\\.{3,}(?=\\w)");
+	private static final Pattern COPYRIGHT = Pattern.compile("\\(c\\)\\s*\\d{2,4}|\u00a9\\s*\\d{2,4}", Pattern.CASE_INSENSITIVE);
+	/**
+	 * Decoration at both ends belongs to a stylised handle ("-=Musc@t=-", "...AndRelax"), so it is
+	 * only trimmed off the end when the name does not open with it too ("Holy Embrace[UNW]---:)").
+	 */
+	private static final Pattern LEADING_DECORATION = Pattern.compile("^[-=~*_:;!.,|/\\\\]{2,}");
+	private static final Pattern TRAILING_DECORATION = Pattern.compile("[\\s\\-=~*_:;!.,|/\\\\]{2,}[)\\]]?$");
+	private static final Pattern NAME_START = Pattern.compile("^[A-Za-z0-9(\\[<.\\-=]");
+	private static final Pattern MARKUP = Pattern.compile("<[^>]*>|&[a-z]+;|&#\\d+;", Pattern.CASE_INSENSITIVE);
+
+	/** Words which are never a name, but do follow the keyword in prose ("... map name, author, etc."). */
+	private static final Set<String> NOT_A_NAME = Set.of("etc", "others", "other", "me", "myself", "above", "below",
+														"default", "unknown", "various", "him", "her", "them", "anyone",
+														"someone", "yourself", "author", "authors", "the");
+
+	/**
+	 * Beyond this many characters ahead of the keyword the line is prose rather than an attribution;
+	 * across the archive genuine attributions sit within the first 50 or so characters.
+	 */
+	private static final int MAX_AUTHOR_OFFSET = 150;
 
 	public static final Pattern UT3_SCREENSHOT_MATCH = Pattern.compile("<Images:([^.]*)\\.(.*\\.)?([^>]+)>", Pattern.CASE_INSENSITIVE);
 
@@ -357,9 +384,12 @@ public class IndexUtils {
 	 * Attempts to read the contents of a text file using one of the given file encodings, in order.
 	 */
 	private static List<String> textContent(Incoming incoming, Incoming.IncomingFile file, List<Charset> encodings) throws IOException {
+		// markup in an HTML readme is not content - "<FONT COLOR="#FFFFFF">by <A HREF="...">House"
+		final boolean markup = FileType.HTML.matches(file.fileName());
 		while (!encodings.isEmpty()) {
 			Charset encoding = encodings.removeFirst();
 			try (BufferedReader br = new BufferedReader(Channels.newReader(file.asChannel(), encoding))) {
+				if (markup) return br.lines().map(l -> MARKUP.matcher(l).replaceAll(" ")).toList();
 				return (br.lines().toList());
 			} catch (MalformedInputException | UncheckedIOException ex) {
 				if (encodings.isEmpty()) {
@@ -412,16 +442,55 @@ public class IndexUtils {
 	}
 
 	public static String findAuthor(List<String> lines) {
+		String best = null;
+		int bestOffset = Integer.MAX_VALUE;
+
 		for (String s : lines) {
 			// contact details trailing the name would otherwise be captured as part of it, or
 			// push the name past the length the expression will match at all
 			Matcher m = AUTHOR_MATCH.matcher(Authors.stripContacts(s));
 			if (!m.matches() || m.group(5).isBlank()) continue;
 
-			String author = Authors.cleanName(m.group(5).strip());
-			if (!author.isBlank() && !author.equalsIgnoreCase(UNKNOWN)) return author;
+			// the nearer the keyword sits to the start of the line, the more the line reads as an
+			// attribution rather than as prose which happens to mention an author
+			int offset = m.group(1) == null ? 0 : m.group(1).length();
+			if (offset > MAX_AUTHOR_OFFSET || offset >= bestOffset) continue;
+
+			String author = authorName(m.group(5));
+			if (author == null) continue;
+
+			best = author;
+			bestOffset = offset;
+
+			// a labelled line ("Author: ...") cannot be bettered
+			if (offset == 0) break;
 		}
-		return null;
+
+		return best;
+	}
+
+	/**
+	 * Reduce a matched author expression to a name, or null if what was captured cannot be one.
+	 */
+	private static String authorName(String captured) {
+		String name = trimNonName(captured);
+		if (name.isEmpty() || !NAME_START.matcher(name).find() || notAName(name)) return null;
+
+		name = trimNonName(Authors.cleanName(name));
+		if (name.isEmpty() || notAName(name) || name.equalsIgnoreCase(UNKNOWN)) return null;
+
+		return name;
+	}
+
+	private static String trimNonName(String captured) {
+		String name = COLUMN_SEPARATOR.split(captured.strip(), 2)[0];
+		name = COPYRIGHT.matcher(name).replaceAll("").strip();
+		if (!LEADING_DECORATION.matcher(name).find()) name = TRAILING_DECORATION.matcher(name).replaceAll("");
+		return name.strip();
+	}
+
+	private static boolean notAName(String name) {
+		return NOT_A_NAME.contains(name.replaceAll("^[\\s.,!]+|[\\s.,!]+$", "").toLowerCase());
 	}
 
 	/**

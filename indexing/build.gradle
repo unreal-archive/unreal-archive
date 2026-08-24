@@ -75,17 +75,6 @@ tasks.register('jlinkTar', Tar) {
 	}
 }
 
-/**
- * Helper task to run the index helper. 
- */
-tasks.register("indexHelper", JavaExec) {
-	group = "Execution"
-	description = "Run the main class with JavaExecTask"
-	classpath = sourceSets.main.runtimeClasspath
-	mainClass = "org.unrealarchive.indexing.IndexHelper"
-	workingDir = "../"
-}
-
 dependencies {
 	implementation project(':common')
 	implementation project(':content')
