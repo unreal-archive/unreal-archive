@@ -3,6 +3,7 @@ package org.unrealarchive.indexing;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -15,6 +16,22 @@ public class IndexUtilsTest {
 		try (BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("TestReadMe.txt")))) {
 			assertEquals("Thåt Guy", IndexUtils.findAuthor(br.lines().toList()));
 		}
+	}
+
+	@Test
+	public void findAuthorWithContactDetails() {
+		// contact details trailing the name are not part of it
+		assertEquals("Maxar", IndexUtils.findAuthor(List.of("Team Skin mod by Maxar email (maxfuller5@gmail.com)")));
+		assertEquals("Bob", IndexUtils.findAuthor(List.of("Author: Bob <bob@example.com>")));
+		assertEquals("Bob", IndexUtils.findAuthor(List.of("Author: Bob - http://www.example.com/bob")));
+		assertEquals("Bob", IndexUtils.findAuthor(List.of("Author: Bob E-mail: bob@example.com")));
+
+		// ... and they must not push the name beyond the length the expression matches,
+		// which previously left the author entirely undetected
+		assertEquals("DeathChild", IndexUtils.findAuthor(List.of("Cyborg pack By DeathChild email (rumachado@clix.pt)")));
+
+		// a line carrying nothing but contact details is not an author
+		assertEquals(null, IndexUtils.findAuthor(List.of("Author: bob@example.com")));
 	}
 
 	@Test

@@ -81,6 +81,8 @@ dependencies {
     implementation(libs.unreal.package.lib)
     implementation(libs.unreal.package.dependency)
 
+    implementation(libs.bundles.jackson)
+
     testImplementation(libs.junit.jupiter)
 }
 

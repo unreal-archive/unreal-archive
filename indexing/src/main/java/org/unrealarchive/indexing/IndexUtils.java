@@ -42,6 +42,7 @@ import net.shrimpworks.unreal.packages.entities.properties.ObjectProperty;
 import net.shrimpworks.unreal.packages.entities.properties.Property;
 
 import org.unrealarchive.common.Util;
+import org.unrealarchive.content.Authors;
 import org.unrealarchive.content.FileType;
 import org.unrealarchive.content.Games;
 import org.unrealarchive.content.addons.Addon;
@@ -412,10 +413,13 @@ public class IndexUtils {
 
 	public static String findAuthor(List<String> lines) {
 		for (String s : lines) {
-			Matcher m = AUTHOR_MATCH.matcher(s);
-			if (m.matches() && !m.group(5).trim().isEmpty()) {
-				return m.group(5).trim();
-			}
+			// contact details trailing the name would otherwise be captured as part of it, or
+			// push the name past the length the expression will match at all
+			Matcher m = AUTHOR_MATCH.matcher(Authors.stripContacts(s));
+			if (!m.matches() || m.group(5).isBlank()) continue;
+
+			String author = Authors.cleanName(m.group(5).strip());
+			if (!author.isBlank() && !author.equalsIgnoreCase(UNKNOWN)) return author;
 		}
 		return null;
 	}

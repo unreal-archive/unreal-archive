@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import net.shrimpworks.unreal.packages.Umod;
@@ -116,7 +117,7 @@ public class Incoming implements Closeable {
 							.map(IncomingFile::new)
 							.collect(Collectors.toSet()));
 		}
-		return Collections.unmodifiableSet(res);
+		return Collections.unmodifiableSet(new TreeSet<>(res));
 	}
 
 	private Map<String, Object> listFiles(Path contentRoot) throws IOException {
@@ -178,7 +179,7 @@ public class Incoming implements Closeable {
 							 submission, contentRoot, hash);
 	}
 
-	public class IncomingFile {
+	public class IncomingFile implements Comparable<IncomingFile> {
 
 		public final String file;
 
@@ -246,6 +247,14 @@ public class Incoming implements Closeable {
 				throw new IllegalStateException("Failed to get hash for " + file, e);
 			}
 			return null;
+		}
+
+		@Override
+		public int compareTo(IncomingFile other) {
+			if (other == null) return 0;
+			if (other.file == null) return 0;
+			if (file == null) return 0;
+			return file.compareTo(other.file);
 		}
 
 		@Override

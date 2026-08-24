@@ -35,7 +35,7 @@ public class Authors {
 	// -- begin name cleaning expressions
 
 	private static final Pattern EMAIL = Pattern.compile(
-		"((e)?mail(to)?\\s?:)?(-? ?)?\\(?<?([A-Za-z0-9_.-]+@[A-Za-z0-9]+\\.[A-Za-z0-9.]+)>?\\)?",
+		"((e-?)?mail(to)?\\s?:?\\s?)?(-? ?)?\\(?<?([A-Za-z0-9_.-]+@[A-Za-z0-9]+\\.[A-Za-z0-9.]+)>?\\)?",
 		Pattern.CASE_INSENSITIVE); // excessively simple, intentionally
 	private static final Pattern URL = Pattern.compile(
 		"(-? ?)?\\(?((https?://)?(www\\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\\.[a-zA-Z0-9()]{2,6}\\b([-a-zA-Z0-9()!@:%_+.~#?&/=]*))\\)?",
@@ -249,10 +249,25 @@ public class Authors {
 	}
 
 	/**
+	 * Remove email addresses and URLs from a line of text, leaving the rest intact.
+	 * <p>
+	 * Readme author lines habitually trail contact details after the name
+	 * ({@code Cyborg pack By DeathChild email (nobody@example.com)}), which
+	 * both pads the name out beyond what author detection will accept, and
+	 * ends up captured as part of the name when it does fit.
+	 *
+	 * @param text line of text to strip
+	 * @return the text without contact details
+	 */
+	public static String stripContacts(String text) {
+		return URL.matcher(EMAIL.matcher(text).replaceAll("")).replaceAll("").strip();
+	}
+
+	/**
 	 * Create a presentable representation of an author name, with various
 	 * elements like URLs and email addresses stripped.
 	 */
-	private static String cleanName(String author) {
+	public static String cleanName(String author) {
 		if (author.isBlank()) return "Unknown";
 
 		String noFullstop = author.replaceAll("(\\.)$", "");

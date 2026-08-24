@@ -10,4 +10,6 @@ open module unreal.archive.tools {
 	requires unreal.archive.content;
 	requires unreal.archive.storage;
 	requires unreal.archive.indexing;
+
+	requires com.fasterxml.jackson.core;
 }

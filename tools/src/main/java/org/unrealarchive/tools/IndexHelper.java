@@ -28,6 +28,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+
 import net.shrimpworks.unreal.packages.IntFile;
 import net.shrimpworks.unreal.packages.Package;
 import net.shrimpworks.unreal.packages.PackageReader;
@@ -38,6 +40,7 @@ import net.shrimpworks.unreal.packages.entities.objects.Polys;
 import org.unrealarchive.common.ArchiveUtil;
 import org.unrealarchive.common.CLI;
 import org.unrealarchive.common.Util;
+import org.unrealarchive.common.YAML;
 import org.unrealarchive.content.AuthorRepository;
 import org.unrealarchive.content.Authors;
 import org.unrealarchive.content.Download;
@@ -88,7 +91,7 @@ public class IndexHelper {
 //		fixMissingScreenshots();
 //		fixDDOMMaps();
 //		reassignUT2003();
-		fixFileSize(args[0], args[1]);
+//		fixFileSize(args[0], args[1]);
 //		fixCorruptStrings();
 //		fixCtf4Maps();
 //		reindexMapsWithThemes(args[0], args[1], args[2]);
@@ -109,7 +112,7 @@ public class IndexHelper {
 //		findGametypes(args[0]);
 //		checkPathing(args[0], args[1]);
 //		contentDependencies(args[0], args[1], args[2]);
-//		fixUnknownAuthors(args[0], args[1], args[2]);
+		fixUnknownAuthors(args[0], args[1], args[2]);
 //		umodDependencies(args[0]);
 //		ukxDependencies();
 //		fixMissingModels(args[0]);
@@ -829,21 +832,39 @@ public class IndexHelper {
 	}
 
 	private static void fixUnknownAuthors(String game, String type, String localFiles) throws IOException {
-		final Path root = Paths.get(localFiles);
+		final Path localRoot = Paths.get(localFiles).toAbsolutePath();
 
 		ContentManager cm = manager();
 
 		final java.util.Map<String, Path> fileHashes = new HashMap<>();
-		Files.walkFileTree(root, new SimpleFileVisitor<>() {
-			@Override
-			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-				if (ArchiveUtil.isArchive(file)) {
-					fileHashes.put(Util.hash(file), file);
+		final Path hashIndex = localRoot.resolve("index");
+		if (Files.exists(hashIndex)) {
+			fileHashes.putAll(YAML.fromFile(hashIndex, new TypeReference<java.util.Map<String, Path>>() {}));
+		} else {
+			System.out.printf("Loading file hashes from %s%n", localRoot);
+			List<Path> allFiles = new ArrayList<>();
+			Files.walkFileTree(localRoot, new SimpleFileVisitor<>() {
+				@Override
+				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+					if (ArchiveUtil.isArchive(file)) {
+						allFiles.add(file);
+					}
+					return super.visitFile(file, attrs);
 				}
-				return super.visitFile(file, attrs);
-			}
-		});
-		System.out.printf("Cached %d file hashes%n", fileHashes.size());
+			});
+			System.out.printf("Found %d files%n%n", allFiles.size());
+			allFiles.stream().parallel()
+					.forEach(file -> {
+						try {
+							fileHashes.put(Util.hash(file), file);
+						} catch (IOException e) {
+							System.out.printf("Failed to hash file %s%n", file.toString());
+						}
+						if (fileHashes.size() % 1000 == 0) System.out.printf("Hashed %d files...\r", fileHashes.size());
+					});
+			Files.write(hashIndex, YAML.toBytes(fileHashes));
+		}
+		System.out.printf("%nCached %d file hashes%n", fileHashes.size());
 
 		Collection<Addon> search = cm.repo().search(game, type.toUpperCase(), null, null);
 		final Path tmpDir = Files.createTempDirectory("ua-authors");
@@ -899,21 +920,29 @@ public class IndexHelper {
 	}
 
 	private static void contentDependencies(String game, String type, String localFiles) throws IOException {
-		final Path root = Paths.get(localFiles);
+		final Path localRoot = Paths.get(localFiles);
 
 		ContentManager cm = manager();
 
 		final java.util.Map<String, Path> fileHashes = new HashMap<>();
-		Files.walkFileTree(root, new SimpleFileVisitor<>() {
-			@Override
-			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-				if (ArchiveUtil.isArchive(file)) {
-					fileHashes.put(Util.hash(file), file);
+		final Path hashIndex = localRoot.resolve("index");
+		if (Files.exists(hashIndex)) {
+			fileHashes.putAll(YAML.fromFile(hashIndex, new TypeReference<java.util.Map<String, Path>>() {}));
+		} else {
+			System.out.printf("Loading file hashes from %s%n%n", localRoot);
+			Files.walkFileTree(localRoot, new SimpleFileVisitor<>() {
+				@Override
+				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+					if (ArchiveUtil.isArchive(file)) {
+						fileHashes.put(Util.hash(file), file);
+						if (fileHashes.size() % 1000 == 0) System.out.printf("Hashed %d files...\r", fileHashes.size());
+					}
+					return super.visitFile(file, attrs);
 				}
-				return super.visitFile(file, attrs);
-			}
-		});
-		System.out.printf("Cached %d file hashes%n", fileHashes.size());
+			});
+			Files.write(hashIndex, YAML.toBytes(fileHashes));
+		}
+		System.out.printf("%nCached %d file hashes%n", fileHashes.size());
 
 		Collection<Addon> search = cm.repo().search(game, type.toUpperCase(), null, null);
 		final Path tmpDir = Files.createTempDirectory("ua-deps");
@@ -1334,7 +1363,8 @@ public class IndexHelper {
 //							   .filter(c -> !c.deleted && c instanceof Map)
 //							   .map(c -> (Map)c)
 //							   .filter(c -> !c.bots)
-////							   .filter(c -> c.hash.equalsIgnoreCase("9a236ea0398b1111f831959629b0420ac1a1de2c"))
+
+	/// /							   .filter(c -> c.hash.equalsIgnoreCase("9a236ea0398b1111f831959629b0420ac1a1de2c"))
 //							   .toList();
 //
 //		System.out.printf("Processing %d maps%n", maps.size());
@@ -1740,7 +1770,9 @@ public class IndexHelper {
 			   && p.maps.stream().anyMatch(m -> corrupt(m.name) || corrupt(m.title) || corrupt(m.author));
 	}
 
-	/** Control characters are never legitimate content; they're markup or decoding damage. */
+	/**
+	 * Control characters are never legitimate content; they're markup or decoding damage.
+	 */
 	private static boolean corrupt(String s) {
 		if (s == null) return false;
 		for (int i = 0; i < s.length(); i++) {
