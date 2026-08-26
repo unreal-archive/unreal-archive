@@ -113,6 +113,8 @@ public class IndexHelper {
 //		checkPathing(args[0], args[1]);
 //		contentDependencies(args[0], args[1], args[2]);
 		fixUnknownAuthors(args[0], args[1], args[2]);
+//		cleanStoredAuthors(args.length > 0 ? args[0] : null, args.length > 1 ? args[1].toUpperCase() : null);
+//		attributeUnknownAuthors();
 //		umodDependencies(args[0]);
 //		ukxDependencies();
 //		fixMissingModels(args[0]);
@@ -178,11 +180,13 @@ public class IndexHelper {
 		if (changed) checkinChange(cm, co);
 	}
 
-	private static void checkinChange(ContentManager cm, Addon co) throws IOException {
+	private static boolean checkinChange(ContentManager cm, Addon co) throws IOException {
 		if (cm.checkin(new IndexResult<>(co, Collections.emptySet()), null)) {
 			System.out.println("Stored changes for " + String.join(" / ", co.game, co.contentType(), co.name));
+			return true;
 		} else {
 			System.out.println("Failed to apply for " + String.join(" / ", co.game, co.contentType(), co.name, co.hash));
+			return false;
 		}
 	}
 
@@ -918,6 +922,238 @@ public class IndexHelper {
 			}
 		}
 	}
+
+	// -- begin stored author cleanup
+
+	/**
+	 * Clean junk out of stored author values in place, without re-reading any content archives.
+	 * <p>
+	 * These are the same guarded rules author extraction applies to freshly matched names
+	 * ({@link IndexUtils#cleanAuthor(String)}), applied to values already in the index - contact
+	 * details, column padding, copyright markers, dates, one-sided decoration, truncated
+	 * parentheticals and markup fragments. A value which holds no name at all ("of these skins",
+	 * ", etc") is reset to Unknown, which also returns it to the {@link #fixUnknownAuthors}
+	 * candidate pool for re-extraction.
+	 * <p>
+	 * Map packs name an author per map as well, which reach author pages through
+	 * {@code HasAuthors} and carry exactly the same junk, so they are cleaned in the same pass.
+	 */
+	public static void cleanStoredAuthors(String game, String type) throws IOException {
+		ContentManager cm = manager();
+		Collection<Addon> search = cm.repo().search(game, type, null, null);
+
+		int scanned = 0, cleaned = 0, rejected = 0, nested = 0;
+		for (Addon c : search) {
+			if (c.deleted) continue;
+
+			String fixed = c.author;
+			if (Authors.isSomeone(c.author)) {
+				scanned++;
+				fixed = cleanStored(c.author);
+			}
+
+			boolean packJunk = false;
+			if (c instanceof MapPack pack) {
+				for (MapPack.PackMap m : pack.maps) {
+					if (!Authors.isSomeone(m.author)) continue;
+					scanned++;
+					if (!cleanStored(m.author).equals(m.author)) packJunk = true;
+				}
+			}
+
+			if (fixed.equals(c.author) && !packJunk) continue;
+
+			Addon co = cm.checkout(c.hash);
+
+			if (!fixed.equals(co.author)) {
+				if (fixed.equals(UNKNOWN)) rejected++;
+				else cleaned++;
+				System.out.printf("%s [%s / %s / %s]%n  [%s] -> [%s]%n",
+								  fixed.equals(UNKNOWN) ? "reject" : "clean ", co.game, co.contentType(), co.name,
+								  escaped(co.author), escaped(fixed));
+				co.author = fixed;
+			}
+
+			if (co instanceof MapPack pack) {
+				for (MapPack.PackMap m : pack.maps) {
+					if (!Authors.isSomeone(m.author)) continue;
+					String mapFixed = cleanStored(m.author);
+					if (mapFixed.equals(m.author)) continue;
+					nested++;
+					System.out.printf("%s [%s / %s / %s : %s]%n  [%s] -> [%s]%n",
+									  mapFixed.equals(UNKNOWN) ? "reject" : "clean ", co.game, co.contentType(),
+									  co.name, m.name, escaped(m.author), escaped(mapFixed));
+					m.author = mapFixed;
+				}
+			}
+
+			checkinChange(cm, co);
+		}
+
+		System.out.printf("%nScanned %d, cleaned %d, rejected to Unknown %d, pack map authors changed %d%n",
+						  scanned, cleaned, rejected, nested);
+	}
+
+	/**
+	 * Clean a stored author value, leaving one which never held a name exactly as stored.
+	 * <p>
+	 * ".:..:" and "???" are unreadable, but they are what the author called themselves, so they
+	 * are kept as-is rather than reduced to Unknown.
+	 */
+	private static String cleanStored(String author) {
+		String fixed = IndexUtils.cleanAuthor(author);
+		return fixed.equals(UNKNOWN) && IndexUtils.isNameless(author) ? author : fixed;
+	}
+
+	// -- end stored author cleanup
+
+	// -- begin author attribution from the index
+
+	private static final String[] ATTRIBUTION_TIERS = { "identical files", "variation link", "same name", "pack maps" };
+
+	/**
+	 * Attribute unknown authors from evidence already in the index, downloading nothing.
+	 * <p>
+	 * Four sources, in descending order of confidence, the first hit winning:
+	 * <ol>
+	 * <li>content files byte-identical to those of a known-author entry - the same content
+	 * repackaged (a zip and a 7z of one skin), which shares no submission hash</li>
+	 * <li>a {@code variationOf} link to a known-author entry, in either direction</li>
+	 * <li>the same name, game and type as exactly one known author</li>
+	 * <li>for a map pack, the authors of the maps it holds - one distinct author is that author,
+	 * several are Various</li>
+	 * </ol>
+	 * A source offering more than one distinct author is passed over rather than guessed at, the
+	 * pack case excepted, where several authors is itself the answer. Derived values are cleaned
+	 * before use, so junk in the source entry does not propagate.
+	 */
+	public static void attributeUnknownAuthors() throws IOException {
+		ContentManager cm = manager();
+
+		int[] counts = new int[ATTRIBUTION_TIERS.length];
+
+		// a variation chain resolves one link per pass, and an entry attributed by one pass is
+		// evidence for the next, so passes repeat until nothing further resolves. Only a stored
+		// change counts as progress, so an entry the content manager refuses cannot loop forever
+		for (int pass = 1; ; pass++) {
+			int attributed = attributionPass(cm, counts);
+			System.out.printf("-- pass %d attributed %d%n%n", pass, attributed);
+			if (attributed == 0) break;
+		}
+
+		int total = 0;
+		for (int i = 0; i < ATTRIBUTION_TIERS.length; i++) {
+			System.out.printf("%-16s %d%n", ATTRIBUTION_TIERS[i], counts[i]);
+			total += counts[i];
+		}
+		System.out.printf("%-16s %d%n", "attributed", total);
+	}
+
+	private static int attributionPass(ContentManager cm, int[] counts) throws IOException {
+		Collection<Addon> all = cm.repo().all();
+
+		final java.util.Map<String, Addon> byHash = new HashMap<>();
+		final java.util.Map<String, Set<String>> variants = new HashMap<>();
+		final java.util.Map<String, Set<String>> byFiles = new HashMap<>();
+		final java.util.Map<String, Set<String>> byName = new HashMap<>();
+
+		for (Addon c : all) {
+			byHash.put(c.hash, c);
+			if (c.variationOf != null) variants.computeIfAbsent(c.variationOf, _ -> new HashSet<>()).add(c.hash);
+
+			String author = attributableAuthor(c);
+			if (author == null) continue;
+			if (!c.files.isEmpty()) byFiles.computeIfAbsent(filesKey(c), _ -> new HashSet<>()).add(author);
+			byName.computeIfAbsent(nameKey(c), _ -> new HashSet<>()).add(author);
+		}
+
+		int attributed = 0;
+		for (Addon c : all) {
+			// only a genuine gap is filled: "Various" is already an answer, not a missing one
+			if (c.deleted || !isUnattributed(c.author)) continue;
+
+			String found = null;
+			int tier = -1;
+
+			if (!c.files.isEmpty()) {
+				Set<String> sameFiles = byFiles.get(filesKey(c));
+				if (sameFiles != null && sameFiles.size() == 1) {
+					found = sameFiles.iterator().next();
+					tier = 0;
+				}
+			}
+
+			if (found == null) {
+				Set<String> linked = new HashSet<>();
+				linkedAuthor(byHash.get(c.variationOf), linked);
+				for (String h : variants.getOrDefault(c.hash, Set.of())) linkedAuthor(byHash.get(h), linked);
+				if (linked.size() == 1) {
+					found = linked.iterator().next();
+					tier = 1;
+				}
+			}
+
+			if (found == null) {
+				Set<String> sameName = byName.get(nameKey(c));
+				if (sameName != null && sameName.size() == 1) {
+					found = sameName.iterator().next();
+					tier = 2;
+				}
+			}
+
+			if (found == null && c instanceof MapPack pack) {
+				Set<String> mapAuthors = pack.maps.stream()
+												  .filter(m -> Authors.isSomeone(m.author))
+												  .map(m -> IndexUtils.cleanAuthor(m.author))
+												  .filter(a -> !a.equals(UNKNOWN))
+												  .collect(Collectors.toSet());
+				if (!mapAuthors.isEmpty()) {
+					found = mapAuthors.size() == 1 ? mapAuthors.iterator().next() : AuthorRepository.VARIOUS.name;
+					tier = 3;
+				}
+			}
+
+			if (found == null) continue;
+
+			Addon co = cm.checkout(c.hash);
+			System.out.printf("%-16s [%s / %s / %s]%n  -> [%s]%n",
+							  ATTRIBUTION_TIERS[tier], co.game, co.contentType(), co.name, escaped(found));
+			co.author = found;
+			if (!checkinChange(cm, co)) continue;
+			counts[tier]++;
+			attributed++;
+		}
+
+		return attributed;
+	}
+
+	/** True where an entry names no author at all, as opposed to naming Various. */
+	private static boolean isUnattributed(String author) {
+		return author == null || author.isBlank() || author.equalsIgnoreCase(UNKNOWN);
+	}
+
+	/** The cleaned author of an entry, or null where it does not name one worth copying. */
+	private static String attributableAuthor(Addon c) {
+		if (c.deleted || !Authors.isSomeone(c.author)) return null;
+		String author = IndexUtils.cleanAuthor(c.author);
+		return author.equals(UNKNOWN) ? null : author;
+	}
+
+	private static void linkedAuthor(Addon linked, Set<String> found) {
+		if (linked == null) return;
+		String author = attributableAuthor(linked);
+		if (author != null) found.add(author);
+	}
+
+	private static String filesKey(Addon c) {
+		return c.files.stream().map(f -> f.hash).sorted().collect(Collectors.joining("|"));
+	}
+
+	private static String nameKey(Addon c) {
+		return String.join("|", c.game, c.contentType(), c.name.toLowerCase());
+	}
+
+	// -- end author attribution from the index
 
 	private static void contentDependencies(String game, String type, String localFiles) throws IOException {
 		final Path localRoot = Paths.get(localFiles);

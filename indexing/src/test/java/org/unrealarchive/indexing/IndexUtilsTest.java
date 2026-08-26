@@ -8,6 +8,8 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class IndexUtilsTest {
 
@@ -83,6 +85,14 @@ public class IndexUtilsTest {
 			"This skin was originally created by somebody else entirely, adapted here for Unreal",
 			"Author: Bob"
 		)));
+
+		// mid-sentence prose gives itself away with its first word, and a lowercase word after it.
+		// Stored value cleanup rejected these while extraction accepted them, until they shared rules
+		assertEquals(null, IndexUtils.findAuthor(List.of("If you like the skin, stop by and let me know!")));
+		assertEquals(null, IndexUtils.findAuthor(List.of("intended by the author of these skins")));
+
+		// a word which is never a name, however it is labelled
+		assertEquals(null, IndexUtils.findAuthor(List.of("Author: info")));
 	}
 
 	@Test
@@ -91,6 +101,32 @@ public class IndexUtilsTest {
 		// clan tag in a plain text readme is a name, and must survive
 		assertEquals("<NDP>BOZO", IndexUtils.findAuthor(List.of("Author: <NDP>BOZO")));
 		assertEquals("Palsied <twat>", IndexUtils.findAuthor(List.of("Skin by Palsied <twat>")));
+	}
+
+	/**
+	 * Author extraction and stored value cleanup are one rule set, so what one keeps the other
+	 * keeps. These cases come from values found in the index rather than from readme lines.
+	 */
+	@Test
+	public void cleanAuthorSharesRulesWithExtraction() {
+		// decoration which recurs earlier in the value belongs to a stylised handle
+		assertEquals("?3rror?", IndexUtils.cleanAuthor("?3rror?"));
+		assertEquals(":SOLO:[EL]Darkchlor1", IndexUtils.cleanAuthor(":SOLO:[EL]Darkchlor1"));
+		assertEquals("Raen Gregory AkA [WFU]*NoReMoRsE***", IndexUtils.cleanAuthor("Raen Gregory AkA [WFU]*NoReMoRsE***"));
+
+		// a full stop closing an initial or an acronym is part of the name; sentence punctuation is not
+		assertEquals("H.O.L.", IndexUtils.cleanAuthor("H.O.L."));
+		assertEquals("Ryan F.", IndexUtils.cleanAuthor("Ryan F."));
+		assertEquals("Sam Plate", IndexUtils.cleanAuthor("Sam Plate."));
+
+		// a date tail is not part of the name
+		assertEquals("Rick 'Krow' Stirling", IndexUtils.cleanAuthor("Rick 'Krow' Stirling May/June 2000"));
+
+		// a value holding no name reduces to unknown, but reports as nameless, so a caller holding
+		// a stored value can leave it exactly as the author wrote it rather than discard it
+		assertEquals("Unknown", IndexUtils.cleanAuthor("of these skins"));
+		assertTrue(IndexUtils.isNameless(".:..:"));
+		assertFalse(IndexUtils.isNameless("-GhostXC"));
 	}
 
 	@Test
