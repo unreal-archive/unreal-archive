@@ -8,6 +8,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -41,6 +43,7 @@ import org.unrealarchive.common.ArchiveUtil;
 import org.unrealarchive.common.CLI;
 import org.unrealarchive.common.Util;
 import org.unrealarchive.common.YAML;
+import org.unrealarchive.content.Author;
 import org.unrealarchive.content.AuthorRepository;
 import org.unrealarchive.content.Authors;
 import org.unrealarchive.content.Download;
@@ -62,6 +65,7 @@ import org.unrealarchive.content.addons.Voice;
 import org.unrealarchive.content.managed.Managed;
 import org.unrealarchive.content.managed.ManagedContentRepository;
 import org.unrealarchive.indexing.AddonClassifier;
+import org.unrealarchive.indexing.AuthorNameUtils;
 import org.unrealarchive.indexing.ContentManager;
 import org.unrealarchive.indexing.GameTypeManager;
 import org.unrealarchive.indexing.Incoming;
@@ -112,7 +116,8 @@ public class IndexHelper {
 //		findGametypes(args[0]);
 //		checkPathing(args[0], args[1]);
 //		contentDependencies(args[0], args[1], args[2]);
-		fixUnknownAuthors(args[0], args[1], args[2]);
+//		fixUnknownAuthors(args[0], args[1], args[2]);
+		reviewAuthors(args[0]);
 //		cleanStoredAuthors(args.length > 0 ? args[0] : null, args.length > 1 ? args[1].toUpperCase() : null);
 //		attributeUnknownAuthors();
 //		umodDependencies(args[0]);
@@ -158,10 +163,14 @@ public class IndexHelper {
 	/**
 	 * Indexing content which carries authors (map packs, gametypes) needs the static author
 	 * repository in place, otherwise author lookups blow up.
+	 *
+	 * @return the repository, for callers which also read or write author configs
 	 */
-	public static void initAuthors() throws IOException {
-		Path authors = Paths.get(ROOT).resolve("authors");
-		Authors.setRepository(new AuthorRepository.FileRepository(authors), authors);
+	public static AuthorRepository initAuthors() throws IOException {
+		Path authorsPath = Paths.get(ROOT).resolve("authors");
+		AuthorRepository authors = new AuthorRepository.FileRepository(authorsPath);
+		Authors.setRepository(authors, authorsPath);
+		return authors;
 	}
 
 	public static ContentManager manager() throws IOException {
@@ -870,7 +879,7 @@ public class IndexHelper {
 		}
 		System.out.printf("%nCached %d file hashes%n", fileHashes.size());
 
-		Collection<Addon> search = cm.repo().search(game, type.toUpperCase(), null, null);
+		Collection<Addon> search = cm.repo().search(game, type.equals("*") ? null : type.toUpperCase(), null, null);
 		final Path tmpDir = Files.createTempDirectory("ua-authors");
 
 		List<Addon> contents = search.stream()
@@ -881,6 +890,12 @@ public class IndexHelper {
 									 .toList();
 
 		System.out.printf("Processing %d contents%n", contents.size());
+
+		// a review sheet, written as results land so an interrupted sweep keeps what it found
+		Path sheet = Paths.get(String.format("authors-%s-%s.tsv", Util.slug(game), type.toLowerCase()));
+		Files.writeString(sheet, String.join("\t", "hash", "path", "game", "type", "name", "author", "source") + "\n",
+						  StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+		int found = 0;
 
 		for (int i = 0; i < contents.size(); i++) {
 			if (i % 100 == 0) System.out.printf("%d/%d%n", i, contents.size());
@@ -904,14 +919,17 @@ public class IndexHelper {
 				Submission sub = new Submission(file);
 				IndexLog log = new IndexLog();
 
+				String source = "";
 				try (Incoming incoming = new Incoming(sub, log).prepare()) {
 					co.author = IndexUtils.findAuthor(incoming);
+					if (!co.author.equalsIgnoreCase(UNKNOWN)) source = sourceLine(incoming, co.author);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 
-				if (!co.author.equalsIgnoreCase("unknown")) {
-					checkinChange(cm, co);
+				if (!co.author.equalsIgnoreCase(UNKNOWN) && checkinChange(cm, co)) {
+					Files.writeString(sheet, reviewRow(cm, co, source), StandardOpenOption.APPEND);
+					found++;
 				}
 			} catch (Throwable e) {
 				//
@@ -921,7 +939,295 @@ public class IndexHelper {
 				}
 			}
 		}
+
+		System.out.printf("%nFound authors for %d of %d contents; review sheet: %s%n", found, contents.size(), sheet);
 	}
+
+	/**
+	 * The readme line an author was taken from, as review evidence. Matched on letters and digits
+	 * alone, since cleanup reshapes the captured text, and empty where no line still holds the name.
+	 * <p>
+	 * Contacts come off the line first, exactly as extraction saw it: a name captured either side of
+	 * an email or bare domain ("by Frankiler - frankiler.freeservers.com - (April 2009)") is not a
+	 * substring of the raw line at all.
+	 */
+	private static String sourceLine(Incoming incoming, String author) {
+		String needle = squashed(author);
+		if (needle.isEmpty()) return "";
+		try {
+			for (String line : IndexUtils.textContent(incoming, FileType.TEXT, FileType.HTML)) {
+				if (squashed(Authors.stripContacts(line)).contains(needle)) return line;
+			}
+		} catch (IOException e) {
+			// evidence is best effort; the author was still found without it
+		}
+		return "";
+	}
+
+	private static String squashed(String s) {
+		StringBuilder out = new StringBuilder(s.length());
+		for (int i = 0; i < s.length(); i++) {
+			char c = s.charAt(i);
+			if (Character.isLetterOrDigit(c)) out.append(Character.toLowerCase(c));
+		}
+		return out.toString();
+	}
+
+	/**
+	 * One review row: enough to revert, amend or alias the value without opening the archive.
+	 */
+	private static String reviewRow(ContentManager cm, Addon co, String source) {
+		Path cwd = Paths.get("").toAbsolutePath();
+		Path yml = co.contentPath(cm.repo().path())
+					 .resolve(String.format("%s_[%s].yml", Util.slug(co.name), co.hash.substring(0, 8)))
+					 .toAbsolutePath().normalize();
+		return String.join("\t", co.hash, cell(yml.startsWith(cwd) ? cwd.relativize(yml).toString() : yml.toString()),
+						   cell(co.game), cell(co.contentType()), cell(co.name), cell(co.author), cell(source)) + "\n";
+	}
+
+	/**
+	 * A tab or newline would break the row, and no field needs its interior whitespace preserved.
+	 */
+	private static String cell(String s) {
+		return s == null ? "" : s.replaceAll("\\s+", " ").strip();
+	}
+
+	// -- begin author review sheet
+
+	private static final String REVIEW_KEEP = ".";
+
+	private record ReviewEntry(String hash, String name, String source) {}
+
+	/**
+	 * Curated author names, by repository key and by letters and digits alone.
+	 */
+	private record Curated(java.util.Map<String, String> byKey, java.util.Map<String, String> byLoose) {}
+
+	/**
+	 * Words which never sit inside a real name, so finding one marks the value as a captured
+	 * phrase. Used only to order the sheet - nothing is rewritten on the strength of it.
+	 */
+	private static final Set<String> PHRASE_WORDS = Set.of(
+		"the", "a", "an", "and", "of", "for", "in", "on", "at", "to", "by", "with", "from", "all",
+		"it", "its", "as", "is", "was", "this", "that", "you", "your", "my", "me", "aka", "circa");
+
+	/**
+	 * Work through a sweep's TSV output by distinct author value rather than by entry, since one
+	 * decision usually covers several entries and grouping variant spellings needs them side by side.
+	 * <p>
+	 * The first call writes {@code <sheet>.review}: one editable line per distinct value, worst
+	 * first, carrying the readme lines the value came from and any other value which looks like the
+	 * same author. Editing the action column and calling again applies the whole file in one pass
+	 * over the index, then keeps it as {@code .done}.
+	 */
+	public static void reviewAuthors(String sheetFile) throws IOException {
+		Path sheet = Paths.get(sheetFile);
+		Path review = Paths.get(sheetFile + ".review");
+
+		java.util.Map<String, List<ReviewEntry>> byAuthor = readSheet(sheet);
+		System.out.printf("%s: %d entries, %d distinct authors%n",
+						  sheet.getFileName(), byAuthor.values().stream().mapToInt(List::size).sum(), byAuthor.size());
+
+		AuthorRepository authors = initAuthors();
+		if (Files.exists(review)) applyReview(review, byAuthor, authors);
+		else writeReview(review, byAuthor, authors);
+	}
+
+	private static java.util.Map<String, List<ReviewEntry>> readSheet(Path sheet) throws IOException {
+		List<String> lines = Files.readAllLines(sheet);
+		if (lines.isEmpty()) throw new IOException("Empty sheet: " + sheet);
+
+		List<String> header = List.of(lines.getFirst().split("\t"));
+		int hash = header.indexOf("hash"), name = header.indexOf("name");
+		int author = header.indexOf("author"), source = header.indexOf("source");
+		if (hash < 0 || author < 0 || name < 0) throw new IOException("Not an author sweep sheet: " + sheet);
+
+		java.util.Map<String, List<ReviewEntry>> byAuthor = new HashMap<>();
+		for (String line : lines.subList(1, lines.size())) {
+			if (line.isBlank()) continue;
+			String[] cols = line.split("\t", -1);
+			if (cols.length <= author) continue;
+			byAuthor.computeIfAbsent(cols[author], _ -> new ArrayList<>())
+					.add(new ReviewEntry(cols[hash], cols[name], source >= 0 && source < cols.length ? cols[source] : ""));
+		}
+		return byAuthor;
+	}
+
+	private static void writeReview(Path review, java.util.Map<String, List<ReviewEntry>> byAuthor,
+									AuthorRepository authors) throws IOException {
+		Curated curated = curatedAuthors(authors);
+
+		List<String> values = new ArrayList<>(byAuthor.keySet());
+		values.sort(Comparator.<String>comparingInt(v -> -phraseScore(v, byAuthor.get(v)))
+							  .thenComparingInt(v -> -byAuthor.get(v).size())
+							  .thenComparing(Comparator.naturalOrder()));
+
+		StringBuilder out = new StringBuilder();
+		out.append("# ").append(review.getFileName()).append(" - ").append(byAuthor.size()).append(" values, ")
+		   .append(byAuthor.values().stream().mapToInt(List::size).sum()).append(" entries\n#\n");
+		out.append("# Edit the first column of each value line, then run again to apply:\n");
+		out.append("#   ").append(REVIEW_KEEP).append("          keep as indexed\n");
+		out.append("#   x          revert to Unknown\n");
+		out.append("#   = Name     alias this value to Name; stored values stay, author pages merge\n");
+		out.append("#   Any Name   replace the value with this name, on every entry counted\n");
+		out.append("#\n# '>' is the readme line the value came from, '~' a note. Likeliest junk first.\n");
+
+		for (String value : values) {
+			List<ReviewEntry> entries = byAuthor.get(value);
+			out.append('\n');
+			for (String note : notes(value, entries, byAuthor, curated)) out.append("#\t~ ").append(note).append('\n');
+			entries.stream().map(ReviewEntry::source).filter(s -> !s.isBlank()).distinct().limit(3)
+				   .forEach(s -> out.append("#\t> ").append(s).append('\n'));
+			out.append(REVIEW_KEEP).append('\t').append(entries.size()).append('\t').append(value).append('\n');
+		}
+
+		Files.writeString(review, out.toString());
+		System.out.printf("Wrote %s - edit the action column and run again to apply%n", review);
+	}
+
+	private static void applyReview(Path review, java.util.Map<String, List<ReviewEntry>> byAuthor,
+									AuthorRepository authors) throws IOException {
+		ContentManager cm = manager();
+
+		java.util.Map<String, Set<String>> aliases = new HashMap<>();
+		int kept = 0, reverted = 0, replaced = 0, unmatched = 0;
+
+		for (String line : Files.readAllLines(review)) {
+			if (line.isBlank() || line.startsWith("#")) continue;
+
+			String[] cols = line.split("\t", -1);
+			if (cols.length < 3) {
+				System.out.printf("Skipping line, expected 'action<tab>count<tab>value': %s%n", line);
+				continue;
+			}
+
+			String action = cols[0].strip();
+			String value = cols[2];
+			List<ReviewEntry> entries = byAuthor.get(value);
+			if (entries == null) {
+				System.out.printf("No sheet entry holds the value '%s', skipping it%n", value);
+				unmatched++;
+			} else if (action.isEmpty() || action.equals(REVIEW_KEEP)) {
+				kept++;
+			} else if (action.equalsIgnoreCase("x")) {
+				for (ReviewEntry entry : entries) if (setAuthor(cm, entry, UNKNOWN)) reverted++;
+			} else if (action.startsWith("=")) {
+				String canonical = action.substring(1).strip();
+				if (canonical.isEmpty()) System.out.printf("Alias action with no name for '%s'%n", value);
+				else aliases.computeIfAbsent(canonical, _ -> new HashSet<>()).add(value);
+			} else {
+				for (ReviewEntry entry : entries) if (setAuthor(cm, entry, action)) replaced++;
+			}
+		}
+
+		for (java.util.Map.Entry<String, Set<String>> alias : aliases.entrySet()) {
+			mergeAliases(authors, alias.getKey(), alias.getValue());
+		}
+
+		Path done = review.resolveSibling(review.getFileName() + ".done");
+		Files.move(review, done, StandardCopyOption.REPLACE_EXISTING);
+		System.out.printf("%nkept %d, reverted %d, replaced %d, alias groups %d, unmatched %d%nApplied file kept as %s%n",
+						  kept, reverted, replaced, aliases.size(), unmatched, done.getFileName());
+	}
+
+	private static boolean setAuthor(ContentManager cm, ReviewEntry entry, String author) throws IOException {
+		Addon co = cm.checkout(entry.hash());
+		if (co == null) {
+			System.out.printf("No content found for %s (%s)%n", entry.name(), entry.hash());
+			return false;
+		}
+		if (author.equals(co.author)) return false;
+		co.author = author;
+		return checkinChange(cm, co);
+	}
+
+	/**
+	 * Aliases are merged, never replaced: an author's existing spellings are not ours to discard.
+	 */
+	private static void mergeAliases(AuthorRepository authors, String canonical, Set<String> values) throws IOException {
+		Author existing = authors.byName(canonical);
+		Author author = existing == null || existing.equals(AuthorRepository.UNKNOWN)
+						|| existing.equals(AuthorRepository.VARIOUS)
+			? new Author(canonical)
+			: existing;
+
+		author.aliases.add(canonical);
+		author.aliases.addAll(values);
+		authors.put(author, false);
+		System.out.printf("Author '%s' aliases: %s%n", author.name, author.aliases);
+	}
+
+	private static Curated curatedAuthors(AuthorRepository authors) {
+		java.util.Map<String, String> byKey = new HashMap<>();
+		java.util.Map<String, String> byLoose = new HashMap<>();
+		for (Author author : authors.allDefined()) {
+			Set<String> spellings = new HashSet<>(author.aliases);
+			spellings.add(author.name);
+			for (String name : spellings) {
+				byKey.put(AuthorRepository.authorKey(name), author.name);
+				byLoose.put(looseKey(name), author.name);
+			}
+		}
+		return new Curated(byKey, byLoose);
+	}
+
+	private static List<String> notes(String value, List<ReviewEntry> entries,
+									  java.util.Map<String, List<ReviewEntry>> byAuthor, Curated curated) {
+		List<String> notes = new ArrayList<>();
+		String key = AuthorRepository.authorKey(value);
+		String loose = looseKey(value);
+
+		String sameKey = curated.byKey().get(key);
+		String sameLoose = curated.byLoose().get(loose);
+		if (sameKey != null && !sameKey.equals(value)) notes.add("the index already reads this as '" + sameKey + "'");
+		else if (sameKey == null && sameLoose != null) notes.add("curated author '" + sameLoose + "' is spelt differently - alias?");
+
+		List<String> siblings = new ArrayList<>();
+		for (String other : byAuthor.keySet()) {
+			if (other.equals(value) || loose.isEmpty()) continue;
+			String otherLoose = looseKey(other);
+			if (otherLoose.isEmpty() || AuthorRepository.authorKey(other).equals(key)) continue;
+			if (loose.contains(otherLoose) || otherLoose.contains(loose)) {
+				siblings.add(String.format("'%s' (%d)", other, byAuthor.get(other).size()));
+			}
+		}
+		if (!siblings.isEmpty()) notes.add("same author? " + String.join(", ", siblings));
+
+		if (entries.stream().allMatch(e -> e.source().isBlank())) notes.add("no readme line names this");
+		if (entries.size() > 1) {
+			String names = entries.stream().map(ReviewEntry::name).distinct().limit(6).collect(Collectors.joining(", "));
+			notes.add("on: " + names);
+		}
+		return notes;
+	}
+
+	/**
+	 * Letters and digits alone, which spots spellings the repository key still keeps apart.
+	 */
+	private static String looseKey(String value) {
+		StringBuilder out = new StringBuilder(value.length());
+		for (int i = 0; i < value.length(); i++) {
+			char c = value.charAt(i);
+			if (Character.isLetterOrDigit(c)) out.append(Character.toLowerCase(c));
+		}
+		return out.toString();
+	}
+
+	private static int phraseScore(String value, List<ReviewEntry> entries) {
+		int score = 0;
+		String[] words = value.split("\\s+");
+		for (int i = 0; i < words.length; i++) {
+			String word = words[i].replaceAll("^\\W+|\\W+$", "");
+			if (word.isEmpty() || !word.equals(word.toLowerCase())) continue;
+			if (PHRASE_WORDS.contains(word)) score += 2;
+			else if (i > 0) score += 1;
+		}
+		if (words.length >= 4) score++;
+		if (entries.stream().allMatch(e -> e.source().isBlank())) score++;
+		return score;
+	}
+
+	// -- end author review sheet
 
 	// -- begin stored author cleanup
 
@@ -929,7 +1235,7 @@ public class IndexHelper {
 	 * Clean junk out of stored author values in place, without re-reading any content archives.
 	 * <p>
 	 * These are the same guarded rules author extraction applies to freshly matched names
-	 * ({@link IndexUtils#cleanAuthor(String)}), applied to values already in the index - contact
+	 * ({@link AuthorNameUtils#cleanAuthor(String)}), applied to values already in the index - contact
 	 * details, column padding, copyright markers, dates, one-sided decoration, truncated
 	 * parentheticals and markup fragments. A value which holds no name at all ("of these skins",
 	 * ", etc") is reset to Unknown, which also returns it to the {@link #fixUnknownAuthors}
@@ -1001,8 +1307,8 @@ public class IndexHelper {
 	 * are kept as-is rather than reduced to Unknown.
 	 */
 	private static String cleanStored(String author) {
-		String fixed = IndexUtils.cleanAuthor(author);
-		return fixed.equals(UNKNOWN) && IndexUtils.isNameless(author) ? author : fixed;
+		String fixed = AuthorNameUtils.cleanAuthor(author);
+		return fixed.equals(UNKNOWN) && AuthorNameUtils.isNameless(author) ? author : fixed;
 	}
 
 	// -- end stored author cleanup
@@ -1104,7 +1410,7 @@ public class IndexHelper {
 			if (found == null && c instanceof MapPack pack) {
 				Set<String> mapAuthors = pack.maps.stream()
 												  .filter(m -> Authors.isSomeone(m.author))
-												  .map(m -> IndexUtils.cleanAuthor(m.author))
+												  .map(m -> AuthorNameUtils.cleanAuthor(m.author))
 												  .filter(a -> !a.equals(UNKNOWN))
 												  .collect(Collectors.toSet());
 				if (!mapAuthors.isEmpty()) {
@@ -1127,15 +1433,19 @@ public class IndexHelper {
 		return attributed;
 	}
 
-	/** True where an entry names no author at all, as opposed to naming Various. */
+	/**
+	 * True where an entry names no author at all, as opposed to naming Various.
+	 */
 	private static boolean isUnattributed(String author) {
 		return author == null || author.isBlank() || author.equalsIgnoreCase(UNKNOWN);
 	}
 
-	/** The cleaned author of an entry, or null where it does not name one worth copying. */
+	/**
+	 * The cleaned author of an entry, or null where it does not name one worth copying.
+	 */
 	private static String attributableAuthor(Addon c) {
 		if (c.deleted || !Authors.isSomeone(c.author)) return null;
-		String author = IndexUtils.cleanAuthor(c.author);
+		String author = AuthorNameUtils.cleanAuthor(c.author);
 		return author.equals(UNKNOWN) ? null : author;
 	}
 

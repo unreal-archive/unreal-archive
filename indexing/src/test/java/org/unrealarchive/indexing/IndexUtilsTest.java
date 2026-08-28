@@ -3,130 +3,18 @@ package org.unrealarchive.indexing;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class IndexUtilsTest {
 
 	@Test
 	public void findAuthor() throws IOException {
 		try (BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("TestReadMe.txt")))) {
-			assertEquals("Thåt Guy", IndexUtils.findAuthor(br.lines().toList()));
+			assertEquals("Thåt Guy", AuthorNameUtils.findAuthor(br.lines().toList()));
 		}
-	}
-
-	@Test
-	public void findAuthorWithContactDetails() {
-		// contact details trailing the name are not part of it
-		assertEquals("Maxar", IndexUtils.findAuthor(List.of("Team Skin mod by Maxar email (maxfuller5@gmail.com)")));
-		assertEquals("Bob", IndexUtils.findAuthor(List.of("Author: Bob <bob@example.com>")));
-		assertEquals("Bob", IndexUtils.findAuthor(List.of("Author: Bob - http://www.example.com/bob")));
-		assertEquals("Bob", IndexUtils.findAuthor(List.of("Author: Bob E-mail: bob@example.com")));
-
-		// ... and they must not push the name beyond the length the expression matches,
-		// which previously left the author entirely undetected
-		assertEquals("DeathChild", IndexUtils.findAuthor(List.of("Cyborg pack By DeathChild email (rumachado@clix.pt)")));
-
-		// a line carrying nothing but contact details is not an author
-		assertEquals(null, IndexUtils.findAuthor(List.of("Author: bob@example.com")));
-	}
-
-	@Test
-	public void findAuthorKeywordIsAWord() {
-		// "by" inside another word is not an attribution - this is a column heading
-		assertEquals(null, IndexUtils.findAuthor(List.of("  POSSIBLE      STANDBY      DEFINATE                NOt")));
-		assertEquals(null, IndexUtils.findAuthor(List.of("There is a health pack nearby the lift, go grab it")));
-
-		// but the plural and the "(s)" form still are
-		assertEquals("Bob", IndexUtils.findAuthor(List.of("Authors: Bob")));
-		assertEquals("Bob", IndexUtils.findAuthor(List.of("Author(s): Bob")));
-	}
-
-	@Test
-	public void findAuthorEndsAtColumnPadding() {
-		// readme metadata is laid out in columns, so padding ends the name
-		assertEquals("Adapt", IndexUtils.findAuthor(List.of("adaptadapt        Adapt Skin, by Adapt            adaptadapt")));
-		assertEquals("MATTIAS EKH", IndexUtils.findAuthor(List.of("Author: MATTIAS EKH   Asmdminigun")));
-
-		// an ellipsis run between words does the same, and must survive the URL cleanup which
-		// used to read "Luger...........great" as a hostname and drop it
-		assertEquals("Luger", IndexUtils.findAuthor(List.of("skins for Katana and Mudfish created by Luger...........great stuff!!")));
-
-		// a single space is not a separator
-		assertEquals("Thåt Guy", IndexUtils.findAuthor(List.of("Author: Thåt Guy")));
-	}
-
-	@Test
-	public void findAuthorTrimsDecoration() {
-		// one-sided decoration is trimmed, and a bracket it closes is kept
-		assertEquals("Holy Embrace[UNW]", IndexUtils.findAuthor(List.of(" (:---By Holy Embrace[UNW]---:)")));
-
-		// decoration at both ends belongs to the handle
-		assertEquals("-=Musc@t=-", IndexUtils.findAuthor(List.of("Author: -=Musc@t=-")));
-		assertEquals("...AndRelax aka baddavie", IndexUtils.findAuthor(List.of("Author: ...AndRelax aka baddavie")));
-
-		// a copyright marker is not part of the name
-		assertEquals("J. Martin", IndexUtils.findAuthor(List.of("Male2TheMoon skin For Ureal by J. Martin (c)2005")));
-	}
-
-	@Test
-	public void findAuthorRejectsProse() {
-		// the keyword appears in prose far into a line of instructions, and what follows is no name
-		assertEquals(null, IndexUtils.findAuthor(
-			List.of("F1 on your keyboard will bring up your score, map name, author, etc.")));
-
-		// a labelled line is preferred over an earlier mention buried in prose
-		assertEquals("Bob", IndexUtils.findAuthor(List.of(
-			"This skin was originally created by somebody else entirely, adapted here for Unreal",
-			"Author: Bob"
-		)));
-
-		// mid-sentence prose gives itself away with its first word, and a lowercase word after it.
-		// Stored value cleanup rejected these while extraction accepted them, until they shared rules
-		assertEquals(null, IndexUtils.findAuthor(List.of("If you like the skin, stop by and let me know!")));
-		assertEquals(null, IndexUtils.findAuthor(List.of("intended by the author of these skins")));
-
-		// a word which is never a name, however it is labelled
-		assertEquals(null, IndexUtils.findAuthor(List.of("Author: info")));
-	}
-
-	@Test
-	public void findAuthorKeepsClanTags() {
-		// tags are stripped upstream, per file, only from HTML readmes - so an angle bracketed
-		// clan tag in a plain text readme is a name, and must survive
-		assertEquals("<NDP>BOZO", IndexUtils.findAuthor(List.of("Author: <NDP>BOZO")));
-		assertEquals("Palsied <twat>", IndexUtils.findAuthor(List.of("Skin by Palsied <twat>")));
-	}
-
-	/**
-	 * Author extraction and stored value cleanup are one rule set, so what one keeps the other
-	 * keeps. These cases come from values found in the index rather than from readme lines.
-	 */
-	@Test
-	public void cleanAuthorSharesRulesWithExtraction() {
-		// decoration which recurs earlier in the value belongs to a stylised handle
-		assertEquals("?3rror?", IndexUtils.cleanAuthor("?3rror?"));
-		assertEquals(":SOLO:[EL]Darkchlor1", IndexUtils.cleanAuthor(":SOLO:[EL]Darkchlor1"));
-		assertEquals("Raen Gregory AkA [WFU]*NoReMoRsE***", IndexUtils.cleanAuthor("Raen Gregory AkA [WFU]*NoReMoRsE***"));
-
-		// a full stop closing an initial or an acronym is part of the name; sentence punctuation is not
-		assertEquals("H.O.L.", IndexUtils.cleanAuthor("H.O.L."));
-		assertEquals("Ryan F.", IndexUtils.cleanAuthor("Ryan F."));
-		assertEquals("Sam Plate", IndexUtils.cleanAuthor("Sam Plate."));
-
-		// a date tail is not part of the name
-		assertEquals("Rick 'Krow' Stirling", IndexUtils.cleanAuthor("Rick 'Krow' Stirling May/June 2000"));
-
-		// a value holding no name reduces to unknown, but reports as nameless, so a caller holding
-		// a stored value can leave it exactly as the author wrote it rather than discard it
-		assertEquals("Unknown", IndexUtils.cleanAuthor("of these skins"));
-		assertTrue(IndexUtils.isNameless(".:..:"));
-		assertFalse(IndexUtils.isNameless("-GhostXC"));
 	}
 
 	@Test

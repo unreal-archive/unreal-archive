@@ -551,8 +551,8 @@ public class Main {
 	private static void authors(AuthorRepository authorRepository, CLI cli) throws IOException {
 		if (cli.commands().length < 2) {
 			System.err.println("An author operation is required:");
-			System.err.println("  add <name>");
-			System.err.println("    convenience, which initialises a new author config");
+			System.err.println("  add <name> [alias ...]");
+			System.err.println("    initialises a new author config, or merges aliases into an existing one");
 			System.err.println("  summary");
 			System.err.println("    print a summary of the author repository content");
 			System.err.println("  print");
@@ -567,8 +567,26 @@ public class Main {
 					System.exit(1);
 				}
 
-				Author newAuthor = new Author(cli.commands()[2].strip(), Arrays.copyOfRange(cli.commands(), 2, cli.commands().length));
-				authorRepository.put(newAuthor, false);
+				String name = cli.commands()[2].strip();
+
+				// merge rather than replace: an existing author's spellings are not ours to discard
+				Author existing = authorRepository.byName(name);
+				Author author = existing == null || existing.equals(AuthorRepository.UNKNOWN)
+								|| existing.equals(AuthorRepository.VARIOUS)
+					? new Author(name)
+					: existing;
+
+				for (String alias : Arrays.copyOfRange(cli.commands(), 2, cli.commands().length)) {
+					Author owner = authorRepository.byName(alias.strip());
+					if (owner != null && !owner.equals(author) && authorRepository.allDefined().contains(owner)) {
+						System.err.printf("Alias '%s' already belongs to author '%s', skipping it%n", alias.strip(), owner.name);
+						continue;
+					}
+					author.aliases.add(alias.strip());
+				}
+
+				authorRepository.put(author, false);
+				System.out.printf("Author '%s' aliases: %s%n", author.name, author.aliases);
 			}
 			case "summary" -> System.out.println(authorRepository.summary());
 			case "print" -> {
