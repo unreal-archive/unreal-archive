@@ -55,9 +55,20 @@ public class ContentManager {
 	}
 
 	public boolean checkin(IndexResult<? extends Addon> indexed, Submission submission) throws IOException {
+		return checkin(indexed, submission, false);
+	}
+
+	/**
+	 * @param forceContentUpload upload the submission's content file even when the content already has a direct
+	 *                           download, and even when its metadata is unchanged. Used by operator-driven
+	 *                           uploads, where an existing download may be dead and is being replaced.
+	 */
+	public boolean checkin(IndexResult<? extends Addon> indexed, Submission submission, boolean forceContentUpload)
+		throws IOException {
 		Addon current = repo.forHash(indexed.content.hash);
 
-		if (current == null || (!indexed.content.equals(current) || !indexed.files.isEmpty())) {
+		if (current == null || !indexed.content.equals(current) || !indexed.files.isEmpty()
+			|| (forceContentUpload && submission != null)) {
 			// lets store the content \o/
 			Path next = indexed.content.contentPath(repo.path());
 
@@ -99,7 +110,8 @@ public class ContentManager {
 //				}
 //			}
 
-			if (submission != null && indexed.content.downloads.stream().noneMatch(d -> d.direct)) {
+			if (submission != null
+				&& (forceContentUpload || indexed.content.downloads.stream().noneMatch(d -> d.direct))) {
 				String uploadPath = repo.path().relativize(next.resolve(submission.filePath.getFileName())).toString();
 				contentStore.store(submission.filePath, uploadPath, (fileUrl, ex) -> {
 					if (ex == null && fileUrl != null) {

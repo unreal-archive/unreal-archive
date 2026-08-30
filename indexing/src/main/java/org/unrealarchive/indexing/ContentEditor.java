@@ -78,6 +78,9 @@ public class ContentEditor {
 		if (attribute.equalsIgnoreCase("attach")) {
 			attach(hash, newValue);
 			return;
+		} else if (attribute.equalsIgnoreCase("upload")) {
+			upload(hash, newValue);
+			return;
 		}
 
 		Addon content = checkoutContent(hash);
@@ -163,6 +166,31 @@ public class ContentEditor {
 			System.out.println("Stored changes!");
 		} else {
 			System.out.println("Failed to apply");
+		}
+	}
+
+	public void upload(String hash, String... files) throws IOException {
+		Addon content = checkoutContent(hash);
+
+		for (String file : files) {
+			Path contentFile = Paths.get(file);
+
+			if (!Files.exists(contentFile)) {
+				System.err.printf("Content file \"%s\" does not exist!%n", file);
+				System.exit(5);
+			}
+
+			if (FileType.IMAGE.matches(file)) {
+				System.err.printf("Content file \"%s\" is an image, use `attach` instead!%n", file);
+				System.exit(6);
+			}
+
+			if (contentManager.checkin(new IndexResult<>(content, Collections.emptySet()),
+									   new Submission(contentFile), true)) {
+				System.out.printf("Uploaded %s!%n", file);
+			} else {
+				System.out.println("Failed to apply");
+			}
 		}
 	}
 }

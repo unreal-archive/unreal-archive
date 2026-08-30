@@ -65,12 +65,6 @@ public class MapIndexHandler implements IndexHandler<Map> {
 		IndexLog log = incoming.log;
 		Map m = (Map)content;
 
-		Incoming.IncomingFile baseMap = baseMap(incoming);
-
-		// populate basic information; the rest of this will be filled in later if possible
-		m.name = mapName(baseMap);
-		m.title = m.name;
-
 		boolean gameOverride = false;
 		if (incoming.submission.override.get("game", null) != null) {
 			gameOverride = true;
@@ -78,6 +72,12 @@ public class MapIndexHandler implements IndexHandler<Map> {
 		} else {
 			m.game = IndexUtils.game(incoming).name;
 		}
+
+		Incoming.IncomingFile baseMap = baseMap(incoming, Games.byName(m.game));
+
+		// populate basic information; the rest of this will be filled in later if possible
+		m.name = mapName(baseMap);
+		m.title = m.name;
 
 		m.gametype = gameType(incoming, Games.byName(m.game), m.name);
 
@@ -232,16 +232,20 @@ public class MapIndexHandler implements IndexHandler<Map> {
 		}
 	}
 
-	private Incoming.IncomingFile baseMap(Incoming incoming) {
+	private Incoming.IncomingFile baseMap(Incoming incoming, Games game) {
 		Set<Incoming.IncomingFile> maps = incoming.files(FileType.MAP);
 
-		Incoming.IncomingFile shortestMap = null;
+		Incoming.IncomingFile best = null;
+		boolean bestKnown = false;
 		for (Incoming.IncomingFile map : maps) {
-			if (shortestMap == null || map.fileName().length() < shortestMap.fileName().length()) {
-				shortestMap = map;
+			// prefer a known gametype prefix, so test maps and cinematics don't win on name length alone
+			boolean known = MapGameTypes.forMap(game, Util.plainName(map.fileName())) != null;
+			if (best == null || (known != bestKnown ? known : map.fileName().length() < best.fileName().length())) {
+				best = map;
+				bestKnown = known;
 			}
 		}
-		return shortestMap;
+		return best;
 	}
 
 	private Package map(Incoming.IncomingFile mapFile) {
