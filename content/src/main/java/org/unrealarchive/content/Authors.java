@@ -42,7 +42,7 @@ public class Authors {
 	 * bare domain must end in a plausible TLD rather than any short word; anything with a scheme
 	 * or a www. prefix is taken as-is. Labels may repeat, but never with empty labels between.
 	 */
-	private static final String TLD = "com|net|org|edu|gov|mil|int|info|biz|name|tv|cc|to|ws|nu|st|us|uk|de|nl|fr"
+	static final String TLD = "com|net|org|edu|gov|mil|int|info|biz|name|tv|cc|to|ws|nu|st|us|uk|de|nl|fr"
 									  + "|se|no|fi|dk|it|es|pt|pl|ru|ca|au|nz|jp|br|be|ch|at|cz|hu|gr|ie|il|kr|mx"
 									  + "|tr|za|hk|sg|ar|cl|ro|sk|si|hr|bg|ee|lv|lt|ua|by|is|lu|eu";
 	private static final Pattern URL = Pattern.compile(

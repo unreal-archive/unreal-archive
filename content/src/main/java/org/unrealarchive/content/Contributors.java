@@ -23,8 +23,12 @@ public class Contributors {
 		"\\s*\\((?:(?:https?://)?(?:www\\.)?[^\\s)]+)\\)\\s*|\\s*\\[(?:(?:https?://)?(?:www\\.)?[^\\s\\]]+)\\]\\s*",
 		Pattern.CASE_INSENSITIVE);
 
+	/**
+	 * A bare domain must end in a plausible {@link Authors#TLD}, since initials and acronyms in a
+	 * name are otherwise indistinguishable from a hostname ("J.O.Bishop" is not "J." plus a domain).
+	 */
 	private static final Pattern URL_LIKE = Pattern.compile(
-		"(?i)(?:https?://|www\\.)\\S+|\\b[a-z0-9-]+\\.[a-z]{2,}(?:/\\S*)?"
+		"(?i)(?:https?://|www\\.)\\S+|\\b[a-z0-9-]+(?:\\.[a-z0-9-]+)*\\.(?:" + Authors.TLD + ")\\b(?:/\\S*)?"
 	);
 
 	/**

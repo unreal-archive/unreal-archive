@@ -69,6 +69,18 @@ public class ContributorsTest {
 		names = Contributors.names("Paul Catalano (www.xgxlan.com/vp)");
 		System.out.println(names);
 		assertTrue(names.contains("Paul Catalano"));
+
+		// dotted initials are not a hostname - "O.Bishop" used to be stripped as a bare domain,
+		// reducing this to "J." which then resolved to an unrelated author
+		names = Contributors.names("*PingFreak* -- a.k.a. J.O.Bishop, idea by Paul Maddox");
+		System.out.println(names);
+		assertTrue(names.contains("*PingFreak* -- a.k.a. J.O.Bishop"));
+		assertTrue(names.contains("Paul Maddox"));
+
+		// a real bare domain still goes
+		names = Contributors.names("Paul Catalano xgxlan.com");
+		System.out.println(names);
+		assertTrue(names.contains("Paul Catalano"));
 	}
 
 	@Test

@@ -119,6 +119,9 @@ public class Scanner {
 		try (Incoming incoming = new Incoming(sub, log)) {
 			content = repository.forHash(incoming.hash);
 
+			// allow re-upload of deleted content (can sometimes correct missing files, etc)
+			if (content != null && content.deleted()) content = null;
+
 			if (newOnly && content != null) return;
 
 			incoming.prepare();
