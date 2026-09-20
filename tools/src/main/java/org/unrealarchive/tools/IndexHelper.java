@@ -13,6 +13,7 @@ import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -116,6 +117,7 @@ public class IndexHelper {
 //		findGametypes(args[0]);
 //		checkPathing(args[0], args[1]);
 //		contentDependencies(args[0], args[1], args[2]);
+//		reresolveAuthors(args);
 //		fixUnknownAuthors(args[0], args[1], args[2]);
 		reviewAuthors(args[0]);
 //		cleanStoredAuthors(args.length > 0 ? args[0] : null, args.length > 1 ? args[1].toUpperCase() : null);
@@ -844,43 +846,26 @@ public class IndexHelper {
 		}
 	}
 
-	private static void fixUnknownAuthors(String game, String type, String localFiles) throws IOException {
-		final Path localRoot = Paths.get(localFiles).toAbsolutePath();
-
+	private static void reresolveAuthors(String... hashes) throws IOException {
 		ContentManager cm = manager();
 
-		final java.util.Map<String, Path> fileHashes = new HashMap<>();
-		final Path hashIndex = localRoot.resolve("index");
-		if (Files.exists(hashIndex)) {
-			fileHashes.putAll(YAML.fromFile(hashIndex, new TypeReference<java.util.Map<String, Path>>() {}));
-		} else {
-			System.out.printf("Loading file hashes from %s%n", localRoot);
-			List<Path> allFiles = new ArrayList<>();
-			Files.walkFileTree(localRoot, new SimpleFileVisitor<>() {
-				@Override
-				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-					if (ArchiveUtil.isArchive(file)) {
-						allFiles.add(file);
-					}
-					return super.visitFile(file, attrs);
-				}
-			});
-			System.out.printf("Found %d files%n%n", allFiles.size());
-			allFiles.stream().parallel()
-					.forEach(file -> {
-						try {
-							fileHashes.put(Util.hash(file), file);
-						} catch (IOException e) {
-							System.out.printf("Failed to hash file %s%n", file.toString());
-						}
-						if (fileHashes.size() % 1000 == 0) System.out.printf("Hashed %d files...\r", fileHashes.size());
-					});
-			Files.write(hashIndex, YAML.toBytes(fileHashes));
-		}
-		System.out.printf("%nCached %d file hashes%n", fileHashes.size());
+		List<Addon> contents = Arrays.stream(hashes)
+									 .map(hash -> cm.repo().forHash(hash))
+									 .filter(Objects::nonNull)
+									 .filter(c -> c.otherFiles > 0)
+									 .toList();
+
+		Path sheet = Paths.get(String.format("authors-from-hashes-%d.tsv", hashes.length));
+		Files.writeString(sheet, String.join("\t", "hash", "path", "game", "type", "name", "author", "source") + "\n",
+						  StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+
+		resolveAuthors(cm, contents, sheet);
+	}
+
+	private static void fixUnknownAuthors(String game, String type, String localFiles) throws IOException {
+		ContentManager cm = manager();
 
 		Collection<Addon> search = cm.repo().search(game, type.equals("*") ? null : type.toUpperCase(), null, null);
-		final Path tmpDir = Files.createTempDirectory("ua-authors");
 
 		List<Addon> contents = search.stream()
 									 .filter(c -> !c.deleted)
@@ -888,14 +873,21 @@ public class IndexHelper {
 									 .filter(c -> c.otherFiles > 0)
 									 .sorted(Comparator.comparingLong(a -> a.fileSize))
 									 .toList();
-
-		System.out.printf("Processing %d contents%n", contents.size());
-
 		// a review sheet, written as results land so an interrupted sweep keeps what it found
 		Path sheet = Paths.get(String.format("authors-%s-%s.tsv", Util.slug(game), type.toLowerCase()));
 		Files.writeString(sheet, String.join("\t", "hash", "path", "game", "type", "name", "author", "source") + "\n",
 						  StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+
+		resolveAuthors(cm, contents, sheet);
+	}
+
+	private static void resolveAuthors(ContentManager cm, List<Addon> contents, Path sheet)
+		throws IOException {
+		System.out.printf("Processing %d contents%n", contents.size());
+
 		int found = 0;
+
+		final Path tmpDir = Files.createTempDirectory("ua-authors");
 
 		for (int i = 0; i < contents.size(); i++) {
 			if (i % 100 == 0) System.out.printf("%d/%d%n", i, contents.size());
@@ -905,18 +897,18 @@ public class IndexHelper {
 			Path[] downloaded = { null };
 
 			try {
-				Path existing = fileHashes.get(co.hash);
-				if (existing == null) {
-					System.out.printf("Downloading %s (%dKB)%n", co.originalFilename, co.fileSize / 1024);
-					new LocalMirrorClient.Downloader(co, tmpDir, d -> {
-						System.out.printf("Downloaded %s%n", d.destination);
-						downloaded[0] = d.destination;
-					}).run();
+				System.out.printf("Downloading %s (%dKB)%n", co.originalFilename, co.fileSize / 1024);
+				new LocalMirrorClient.Downloader(co, tmpDir, d -> {
+					System.out.printf("Downloaded %s%n", d.destination);
+					downloaded[0] = d.destination;
+				}).run();
+
+				if (downloaded[0] == null) {
+					System.out.printf("Nothing downloaded for %s%n", co.name());
+					continue;
 				}
 
-				Path file = downloaded[0] != null ? downloaded[0] : existing;
-
-				Submission sub = new Submission(file);
+				Submission sub = new Submission(downloaded[0]);
 				IndexLog log = new IndexLog();
 
 				String source = "";

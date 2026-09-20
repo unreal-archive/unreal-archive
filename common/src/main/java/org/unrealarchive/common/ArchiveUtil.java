@@ -21,7 +21,7 @@ public class ArchiveUtil {
 
 	private static final Duration KILL_WAIT = Duration.ofSeconds(1);
 
-	private static final Set<String> ARCHIVES_7ZIP = Set.of("zip", "z", "gz", "7z", "lzh", "lza", "exe", "bz2", "tar");
+	private static final Set<String> ARCHIVES_7ZIP = Set.of("zip", "z", "gz", "7z", "lzh", "lza", "exe", "msi", "bz2", "tar");
 
 	private static final Set<String> ARCHIVES_RAR = Set.of("rar");
 
