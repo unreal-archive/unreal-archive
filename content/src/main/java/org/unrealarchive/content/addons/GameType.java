@@ -60,9 +60,8 @@ public class GameType implements ContentEntity<GameType> {
 
 	public List<Release> releases = new ArrayList<>();
 
-	/**
-	 * If true, will not show up in www output, and will be ignored in index passes.
-	 */
+	public boolean repack = false;
+
 	public boolean deleted = false;
 
 	public transient boolean variation = false;
@@ -182,6 +181,11 @@ public class GameType implements ContentEntity<GameType> {
 	@Override
 	public Map<String, String> problemLinks() {
 		return problemLinks;
+	}
+
+	@Override
+	public boolean repack() {
+		return repack;
 	}
 
 	@Override

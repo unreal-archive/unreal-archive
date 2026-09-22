@@ -49,6 +49,16 @@ public interface ContentEntity<T extends ContentEntity<T>> extends Comparable<Co
 	 */
 	public Map<String, String> problemLinks();
 
+	/**
+	 * Indicates that this content is a "repack" of an original content package.
+	 * It may contain slightly different or corrected files, but is intended to remain
+	 * true to the original package/release.
+	 */
+	public boolean repack();
+
+	/**
+	 * If true, will not show up in www output, and will be ignored in index passes.
+	 */
 	public boolean deleted();
 
 	public boolean isVariation();

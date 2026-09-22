@@ -164,6 +164,11 @@ public class Managed implements ContentEntity<Managed> {
 	}
 
 	@Override
+	public boolean repack() {
+		return false;
+	}
+
+	@Override
 	public boolean deleted() {
 		return !published;
 	}

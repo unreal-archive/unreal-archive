@@ -130,6 +130,11 @@ public class ContentCollection implements ContentEntity<ContentCollection> {
 	}
 
 	@Override
+	public boolean repack() {
+		return false;
+	}
+
+	@Override
 	public boolean deleted() {
 		return !published;
 	}

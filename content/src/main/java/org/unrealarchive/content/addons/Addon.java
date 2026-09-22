@@ -85,9 +85,8 @@ public abstract class Addon implements ContentEntity<Addon> {
 	public java.util.Map<String, String> links = new HashMap<>();
 	public java.util.Map<String, String> problemLinks = new HashMap<>();
 
-	/**
-	 * If true, will not show up in www output, and will be ignored in index passes.
-	 */
+	public boolean repack = false;
+
 	public boolean deleted = false;
 
 	private transient AuthorInfo authorInfo;
@@ -196,6 +195,11 @@ public abstract class Addon implements ContentEntity<Addon> {
 	@Override
 	public java.util.Map<String, String> problemLinks() {
 		return problemLinks;
+	}
+
+	@Override
+	public boolean repack() {
+		return repack;
 	}
 
 	@Override
